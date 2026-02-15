@@ -191,6 +191,7 @@ def main() -> int:
                                        f"Strict: multiple smoke roots found: {present_roots}"))
 
                 smoke_root = present_roots[0] if present_roots else None
+                evidence_root = smoke_root
 
                 # Required trace under selected root
                 if smoke_root and f"{smoke_root}/router_trace.csv" not in e_names:
@@ -217,33 +218,55 @@ def main() -> int:
                         issues.append(Issue(FAIL, "EVIDENCE_MANIFEST_HASH_MISMATCH",
                                            f"RUN_METADATA.manifest_hash={rm.get('manifest_hash')} != manifest_sha={manifest_sha}"))
 
-                # Row count check for traces
-                if f"{evidence_root}/router_trace.csv" in e_names:
-                    trace = ez.read(f"{evidence_root}/router_trace.csv").decode("utf-8").strip().split("\n")
+                if smoke_root and f"{smoke_root}/router_trace.csv" in e_names:
+                    trace = ez.read(f"{smoke_root}/router_trace.csv").decode("utf-8").strip().split("\n")
                     if len(trace) < 5:  # Arbitrary but reasonable for a real smoke test
                         issues.append(Issue(FAIL, "EVIDENCE_TRIVIAL", f"router_trace.csv only has {len(trace)} lines (skeletal)"))
 
                 # Tier 1: Evidence Manifest
-                if f"{evidence_root}/EVIDENCE_MANIFEST.json" not in e_names:
+                if smoke_root and f"{smoke_root}/EVIDENCE_MANIFEST.json" not in e_names:
                     issues.append(Issue(FAIL, "EVIDENCE_MANIFEST_MISSING", "Tier 1: EVIDENCE_MANIFEST.json missing"))
                 else:
-                    em_txt = ez.read(f"{evidence_root}/EVIDENCE_MANIFEST.json").decode("utf-8")
-                    em = json.loads(em_txt)
-                    # Verify Git Context Binding
-                    if em.get("environment", {}).get("git_commit") == "UNKNOWN":
-                        issues.append(Issue(FAIL, "GIT_PROVENANCE_MISSING", "Evidence environment has UNKNOWN git commit"))
-                    evidence_git_commit = em.get("environment", {}).get("git_commit")
+                    man_path = f"{smoke_root}/EVIDENCE_MANIFEST.json"
+                    if man_path in e_names:
+                        em_txt = ez.read(man_path).decode("utf-8")
+                        em = json.loads(em_txt)
+                        # Verify Git Context Binding
+                        if em.get("environment", {}).get("git_commit") == "UNKNOWN":
+                            issues.append(Issue(FAIL, "GIT_PROVENANCE_MISSING", "Evidence environment has UNKNOWN git commit"))
+                        evidence_git_commit = em.get("environment", {}).get("git_commit")
                 
                 # Tier 1: Data Manifest
-                if f"{evidence_root}/DATA_MANIFEST.json" not in e_names:
+                if smoke_root and f"{smoke_root}/DATA_MANIFEST.json" not in e_names:
                     issues.append(Issue(FAIL, "DATA_MANIFEST_MISSING", "Tier 1: DATA_MANIFEST.json missing"))
                 else:
-                    dm_txt = ez.read(f"{evidence_root}/DATA_MANIFEST.json").decode("utf-8")
-                    dm = json.loads(dm_txt)
-                    dm_root = dm.get("merkle_root_sha256")
-                    if not dm_root:
-                        issues.append(Issue(FAIL, "DATA_MANIFEST_INVALID", "Data Manifest missing merkle root"))
-                    evidence_data_hash = dm_root
+                    dm_path = f"{smoke_root}/DATA_MANIFEST.json"
+                    if dm_path in e_names:
+                        dm_txt = ez.read(dm_path).decode("utf-8")
+                        dm = json.loads(dm_txt)
+                        dm_root = dm.get("merkle_root_sha256")
+                        if not dm_root:
+                            issues.append(Issue(FAIL, "DATA_MANIFEST_INVALID", "Data Manifest missing merkle root"))
+                        evidence_data_hash = dm_root
+
+                # Tier 2: Fiduciary Seal (Certificate)
+                cert_path = "reports/certification/CERTIFICATE.json"
+                sig_path = "reports/certification/CERTIFICATE.json.sig"
+                
+                if cert_path not in e_names:
+                    issues.append(Issue(FAIL, "CERTIFICATE_MISSING", "Fiduciary Certificate missing from evidence"))
+                else:
+                    cert_json = json.loads(ez.read(cert_path).decode("utf-8"))
+                    if cert_json.get("strict_mode") is not True:
+                         issues.append(Issue(FAIL, "CERTIFICATE_NOT_STRICT", "Certificate strict_mode != true"))
+                
+                if sig_path not in e_names:
+                     issues.append(Issue(FAIL, "SIGNATURE_MISSING", "Certificate Signature missing"))
+                
+                # Check for Public Key Sovereignty (Independent Verification)
+                pub_path = "reports/certification/sovereign.pub"
+                if pub_path not in e_names:
+                     issues.append(Issue(FAIL, "PUBKEY_MISSING", "Sovereign Public Key missing for verification"))
 
         # --- Inspect INNER LEDGER
         if inner_ledger_name:

@@ -299,14 +299,25 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     cert_path.write_bytes(cert_bytes)
     
     # 2.9.1 Cryptographic Signature (Ed25519)
+    # 2.9.1 Cryptographic Signature (Ed25519)
     # Check for sovereign key
     key_path = repo_root / "sovereign.key"
+    pub_path = repo_root / "sovereign.pub"
+    
     if not key_path.exists():
-        print("🔑 Generaring New Sovereign Key (Ed25519)...")
+        print("🔑 Generating New Sovereign Keypair (Ed25519)...")
         subprocess.run(["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(key_path)], check=True)
         # Fix permissions
         key_path.chmod(0o600)
+        
+    # Ensure Public Key exists for independent verification
+    if not pub_path.exists():
+        print("🔓 Extracting Sovereign Public Key...")
+        subprocess.run(["openssl", "pkey", "-in", str(key_path), "-pubout", "-out", str(pub_path)], check=True)
     
+    # Copy Public Key to Certificate Directory (Unambiguous Verification)
+    shutil.copy(pub_path, cert_dir / "sovereign.pub")
+
     sig_path = cert_path.with_suffix(".json.sig")
     print(f"✍️  Signing Certificate: {sig_path.name}")
     try:
@@ -417,6 +428,10 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     legacy_sidecar = dist_dir / "DROP_PACKET_SHA256.txt"
     # STRICT ONE-LINE RULE: Always overwrite with the fresh drop hash
     legacy_sidecar.write_text(f"{drop_hash}  {drop_zip_name}\n")
+    
+    # Versioned Sidecar (Immutable History)
+    versioned_sidecar = dist_dir / f"DROP_PACKET_SHA256_v{version}.txt"
+    versioned_sidecar.write_text(f"{drop_hash}  {drop_zip_name}\n")
     
     # Generate versioned sidecars
     for artifact_name, artifact_hash in [
