@@ -12,6 +12,8 @@ import zipfile
 from pathlib import Path
 from typing import Any, Callable, Dict
 
+import pandas as pd
+
 # Constants
 DEFAULT_DIST_DIR = Path("dist")
 
@@ -256,6 +258,70 @@ class ChaosMonkey:
 
         self._modify_zip("code", mod)
         print("🐍 [SABOTAGE] Code corrupted and Verifier hijacked.")
+
+    def sabotage_volume(self, symbol: str = "BTC-USD"):
+        """Hydra V227: Zero-Volume Saturation."""
+        # Find all .pkl files for this symbol in DATA_DIR
+        from antigravity_harness.paths import DATA_DIR  # noqa: PLC0415
+        candidates = list(DATA_DIR.glob("*.pkl"))
+        count = 0
+        for path in candidates:
+            try:
+                df = pd.read_pickle(path)
+                # We can't easily tell which pkl is for which symbol just by filename (it's a hash)
+                # But we can check the columns or just sabotage everything for the test
+                if "Volume" in df.columns:
+                    df["Volume"] = 0.0
+                    df.to_pickle(path)
+                    count += 1
+            except Exception:
+                continue
+        print(f"🌊 [HYDRA V227] Drowned {count} cache files in zero volume.")
+
+    def sabotage_slippage(self, target_yaml: str = "grid_v090.yaml"):
+        """Hydra V228: Friction Poisoning."""
+        # Sabotage a specific config file if it exists
+        path = Path(target_yaml)
+        if path.exists():
+            content = path.read_text()
+            # If it's a grid, it might be a list. We'll just replace the first logic or append a bad one.
+            if "slippage" in content:
+                # Replace existing
+                new_content = content.replace("slippage:", "slippage_original:")
+                new_content += "\nslippage: [-0.01]\n"
+                path.write_text(new_content)
+            else:
+                # Append
+                path.write_text(content + "\nslippage: [-0.01]\n")
+            print(f"🧪 [HYDRA V228] Poisoned {target_yaml} with negative slippage.")
+
+    def sabotage_nan(self):
+        """Hydra V240: NaN OHLC Poisoning."""
+        import numpy as np  # noqa: PLC0415
+
+        from antigravity_harness.paths import DATA_DIR  # noqa: PLC0415
+        candidates = list(DATA_DIR.glob("*.pkl"))
+        count = 0
+        for path in candidates:
+            try:
+                df = pd.read_pickle(path)
+                if "Close" in df.columns and not df.empty:
+                    df.iloc[0, df.columns.get_loc("Close")] = np.nan
+                    df.to_pickle(path)
+                    count += 1
+            except Exception:
+                continue
+        print(f"☣️ [HYDRA V240] Poisoned {count} cache files with NaNs.")
+
+    def sabotage_ledger_bloat(self):
+        """Hydra V231: Ledger Inflation Attack."""
+        ledger = self._get_ledger()
+        if not ledger:
+            return
+        # Inject 11MB of junk
+        ledger["chaos_padding"] = "X" * (11 * 1024 * 1024)
+        self._save_ledger(ledger)
+        print("🎈 [HYDRA V231] Bloated ledger to 11MB.")
 
     def run_all(self):
         phases = [

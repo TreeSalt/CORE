@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
-import sys
-import hashlib
-import subprocess
 import platform
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -45,11 +45,11 @@ def _sanitize_string(s: str) -> str:
     """Rejects strings containing malicious shell characters or excessive length."""
     # HYDRA GUARD: String Overflow Protection (Vector 51)
     if len(s) > 4096:
-        raise ValueError(f"INPUT_OVERFLOW: String parameter exceeds 4096 characters.")
+        raise ValueError("INPUT_OVERFLOW: String parameter exceeds 4096 characters.")
     
     # HYDRA GUARD: Null Byte Bomb Protection (Vector 111)
     if "\0" in s:
-        raise ValueError(f"SECURITY_VIOLATION: Null byte detected in input.")
+        raise ValueError("SECURITY_VIOLATION: Null byte detected in input.")
 
     forbidden = {";", "&", "|", ">", "<", "`", "$", "(", ")", "\\", "'", "\"", "*", "?", "[", "]"}
     if any(c in s for c in forbidden):
@@ -640,22 +640,6 @@ def cmd_stage_candidate(args: argparse.Namespace) -> None:
     sys.exit(0)
 
 
-def main():
-    # HYDRA GUARD: Resource Clamping (Vector 128) & Core Dump Leak (Vector 141)
-    try:
-        import resource
-        # Clamp virtual memory to 4GB
-        resource.setrlimit(resource.RLIMIT_AS, (4 * 1024**3, 4 * 1024**3))
-        # Disable core dumps
-        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-    except (ImportError, ValueError, OSError):
-        # Non-Linux or permission restricted
-        pass
-
-    parser = build_parser()
-    args = parser.parse_args()
-    args.func(args)
-
 
 def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     p = argparse.ArgumentParser(prog="antigravity_harness", description="FORTRESS PROTOCOL harness")
@@ -1216,6 +1200,16 @@ def add_stage_candidate_args(p: argparse.ArgumentParser) -> None:
 
 
 def main(argv: Any = None) -> None:
+    # HYDRA GUARD: Resource Clamping (Vector 128) & Core Dump Leak (Vector 141)
+    try:
+        import resource  # noqa: PLC0415
+        # Clamp virtual memory to 4GB
+        resource.setrlimit(resource.RLIMIT_AS, (4 * 1024**3, 4 * 1024**3))
+        # Disable core dumps
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except (ImportError, ValueError, OSError):
+        # Non-Linux or permission restricted
+        pass
 
     # Verify directories exist before running any command
     ensure_dirs()

@@ -14,6 +14,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
     """Verify Ed25519 signature using OpenSSL."""
     cmd = [
@@ -22,7 +23,7 @@ def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
         "-in", str(msg),
         "-sigfile", str(sig),
     ]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if proc.returncode != 0:
         err = (proc.stderr or proc.stdout or "").strip()
         raise RuntimeError(f"Signature verify failed: {err}")

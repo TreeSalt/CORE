@@ -43,6 +43,10 @@ class SimulatedAccount:
         self.qty = Quantity(0.0)
         self.entry_price = Price(0.0)
         self.entry_time: Optional[pd.Timestamp] = None
+        # [CHAOS V228] Guard against negative friction (gaming the engine)
+        if slippage < 0:
+             raise ValueError(f"CRITICAL: Negative slippage detected ({slippage}). Sabotage attempt?")
+        
         self.slippage = slippage
         self.allow_fractional = allow_fractional
         self.wal = wal
@@ -62,6 +66,9 @@ class SimulatedAccount:
         return Money(self.cash + (float(self.qty) * float(current_price)))
 
     def _calculate_commission(self, price: Price, qty: Quantity, rate_frac: float, fixed: float) -> Money:
+        # [CHAOS V228] Guard against negative commission
+        if rate_frac < 0 or fixed < 0:
+            raise ValueError(f"CRITICAL: Negative commission detected (rate={rate_frac}, fixed={fixed}).")
         return Money((float(price) * float(qty) * rate_frac) + fixed)
 
     def buy(  # noqa: PLR0912, PLR0913, PLR0915
@@ -299,7 +306,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     """
     # HYDRA GUARD: Entropy Injection Lock (Vector 44)
     # Enforce strict determinism in RELEASE_MODE
-    import os
+    import os  # noqa: PLC0415
     if os.environ.get("METADATA_RELEASE_MODE") == "1":
         np.random.seed(42) # Institutional Gold Seed
     else:
@@ -315,6 +322,17 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     required = ["entry_signal", "exit_signal"]
     if not params.disable_stop:
         required.append("ATR")
+    # [CHAOS V240] Early NaN Detection in OHLC
+    if df[["Open", "High", "Low", "Close"]].isna().any().any():
+        raise ValueError("CRITICAL: OHLC data contains NaNs before simulation start.")
+
+    # [CHAOS V227] Zero-Volume Guard (Strict Mode)
+    if os.environ.get("STRICT_MODE", "0") == "1":
+        # We allow some 0 volume if it's a weekend or closed market in some contexts,
+        # but for this institutional requirement, we flag if > 10% of bars have 0 volume.
+        zero_vol_ratio = (df["Volume"] <= 0).mean()
+        if zero_vol_ratio > 0.10:
+             raise ValueError(f"CRITICAL: Excessive zero-volume bars ({zero_vol_ratio:.2%}). Data integrity failure?")
 
     # Quick check using numpy to avoid excessive pandas overhead
     # But for safety/readability we keep pandas check for now, it's once per run.
@@ -329,6 +347,10 @@ def run_backtest(  # noqa: PLR0912, PLR0915
 
     first_valid_idx = int(np.argmax(valid_mask.values))
     start_ix = min(first_valid_idx + int(engine_cfg.warmup_extra_bars), len(sig) - 1)
+
+    # [CHAOS V229] Lookback Depth Validation
+    if start_ix >= len(df) * 0.9 and len(df) > 10:
+        raise ValueError(f"CRITICAL: Warmup ({start_ix}) consumes >90% of data. Insufficient evaluation depth.")
 
     # 2. Signal Shift (Vectorized)
     # i is execution time. Signal comes from i-1.
@@ -384,8 +406,9 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     stop_price = np.nan
 
     # HYDRA GUARD: Monotonic Clock Integrity (Vector 54)
-    import time
-    import psutil
+    import time  # noqa: PLC0415
+
+    import psutil  # noqa: PLC0415
     start_time_mono = time.monotonic()
     
     # HYDRA GUARD: FD Leak Detection (Vector 58)
@@ -577,11 +600,10 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # HYDRA GUARD: Physics Poisoning Protection (Vector 28)
     # Ensure no NaNs leaked into the final metrics or equity
     critical_metrics = [m_set.profit_factor, m_set.sharpe_ratio, m_set.max_dd_pct]
-    if any(not np.isfinite(float(m)) for m in critical_metrics):
+    if any(not np.isfinite(float(m)) for m in critical_metrics) and m_set.trade_count > 0:
          # We allow some NaNs in non-critical metrics or handle them explicitly
          # But Profit Factor and Sharpe must be finite if trades occurred.
-         if m_set.trade_count > 0:
-             raise RuntimeError(f"PHYSICS POISON DETECTED: Non-finite metrics in result: PF={m_set.profit_factor}, Sharpe={m_set.sharpe_ratio}")
+         raise RuntimeError(f"PHYSICS POISON DETECTED: Non-finite metrics in result: PF={m_set.profit_factor}, Sharpe={m_set.sharpe_ratio}, MaxDD_pct={m_set.max_dd_pct}")
 
     if not np.isfinite(equity_series).all():
         raise RuntimeError("PHYSICS POISON DETECTED: Non-finite values in equity curve.")

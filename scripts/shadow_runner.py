@@ -10,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--vault-dir", default="vault", help="Path to the artifact vault")
@@ -26,14 +27,14 @@ def main() -> int:
     # Find the latest drop packet in the vault (recursive)
     drops = sorted(list(vault_path.rglob("TRADER_OPS_READY_TO_DROP_v*.zip")))
     if not drops:
-        print(f"⚠️  WARNING: No artifacts found in vault to shadow-verify.")
+        print("⚠️  WARNING: No artifacts found in vault to shadow-verify.")
         # Fallback to dist if vault is empty
         dist_path = repo_root / "dist"
         drops = sorted(list(dist_path.rglob("TRADER_OPS_READY_TO_DROP_v*.zip")))
         if not drops:
             print("❌ ERROR: No artifacts found in vault or dist.")
             return 2
-        print(f"📂 Falling back to latest in dist.")
+        print("📂 Falling back to latest in dist.")
     
     latest_drop = drops[-1]
     print(f"🐉 SHADOW RUNNER: Subjecting {latest_drop.name} to chaos...")

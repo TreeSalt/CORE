@@ -6,12 +6,12 @@ Tier 1 Evidence Credibility:
 Walks the `data/` directory and creates a cryptographic manifest of the dataset.
 Returns the Merkle Root of the manifest as the "Data Hash".
 """
+import argparse
 import hashlib
 import json
-import os
-import argparse
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict
+
 
 def hash_file(path: Path) -> str:
     h = hashlib.sha256()

@@ -1,11 +1,11 @@
 import datetime
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
-import os
 import zipfile
 from pathlib import Path
 from typing import Any, Dict, List
@@ -126,10 +126,10 @@ def get_git_info(repo_root: Path) -> Dict[str, Any]:
     except subprocess.CalledProcessError:
         if os.environ.get("ALLOW_NO_GIT") == "1":
              return {"sha": "UNKNOWN_REVISION", "message": "Git metadata unavailable", "dirty": True}
-        raise RuntimeError("CRITICAL FAILURE: Git metadata unavailable. Must run from a git repo.")
+        raise RuntimeError("CRITICAL FAILURE: Git metadata unavailable. Must run from a git repo.") from None
 
 
-def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noqa: PLR0915
+def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noqa: PLR0915, PLR0912
     """
     Orchestrate the creation of the TRADER_OPS drop packet.
     Returns the ledger dictionary.
@@ -207,7 +207,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         try:
             sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root, stderr=subprocess.DEVNULL).decode("utf-8").strip()
             env["METADATA_CODE_HASH"] = sha
-        except:
+        except Exception:
              env["METADATA_CODE_HASH"] = "STABLE_SOVEREIGN_HASH"
              
         subprocess.check_call([
@@ -454,8 +454,13 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # This ledger MUST NOT contain artifacts.ready_to_drop to avoid circularity.
     ledger_inner_name = f"RUN_LEDGER_INNER_v{version}.json"
     ledger_inner_path = build_tmp / ledger_inner_name
+    # [CHAOS V231] Ledger Inflation Protection
+    inner_json = json.dumps(ledger, indent=2, sort_keys=True, separators=(", ", ": "))
+    if len(inner_json) > 10 * 1024 * 1024: # 10MB Limit
+        raise RuntimeError(f"CRITICAL: RUN_LEDGER_INNER exceeds size limit ({len(inner_json)/1024/1024:.2f}MB). Sabotage?")
+
     with open(ledger_inner_path, "w") as f:
-        json.dump(ledger, f, indent=2, sort_keys=True, separators=(", ", ": "))
+        f.write(inner_json)
 
     # 6. Create DROP Zip (The Final Package)
     print(f"📦 Forging DROP Artifact: {drop_zip.name}")
@@ -689,14 +694,14 @@ def _assert_cleanliness(root: Path) -> None:
 
 def _check_disk_quota(min_gb: float = 5.0) -> None:
     # HYDRA GUARD: Quota Crash Protection (Vector 70)
-    import shutil
+    import shutil  # noqa: PLC0415
     _, _, free = shutil.disk_usage(".")
     free_gb = free / (1024**3)
     if free_gb < min_gb:
         raise RuntimeError(f"RESOURCE EXHAUSTION: Disk space ({free_gb:.2f} GB) below Hydra limit ({min_gb} GB)")
 
 
-def _is_forbidden(path: Path) -> bool:
+def _is_forbidden(path: Path) -> bool:  # noqa: PLR0911, PLR0912
     # HYDRA GUARD: Pickle Poison Protection (Vector 66)
     if path.suffix in {".pkl", ".pickle", ".joblib"}:
         raise RuntimeError(f"SECURITY VIOLATION: Binary state file '{path.name}' detected. Pickle is forbidden.")
@@ -720,9 +725,7 @@ def _is_forbidden(path: Path) -> bool:
     except Exception:
         return True
     
-    if path.name.startswith("."):
-        if path.name == ".gitignore":
-             return False # Allowed for provenance
+    if path.name.startswith(".") and path.name != ".gitignore":  # noqa: SIM103
         return True
     if any(part.startswith(".") for part in path.parts):
         return True
@@ -735,6 +738,18 @@ def _is_forbidden(path: Path) -> bool:
     if "build_tmp" in path.parts:
         return True
     # Fix 3: Evidence Purity - Explicitly forbid tests/fixtures in artifacts
+    # [CHAOS V234] System Path Rejection
+    system_prefixes = ("/dev/", "/proc/", "/sys/", "/etc/")
+    if str(path.absolute()).startswith(system_prefixes):
+        raise RuntimeError(f"SECURITY VIOLATION: Source path '{path}' is a system path. Aborting forge.")
+
+    # [CHAOS V235] Hardlink Mimic Protection
+    # Rejection of hardlinks to prevent cross-inode corruption or exclusion bypass.
+    if path.exists() and not path.is_dir():
+        st = path.stat()
+        if st.st_nlink > 1:
+             raise RuntimeError(f"SECURITY VIOLATION: Hardlink detected for '{path}' (links={st.st_nlink}). Risk of shadow corruption.")
+
     return "tests" in path.parts and "fixtures" in path.parts
 
 

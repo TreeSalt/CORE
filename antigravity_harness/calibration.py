@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import pandas as pd
+import psutil
 
 from antigravity_harness.config import (
     DataConfig,
@@ -16,14 +17,6 @@ from antigravity_harness.config import (
     load_yaml,
     save_yaml,
 )
-import psutil
-
-# HYDRA GUARD: Memory Leak Protection (Vector 29)
-def _check_memory_usage(limit_gb: float = 2.0) -> None:
-    process = psutil.Process()
-    rss_gb = process.memory_info().rss / (1024 * 1024 * 1024)
-    if rss_gb > limit_gb:
-        raise RuntimeError(f"RESOURCE EXHAUSTION: Memory usage ({rss_gb:.2f} GB) exceeds Hydra limit ({limit_gb} GB)")
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.data import load_ohlc  # For Ray loading
 from antigravity_harness.engine import Trade
@@ -33,6 +26,14 @@ from antigravity_harness.paths import INTEL_DIR
 from antigravity_harness.runner import SovereignRunner
 from antigravity_harness.strategies import STRATEGY_REGISTRY
 from antigravity_harness.strategies.registry import StrategyRegistry
+
+
+# HYDRA GUARD: Memory Leak Protection (Vector 29)
+def _check_memory_usage(limit_gb: float = 2.0) -> None:
+    process = psutil.Process()
+    rss_gb = process.memory_info().rss / (1024 * 1024 * 1024)
+    if rss_gb > limit_gb:
+        raise RuntimeError(f"RESOURCE EXHAUSTION: Memory usage ({rss_gb:.2f} GB) exceeds Hydra limit ({limit_gb} GB)")
 
 try:
     import ray  # type: ignore

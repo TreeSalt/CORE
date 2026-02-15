@@ -36,7 +36,7 @@ class StrategyRegistry:
         # HYDRA GUARD: Exec Poison (Vector 87) & Thread Hijack (Vector 104) & Builtin Tamper (Vector 117)
         # Static analysis scan for forbidden dynamic execution and hijacking signatures
         try:
-            import inspect
+            import inspect  # noqa: PLC0415
             source = inspect.getsource(strategy_cls)
             forbidden = [
                 "eval(", "exec(", "compile(",  # V87
@@ -49,7 +49,8 @@ class StrategyRegistry:
                     f"{[f for f in forbidden if f in source]}. Quarantine required."
                 )
         except Exception as e:
-            if "SECURITY VIOLATION" in str(e): raise
+            if "SECURITY VIOLATION" in str(e):
+                raise
             
         self._strategies[key] = strategy_cls
 

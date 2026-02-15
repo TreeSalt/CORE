@@ -38,6 +38,10 @@ def main():
         "gorgon": monkey.sabotage_gorgon,
         "all": monkey.run_all,
         "hydra": lambda: (monkey.sabotage_metadata(), monkey.sabotage_engine()),
+        "v227": monkey.sabotage_volume,
+        "v228": monkey.sabotage_slippage,
+        "v240": monkey.sabotage_nan,
+        "v231": monkey.sabotage_ledger_bloat,
     }
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"

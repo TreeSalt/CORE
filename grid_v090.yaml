@@ -5,3 +5,5 @@ disable_stop: [false]
 risk_per_trade: [0.02]
 cooldown_bars: [0]
 min_hold_bars: [0]
+
+slippage: [-0.01]

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-import sys
-import os
 import ast
+import os
+import sys
+
 
 def get_imports(filepath: str) -> set[str]:
     with open(filepath, "r") as f:
@@ -15,9 +16,8 @@ def get_imports(filepath: str) -> set[str]:
         if isinstance(node, ast.Import):
             for n in node.names:
                 imports.add(n.name.split('.')[0])
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.add(node.module.split('.')[0])
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.add(node.module.split('.')[0])
     return imports
 
 def check_cycles():
@@ -48,11 +48,13 @@ def check_cycles():
             
         for f in files:
             if f.endswith(".py"):
-                if f == "__main__.py": continue # Main entry point is allowed
+                if f == "__main__.py":
+                    continue # Main entry point is allowed
                 
                 path = os.path.join(root, f)
                 rel_path = os.path.relpath(path, package_dir)
-                if "cli.py" in str(rel_path): continue
+                if "cli.py" in str(rel_path):
+                    continue
                 
                 with open(path, "r") as code_f:
                     content = code_f.read()
@@ -60,7 +62,8 @@ def check_cycles():
                         issues.append(f"Layer Violation: {path} imports cli.py (Circular risk)")
     
     if issues:
-        for i in issues: print(f"  ❌ {i}")
+        for i in issues:
+            print(f"  ❌ {i}")
         return 2
     
     print("  ✅ No trivial cycles or layer violations detected.")

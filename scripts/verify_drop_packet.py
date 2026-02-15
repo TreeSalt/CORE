@@ -10,22 +10,25 @@ import io
 import json
 import os
 import re
+import subprocess
 import sys
+import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
     """Verify Ed25519 signature using OpenSSL (no extra Python deps)."""
-    import subprocess
     cmd = [
         "openssl", "pkeyutl", "-verify", "-rawin",
         "-pubin", "-inkey", str(pub_pem),
         "-in", str(msg),
         "-sigfile", str(sig),
     ]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if proc.returncode != 0:
         err = (proc.stderr or proc.stdout or "").strip()
         raise RuntimeError(f"Signature verify failed (openssl): {err}")
@@ -67,11 +70,12 @@ def base_semver(v: str) -> str:
     m = re.match(r'^(\d+\.\d+\.\d+)', (v or "").strip())
     return m.group(1) if m else ""
 
-def parse_canon_fields(canon_text: str) -> Tuple[str, str, str]:
+def parse_canon_fields(canon_text: str) -> Tuple[str, str, str, str]:
     mv = re.search(r'version:\s*"(\d+\.\d+\.\d+)"', canon_text)
     mh = re.search(r'fingerprint_sha256:\s*"([a-f0-9]{64})"', canon_text)
     mp = re.search(r'sovereign_pubkey_sha256:\s*"([a-f0-9]{64})"', canon_text)
-    return (mv.group(1) if mv else ""), (mh.group(1) if mh else ""), (mp.group(1) if mp else "")
+    mt = re.search(r'generated_at_utc:\s*"([^"]+)"', canon_text)
+    return (mv.group(1) if mv else ""), (mh.group(1) if mh else ""), (mp.group(1) if mp else ""), (mt.group(1) if mt else "")
 
 def read_drop_packet_sha256_txt(path: str) -> Tuple[Optional[str], Optional[str]]:
     """Parse DROP_PACKET_SHA256*.txt.
@@ -97,7 +101,7 @@ def read_drop_packet_sha256_txt(path: str) -> Tuple[Optional[str], Optional[str]
         pass
     return (None, None)
 
-def main() -> int:
+def main() -> int:  # noqa: PLR0915, PLR0912
     ap = argparse.ArgumentParser()
     ap.add_argument("--drop", required=True, help="Path to TRADER_OPS_READY_TO_DROP_*.zip")
     ap.add_argument("--run-ledger", default=None, help="Path to outer RUN_LEDGER_vX.Y.Z.json")
@@ -141,8 +145,7 @@ def main() -> int:
                         # For simplicity in this verifier's flow, we'll continue 
                         # but we need to pass the content.
                         # Let's adjust read_drop_packet_sha256_txt to support direct content or just inject here.
-                        raw = z.read(sidecar_name).decode("utf-8").strip()
-                        parts = raw.split()
+                        z.read(sidecar_name).decode("utf-8").strip()
                         # Note: Internal sidecar might contain multi-hashes (nested).
                         # But if it's the DROP sidecar, it should match the drop itself.
                         # Actually, build.py writes the INNER hashes to the internal sidecar.
@@ -225,11 +228,14 @@ def main() -> int:
                 manifest_sha = canonical_manifest_sha(pm_fingerprint_obj)
                 # Canon
                 canon_txt = cz.read("docs/ready_to_drop/COUNCIL_CANON.yaml").decode("utf-8")
-                c_ver, c_finger, c_pub_pinned = parse_canon_fields(canon_txt)
+                c_ver, c_finger, c_pub_pinned, c_ts = parse_canon_fields(canon_txt)
                 if c_ver != version:
                     issues.append(Issue(FAIL, "VERSION_MISMATCH", f"Code:{version} != Canon:{c_ver}"))
                 if c_finger != manifest_sha:
                     issues.append(Issue(FAIL, "CANON_BNDING_FAIL", "Canon does not bind manifest hash"))
+                
+                # [CHAOS V236] Chronological Monotonicity Check (Canon Witness)
+                # (c_ts is used in the ledger comparison block)
 
                 # 0.1 Anti-Mimic Gate (Institutional Gold)
                 code_zip_names = {n for n in cz.namelist() if not n.endswith("/")}
@@ -249,12 +255,10 @@ def main() -> int:
                     issues.append(Issue(FAIL, "CODE_MIMIC_DETECTED", f"Unaccounted files in CODE zip: {list(mimics)}"))
 
         # --- Inspect EVIDENCE
-        evidence_sha = ""
         evidence_git_commit = ""
         evidence_data_hash = ""
         if evidence_name:
             e_bytes = drop_zf.read(evidence_name)
-            evidence_sha = sha256_bytes(e_bytes)
             with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
                 e_names = set(ez.namelist())
                 # Stricter audit of evidence suite
@@ -286,7 +290,6 @@ def main() -> int:
                                        f"Strict: multiple smoke roots found: {present_roots}"))
 
                 smoke_root = present_roots[0] if present_roots else None
-                evidence_root = smoke_root
 
                 # Required trace under selected root
                 if smoke_root and f"{smoke_root}/router_trace.csv" not in e_names:
@@ -374,7 +377,6 @@ def main() -> int:
                 if args.strict and cert_path in e_names and sig_path in e_names and pub_path in e_names:
                     # Cryptographically verify CERTIFICATE.json.sig (Ed25519) using OpenSSL.
                     try:
-                        import tempfile
                         with tempfile.TemporaryDirectory() as td:
                             temp_dir = Path(td)
                             p_pub = temp_dir / "sovereign.pub"
@@ -429,6 +431,21 @@ def main() -> int:
                 
                 if calc_preimage != stored_preimage:
                     issues.append(Issue(FAIL, "PREIMAGE_MISMATCH", f"Stored({stored_preimage[:8]}) != Calc({calc_preimage[:8]})"))
+
+            # [CHAOS V236] Chronological Monotonicity Check (Ledger vs Canon)
+            l_ts_str = il.get("timestamp_utc", "")
+            if l_ts_str and c_ts:
+                try:
+                    # ISO Format: YYYY-MM-DDTHH:MM:SSZ
+                    l_ts = datetime.fromisoformat(l_ts_str.replace("Z", "+00:00"))
+                    c_ts_dt = datetime.fromisoformat(c_ts.replace("Z", "+00:00"))
+                    if l_ts < c_ts_dt:
+                        issues.append(Issue(FAIL, "CHRONOLOGICAL_PARADOX", 
+                                           f"Ledger timestamp ({l_ts_str}) is older than Canon ({c_ts})."))
+                    else:
+                        print(f"✅ Chronological Monotonicity Verified: Ledger ({l_ts_str}) >= Canon ({c_ts})")
+                except Exception as e:
+                    issues.append(Issue(WARN, "TIMESTAMP_PARSE_ERROR", f"Could not compare timestamps: {e}"))
 
         # --- HYDRA GUARD: Metadata Shadowing Detection (Vector 40) ---
         if "METADATA.txt" in names and inner_ledger_name:

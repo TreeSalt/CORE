@@ -55,7 +55,7 @@ class EngineConfig(BaseModel):
         # Command III (Wire Interval): Solari Remediation
         # If interval is not 1d, it overrides the default periods_per_year
         if self.interval and self.interval != "1d":
-            from antigravity_harness.utils import infer_periods_per_year
+            from antigravity_harness.utils import infer_periods_per_year  # noqa: PLC0415
             ppy = infer_periods_per_year(self.interval, self.is_crypto)
             object.__setattr__(self, "periods_per_year", ppy)
 
@@ -197,5 +197,11 @@ def save_yaml(obj: Any, path: str) -> None:
 
 
 def load_yaml(path: str) -> Dict[str, Any]:
+    # [CHAOS V233] UTF-8 BOM detection
+    with open(path, "rb") as f:
+        header = f.read(3)
+        if header == b"\xef\xbb\xbf":
+            raise ValueError(f"CRITICAL: UTF-8 BOM detected in {path}. Violates Git Purity.")
+    
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
