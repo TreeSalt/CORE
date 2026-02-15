@@ -445,6 +445,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     drop_hash = hash_file(drop_zip)
     ledger["artifacts"]["ready_to_drop"] = {"filename": drop_zip_name, "sha256": drop_hash}
 
+    # 6.0 Artifact Promotion (Audit-Grade Accessibility)
+    # Copy intermediate artifacts to dist/ so independent verifiers can find them.
+    shutil.copy(code_zip, dist_dir / code_zip_name)
+    shutil.copy(evidence_zip, dist_dir / evidence_zip_name)
+
     # 6.1 Outer Ledger (Dist Canon)
     # This ledger DOES contain artifacts.ready_to_drop.
     ledger_path = dist_dir / f"RUN_LEDGER_v{version}.json"
