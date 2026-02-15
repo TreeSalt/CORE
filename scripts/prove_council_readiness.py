@@ -70,14 +70,22 @@ def main():  # noqa: PLR0912, PLR0915
 
     # 3. Sidecar Verification
     print(f"\n{BOLD}[3] Consumer Verification (Sidecar){RESET}")
-    sidecar = dist_dir / "DROP_PACKET_SHA256.txt"
-    if not sidecar.exists():
+    # Prefer versioned sidecar (anti-timeline poison), then .zip.sha256, then legacy unversioned file
+    m = re.search(r"v(\d+\.\d+\.\d+)", drop_zip.name)
+    ver = m.group(1) if m else None
+    candidates = []
+    if ver:
+        candidates.append(dist_dir / f"DROP_PACKET_SHA256_v{ver}.txt")
+    candidates.append(dist_dir / (drop_zip.name + ".sha256"))
+    candidates.append(dist_dir / "DROP_PACKET_SHA256.txt")
+    sidecar = next((p for p in candidates if p.exists()), None)
+    if sidecar is None:
         print_fail("Sidecar missing")
 
     content = sidecar.read_text().strip()
     if drop_hash not in content:
-        print_fail("Sidecar does not contain correct hash")
-    print_pass("Sidecar contains valid Drop Hash")
+        print_fail(f"Sidecar ({sidecar.name}) does not contain correct hash")
+    print_pass(f"Sidecar ({sidecar.name}) contains valid Drop Hash")
 
     # 4. Code Hash Binding
     print(f"\n{BOLD}[4] Metadata Binding (The Golden Thread){RESET}")

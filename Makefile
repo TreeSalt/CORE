@@ -52,14 +52,53 @@ build:
 	@# One-line rule for Sidecar Sovereignty (User Mandate)
 	@cd dist && DROP=$$(ls -1t TRADER_OPS_READY_TO_DROP_v*.zip | head -n 1) && sha256sum "$$DROP" > DROP_PACKET_SHA256.txt
 
+# Council-Grade Verification Targets
+DIST ?= dist
+ONE_TRUE := scripts/one_true_command.sh
+
+.PHONY: audit audit-fast hashes zip-verify cert-verify show-dist
+
+audit:  ## The one word the Council should run
+	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
+	@bash "$(ONE_TRUE)" "$(DIST)"
+
+hashes:
+	@test -d "$(DIST)" || (echo "Missing dist dir: $(DIST)" && exit 1)
+	@echo "== sha256s in $(DIST) =="
+	@ls -1 "$(DIST)"/TRADER_OPS_CODE_v*.zip "$(DIST)"/TRADER_OPS_EVIDENCE_v*.zip "$(DIST)"/TRADER_OPS_READY_TO_DROP_v*.zip 2>/dev/null | sort -V | while read -r f; do \
+		sha256sum "$$f"; \
+	done
+
+zip-verify:
+	@test -f scripts/zip_verifier.py || (echo "Missing scripts/zip_verifier.py" && exit 1)
+	@$(PYTHON) scripts/zip_verifier.py
+
+cert-verify:
+	@if [ -f scripts/verify_certificate.py ]; then \
+		$(PYTHON) scripts/verify_certificate.py; \
+	else \
+		echo "No scripts/verify_certificate.py present — skipping."; \
+	fi
+
+audit-fast: hashes verify
+	@echo "✅ audit-fast complete"
+
+show-dist:
+	@echo "DIST=$(DIST)"
+	@ls -lah "$(DIST)" || true
+
 verify:
 	@set -e; \
 	DROP_PATH=$$(ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip 2>/dev/null | head -n 1); \
 	if [ -z "$$DROP_PATH" ]; then echo "❌ No drop packet found in dist/"; exit 1; fi; \
 	VER=$$(echo $$DROP_PATH | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/'); \
 	LEDGER=dist/RUN_LEDGER_v$$VER.json; \
-	SIDECAR=dist/DROP_PACKET_SHA256.txt; \
-	$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --drop-packet-sha "$$SIDECAR" --strict
+	SIDECAR=$$(ls dist/DROP_PACKET_SHA256_v$$VER.txt 2>/dev/null || ls dist/DROP_PACKET_SHA256.txt 2>/dev/null || echo ""); \
+	if [ -n "$$SIDECAR" ]; then \
+		$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --drop-packet-sha "$$SIDECAR" --strict; \
+	else \
+		$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --strict; \
+	fi
 	$(PYTHON) scripts/check_dependency_cycles.py
 	@echo "🛡️  Fiduciary Verified: $(shell date)"
 

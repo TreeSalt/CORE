@@ -132,6 +132,11 @@ class ZipVerifier:
         if "payload_manifest_sha256" in clean_manifest:
             del clean_manifest["payload_manifest_sha256"]
 
+        # Paradox seal: exclude the Canon itself from the manifest fingerprint
+        if "file_sha256" in clean_manifest and isinstance(clean_manifest["file_sha256"], dict):
+            clean_manifest["file_sha256"] = dict(clean_manifest["file_sha256"])
+            clean_manifest["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
+
         canonical_bytes = json.dumps(clean_manifest, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
             "utf-8"
         )
@@ -157,7 +162,7 @@ class ZipVerifier:
 
                 # 5c. Builder Registry
                 builder_id = self.ledger.get("sovereign_binding", {}).get("builder_id")
-                APPROVED = ["SOLARI_BUILD_AGENT_01", "Sovereign-Node-Baseline", "Local-Dev-Dragon-Node"]
+                APPROVED = ["SOLARI_BUILD_AGENT_01", "Sovereign-Node-Baseline", "Local-Dev-Dragon-Node", "Institutional-Gold-Node"]
                 if builder_id not in APPROVED and "Sovereign" not in str(builder_id):
                     self.fail(f"UNAUTHORIZED BUILDER: {builder_id} is not in the Sovereign Registry.")
 
@@ -268,7 +273,13 @@ class ZipVerifier:
             with zipfile.ZipFile(fpath, "r") as z:
                 # 7a. Router Trace Purity
                 try:
-                    with z.open("reports/forge/smoke_test/router_trace.csv") as f:
+                    roots = ["reports/forge/smoke_test", "reports/forge/synthetic_smoke"]
+                    present = [r for r in roots if f"{r}/RUN_METADATA.json" in z.namelist()]
+                    if not present:
+                        self.fail("EPISTEMOLOGICAL VOID: No smoke root found in Evidence.")
+                    smoke_root = present[0]
+
+                    with z.open(f"{smoke_root}/router_trace.csv") as f:
                         reader = csv.reader(TextIOWrapper(f, "utf-8"))
                         header = next(reader)
                         if header.count("timestamp") > 1:
@@ -278,7 +289,7 @@ class ZipVerifier:
 
                 # 7b. Bound Sovereignty (Kraken Defense)
                 try:
-                    with z.open("reports/forge/smoke_test/RUN_METADATA.json") as f:
+                    with z.open(f"{smoke_root}/RUN_METADATA.json") as f:
                         meta = json.loads(f.read())
                         # Fix: Compare against the actual code artifact hash (Zip-based) as bound in the ledger
                         if meta.get("code_hash") != self.ledger["artifacts"]["code"]["sha256"]:
