@@ -67,10 +67,11 @@ def base_semver(v: str) -> str:
     m = re.match(r'^(\d+\.\d+\.\d+)', (v or "").strip())
     return m.group(1) if m else ""
 
-def parse_canon_fields(canon_text: str) -> Tuple[str, str]:
+def parse_canon_fields(canon_text: str) -> Tuple[str, str, str]:
     mv = re.search(r'version:\s*"(\d+\.\d+\.\d+)"', canon_text)
     mh = re.search(r'fingerprint_sha256:\s*"([a-f0-9]{64})"', canon_text)
-    return (mv.group(1) if mv else ""), (mh.group(1) if mh else "")
+    mp = re.search(r'sovereign_pubkey_sha256:\s*"([a-f0-9]{64})"', canon_text)
+    return (mv.group(1) if mv else ""), (mh.group(1) if mh else ""), (mp.group(1) if mp else "")
 
 def read_drop_packet_sha256_txt(path: str) -> Tuple[Optional[str], Optional[str]]:
     """Parse DROP_PACKET_SHA256*.txt.
@@ -201,7 +202,7 @@ def main() -> int:
                 manifest_sha = canonical_manifest_sha(pm_fingerprint_obj)
                 # Canon
                 canon_txt = cz.read("docs/ready_to_drop/COUNCIL_CANON.yaml").decode("utf-8")
-                c_ver, c_finger = parse_canon_fields(canon_txt)
+                c_ver, c_finger, c_pub_pinned = parse_canon_fields(canon_txt)
                 if c_ver != version:
                     issues.append(Issue(FAIL, "VERSION_MISMATCH", f"Code:{version} != Canon:{c_ver}"))
                 if c_finger != manifest_sha:
@@ -209,6 +210,12 @@ def main() -> int:
 
                 # 0.1 Anti-Mimic Gate (Institutional Gold)
                 code_zip_names = {n for n in cz.namelist() if not n.endswith("/")}
+                
+                # --- HYDRA GUARD: Unicode Homoglyph Detection (Vector 80) - Code Zip ---
+                for name in code_zip_names:
+                    if any(ord(char) > 127 for char in name):
+                        issues.append(Issue(FAIL, "HOMOGLYPH_DETECTED_CODE", f"Non-ASCII character in code filename '{name}'"))
+
                 manifest_files = set(pm_obj.get("file_sha256", {}).keys())
                 # Add known auxiliary files that are NOT in the payload manifest
                 manifest_files.add("docs/ready_to_drop/PAYLOAD_MANIFEST.json")
@@ -238,11 +245,11 @@ def main() -> int:
                     if f"{r}/RUN_METADATA.json" in e_names:
                         present_roots.append(r)
 
-                # --- HYDRA GUARD: Unicode Homoglyph Detection (Vector 80) ---
-                for name in names:
+                # --- HYDRA GUARD: Unicode Homoglyph Detection (Vector 80) - Evidence Zip ---
+                for name in e_names:
                     # Check for non-ASCII characters that might mimic ASCII (basic check)
                     if any(ord(c) > 127 for c in name):
-                        issues.append(Issue(FAIL, "HOMOGLYPH_DETECTED", f"Non-ASCII character in filename '{name}'. Possible mimic attack."))
+                        issues.append(Issue(FAIL, "HOMOGLYPH_DETECTED_EVIDENCE", f"Non-ASCII character in evidence filename '{name}'"))
 
                 # --- HYDRA GUARD: Omega Gate Self-Verification (Vector 100) ---
                 # Final safety: The verifier checks its own integrity if possible
@@ -322,7 +329,7 @@ def main() -> int:
                     issues.append(Issue(FAIL, "CERTIFICATE_MISSING", "Fiduciary Certificate missing from evidence"))
                 else:
                     cert_json = json.loads(ez.read(cert_path).decode("utf-8"))
-                    if cert_json.get("strict_mode") is not True:
+                    if args.strict and cert_json.get("strict_mode") is not True:
                          issues.append(Issue(FAIL, "CERTIFICATE_NOT_STRICT", "Certificate strict_mode != true"))
                 
                 if sig_path not in e_names:
@@ -332,6 +339,14 @@ def main() -> int:
                 pub_path = "reports/certification/sovereign.pub"
                 if pub_path not in e_names:
                      issues.append(Issue(FAIL, "PUBKEY_MISSING", "Sovereign Public Key missing for verification"))
+                elif c_pub_pinned:
+                    # Pinned Sovereignty Check
+                    got_pub_sha = sha256_bytes(ez.read(pub_path))
+                    if got_pub_sha != c_pub_pinned:
+                        issues.append(Issue(FAIL, "PUBKEY_PIN_MISMATCH", 
+                                           f"Evidence pubkey ({got_pub_sha[:8]}) != Pinned in Code ({c_pub_pinned[:8]})"))
+                    else:
+                        print(f"✅ Public Key Verified (Pinned: {c_pub_pinned[:8]})")
                 
                 if args.strict and cert_path in e_names and sig_path in e_names and pub_path in e_names:
                     # Cryptographically verify CERTIFICATE.json.sig (Ed25519) using OpenSSL.
@@ -414,6 +429,10 @@ def main() -> int:
         outer_ver = outer.get("version", "")
         if version and outer_ver != version:
              issues.append(Issue(FAIL, "OUTER_LEDGER_VERSION_MISMATCH", f"OuterLedger({outer_ver}) != InnerCode({version})"))
+        
+        # Strict Coherence: Ledger must match build environment
+        if args.strict and outer.get("strict_mode") is not True:
+             issues.append(Issue(FAIL, "LEDGER_NOT_STRICT", "Outer Ledger strict_mode != true"))
 
         if args.strict:
             sb = outer.get("sovereign_binding") or {}

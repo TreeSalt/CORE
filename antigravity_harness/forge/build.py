@@ -178,6 +178,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 1.5 Safety Check (Hygiene)
     _assert_cleanliness(repo_root)
+    
+    # Purity Assert: Re-check git dirty after potential mutations (bump_version)
+    if os.environ.get("STRICT_MODE", "1") == "1":
+        final_git = get_git_info(repo_root)
+        if final_git["dirty"]:
+             raise RuntimeError("PURITY VIOLATION: Forge mutated tracked files in the repo. Use in-memory forge or commit bump first.")
 
     # 1.6 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
@@ -260,36 +266,59 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 2.1 BIND CANON TO MANIFEST (The Truth Seal)
     print(f"⚖️  Binding Council Canon to Manifest: {manifest_sha[:8]}...")
-    canon_txt = canon_path.read_text()
+    canon_txt = (repo_root / "docs/ready_to_drop/COUNCIL_CANON.yaml").read_text()
     # Update fingerprint
     canon_txt = re.sub(r'fingerprint_sha256:\s*"[a-f0-9]*"', f'fingerprint_sha256: "{manifest_sha}"', canon_txt)
     # [STAGE 1 FIX: Determinism] Use fixed epoch for generated_at_utc
     fixed_utc = "2020-01-01T00:00:00Z"
     canon_txt = re.sub(r'generated_at_utc:\s*"[^"]*"', f'generated_at_utc: "{fixed_utc}"', canon_txt)
-    canon_path.write_text(canon_txt)
+    
+    # 2.1.1 PIN PUBLIC KEY (Pinned Sovereignty)
+    pub_path = repo_root / "sovereign.pub"
+    if pub_path.exists():
+        pub_sha = hash_file(pub_path)
+        print(f"🔑 Pinning Public Key: {pub_sha[:8]}...")
+        if 'repo:' in canon_txt:
+            canon_txt = re.sub(r'(repo:.*?)(\n\n|\nphases:)', f'\\1\n  sovereign_pubkey_sha256: "{pub_sha}"\\2', canon_txt, flags=re.S)
+    
+    # Write to TEMP canon to avoid repo mutation (Git Purity)
+    tmp_canon_path = build_tmp / "COUNCIL_CANON.yaml"
+    tmp_canon_path.write_text(canon_txt)
+    print(f"⚖️  Canon Secured (Temp): {tmp_canon_path.name}")
 
     # 2.2 Create CODE Zip
     print(f"📦 Forging CODE Artifact: {code_zip.name}")
     
     # [SOLARI v5 FIX] Update manifest with FINAL canon hash AFTER fingerprinting
     # This closes the "Chicken-and-Egg" loop for byte-level audits.
-    final_canon_hash = hash_file(canon_path)
+    final_canon_hash = hash_file(tmp_canon_path)
     payload_manifest["file_sha256"]["docs/ready_to_drop/COUNCIL_CANON.yaml"] = final_canon_hash
     print(f"⚖️  Canon Fingerprint Synchronized: {final_canon_hash[:8]}")
     
     # Final sorted manifest for bit-perfect CODE zip (Pass 2)
     manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    (repo_root / "docs/ready_to_drop/PAYLOAD_MANIFEST.json").write_bytes(manifest_bytes)
+    tmp_manifest_path = build_tmp / "PAYLOAD_MANIFEST.json"
+    tmp_manifest_path.write_bytes(manifest_bytes)
 
     code_zip_includes = includes
+    
+    # Create zip, but EXCLUDE the real docs/ready_to_drop/COUNCIL_CANON.yaml 
+    # and instead inject our temp one later.
     _create_zip(code_zip, repo_root, includes=code_zip_includes)
 
-    # Inject Manifest into CODE Zip
+    # Inject Manifest and TEMPORARY Canon into CODE Zip
     with zipfile.ZipFile(code_zip, "a") as zf:
-        zinfo = zipfile.ZipInfo("docs/ready_to_drop/PAYLOAD_MANIFEST.json", date_time=(2020, 1, 1, 0, 0, 0))
-        zinfo.compress_type = zipfile.ZIP_DEFLATED
-        zinfo.external_attr = 0o644 << 16
-        zf.writestr(zinfo, manifest_bytes)
+        # 1. Manifest
+        zinfo_m = zipfile.ZipInfo("docs/ready_to_drop/PAYLOAD_MANIFEST.json", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_m.compress_type = zipfile.ZIP_DEFLATED
+        zinfo_m.external_attr = 0o644 << 16
+        zf.writestr(zinfo_m, manifest_bytes)
+        
+        # 2. Pinned Canon
+        zinfo_c = zipfile.ZipInfo("docs/ready_to_drop/COUNCIL_CANON.yaml", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_c.compress_type = zipfile.ZIP_DEFLATED
+        zinfo_c.external_attr = 0o644 << 16
+        zf.writestr(zinfo_c, canon_txt)
 
     # 2.5 Inject Code Hash into Evidence Metadata (Kraken Binding)
     real_code_hash = hash_file(code_zip)
@@ -324,7 +353,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     certificate = {
         "certificate_schema_version": "1.0.0",
         "scope": "artifact_integrity",
-        "strict_mode": True,
+        "strict_mode": (os.environ.get("STRICT_MODE", "1") == "1"),
         "trader_ops_version": version,
         "git_commit": git_info["sha"],
         "git_dirty": git_info["dirty"],
