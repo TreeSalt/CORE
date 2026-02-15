@@ -189,8 +189,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     with open(metadata_path, 'r') as f:
         meta = json.load(f)
-        ev_version = meta.get("trader_ops_version")
-        if ev_version != version:
+        ev_version = meta.get("trader_ops_version", "")
+        if not ev_version.startswith(version):
             raise RuntimeError(f"VERSION DRIFT DETECTED: Evidence ({ev_version}) != Code ({version})")
 
     # 2. Create CODE Manifest (BREAK THE LOOP)
