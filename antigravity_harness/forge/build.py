@@ -253,7 +253,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             with open(metadata_path, "r") as f:
                 metadata = json.load(f)
             metadata["code_hash"] = real_code_hash
+            metadata["code_hash"] = real_code_hash
             metadata["manifest_hash"] = manifest_sha
+            metadata["data_hash"] = data_hash
             with open(metadata_path, "w") as f:
                 json.dump(metadata, f, indent=2)
         except Exception as e:
