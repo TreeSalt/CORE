@@ -46,8 +46,9 @@ def _sync_readme_version(repo_root: Path, new_version: str) -> None:
     # Pattern: **Status**: ... (v4.3.4)
     content = re.sub(r"(\(v)(\d+\.\d+\.\d+)(\))", f"\\g<1>{new_version}\\g<3>", content)
 
-    readme_path.write_text(content)
-    print(f"📜 README.md Synced: v{new_version}")
+    if content != readme_path.read_text():
+        readme_path.write_text(content)
+        print(f"📜 README.md Synced: v{new_version}")
 
 
 def bump_version(init_path: Path) -> str:
@@ -74,7 +75,8 @@ def bump_version(init_path: Path) -> str:
         print(f"📈 Version Bumped: {current_version} -> {new_version}")
 
     new_content = re.sub(r'__version__\s*=\s*"\d+\.\d+\.\d+"', f'__version__ = "{new_version}"', content)
-    init_path.write_text(new_content)
+    if new_content != content:
+        init_path.write_text(new_content)
 
     # Synchronize COUNCIL_CANON.yaml (Strict Version Gate Prep)
     canon_path = init_path.parent.parent / "docs/ready_to_drop/COUNCIL_CANON.yaml"
@@ -134,6 +136,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     Returns the ledger dictionary.
     """
     _check_disk_quota()
+    if os.environ.get("STRICT_MODE", "1") == "1":
+        os.environ["ALLOW_DIRTY_BUILD"] = "0"
+    
     dist_dir.mkdir(parents=True, exist_ok=True)
     
     # Temporary holding area for intermediate artifacts (Isolated from final dist)
