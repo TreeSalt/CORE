@@ -236,9 +236,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     canon_txt = canon_path.read_text()
     # Update fingerprint
     canon_txt = re.sub(r'fingerprint_sha256:\s*"[a-f0-9]*"', f'fingerprint_sha256: "{manifest_sha}"', canon_txt)
-    # Update timestamp
-    now_utc = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    canon_txt = re.sub(r'generated_at_utc:\s*"[^"]*"', f'generated_at_utc: "{now_utc}"', canon_txt)
+    # [STAGE 1 FIX: Determinism] Use fixed epoch for generated_at_utc
+    fixed_utc = "2020-01-01T00:00:00Z"
+    canon_txt = re.sub(r'generated_at_utc:\s*"[^"]*"', f'generated_at_utc: "{fixed_utc}"', canon_txt)
     canon_path.write_text(canon_txt)
 
     # 2.2 Create CODE Zip
@@ -575,7 +575,8 @@ def _is_forbidden(path: Path) -> bool:
 
 
 def _get_timestamp() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+    # [STAGE 1 FIX: Determinism] Return fixed epoch to ensure bit-perfect artifacts
+    return "2020-01-01T00:00:00Z"
 
 
 def _generate_manifest_data(root: Path, includes: List[str]) -> Dict[str, str]:
