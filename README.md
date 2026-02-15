@@ -1,6 +1,6 @@
-# ANTIGRAVITY HARNESS v4.4.30 (OMEGA SOVEREIGN)
+# ANTIGRAVITY HARNESS v4.4.31 (OMEGA SOVEREIGN)
 
-**Status**: OMEGA IMMORTAL (v4.4.30)
+**Status**: OMEGA IMMORTAL (v4.4.31)
 **Objective**: Absolute, bit-perfect trading strategy sovereignty.
 
 ## 🐉 Sovereign Build Protocol
@@ -107,7 +107,7 @@ Output includes a verified zip and a `.sha256` checksum.
 
 ---
 ---
-*Built by Antigravity Harness (v4.4.30)*
+*Built by Antigravity Harness (v4.4.31)*
 
 ## 📂 Documentation (Institutional Gold)
 - [Vision: Event Horizon (Option Trading)](docs/vision_event_horizon.md)
