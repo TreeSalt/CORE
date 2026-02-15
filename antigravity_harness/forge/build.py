@@ -233,8 +233,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 2.2 Create CODE Zip
     print(f"📦 Forging CODE Artifact: {code_zip.name}")
-    # Canon IS included in the Zip, but IS NOT in the Manifest entries (Logic: The Manifest describes the PAYLOAD, the Canon seals the Manifest)
-    code_zip_includes = includes + ["docs/ready_to_drop/COUNCIL_CANON.yaml"]
+    # Canon IS included in the Zip via the 'includes' list (which now closes the Canon Hole)
+    code_zip_includes = includes
     _create_zip(code_zip, repo_root, includes=code_zip_includes)
 
     # Inject Manifest into CODE Zip

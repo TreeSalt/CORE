@@ -170,6 +170,8 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
                     "realized_vol_annual": regime_state.metrics.get("realized_vol_annual", 0),
                     "gross_exposure": regime_state.metrics.get("gross_exposure", 0),
                     "safety_state": safety_state.value,
+                    "safety_rate": overlay.cfg.reduce_multiplier if safety_state == SafetyState.RISK_REDUCE else (0.0 if safety_state != SafetyState.NORMAL else 1.0),
+                    "final_leverage": 1.0 - ( (portfolio.global_cash + sum(a.cash for a in portfolio.accounts.values())) / portfolio.get_total_equity(current_prices) ) if portfolio.get_total_equity(current_prices) > 0 else 0.0,
                     "dd_asof": round(dd_asof, 6),
                     "ath_asof": round(ath_asof, 2),
                     "overlay_reason": safety_reason,
