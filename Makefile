@@ -60,6 +60,8 @@ verify:
 	LEDGER=dist/RUN_LEDGER_v$$VER.json; \
 	SIDECAR=dist/DROP_PACKET_SHA256.txt; \
 	$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --drop-packet-sha "$$SIDECAR" --strict
+	$(PYTHON) scripts/check_dependency_cycles.py
+	@echo "🛡️  Fiduciary Verified: $(shell date)"
 
 clean-zombies:
 	@echo "🧹 Cleaning Orphaned Simulations..."

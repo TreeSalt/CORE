@@ -117,19 +117,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     Orchestrate the creation of the TRADER_OPS drop packet.
     Returns the ledger dictionary.
     """
-    # 0. Dist Hygiene (The Clean Room)
-    if dist_dir.exists():
-        print(f"🧹 Purging Dist Folder: {dist_dir.name}...")
-        shutil.rmtree(dist_dir)
+    _check_disk_quota()
     dist_dir.mkdir(parents=True, exist_ok=True)
-
+    
     # Temporary holding area for intermediate artifacts (Isolated from final dist)
     build_tmp = repo_root / "reports/forge/build_tmp"
-    if build_tmp.exists():
-        shutil.rmtree(build_tmp)
     build_tmp.mkdir(parents=True, exist_ok=True)
-
-    # 0. Git Provenance (Pre-Flight)
     # We must check BEFORE bumping version, otherwise we are always dirty.
     git_info = get_git_info(repo_root)
     print(f"🧬 Git Provenance: {git_info['sha'][:8]} (Dirty: {git_info['dirty']})")
@@ -416,11 +409,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         zf.write(evidence_zip, evidence_zip_name)
         zf.write(ledger_inner_path, ledger_inner_name)
         if (repo_root / "SOVEREIGN_REPORT.md").exists():
-            zf.write(repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
+            _write_to_zip(zf, repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
 
-        timestamp = _get_timestamp()
-
+    with zipfile.ZipFile(drop_zip, "a", zipfile.ZIP_DEFLATED) as zf:
         # Update metadata to list the correct inner ledger
+        timestamp = _get_timestamp()
         meta_content = (
             f"TRADER_OPS Ready-to-Drop Artifact Metadata\n"
             f"==========================================\n\n"
@@ -438,8 +431,16 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         )
 
         zinfo = zipfile.ZipInfo("METADATA.txt", date_time=(2020, 1, 1, 0, 0, 0))
+        # [HYDRA FIX: Determinism] Force Unix (3) and clear extra
+        zinfo.create_system = 3
+        zinfo.extra = b""
         zinfo.external_attr = 0o644 << 16
         zf.writestr(zinfo, meta_content)
+
+    # HYDRA GUARD: Payload Inflation Protection (Vector 39)
+    drop_size = drop_zip.stat().st_size
+    if drop_size > 1024 * 1024 * 1024:  # 1GB
+        raise RuntimeError(f"PAYLOAD INFLATION DETECTED: {drop_zip.name} exceeds 1GB limit")
 
     drop_hash = hash_file(drop_zip)
     ledger["artifacts"]["ready_to_drop"] = {"filename": drop_zip_name, "sha256": drop_hash}
@@ -567,8 +568,6 @@ def _write_to_zip(zf: zipfile.ZipFile, path: Path, arcname: str) -> None:
 
     with open(path, "rb") as f:
         data = f.read()
-        # HYDRA GUARD: Zip Bomb Protection (Vector 27)
-        # Check compression ratio. If ratio > 100, reject.
         # compressed_size is unknown until write, so we rely on heuristic or estimate.
         # Actually, we can check size after writestr if we want, or just enforce a raw size limit.
         if len(data) > 1024 * 1024 * 500: # 500MB limit per file
@@ -591,12 +590,42 @@ def _assert_cleanliness(root: Path) -> None:
         raise RuntimeError("Dirty Repo: __pycache__ found. Run 'make clean' first.")
 
 
+def _check_disk_quota(min_gb: float = 5.0) -> None:
+    # HYDRA GUARD: Quota Crash Protection (Vector 70)
+    import shutil
+    _, _, free = shutil.disk_usage(".")
+    free_gb = free / (1024**3)
+    if free_gb < min_gb:
+        raise RuntimeError(f"RESOURCE EXHAUSTION: Disk space ({free_gb:.2f} GB) below Hydra limit ({min_gb} GB)")
+
+
 def _is_forbidden(path: Path) -> bool:
-    # HYDRA GUARD: Symlink Loop Protection (Vector 26)
+    # HYDRA GUARD: Pickle Poison Protection (Vector 66)
+    if path.suffix in {".pkl", ".pickle", ".joblib"}:
+        raise RuntimeError(f"SECURITY VIOLATION: Binary state file '{path.name}' detected. Pickle is forbidden.")
+
+    # HYDRA GUARD: Double-Dot Trap (Vector 101)
+    if ".." in str(path):
+        return True
+    
+    # HYDRA GUARD: Null Byte Bomb (Vector 111)
+    if "\0" in str(path):
+        raise RuntimeError(f"SECURITY VIOLATION: Null byte in path '{path}'.")
+    
+    # HYDRA GUARD: Symlink Loop & Redirection Protection (Vector 26, 38)
     if path.is_symlink():
         return True # Reject all symlinks in Sovereign artifacts for reliability
     
+    # HYDRA GUARD: Path Traversal Protection (Vector 37)
+    # Ensure path is internal to the archive structure
+    try:
+        path.resolve() # Check for existence and basic sanity
+    except Exception:
+        return True
+    
     if path.name.startswith("."):
+        if path.name == ".gitignore":
+             return False # Allowed for provenance
         return True
     if any(part.startswith(".") for part in path.parts):
         return True

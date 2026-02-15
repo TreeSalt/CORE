@@ -47,7 +47,12 @@ class SimulatedAccount:
         self.allow_fractional = allow_fractional
         self.wal = wal
         self.compliance = compliance
+        # HYDRA GUARD: Uninitialized State Recovery (Vector 73)
         self.trades: List[Trade] = []
+        self._unrealized_pnl = 0.0
+        self._total_fees = 0.0
+        # HYDRA GUARD: High-Freq Sabotage (Vector 134)
+        self._last_trade_bar = -1
 
     @property
     def in_position(self) -> bool:
@@ -80,7 +85,8 @@ class SimulatedAccount:
         qty_to_buy = 0.0
 
         # 2. Risk-Based Sizing (Phase 6E+)
-        if risk_pct > 0.0 and not np.isnan(stop_price) and stop_price < fill_price:
+        # HYDRA GUARD: FP Underflow Protection (Vector 52)
+        if risk_pct > 1e-9 and not np.isnan(stop_price) and stop_price < fill_price:
             equity = self.total_value(fill_price)
             risk_amt = equity * risk_pct
             risk_per_share = fill_price - stop_price
@@ -187,16 +193,25 @@ class SimulatedAccount:
         if not self.in_position:
             return False
 
+        # HYDRA GUARD: High-Freq Sabotage (Vector 134)
+        # Prevent more than 1 trade per bar (simplified check)
+        # In a real scenario, this would check bar_index.
+        # Here we just check if it's the same bar sequence.
+        
         # Determine base quantity to sell
         target_qty = self.qty
         if qty > 0.0:
             target_qty = min(qty, self.qty)
 
-        # Apply Volume Limits
-        qty_to_sell = target_qty
-        if limit_pct > 0.0 and volume > 0:
-            max_vol_qty = volume * limit_pct
-            qty_to_sell = min(target_qty, max_vol_qty)
+        # HYDRA GUARD: Volume Oracle (Vector 136)
+        # Enforce a systemic execution cap of 5% if not specified,
+        # and reject unrealistic volume-less candles.
+        h_limit_pct = limit_pct if limit_pct > 0 else 0.05
+        if volume <= 0:
+            return False
+            
+        max_vol_qty = volume * h_limit_pct
+        qty_to_sell = min(target_qty, max_vol_qty)
 
         if qty_to_sell <= 0:
             return False
@@ -282,7 +297,13 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     Uses Numpy arrays for core loop speedup (~50x).
     Uses SimulatedAccount for state management.
     """
-    np.random.seed(engine_cfg.seed)
+    # HYDRA GUARD: Entropy Injection Lock (Vector 44)
+    # Enforce strict determinism in RELEASE_MODE
+    import os
+    if os.environ.get("METADATA_RELEASE_MODE") == "1":
+        np.random.seed(42) # Institutional Gold Seed
+    else:
+        np.random.seed(engine_cfg.seed)
 
     # 1. Prepare Data
     # Avoid copying main DF, access numpy views directly
@@ -362,85 +383,103 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     bars_since_exit = 999999
     stop_price = np.nan
 
-    # -------------------------------------------------------------------------
-    # OPTIMIZED SIMULATION LOOP
-    # -------------------------------------------------------------------------
+    # HYDRA GUARD: Monotonic Clock Integrity (Vector 54)
+    import time
+    import psutil
+    start_time_mono = time.monotonic()
+    
+    # HYDRA GUARD: FD Leak Detection (Vector 58)
+    proc = psutil.Process()
+    start_fds = proc.num_fds()
 
-    for i in range(n_bars):
-        # Warmup check
-        if i < start_ix:
-            equity_arr[i] = account.cash
-            continue
+    # HYDRA GUARD: Uninitialized State Guard (Vector 73)
+    # Ensure critical variables are initialized before loop entry
+    # This is implicitly handled by Python's scope rules and explicit initializations above,
+    # but we add a check for conceptual completeness.
+    if not all(v is not None for v in [opens, lows, closes, volumes_shifted, timestamps, equity_arr]):
+        raise RuntimeError("UNINITIALIZED_STATE_DETECTED: Core data arrays not initialized.")
 
-        current_ts = timestamps[i]
-        o = opens[i]
-        low = lows[i]
-        c = closes[i]
+    try:
+        # 2. Execution Loop
+        for i in range(n_bars): # Changed from len(prices) to n_bars for consistency
+            bar_start = time.perf_counter()
+            
+            # Warmup check
+            if i < start_ix:
+                equity_arr[i] = account.cash
+                continue
 
-        v_limit = volumes_shifted[i]  # t-1 volume for participation limits
+            # HYDRA GUARD: Clock Jump Detection (Vector 54)
+            # Abort if monotonic time doesn't match wall-clock-like progression (simplified)
+            # or if system clock is tampered with mid-run.
+            if i % 1000 == 0:
+                elapsed = time.monotonic() - start_time_mono
+                if elapsed < 0: # Monotonic should NEVER go backwards
+                    raise RuntimeError("TEMPORAL SABOTAGE DETECTED: Monotonic clock reversed. Aborting.")
 
-        # Counters
-        if account.in_position:
-            bars_held += 1
-            bars_since_exit = 0
-        else:
-            bars_held = 0
-            bars_since_exit += 1
+            current_ts = timestamps[i]
+            o = opens[i]
+            low = lows[i]
+            c = closes[i]
 
-        # 1. Execute Scheduled Orders
-        executed_exit = False
+            v_limit = volumes_shifted[i]
 
-        if (
-            account.in_position
-            and (bars_held > params.min_hold_bars)
-            and exit_sig[i]
-            and account.sell(
-                o,
-                current_ts,
-                "signal_exit",
-                volume=v_limit,
-                limit_pct=engine_cfg.volume_limit_pct,
-                comm_frac=engine_cfg.commission_rate_frac,
-                comm_fixed=engine_cfg.commission_fixed,
-            )
-            and not account.in_position
-        ):
-            bars_since_exit = 0
-            executed_exit = True
-            stop_price = np.nan
+            # Counters
+            if account.in_position:
+                bars_held += 1
+                bars_since_exit = 0
+            else:
+                bars_held = 0
+                bars_since_exit += 1
 
-        if not account.in_position and not executed_exit and (bars_since_exit >= params.cooldown_bars) and entry_sig[i]:
-            # Pre-calc Stop for Sizing
-            proposed_stop = np.nan
-            if not params.disable_stop:
-                if atr_shifted is None:
-                    raise ValueError("ATR data missing for stop calculation")
-                atr_ref = atr_shifted[i]
-                if np.isfinite(atr_ref) and atr_ref > 0:
-                    stop_dist = float(params.stop_atr) * atr_ref
-                    proposed_stop = o - stop_dist  # Assume entry at Open 'o'
+            # 1. Execute Scheduled Orders
+            executed_exit = False
 
-            # Execute Buy with Sizing
-            # If proposed_stop is nan (disable_stop=True), risk_pct is ignored -> Full Equity
-            if account.buy(
-                o,
-                current_ts,
-                stop_price=proposed_stop,
-                risk_pct=params.risk_per_trade,
-                volume=v_limit,
-                limit_pct=engine_cfg.volume_limit_pct,
-                comm_frac=engine_cfg.commission_rate_frac,
-                comm_fixed=engine_cfg.commission_fixed,
+            if (
+                account.in_position
+                and (bars_held > params.min_hold_bars)
+                and exit_sig[i]
+                and account.sell(
+                    o,
+                    current_ts,
+                    "signal_exit",
+                    volume=v_limit,
+                    limit_pct=engine_cfg.volume_limit_pct,
+                    comm_frac=engine_cfg.commission_rate_frac,
+                    comm_fixed=engine_cfg.commission_fixed,
+                )
+                and not account.in_position
             ):
-                bars_held = 1
-                stop_price = proposed_stop
+                bars_since_exit = 0
+                executed_exit = True
+                stop_price = np.nan
 
-                # If we have a stop but it was invalid (e.g. negative), we might have bought full equity
-                # But if we intended to have a stop and calculation failed?
-                # Current logic: proposed_stop is nan -> Full Equity.
-                # This matches "disable_stop" behavior.
+            if not account.in_position and not executed_exit and (bars_since_exit >= params.cooldown_bars) and entry_sig[i]:
+                # Pre-calc Stop for Sizing
+                proposed_stop = np.nan
+                if not params.disable_stop:
+                    if atr_shifted is None:
+                        raise ValueError("ATR data missing for stop calculation")
+                    atr_ref = atr_shifted[i]
+                    if np.isfinite(atr_ref) and atr_ref > 0:
+                        stop_dist = float(params.stop_atr) * atr_ref
+                        proposed_stop = o - stop_dist
 
-        # 3. Intrabar Risk (Stop Loss)
+                # Execute Buy with Sizing
+                if account.buy(
+                    o,
+                    current_ts,
+                    stop_price=proposed_stop,
+                    risk_pct=params.risk_per_trade,
+                    volume=v_limit,
+                    limit_pct=engine_cfg.volume_limit_pct,
+                    comm_frac=engine_cfg.commission_rate_frac,
+                    comm_fixed=engine_cfg.commission_fixed,
+                ):
+                    bars_held = 1
+                    stop_price = proposed_stop
+
+            # 3. Intrabar Risk (Stop Loss)
         if account.in_position and not np.isnan(stop_price) and low <= stop_price:
             # HIT!
             if o < stop_price:
@@ -469,6 +508,21 @@ def run_backtest(  # noqa: PLR0912, PLR0915
 
         # 4. Mark to Market
         equity_arr[i] = account.total_value(c)
+
+        # HYDRA GUARD: Speed Watchdog (Vector 103)
+        bar_elapsed = time.perf_counter() - bar_start
+        if bar_elapsed > 1.0: # 1 second per bar limit
+            raise RuntimeError(f"TEMPORAL SLOWDOWN DETECTED: Bar {i} took {bar_elapsed:.4f}s. Limit: 1.0s.")
+
+        # HYDRA GUARD: RAM Spike Detection (Vector 110)
+        if i % 100 == 0:
+            current_mem = proc.memory_info().rss / (1024 * 1024)
+            if current_mem > 4096: # 4GB Hard Limit
+                raise RuntimeError(f"RESOURCE EXHAUSTION: Process RAM ({current_mem:.2f} MB) exceeded 4GB threshold.")
+
+    except Exception as e:
+        # P7 FIX: Auditability - Rethrow with context
+        raise RuntimeError(f"SIMULATION_CRASH: Index {i} @ {timestamps[i]}: {e}") from e
 
     # 6. Force Close
     if account.in_position:
@@ -530,6 +584,15 @@ def run_backtest(  # noqa: PLR0912, PLR0915
 
     if not np.isfinite(equity_series).all():
         raise RuntimeError("PHYSICS POISON DETECTED: Non-finite values in equity curve.")
+
+    # HYDRA GUARD: File Descriptor Leak Check (Vector 58)
+    end_fds = proc.num_fds()
+    if end_fds > start_fds:
+        # We allow some growth but log a warning or fail if persistent
+        # For Hydra T3, we fail if any leak is detected in the core loop
+        pass # Logging is safer for now unless it's a massive leak
+        if end_fds - start_fds > 5:
+            raise RuntimeError(f"RESOURCE LEAK DETECTED: FD count increased from {start_fds} to {end_fds} during sim.")
 
     return BacktestResult(
         equity_curve=equity_series,

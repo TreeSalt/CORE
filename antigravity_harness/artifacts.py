@@ -27,11 +27,20 @@ class ArtifactManager:
         return full_path
 
     def write_text(self, relative_path: str, content: str, overwrite: bool = False) -> None:
-        """Write text content and immediately register the artifact."""
+        """Write text content and immediately register the artifact. (Atomic)"""
         path = self.get_abs_path(relative_path)
         if path.exists() and not overwrite:
             raise FileExistsError(f"Artifact Sovereignty: Cannot overwrite {relative_path}")
-        path.write_text(content, encoding="utf-8")
+        
+        # HYDRA GUARD: Atomic Write Enforcement (Vector 42)
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
+        tmp_path.write_text(content, encoding="utf-8")
+        # Ensure bits hit the disk
+        with open(tmp_path, "a") as f:
+            f.flush()
+            os.fsync(f.fileno())
+        
+        os.replace(tmp_path, path)
         self._register(path, relative_path)
 
     def write_json(self, relative_path: str, data: Any, overwrite: bool = False) -> None:

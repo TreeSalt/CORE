@@ -111,6 +111,10 @@ def save_run_metadata(
         "data_hash": data_hash,
         "cmd_args": cmd_args or {},
         "config_snapshot": config,
+        "environment_vars": {
+            "PYTHONPATH": os.environ.get("PYTHONPATH", "UNDEFINED"),
+            "METADATA_RELEASE_MODE": os.environ.get("METADATA_RELEASE_MODE", "0"),
+        },
         **extra_safe,
     }
 

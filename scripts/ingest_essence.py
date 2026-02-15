@@ -61,7 +61,12 @@ class IntelligenceIngestor:
         try:
             resp = self.client.get(source["url"])
             resp.raise_for_status()
+            
+            # HYDRA GUARD: Large File SABOTAGE (Vector 43)
+            # Rejects oversized raw assets to prevent disk exhaustion
             raw_data = resp.content
+            if len(raw_data) > 1024 * 1024 * 100: # 100 MB limit
+                raise RuntimeError(f"CONTENT OVERSIZE: {source_id} retrieved {len(raw_data)} bytes. Threshold: 100MB.")
 
             # 1. Cryptographic Binding (Sovereign Hash)
             sha = get_sha256(raw_data)
@@ -82,19 +87,41 @@ class IntelligenceIngestor:
             return None
 
     def _update_ledger(self, source_id: str, timestamp: int, sha: str, path: str):
-        with open(LEDGER_FILE, "r+") as f:
-            ledger = json.load(f)
-            entry = {
-                "source": source_id,
-                "timestamp": timestamp,
-                "sha256": sha,
-                "path": path,
-                "type": SOURCES[source_id]["type"],
-            }
-            ledger["entries"].append(entry)
-            f.seek(0)
+        # HYDRA GUARD: Atomic State Update (Vector 42)
+        if LEDGER_FILE.exists():
+            with open(LEDGER_FILE, "r") as f:
+                ledger = json.load(f)
+        else:
+            ledger = {"entries": []}
+
+        # HYDRA GUARD: Time Reverse Protection (Vector 120)
+        # Ensure new entry has a timestamp >= latest entry for this source
+        source_entries = [e for e in ledger["entries"] if e["source"] == source_id]
+        if source_entries:
+            latest = max(e["timestamp"] for e in source_entries)
+            if timestamp < latest:
+                raise RuntimeError(f"TEMPORAL ANOMALY: {source_id} timestamp {timestamp} < latest {latest}. Possible replay attack.")
+
+        # HYDRA GUARD: Flash Crash / Anomaly Guard (Vector 107)
+        # (Placeholder for content-based anomaly detection)
+        # if self._detect_anomaly(source_id, raw_data): ...
+
+        entry = {
+            "source": source_id,
+            "timestamp": timestamp,
+            "sha256": sha,
+            "path": path,
+            "type": SOURCES[source_id]["type"],
+        }
+        ledger["entries"].append(entry)
+        
+        tmp_ledger = LEDGER_FILE.with_suffix(".tmp")
+        with open(tmp_ledger, "w") as f:
             json.dump(ledger, f, indent=4)
-            f.truncate()
+            f.flush()
+            os.fsync(f.fileno())
+        
+        os.replace(tmp_ledger, LEDGER_FILE)
 
 
 def parse_cnn_fear_greed(_raw_html: bytes) -> Dict[str, Any]:

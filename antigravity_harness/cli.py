@@ -40,7 +40,29 @@ from antigravity_harness.utils import infer_periods_per_year, safe_to_csv
 from antigravity_harness.zip_verifier import cmd_verify
 
 
+# HYDRA GUARD: Shell Escape Protection (Vector 36) & String Overflow (Vector 51)
+def _sanitize_string(s: str) -> str:
+    """Rejects strings containing malicious shell characters or excessive length."""
+    # HYDRA GUARD: String Overflow Protection (Vector 51)
+    if len(s) > 4096:
+        raise ValueError(f"INPUT_OVERFLOW: String parameter exceeds 4096 characters.")
+    
+    # HYDRA GUARD: Null Byte Bomb Protection (Vector 111)
+    if "\0" in s:
+        raise ValueError(f"SECURITY_VIOLATION: Null byte detected in input.")
+
+    forbidden = {";", "&", "|", ">", "<", "`", "$", "(", ")", "\\", "'", "\"", "*", "?", "[", "]"}
+    if any(c in s for c in forbidden):
+        raise ValueError(f"SHELL ESCAPE DETECTED: Illegal characters in input '{s}'. Aborting for safety.")
+    return s
+
+
 def cmd_calibrate(args: argparse.Namespace) -> None:  # noqa: PLR0915
+    # HYDRA GUARD: Input Sanitization (Vector 36)
+    args.symbol = _sanitize_string(args.symbol)
+    args.strategy = _sanitize_string(args.strategy)
+    args.gate_profile = _sanitize_string(args.gate_profile)
+    
     print(f"FORTRESS PROTOCOL: Unicorn-Grade Validity (Profile: {args.gate_profile})")
     out_dir = args.output_dir or str(REPORT_DIR / "artifacts")
     os.makedirs(out_dir, exist_ok=True)
@@ -115,6 +137,11 @@ def cmd_validate(args: argparse.Namespace) -> None:  # noqa: PLR0915
             "stop_atr": args.stop_atr,
         }
         params = StrategyParams(**p_dict)
+
+    # HYDRA GUARD: Input Sanitization (Vector 36)
+    args.symbol = _sanitize_string(args.symbol)
+    args.strategy = _sanitize_string(args.strategy)
+    args.gate_profile = _sanitize_string(args.gate_profile)
 
     # Use calibration._run_one to ensure Phase 6E gates_6e usage
 
@@ -328,7 +355,6 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0915
         if isinstance(v, (np.float64, np.float32, float)):
             return float(v)
         return v
-
     tear_sheet = {
         "symbol": args.symbol,
         "interval": args.interval,
@@ -519,6 +545,11 @@ def cmd_walk_forward(args: argparse.Namespace) -> None:
 
 
 def cmd_stage_candidate(args: argparse.Namespace) -> None:
+    # HYDRA GUARD: Input Sanitization (Vector 36)
+    args.symbol = _sanitize_string(args.symbol)
+    args.strategy = _sanitize_string(args.strategy)
+    args.gate_profile = _sanitize_string(args.gate_profile)
+    
     print("🏆 STAGE CANDIDATE (Phase 6F Minimal)")
 
     # Check for legacy alias usage
@@ -607,6 +638,23 @@ def cmd_stage_candidate(args: argparse.Namespace) -> None:
 
     print(f"🏆 SUCCESS: Promoted to STAGING. {reg_res['message']}")
     sys.exit(0)
+
+
+def main():
+    # HYDRA GUARD: Resource Clamping (Vector 128) & Core Dump Leak (Vector 141)
+    try:
+        import resource
+        # Clamp virtual memory to 4GB
+        resource.setrlimit(resource.RLIMIT_AS, (4 * 1024**3, 4 * 1024**3))
+        # Disable core dumps
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except (ImportError, ValueError, OSError):
+        # Non-Linux or permission restricted
+        pass
+
+    parser = build_parser()
+    args = parser.parse_args()
+    args.func(args)
 
 
 def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
@@ -1181,4 +1229,11 @@ def main(argv: Any = None) -> None:
 
 
 if __name__ == "__main__":
+    # HYDRA GUARD: Root Execution Guard (Vector 90)
+    # Never run as root to avoid systemic damage or privilege escalation
+    import os
+    if hasattr(os, "getuid") and os.getuid() == 0:
+        print("❌ SECURITY VIOLATION: Harness cannot be run as ROOT. Exiting for safety.")
+        sys.exit(1)
+        
     main()

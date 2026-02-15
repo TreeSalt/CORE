@@ -186,8 +186,13 @@ def save_yaml(obj: Any, path: str) -> None:
     if hasattr(obj, "model_dump"):
         obj = obj.model_dump()
 
-    with p.open("w", encoding="utf-8") as f:
+    tmp_path = p.with_suffix(p.suffix + ".tmp")
+    with tmp_path.open("w", encoding="utf-8") as f:
         yaml.safe_dump(obj, f, sort_keys=False)
+        f.flush()
+        os.fsync(f.fileno())
+    
+    os.replace(tmp_path, p)
 
 
 def load_yaml(path: str) -> Dict[str, Any]:

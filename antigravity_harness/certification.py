@@ -58,7 +58,11 @@ def run_certification(args: argparse.Namespace) -> str:  # noqa: PLR0912, PLR091
     timestamp_utc = datetime.now(timezone.utc).isoformat()
 
     # P0 FIX: Collision-proof ID (Microseconds + Random Suffix)
-    # P0 FIX: Collision-proof ID (Microseconds + Random Suffix)
+    # HYDRA GUARD: Environment Isolation (Vector 31)
+    # Enforce Deterministic Release Mode for all Certification runs
+    os.environ["METADATA_RELEASE_MODE"] = "1"
+    
+    # Suffix for collision-proof ID
     suffix = "".join(random.choices("0123456789abcdef", k=6))
     run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")[:18] + f"_{suffix}"
 

@@ -10,6 +10,9 @@ def max_drawdown(equity: pd.Series) -> float:
     if equity.empty:
         return 0.0
     peak = equity.cummax()
+    # HYDRA GUARD: Zero-Div Chaos (Vector 102)
+    if (peak == 0).any():
+         return 0.0
     dd = (equity / peak) - 1.0
     return float(dd.min()) * -1.0  # positive fraction (e.g., 0.25 = -25%)
 
@@ -28,6 +31,9 @@ def cagr(equity: pd.Series, periods_per_year: int) -> float:
     if n_days <= 0:
         return 0.0
     years = n_days / float(periods_per_year)
+    # HYDRA GUARD: Zero-Div Chaos (Vector 102)
+    if years == 0:
+        return 0.0
     return float((end / start) ** (1 / years) - 1.0)
 
 

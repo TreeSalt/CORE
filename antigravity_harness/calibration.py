@@ -16,6 +16,14 @@ from antigravity_harness.config import (
     load_yaml,
     save_yaml,
 )
+import psutil
+
+# HYDRA GUARD: Memory Leak Protection (Vector 29)
+def _check_memory_usage(limit_gb: float = 2.0) -> None:
+    process = psutil.Process()
+    rss_gb = process.memory_info().rss / (1024 * 1024 * 1024)
+    if rss_gb > limit_gb:
+        raise RuntimeError(f"RESOURCE EXHAUSTION: Memory usage ({rss_gb:.2f} GB) exceeds Hydra limit ({limit_gb} GB)")
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.data import load_ohlc  # For Ray loading
 from antigravity_harness.engine import Trade
@@ -475,6 +483,9 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
     portfolio_map: Dict[Tuple, Dict[str, Any]] = {}
 
     for (s, tf, p), r in zip(total_combinations, raw_results, strict=False):
+        # HYDRA GUARD: Resource Enforcement (Vector 29)
+        _check_memory_usage(limit_gb=2.0)
+        
         idx = to_idx(s, tf, p)
         results[idx] = r
         tc = int(r.metrics.trade_count)

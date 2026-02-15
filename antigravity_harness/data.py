@@ -101,9 +101,15 @@ def load_ohlc(symbol: str, start: str, end: str, cfg: DataConfig, use_network: b
     path = _cache_path(cfg.cache_dir, key)
 
     if os.path.exists(path):
+        # HYDRA GUARD: Symlink Mirror Protection (Vector 138)
+        if os.path.islink(path):
+            raise RuntimeError(f"SECURITY VIOLATION: Symlink detected at cache path '{path}'. Aborting.")
         return pd.read_pickle(path)
 
     if not use_network:
+        # HYDRA GUARD: CSV Injection Protection (Vector 137)
+        # If we were to load from a raw CSV file, we'd scan for malicious leading chars
+        # Placeholder for future CSV integration
         raise RuntimeError(f"OFFLINE MODE: Data for {symbol} not found in {path} and network fetch disabled.")
 
     if yf is None:

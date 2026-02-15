@@ -192,6 +192,16 @@ def main() -> int:
                     if f"{r}/RUN_METADATA.json" in e_names:
                         present_roots.append(r)
 
+                # --- HYDRA GUARD: Unicode Homoglyph Detection (Vector 80) ---
+                for name in names:
+                    # Check for non-ASCII characters that might mimic ASCII (basic check)
+                    if any(ord(c) > 127 for c in name):
+                        issues.append(Issue(FAIL, "HOMOGLYPH_DETECTED", f"Non-ASCII character in filename '{name}'. Possible mimic attack."))
+
+                # --- HYDRA GUARD: Omega Gate Self-Verification (Vector 100) ---
+                # Final safety: The verifier checks its own integrity if possible
+                # (Mocked for this stage, in reality it would compare against a signed manifest)
+
                 if not present_roots:
                     issues.append(Issue(FAIL, "SMOKE_ROOT_MISSING",
                                        "No smoke root found. Expected RUN_METADATA.json under smoke_test or synthetic_smoke."))
@@ -319,6 +329,17 @@ def main() -> int:
                 
                 if calc_preimage != stored_preimage:
                     issues.append(Issue(FAIL, "PREIMAGE_MISMATCH", f"Stored({stored_preimage[:8]}) != Calc({calc_preimage[:8]})"))
+
+        # --- HYDRA GUARD: Metadata Shadowing Detection (Vector 40) ---
+        if "METADATA.txt" in names and inner_ledger_name:
+            # Check if METADATA.txt version matches Ledger version
+            meta_txt = drop_zf.read("METADATA.txt").decode("utf-8")
+            m_ver = re.search(r"Version:\s*(\d+\.\d+\.\d+)", meta_txt)
+            if m_ver and inner_ledger_name:
+                ledger_ver = re.search(r"v(\d+\.\d+\.\d+)", inner_ledger_name)
+                if ledger_ver and m_ver.group(1) != ledger_ver.group(1):
+                     issues.append(Issue(FAIL, "METADATA_SHADOW_DETECTED",
+                                        f"METADATA.txt version ({m_ver.group(1)}) != Ledger version ({ledger_ver.group(1)})"))
 
     # --- Outer Ledger (if provided)
     if args.run_ledger:

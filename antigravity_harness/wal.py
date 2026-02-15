@@ -23,6 +23,7 @@ class WriteAheadLog:
         """)
         self.cursor.execute("PRAGMA synchronous = FULL;")
         self.cursor.execute("PRAGMA journal_mode = WAL;")
+        self.cursor.execute("PRAGMA busy_timeout = 5000;")
 
     def log_intent(self, intent_type: str, payload: dict) -> int:
         ts = datetime.now(timezone.utc).isoformat()

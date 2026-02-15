@@ -76,7 +76,7 @@ def unique_signals(  # noqa: PLR0913
             "exit_active": bool(last_bar.get("exit_signal", False)),
         },
         "params": strat_params.model_dump(),
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
     }
 
     return json.dumps(signal_payload, cls=JSONEncoder, indent=2, sort_keys=True)
