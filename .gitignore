@@ -8,3 +8,4 @@ vault/
 .coverage
 htmlcov/
 *.egg-info/
+.reproduce_venv/

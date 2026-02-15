@@ -240,6 +240,27 @@ def main() -> int:
             if ledger_git != evidence_git_commit:
                  issues.append(Issue(FAIL, "GIT_COMMIT_MISMATCH", f"Ledger({ledger_git}) != Evidence({evidence_git_commit})"))
 
+            # Tier 1: Drop Preimage (Single-File Sovereignty)
+            stored_preimage = il.get("sovereign_binding", {}).get("drop_preimage_sha256")
+            if not stored_preimage:
+                issues.append(Issue(FAIL, "PREIMAGE_MISSING", "Inner Ledger missing drop_preimage_sha256"))
+            else:
+                # Re-compute from the artifact block in the ledger itself
+                # This ensures the ledger's "artifacts" block wasn't tampered with relative to the binding
+                # And since we checked the artifact hashes against real files above, the chain is closed.
+                artifacts_block = il.get("artifacts", {})
+                # Ensure ready_to_drop is NOT present (it shouldn't be in inner, but just in case)
+                if "ready_to_drop" in artifacts_block:
+                     # Make a copy to strip it for calculation, though strict gate above fails if it exists
+                     artifacts_block = artifacts_block.copy()
+                     artifacts_block.pop("ready_to_drop")
+                
+                b = json.dumps(artifacts_block, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+                calc_preimage = hashlib.sha256(b).hexdigest()
+                
+                if calc_preimage != stored_preimage:
+                    issues.append(Issue(FAIL, "PREIMAGE_MISMATCH", f"Stored({stored_preimage[:8]}) != Calc({calc_preimage[:8]})"))
+
     # --- Outer Ledger (if provided)
     if args.run_ledger:
         with open(args.run_ledger) as f:

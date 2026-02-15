@@ -285,6 +285,14 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         },
     }
 
+    # 5.0.1 Drop Preimage (Single-File Sovereignty)
+    # The "Preimage" is the canonical hash of the artifacts that exist BEFORE the ledger is sealed.
+    # This binds the Ledger to its siblings (Code + Evidence) without circularity.
+    preimage_payload = ledger["artifacts"]
+    preimage_bytes = json.dumps(preimage_payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ledger["sovereign_binding"]["drop_preimage_sha256"] = hashlib.sha256(preimage_bytes).hexdigest()
+    print(f"🔮 Drop Preimage Secured: {ledger['sovereign_binding']['drop_preimage_sha256'][:8]}")
+
     # 5.1 Create INNER LEDGER (shipped inside drop)
     # This ledger MUST NOT contain artifacts.ready_to_drop to avoid circularity.
     # It is stored in a temporary directory to keep 'dist' clean.
