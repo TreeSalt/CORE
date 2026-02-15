@@ -558,6 +558,9 @@ def _is_forbidden(path: Path) -> bool:
         return True
     if bool(any(part == "__pycache__" for part in path.parts)):
         return True
+    # Fix 4: Forge Purity - Forbid auto-inclusion of manifest (handled explicitly)
+    if path.name == "PAYLOAD_MANIFEST.json":
+        return True
     # Fix 3: Evidence Purity - Explicitly forbid tests/fixtures in artifacts
     return "tests" in path.parts and "fixtures" in path.parts
 

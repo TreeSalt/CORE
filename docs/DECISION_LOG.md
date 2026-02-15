@@ -101,3 +101,17 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-02-15: All-Knowing README: Constitutional Centralization and Self-Updating Gateway v4.4.44 (v4.4.44)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.44 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
