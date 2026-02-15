@@ -308,7 +308,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     # Create zip, but EXCLUDE the real docs/ready_to_drop/COUNCIL_CANON.yaml 
     # and instead inject our temp one later.
-    _create_zip(code_zip, repo_root, includes=code_zip_includes)
+    _create_zip(code_zip, repo_root, includes=code_zip_includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
 
     # Inject Manifest and TEMPORARY Canon into CODE Zip
     with zipfile.ZipFile(code_zip, "a") as zf:
@@ -605,12 +605,15 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
     print(f"📜 Decision Log Automated: v{version}")
 
 
-def _create_zip(zip_path: Path, root: Path, includes: List[str]) -> None:
+def _create_zip(zip_path: Path, root: Path, includes: List[str], exclude: List[str] = None) -> None:
     """Create a deterministic zip file containing specified paths."""
+    exclude = exclude or []
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for item in includes:
             item_path = root / item
             if item_path.is_file():
+                if item in exclude:
+                    continue
                 # Use the relative path from includes to preserve structure
                 _write_to_zip(zf, item_path, item)
             elif item_path.is_dir():
@@ -621,6 +624,8 @@ def _create_zip(zip_path: Path, root: Path, includes: List[str]) -> None:
                         continue
                     # Cross-platform path naming
                     arcname = Path(file_path.relative_to(root)).as_posix()
+                    if arcname in exclude:
+                        continue
                     _write_to_zip(zf, file_path, arcname)
 
 
