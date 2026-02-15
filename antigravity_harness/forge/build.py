@@ -243,7 +243,13 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 2.2 Create CODE Zip
     print(f"📦 Forging CODE Artifact: {code_zip.name}")
-    # Canon IS included in the Zip via the 'includes' list (which now closes the Canon Hole)
+    
+    # [SOLARI v5 FIX] Update manifest with FINAL canon hash AFTER fingerprinting
+    # This closes the "Chicken-and-Egg" loop for byte-level audits.
+    final_canon_hash = hash_file(canon_path)
+    payload_manifest["file_sha256"]["docs/ready_to_drop/COUNCIL_CANON.yaml"] = final_canon_hash
+    print(f"⚖️  Canon Fingerprint Synchronized: {final_canon_hash[:8]}")
+
     code_zip_includes = includes
     _create_zip(code_zip, repo_root, includes=code_zip_includes)
 
@@ -560,6 +566,9 @@ def _is_forbidden(path: Path) -> bool:
         return True
     # Fix 4: Forge Purity - Forbid auto-inclusion of manifest (handled explicitly)
     if path.name == "PAYLOAD_MANIFEST.json":
+        return True
+    # Fix 5: Solari v5 Hygiene - Forbid build_tmp in Evidence/Code
+    if "build_tmp" in path.parts:
         return True
     # Fix 3: Evidence Purity - Explicitly forbid tests/fixtures in artifacts
     return "tests" in path.parts and "fixtures" in path.parts
