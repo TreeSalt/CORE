@@ -45,6 +45,7 @@ def main() -> int:
             env = dict(os.environ)
             if args.mode == "v231":
                 env["ALLOW_DIRTY_BUILD"] = "1"
+                env["ALLOW_VERSION_BUMP"] = "0"
 
             proc = subprocess.run(v["cmd"], cwd=repo_root, capture_output=True, text=True, check=False, env=env)
             
