@@ -157,7 +157,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 1.6 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
-    smoke_dir = repo_root / "reports/forge/smoke_test"
+    smoke_dir = repo_root / "reports/forge/synthetic_smoke"
     if smoke_dir.exists():
         shutil.rmtree(smoke_dir)
     smoke_dir.mkdir(parents=True, exist_ok=True)
@@ -166,7 +166,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     try:
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
-            "--symbols", "MOCK", "--synthetic", "--outdir", "reports/forge/smoke_test"
+            "--symbols", "MOCK", "--synthetic", "--outdir", "reports/forge/synthetic_smoke"
         ], cwd=repo_root)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"SMOKE TEST FAILURE: Cannot package evidence if smoke test fails. {e}") from e
