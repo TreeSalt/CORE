@@ -193,6 +193,10 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if not ev_version.startswith(version):
             raise RuntimeError(f"VERSION DRIFT DETECTED: Evidence ({ev_version}) != Code ({version})")
 
+    # 1.7 Harvest Git Context (Early Binding)
+    git_info = get_git_info(repo_root)
+    print(f"🧬 Git Provenance: {git_info['sha'][:8]} (Dirty: {git_info['dirty']})")
+
     # 2. Create CODE Manifest (BREAK THE LOOP)
     print("📋 Generating CODE Manifest...")
     # NOTE: COUNCIL_CANON.yaml is EXCLUDED from manifest entries to break circularity
@@ -292,7 +296,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if (repo_root / "SOVEREIGN_REPORT.md").exists():
             zf.write(repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
 
-        git_info = get_git_info(repo_root)
+        if (repo_root / "SOVEREIGN_REPORT.md").exists():
+            zf.write(repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
+
         timestamp = _get_timestamp()
 
         # Update metadata to list the correct inner ledger
