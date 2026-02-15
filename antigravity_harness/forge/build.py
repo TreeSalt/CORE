@@ -343,8 +343,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print("🩹 Regenerating Sidecars...")
     # Clean OLD DROP_PACKET_SHA256.txt to avoid "Timeline Fracture"
     legacy_sidecar = dist_dir / "DROP_PACKET_SHA256.txt"
-    with open(legacy_sidecar, "w") as f:
-        f.write(f"{drop_hash}  {drop_zip_name}\n")
+    # STRICT ONE-LINE RULE: Always overwrite with the fresh drop hash
+    legacy_sidecar.write_text(f"{drop_hash}  {drop_zip_name}\n")
     
     # Generate versioned sidecars
     for artifact_name, artifact_hash in [

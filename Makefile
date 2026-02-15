@@ -49,6 +49,8 @@ forge:
 
 build:
 	$(PYTHON) -B scripts/make_drop_packet.py --out-dir dist
+	@# One-line rule for Sidecar Sovereignty (User Mandate)
+	@cd dist && DROP=$$(ls -1t TRADER_OPS_READY_TO_DROP_v*.zip | head -n 1) && sha256sum "$$DROP" > DROP_PACKET_SHA256.txt
 
 verify:
 	@set -e; \
