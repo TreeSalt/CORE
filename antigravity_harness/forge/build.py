@@ -220,9 +220,10 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "requirements.txt",
         "setup.py",
         "README.md",
-        "docs",  # Include all Sovereign Books and Canon
+        "docs",  # Includes all Sovereign Books
     ]
-    manifest_data = _generate_manifest_data(repo_root, includes=includes)
+    # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
+    manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
     payload_manifest = {"version": version, "file_sha256": manifest_data}
 
     # Canonical Manifest Hash for Ledger and Canon Binding
@@ -249,6 +250,10 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     final_canon_hash = hash_file(canon_path)
     payload_manifest["file_sha256"]["docs/ready_to_drop/COUNCIL_CANON.yaml"] = final_canon_hash
     print(f"⚖️  Canon Fingerprint Synchronized: {final_canon_hash[:8]}")
+    
+    # Final sorted manifest for bit-perfect CODE zip (Pass 2)
+    manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    (repo_root / "docs/ready_to_drop/PAYLOAD_MANIFEST.json").write_bytes(manifest_bytes)
 
     code_zip_includes = includes
     _create_zip(code_zip, repo_root, includes=code_zip_includes)
@@ -580,12 +585,15 @@ def _get_timestamp() -> str:
     return "2020-01-01T00:00:00Z"
 
 
-def _generate_manifest_data(root: Path, includes: List[str]) -> Dict[str, str]:
+def _generate_manifest_data(root: Path, includes: List[str], exclude: List[str] = None) -> Dict[str, str]:
     """Calculate hashes for all files to be included in the manifest."""
     manifest = {}
+    exclude = exclude or []
     for item in includes:
         item_path = root / item
         if item_path.is_file():
+            if item in exclude:
+                continue
             manifest[item] = hash_file(item_path)
         elif item_path.is_dir():
             for file_path in sorted(item_path.rglob("*")):
@@ -594,6 +602,8 @@ def _generate_manifest_data(root: Path, includes: List[str]) -> Dict[str, str]:
                 if _is_forbidden(file_path):
                     continue
                 arcname = Path(file_path.relative_to(root)).as_posix()
+                if arcname in exclude:
+                    continue
                 manifest[arcname] = hash_file(file_path)
     return manifest
 
