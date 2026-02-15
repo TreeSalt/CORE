@@ -221,6 +221,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "setup.py",
         "README.md",
         "docs/ready_to_drop/COUNCIL_CANON.yaml",  # Command I: Close the Canon Hole (Solari)
+        "docs/DECISION_LOG.md",  # Automatic Sovereignty (v4.4.43)
     ]
     manifest_data = _generate_manifest_data(repo_root, includes=includes)
     payload_manifest = {"version": version, "file_sha256": manifest_data}
@@ -460,7 +461,45 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print("🐉 Integrity Lock Secured.")
     print(f"   CODE: {code_hash[:8]}")
     print(f"   DROP: {drop_hash[:8]}")
+
+    # 9. Automated Decision Log (Automatic Sovereignty)
+    _auto_log_decision(repo_root, version, git_info)
+
     return ledger
+
+
+def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) -> None:
+    """Automatically append git context to the Decision Log."""
+    log_path = repo_root / "docs/DECISION_LOG.md"
+    if not log_path.exists():
+        return
+
+    content = log_path.read_text()
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    
+    # Avoid duplicate entries for the same version
+    if f"(v{version})" in content:
+        return
+
+    # Extract subject and body
+    lines = git_info["message"].strip().splitlines()
+    subject = lines[0] if lines else "Manual Build"
+    body = "\n".join(lines[1:]).strip() if len(lines) > 1 else "No additional context provided."
+
+    new_entry = (
+        f"\n---\n\n"
+        f"## {date_str}: {subject} (v{version})\n\n"
+        f"### Context\n"
+        f"Automated entry captured via Git Provenance during the v{version} forge.\n\n"
+        f"### Decision\n"
+        f"{body if body else subject}\n\n"
+        f"### Trade-offs\n"
+        f"- **Pros**: Guaranteed provenance; zero-effort documentation.\n"
+        f"- **Cons**: Depth of log depends on commit message quality.\n"
+    )
+    
+    log_path.write_text(content + new_entry)
+    print(f"📜 Decision Log Automated: v{version}")
 
 
 def _create_zip(zip_path: Path, root: Path, includes: List[str]) -> None:
