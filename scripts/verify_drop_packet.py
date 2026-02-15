@@ -110,6 +110,23 @@ def main() -> int:
     # --- Load drop zip
     drop_sha = sha256_file(args.drop)
     
+    # 0.0 Auto-discover sidecar in strict mode (verifier rule, fail-closed).
+    if args.strict and not args.drop_packet_sha:
+        drop_path = Path(args.drop).resolve()
+        drop_dir = drop_path.parent
+        m = re.search(r"v(\d+\.\d+\.\d+)", drop_path.name)
+        ver = m.group(1) if m else None
+        candidates: List[Path] = []
+        if ver:
+            candidates.append(drop_dir / f"DROP_PACKET_SHA256_v{ver}.txt")
+        candidates.append(drop_dir / (drop_path.name + ".sha256"))
+        candidates.append(drop_dir / "DROP_PACKET_SHA256.txt")
+        for c in candidates:
+            if c.exists():
+                args.drop_packet_sha = str(c)
+                print(f"🔍 Auto-discovered sidecar: {c.name}")
+                break
+    
     # 0. Legacy Sidecar Gate (Timeline Sovereignty)
     if args.drop_packet_sha:
         sidecar_sha, sidecar_name = read_drop_packet_sha256_txt(args.drop_packet_sha)

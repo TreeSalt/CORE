@@ -121,7 +121,18 @@ LEDGER="$DIST_DIR/RUN_LEDGER_v$VER.json"
 }
 
 SIDECAR="$(find_sidecar "$VER" "$DROP_ZIP")"
-[[ -n "$SIDECAR" ]] || warn "No sidecar hash file found (DROP_PACKET_SHA256_v*.txt or *.zip.sha256). Strict mode may require it."
+[[ -n "$SIDECAR" ]] || bad "No sidecar hash file found (DROP_PACKET_SHA256_v*.txt or *.zip.sha256). Strict mode requires it."
+
+bold "1.5) Strict-mode assertion"
+STRICT_FLAG="$(LEDGER="$LEDGER" python3 - <<'PY'
+import json, os
+with open(os.environ["LEDGER"], "r") as f:
+    d = json.load(f)
+print(str(d.get("strict_mode", False)).lower())
+PY
+)"
+[[ "$STRICT_FLAG" == "true" ]] || bad "Ledger strict_mode is not true (set STRICT_MODE=1 for fiduciary-grade builds)"
+ok "ledger strict_mode = true"
 
 bold "1) Identity (hashes)"
 DROP_SHA="$(sha256_file "$DROP_ZIP")"

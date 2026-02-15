@@ -395,7 +395,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "version": version,
         "timestamp_utc": _get_timestamp(),
         "build_wallclock_utc": _get_wallclock(),
-        "strict_mode": (os.environ.get("STRICT_MODE") == "1"),
+        "strict_mode": (os.environ.get("STRICT_MODE", "1") == "1"),
         "artifacts": {
             "code": {"filename": code_zip_name, "sha256": code_hash},
             "evidence": {"filename": evidence_zip_name, "sha256": evidence_hash},
@@ -525,7 +525,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "--run-ledger", str(ledger_path),
         "--drop-packet-sha", str(dist_dir / f"DROP_PACKET_SHA256_v{version}.txt"),
     ]
-    if os.environ.get("STRICT_MODE") == "1":
+    if os.environ.get("STRICT_MODE", "1") == "1":
         verify_args.append("--strict")
     
     try:

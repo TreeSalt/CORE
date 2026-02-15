@@ -22,7 +22,8 @@ help:
 	@echo "  make test-hardening Run Phase 9E hardening tests"
 	@echo "  make preflight      Run comprehensive pre-flight checks"
 	@echo "  make clean          Clean repository artifacts"
-	@echo "  make build          Build drop packet (auto-versioning)"
+	@echo "  make build          Build a strict, self-verifying drop packet into ./dist"
+	@echo "  make verify         Run the Sovereign Audit against ./dist (fail-closed)"
 	@echo "  make all            Run lint, type-check, test, preflight, and build"
 
 install:
@@ -55,7 +56,7 @@ forge:
 	$(PYTHON) -B scripts/forge_evidence.py
 
 build:
-	$(PYTHON) -B scripts/make_drop_packet.py --out-dir dist
+	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir dist
 	@# One-line rule for Sidecar Sovereignty (User Mandate)
 	@cd dist && DROP=$$(ls -1t TRADER_OPS_READY_TO_DROP_v*.zip | head -n 1) && sha256sum "$$DROP" > DROP_PACKET_SHA256.txt
 
@@ -95,9 +96,8 @@ show-dist:
 	@ls -lah "$(DIST)" || true
 
 verify:
-	@test -f "$(DROP)" || (echo "❌ DROP missing: $(DROP)" && exit 1)
-	@test -f "$(LEDGER)" || (echo "❌ LEDGER missing: $(LEDGER)" && exit 1)
-	$(PYTHON) scripts/verify_drop_packet.py --drop "$(DROP)" --run-ledger "$(LEDGER)" --drop-packet-sha "$(DROP_SHA)" --strict
+	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
+	@bash "$(ONE_TRUE)" "$(DIST)"
 	$(PYTHON) scripts/check_dependency_cycles.py
 	@echo "🛡️  Fiduciary Verified: $(shell date)"
 
