@@ -460,12 +460,27 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # 6. Create DROP Zip (The Final Package)
     print(f"📦 Forging DROP Artifact: {drop_zip.name}")
     
+    # [DIST HARDENING] Define sidecar content
+    # Note: We can only hash the final zip AFTER closing it. 
+    # So the internal sidecar will contain the hashes of the INNER components 
+    # to allow portable per-component verification.
+    sidecar_internal_txt = (
+        f"{code_hash}  {code_zip_name}\n"
+        f"{evidence_hash}  {evidence_zip_name}\n"
+        f"{hash_file(ledger_inner_path)}  {ledger_inner_name}\n"
+    )
+
     with zipfile.ZipFile(drop_zip, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.write(code_zip, code_zip_name)
         zf.write(evidence_zip, evidence_zip_name)
         zf.write(ledger_inner_path, ledger_inner_name)
         if (repo_root / "SOVEREIGN_REPORT.md").exists():
             _write_to_zip(zf, repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
+        
+        # Inject Internal Witness Sidecar
+        zinfo_s = zipfile.ZipInfo(f"DROP_PACKET_SHA256_v{version}.txt", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_s.compress_type = zipfile.ZIP_DEFLATED
+        zf.writestr(zinfo_s, sidecar_internal_txt)
 
     with zipfile.ZipFile(drop_zip, "a", zipfile.ZIP_DEFLATED) as zf:
         # Update metadata to list the correct inner ledger
@@ -515,9 +530,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # 7. Automated Sidecars (Hygiene Enforcement)
     print("🩹 Regenerating Sidecars...")
     # Clean OLD DROP_PACKET_SHA256.txt to avoid "Timeline Fracture"
-    legacy_sidecar = dist_dir / "DROP_PACKET_SHA256.txt"
-    # STRICT ONE-LINE RULE: Always overwrite with the fresh drop hash
-    legacy_sidecar.write_text(f"{drop_hash}  {drop_zip_name}\n")
+    # The unversioned sidecar is removed as per instruction.
     
     # Versioned Sidecar (Immutable History)
     versioned_sidecar = dist_dir / f"DROP_PACKET_SHA256_v{version}.txt"

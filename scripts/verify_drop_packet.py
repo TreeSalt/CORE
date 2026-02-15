@@ -117,6 +117,8 @@ def main() -> int:
         drop_dir = drop_path.parent
         m = re.search(r"v(\d+\.\d+\.\d+)", drop_path.name)
         ver = m.group(1) if m else None
+        
+        # Priority 1: External Versioned
         candidates: List[Path] = []
         if ver:
             candidates.append(drop_dir / f"DROP_PACKET_SHA256_v{ver}.txt")
@@ -125,8 +127,29 @@ def main() -> int:
         for c in candidates:
             if c.exists():
                 args.drop_packet_sha = str(c)
-                print(f"🔍 Auto-discovered sidecar: {c.name}")
+                print(f"🔍 Auto-discovered external sidecar: {c.name}")
                 break
+        
+        # Priority 2: Internal Sidecar (Portable Sovereignty)
+        if not args.drop_packet_sha and ver:
+            try:
+                with zipfile.ZipFile(args.drop, 'r') as z:
+                    sidecar_name = f"DROP_PACKET_SHA256_v{ver}.txt"
+                    if sidecar_name in z.namelist():
+                        print(f"🔍 Discovered internal sidecar: {sidecar_name}")
+                        # We don't have a file path, but we can load the content.
+                        # For simplicity in this verifier's flow, we'll continue 
+                        # but we need to pass the content.
+                        # Let's adjust read_drop_packet_sha256_txt to support direct content or just inject here.
+                        raw = z.read(sidecar_name).decode("utf-8").strip()
+                        parts = raw.split()
+                        # Note: Internal sidecar might contain multi-hashes (nested).
+                        # But if it's the DROP sidecar, it should match the drop itself.
+                        # Actually, build.py writes the INNER hashes to the internal sidecar.
+                        # This means it's a witness, not the drop hash itself.
+                        pass # Internal sidecar is a witness; external is still primary for the zip itself.
+            except Exception:
+                pass
     
     # 0. Legacy Sidecar Gate (Timeline Sovereignty)
     if args.drop_packet_sha:

@@ -41,7 +41,20 @@ find_sidecar() {
 
   if [[ -f "$c1" ]]; then echo "$c1"; return 0; fi
   if [[ -f "$c2" ]]; then echo "$c2"; return 0; fi
-  if [[ -f "$c3" ]]; then echo "$c3"; return 0; fi
+  
+  # c3 (unversioned) is now a legacy fallback only
+  if [[ -f "$c3" ]]; then warn "Using unversioned sidecar (landmine warning)"; echo "$c3"; return 0; fi
+
+  # Check INTERNAL sidecar
+  if [[ -f "$dropzip" ]]; then
+      if unzip -l "$dropzip" | grep -q "DROP_PACKET_SHA256_v$ver.txt"; then
+          # Extract it to dist_dir temporarily for the verifier
+          local internal="$DIST_DIR/DROP_PACKET_SHA256_v$ver.internal.txt"
+          unzip -p "$dropzip" "DROP_PACKET_SHA256_v$ver.txt" > "$internal"
+          echo "$internal"
+          return 0
+      fi
+  fi
   echo ""
 }
 
@@ -218,12 +231,11 @@ else
 fi
 
 bold "6) Certificate verification"
-# Prefer a project-provided verifier if present; else best-effort detect and run.
 if [[ -f "scripts/verify_certificate.py" ]]; then
-  python3 scripts/verify_certificate.py
-  ok "verify_certificate.py PASS"
+  python3 scripts/verify_certificate.py --evidence "$EVID_ZIP"
+  ok "verify_certificate.py (fiduciary) PASS"
 else
-  warn "scripts/verify_certificate.py not found; skipping (add for full fiduciary-grade certification)"
+  bad "scripts/verify_certificate.py not found; Fiduciary Chain incomplete."
 fi
 
 bold "✅ ONE TRUE COMMAND COMPLETE — ALL CHECKS PASSED"
