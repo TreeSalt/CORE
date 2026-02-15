@@ -4,7 +4,7 @@ repo:
   version: "4.4.56"
   generated_at_utc: "2020-01-01T00:00:00Z"
   fingerprint_type: "payload_manifest_sha256"
-  fingerprint_sha256: "f4a76815c444d67796237adc02da36ba4b9ec8d5c85a7e8602f14ad676ed755d"
+  fingerprint_sha256: "7e5675072d6f3a6140536d992531afef0d43c326084fe39a84ce390e38fe4758"
 
 phases:
   - id: "6E"
