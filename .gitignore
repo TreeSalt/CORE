@@ -1,1 +1,10 @@
+__pycache__/
+*.pyc
+dist/
+reports/
+tmp/
 vault/
+.DS_Store
+.coverage
+htmlcov/
+*.egg-info/
