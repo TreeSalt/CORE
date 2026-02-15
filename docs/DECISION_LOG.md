@@ -199,3 +199,17 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-02-15: Chaos Fix: Normalize build timestamps for bit-perfect determinism v4.4.51 (v4.4.51)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.51 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

@@ -480,7 +480,8 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
         return
 
     content = log_path.read_text()
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    # [STAGE 1 FIX: Determinism] Use fixed date for Decision Log
+    date_str = "2020-01-01"
     
     # Avoid duplicate entries for the same version
     if f"(v{version})" in content:
