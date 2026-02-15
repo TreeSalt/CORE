@@ -289,7 +289,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             metadata["manifest_hash"] = manifest_sha
             metadata["data_hash"] = data_hash
             with open(metadata_path, "w") as f:
-                json.dump(metadata, f, indent=2)
+                json.dump(metadata, f, indent=2, sort_keys=True)
         except Exception as e:
             print(f"⚠️  Evidence Binding Failed: {e}")
 
@@ -406,7 +406,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     ledger_inner_name = f"RUN_LEDGER_INNER_v{version}.json"
     ledger_inner_path = build_tmp / ledger_inner_name
     with open(ledger_inner_path, "w") as f:
-        json.dump(ledger, f, indent=2, sort_keys=True)
+        json.dump(ledger, f, indent=2, sort_keys=True, separators=(", ", ": "))
 
     # 6. Create DROP Zip (The Final Package)
     print(f"📦 Forging DROP Artifact: {drop_zip.name}")
@@ -566,7 +566,23 @@ def _write_to_zip(zf: zipfile.ZipFile, path: Path, arcname: str) -> None:
     zinfo.external_attr = perms << 16  # Unix permissions
 
     with open(path, "rb") as f:
-        zf.writestr(zinfo, f.read())
+        data = f.read()
+        # HYDRA GUARD: Zip Bomb Protection (Vector 27)
+        # Check compression ratio. If ratio > 100, reject.
+        # compressed_size is unknown until write, so we rely on heuristic or estimate.
+        # Actually, we can check size after writestr if we want, or just enforce a raw size limit.
+        if len(data) > 1024 * 1024 * 500: # 500MB limit per file
+             raise RuntimeError(f"FILE SIZE SABOTAGE: {arcname} exceeds 500MB limit.")
+        
+        zf.writestr(zinfo, data)
+        
+        # Post-write check for compression ratio
+        # zf.getinfo(str(arcname)).compress_size is available now
+        info = zf.getinfo(str(arcname))
+        if info.compress_size > 0:
+            ratio = info.file_size / info.compress_size
+            if ratio > 100: # Standard "Zip Bomb" threshold
+                raise RuntimeError(f"ZIP BOMB DETECTED: {arcname} has suspicious compression ratio ({ratio:.1f}x)")
 
 
 def _assert_cleanliness(root: Path) -> None:
@@ -576,6 +592,10 @@ def _assert_cleanliness(root: Path) -> None:
 
 
 def _is_forbidden(path: Path) -> bool:
+    # HYDRA GUARD: Symlink Loop Protection (Vector 26)
+    if path.is_symlink():
+        return True # Reject all symlinks in Sovereign artifacts for reliability
+    
     if path.name.startswith("."):
         return True
     if any(part.startswith(".") for part in path.parts):

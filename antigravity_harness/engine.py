@@ -519,6 +519,18 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # Aliases in MetricSet handle 'expectancy' and 'calmar'
     m_set = MetricSet(**metrics)
 
+    # HYDRA GUARD: Physics Poisoning Protection (Vector 28)
+    # Ensure no NaNs leaked into the final metrics or equity
+    critical_metrics = [m_set.profit_factor, m_set.sharpe_ratio, m_set.max_dd_pct]
+    if any(not np.isfinite(float(m)) for m in critical_metrics):
+         # We allow some NaNs in non-critical metrics or handle them explicitly
+         # But Profit Factor and Sharpe must be finite if trades occurred.
+         if m_set.trade_count > 0:
+             raise RuntimeError(f"PHYSICS POISON DETECTED: Non-finite metrics in result: PF={m_set.profit_factor}, Sharpe={m_set.sharpe_ratio}")
+
+    if not np.isfinite(equity_series).all():
+        raise RuntimeError("PHYSICS POISON DETECTED: Non-finite values in equity curve.")
+
     return BacktestResult(
         equity_curve=equity_series,
         trades=account.trades,

@@ -54,11 +54,17 @@ build:
 
 verify:
 	@set -e; \
-	DROP=$(shell ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip 2>/dev/null | head -n 1); \
-	VER=$$(echo $$DROP | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/'); \
+	DROP_PATH=$$(ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip 2>/dev/null | head -n 1); \
+	if [ -z "$$DROP_PATH" ]; then echo "❌ No drop packet found in dist/"; exit 1; fi; \
+	VER=$$(echo $$DROP_PATH | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/'); \
 	LEDGER=dist/RUN_LEDGER_v$$VER.json; \
 	SIDECAR=dist/DROP_PACKET_SHA256.txt; \
-	$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP" --run-ledger "$$LEDGER" --drop-packet-sha "$$SIDECAR" --strict
+	$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --drop-packet-sha "$$SIDECAR" --strict
+
+clean-zombies:
+	@echo "🧹 Cleaning Orphaned Simulations..."
+	@pkill -f "antigravity_harness.cli" || true
+	@rm -rf state/wal.db-journal || true
 
 release: clean build verify
 	@echo "🔥 Institutional Gold Certification Secured: v$$(ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip | head -n 1 | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/')"
