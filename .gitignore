@@ -10,3 +10,8 @@ htmlcov/
 *.egg-info/
 .reproduce_venv/
 *.key
+state/
+*.zip
+/dist/
+/reports/
+__pycache__/
