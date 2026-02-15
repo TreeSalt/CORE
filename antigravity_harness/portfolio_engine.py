@@ -58,7 +58,8 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     # 2. Initialize Portfolio
     # Instantiate Governance
     compliance = ComplianceOfficer()
-    wal = WriteAheadLog(Path(":memory:"))
+    Path("state").mkdir(exist_ok=True, parents=True)
+    wal = WriteAheadLog(Path("state/wal.db"))
 
     portfolio = PortfolioAccount(
         initial_cash=initial_cash,

@@ -346,7 +346,8 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # 4. Account Setup
     # Instantiate Governance
     compliance = ComplianceOfficer()
-    wal = WriteAheadLog(Path(":memory:"))
+    Path("state").mkdir(exist_ok=True, parents=True)
+    wal = WriteAheadLog(Path("state/wal.db"))
 
     account = SimulatedAccount(
         initial_cash=engine_cfg.initial_cash,

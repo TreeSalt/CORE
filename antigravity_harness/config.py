@@ -22,6 +22,7 @@ class EngineConfig(BaseModel):
     correlation_threshold: float = 0.95  # Phase 3 Risk Control
     periods_per_year: int = 365  # Phase 10: Dynamic annualization (365=daily crypto, 252=daily equity, 2190=4H crypto)
     is_crypto: bool = True  # Phase 10.3: Asset Class Awareness (True=365, False=252)
+    interval: str = "1d"  # Phase 10.4: Time Physics (e.g. "4h", "15m")
 
     # Artifact 4: The Unit Correction (The Friction)
     commission_rate_frac: float = Field(
@@ -49,6 +50,13 @@ class EngineConfig(BaseModel):
         if self.commission_rate_frac == 0.0 and self.commission_bps != 0.0:
             inferred = (self.commission_bps / 10000.0) if self.commission_bps >= 1.0 else self.commission_bps
             object.__setattr__(self, "commission_rate_frac", float(inferred))
+
+        # Command III (Wire Interval): Solari Remediation
+        # If interval is not 1d, it overrides the default periods_per_year
+        if self.interval and self.interval != "1d":
+            from antigravity_harness.utils import infer_periods_per_year
+            ppy = infer_periods_per_year(self.interval, self.is_crypto)
+            object.__setattr__(self, "periods_per_year", ppy)
 
         # We can't easily detect "custom-set" vs "default" after pydantic init
         # unless we check what was in the input.
