@@ -84,8 +84,7 @@ def bump_version(init_path: Path) -> str:
         canon_txt = canon_path.read_text()
         new_canon = re.sub(r'version:\s*"[\d\.]+"', f'version: "{new_version}"', canon_txt)
         if new_canon != canon_txt:
-            canon_path.write_text(new_canon)
-            print(f"📜 Council Canon Synced: {new_version}")
+            print(f"⚖️  Council Canon Sync Prepared (Internal): {new_version}")
 
     # Synchronize README.md (Fiduciary Transparency)
     _sync_readme_version(init_path.parent.parent, new_version)
