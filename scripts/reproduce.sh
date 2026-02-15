@@ -15,6 +15,8 @@ source .reproduce_venv/bin/activate
 # 2. Dependency Lock
 echo "📦 Installing Strict Dependencies..."
 pip install --require-hashes -r requirements.txt
+echo "🔧 Installing Antigravity Harness (Editable)..."
+pip install -e . --no-deps
 
 # 3. Deterministic Execution
 echo "🚀 Executing Deterministic Backtest..."

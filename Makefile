@@ -20,6 +20,7 @@ help:
 
 install:
 	$(PIP) install -r requirements.txt
+	$(PIP) install -e . --no-deps
 
 lint:
 	$(PYTHON) -m ruff check .
