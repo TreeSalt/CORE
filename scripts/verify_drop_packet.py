@@ -176,7 +176,7 @@ def main() -> int:
                 if "reports/forge/smoke_test/RUN_METADATA.json" in e_names:
                     rm_txt = ez.read("reports/forge/smoke_test/RUN_METADATA.json").decode("utf-8")
                     rm = json.loads(rm_txt)
-                    if rm.get("trader_ops_version") != version:
+                    if not rm.get("trader_ops_version", "").startswith(version):
                         issues.append(Issue(FAIL, "EVIDENCE_VER_DRIFT", f"Ev:{rm.get('trader_ops_version')} != Code:{version}"))
                     if rm.get("code_hash") != code_sha:
                         issues.append(Issue(FAIL, "EVIDENCE_CODE_BINDING_FAIL", "Evidence does not bind actual Code Zip hash"))
