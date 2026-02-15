@@ -11,7 +11,7 @@ class EvidenceForge:
     The Evidence Forge: Runs deterministic smoke tests to generate and verify evidence artifacts.
     """
 
-    def __init__(self, out_dir: str = "reports/forge/smoke_test"):
+    def __init__(self, out_dir: str = "reports/forge/synthetic_smoke"):
         self.out_dir = Path(out_dir)
 
     def run(self) -> None:

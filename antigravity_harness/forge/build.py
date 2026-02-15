@@ -91,6 +91,20 @@ def bump_version(init_path: Path) -> str:
     return new_version
 
 
+def _get_timestamp() -> str:
+    """UTC timestamp for ledgers/metadata.
+
+    By default we record real wallclock time (fiduciary friendly).
+    If you need bit-for-bit reproducible artifacts, set DETERMINISTIC_EPOCH=1.
+    """
+    if os.environ.get("DETERMINISTIC_EPOCH") == "1":
+        return "2020-01-01T00:00:00Z"
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+def _get_wallclock() -> str:
+    """Always real wallclock UTC (non-deterministic; for audit trails)."""
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
 def get_git_info(repo_root: Path) -> Dict[str, Any]:
     """Harvest Git Context for Fiduciary Traceability."""
     try:
@@ -100,11 +114,13 @@ def get_git_info(repo_root: Path) -> Dict[str, Any]:
         msg = subprocess.check_output(["git", "log", "-1", "--pretty=%B"], cwd=repo_root, text=True).strip()
         # Check Dirty State
         dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_root, text=True).strip()
-        
+
         is_dirty = bool(dirty)
         if is_dirty and os.environ.get("ALLOW_DIRTY_BUILD") != "1":
             raise RuntimeError("CRITICAL FAILURE: Git repo is dirty. Commit changes or set ALLOW_DIRTY_BUILD=1.")
-            
+        if is_dirty and os.environ.get("ALLOW_DIRTY_BUILD") == "1" and os.environ.get("STRICT_MODE") == "1":
+            raise RuntimeError("CRITICAL FAILURE: ALLOW_DIRTY_BUILD is not permitted when STRICT_MODE=1.")
+
         return {"sha": sha, "message": msg, "dirty": is_dirty}
     except subprocess.CalledProcessError:
         if os.environ.get("ALLOW_NO_GIT") == "1":
@@ -126,6 +142,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # We must check BEFORE bumping version, otherwise we are always dirty.
     git_info = get_git_info(repo_root)
     print(f"🧬 Git Provenance: {git_info['sha'][:8]} (Dirty: {git_info['dirty']})")
+
+    release_mode = os.environ.get("METADATA_RELEASE_MODE") == "1"
+    if release_mode and os.environ.get("STRICT_MODE") != "1":
+        os.environ["STRICT_MODE"] = "1"
+        print("🛡️  STRICT_MODE auto-enabled for Release.")
 
     # 0.1 Dynamic Version (Automated Bump & Sync)
     version = bump_version(repo_root / "antigravity_harness/__init__.py")
@@ -373,6 +394,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     ledger: Dict[str, Any] = {
         "version": version,
         "timestamp_utc": _get_timestamp(),
+        "build_wallclock_utc": _get_wallclock(),
+        "strict_mode": (os.environ.get("STRICT_MODE") == "1"),
         "artifacts": {
             "code": {"filename": code_zip_name, "sha256": code_hash},
             "evidence": {"filename": evidence_zip_name, "sha256": evidence_hash},
@@ -492,6 +515,24 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 9. Automated Decision Log (Automatic Sovereignty)
     _auto_log_decision(repo_root, version, git_info)
+
+    # Final gate: verify the assembled drop packet end-to-end.
+    print("🛡️  Running Sovereign End-to-End Audit...")
+    verify_args = [
+        sys.executable,
+        str(repo_root / "scripts" / "verify_drop_packet.py"),
+        "--drop", str(drop_zip),
+        "--run-ledger", str(ledger_path),
+        "--drop-packet-sha", str(dist_dir / f"DROP_PACKET_SHA256_v{version}.txt"),
+    ]
+    if os.environ.get("STRICT_MODE") == "1":
+        verify_args.append("--strict")
+    
+    try:
+        subprocess.check_call(verify_args, cwd=repo_root)
+        print("✅ End-to-End Audit Passed.")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"FINAL AUDIT FAILURE: assembled packet failed verification. {e}") from e
 
     return ledger
 
@@ -646,9 +687,6 @@ def _is_forbidden(path: Path) -> bool:
     return "tests" in path.parts and "fixtures" in path.parts
 
 
-def _get_timestamp() -> str:
-    # [STAGE 1 FIX: Determinism] Return fixed epoch to ensure bit-perfect artifacts
-    return "2020-01-01T00:00:00Z"
 
 
 def _generate_manifest_data(root: Path, includes: List[str], exclude: List[str] = None) -> Dict[str, str]:

@@ -14,6 +14,21 @@ import sys
 import zipfile
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
+
+def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
+    """Verify Ed25519 signature using OpenSSL (no extra Python deps)."""
+    import subprocess
+    cmd = [
+        "openssl", "pkeyutl", "-verify", "-rawin",
+        "-pubin", "-inkey", str(pub_pem),
+        "-in", str(msg),
+        "-sigfile", str(sig),
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(f"Signature verify failed (openssl): {err}")
 
 FAIL = "FAIL"
 WARN = "WARN"
@@ -57,26 +72,29 @@ def parse_canon_fields(canon_text: str) -> Tuple[str, str]:
     mh = re.search(r'fingerprint_sha256:\s*"([a-f0-9]{64})"', canon_text)
     return (mv.group(1) if mv else ""), (mh.group(1) if mh else "")
 
-def read_drop_packet_sha256_txt(path: str) -> Optional[str]:
-    """
-    Accepts lines like:
+def read_drop_packet_sha256_txt(path: str) -> Tuple[Optional[str], Optional[str]]:
+    """Parse DROP_PACKET_SHA256*.txt.
+
+    Accepts either:
       <sha256>
       <sha256>  <filename>
-    Returns the sha256 hex string or None if unparseable.
+
+    Returns (sha256_or_None, filename_or_None).
     """
     if not os.path.exists(path):
-        return None
+        return (None, None)
     try:
-        with open(path, "r") as f:
-            raw = f.read().strip()
-            if not raw:
-                return None
-            token = raw.split()[0].strip()
-            if re.fullmatch(r"[a-f0-9]{64}", token):
-                return token
+        raw = Path(path).read_text(encoding="utf-8").strip()
+        if not raw:
+            return (None, None)
+        parts = raw.split()
+        sha = parts[0].strip().lower()
+        name = parts[1].strip() if len(parts) >= 2 else None
+        if re.fullmatch(r"[0-9a-f]{64}", sha):
+            return (sha, name)
     except Exception:
         pass
-    return None
+    return (None, None)
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -94,11 +112,22 @@ def main() -> int:
     
     # 0. Legacy Sidecar Gate (Timeline Sovereignty)
     if args.drop_packet_sha:
-        sidecar_sha = read_drop_packet_sha256_txt(args.drop_packet_sha)
+        sidecar_sha, sidecar_name = read_drop_packet_sha256_txt(args.drop_packet_sha)
         if not sidecar_sha:
             issues.append(Issue(FAIL, "DROP_PACKET_SHA_UNPARSEABLE", "Sidecar unparseable or missing"))
         elif sidecar_sha != drop_sha:
             issues.append(Issue(FAIL, "DROP_PACKET_SHA_MISMATCH", f"Sidecar({sidecar_sha[:8]}) != Actual({drop_sha[:8]})"))
+        elif args.strict:
+            # Strict: enforce filename match to kill timeline drift forever.
+            if sidecar_name is None:
+                issues.append(Issue(FAIL, "DROP_PACKET_NAME_MISSING",
+                                    "Sidecar must include drop filename in strict mode: '<sha256> <filename>'"))
+            else:
+                want_name = Path(sidecar_name).name
+                got_name = Path(args.drop).name
+                if want_name != got_name:
+                    issues.append(Issue(FAIL, "DROP_PACKET_NAME_MISMATCH",
+                                        f"Sidecar names {want_name} but drop is {got_name}"))
     elif args.strict:
         issues.append(Issue(FAIL, "DROP_PACKET_SHA_MISSING_STRICT", "Legacy sidecar required in strict mode"))
 
@@ -286,6 +315,22 @@ def main() -> int:
                 pub_path = "reports/certification/sovereign.pub"
                 if pub_path not in e_names:
                      issues.append(Issue(FAIL, "PUBKEY_MISSING", "Sovereign Public Key missing for verification"))
+                
+                if args.strict and cert_path in e_names and sig_path in e_names and pub_path in e_names:
+                    # Cryptographically verify CERTIFICATE.json.sig (Ed25519) using OpenSSL.
+                    try:
+                        import tempfile
+                        with tempfile.TemporaryDirectory() as td:
+                            temp_dir = Path(td)
+                            p_pub = temp_dir / "sovereign.pub"
+                            p_msg = temp_dir / "CERTIFICATE.json"
+                            p_sig = temp_dir / "CERTIFICATE.json.sig"
+                            p_pub.write_bytes(ez.read(pub_path))
+                            p_msg.write_bytes(ez.read(cert_path))
+                            p_sig.write_bytes(ez.read(sig_path))
+                            _openssl_verify_ed25519(p_pub, p_msg, p_sig)
+                    except Exception as e:
+                        issues.append(Issue(FAIL, "CERT_SIGNATURE_INVALID", str(e)))
 
         # --- Inspect INNER LEDGER
         if inner_ledger_name:
@@ -352,6 +397,24 @@ def main() -> int:
         outer_ver = outer.get("version", "")
         if version and outer_ver != version:
              issues.append(Issue(FAIL, "OUTER_LEDGER_VERSION_MISMATCH", f"OuterLedger({outer_ver}) != InnerCode({version})"))
+
+        if args.strict:
+            sb = outer.get("sovereign_binding") or {}
+            if sb.get("git_dirty") is True:
+                issues.append(Issue(FAIL, "GIT_DIRTY_STRICT",
+                                    "sovereign_binding.git_dirty must be false in --strict mode"))
+            git_commit = (sb.get("git_commit") or "").strip()
+            if not re.fullmatch(r"[0-9a-f]{7,40}", git_commit):
+                issues.append(Issue(FAIL, "GIT_COMMIT_MISSING",
+                                    "sovereign_binding.git_commit missing/invalid in --strict mode"))
+            ts = outer.get("timestamp_utc")
+            if ts in (None, "", "2020-01-01T00:00:00Z", "1970-01-01T00:00:00Z"):
+                issues.append(Issue(FAIL, "TIMESTAMP_PLACEHOLDER",
+                                    f"timestamp_utc placeholder/empty in --strict mode: {ts!r}"))
+            wc = outer.get("build_wallclock_utc")
+            if wc in ("2020-01-01T00:00:00Z", "1970-01-01T00:00:00Z"):
+                issues.append(Issue(FAIL, "WALLCLOCK_PLACEHOLDER",
+                                    f"build_wallclock_utc placeholder in --strict mode: {wc!r}"))
 
     hard_fails = [i for i in issues if i.level == FAIL]
     if hard_fails:

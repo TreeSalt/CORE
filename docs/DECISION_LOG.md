@@ -297,3 +297,31 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: Institutional Gold: Sovereign Auditor Unification (v4.4.65) (v4.4.65)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.65 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: Institutional Gold: Artifact Promotion (v4.4.66) (v4.4.66)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.66 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

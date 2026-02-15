@@ -2,8 +2,15 @@ SHELL := /bin/bash
 PYTHON := python3
 PIP := pip3
 
-.PHONY: help install lint format type-check test test-hardening preflight clean forge build all
+DIST ?= dist
+VERSION ?= $(shell $(PYTHON) -c "import pathlib,re; p=pathlib.Path('antigravity_harness/__init__.py'); txt=p.read_text(encoding='utf-8') if p.exists() else ''; m=re.search(r'__version__\s*=\s*\"(\d+\.\d+\.\d+)\"', txt); print(m.group(1) if m else '0.0.0')" )
 
+DROP ?= $(DIST)/TRADER_OPS_READY_TO_DROP_v$(VERSION).zip
+LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
+DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
+ONE_TRUE := scripts/one_true_command.sh
+
+.PHONY: help install lint format type-check test test-hardening preflight clean forge build all
 help:
 	@echo "Antigravity Harness Automation"
 	@echo "------------------------------"
@@ -88,17 +95,9 @@ show-dist:
 	@ls -lah "$(DIST)" || true
 
 verify:
-	@set -e; \
-	DROP_PATH=$$(ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip 2>/dev/null | head -n 1); \
-	if [ -z "$$DROP_PATH" ]; then echo "❌ No drop packet found in dist/"; exit 1; fi; \
-	VER=$$(echo $$DROP_PATH | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/'); \
-	LEDGER=dist/RUN_LEDGER_v$$VER.json; \
-	SIDECAR=$$(ls dist/DROP_PACKET_SHA256_v$$VER.txt 2>/dev/null || ls dist/DROP_PACKET_SHA256.txt 2>/dev/null || echo ""); \
-	if [ -n "$$SIDECAR" ]; then \
-		$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --drop-packet-sha "$$SIDECAR" --strict; \
-	else \
-		$(PYTHON) scripts/verify_drop_packet.py --drop "$$DROP_PATH" --run-ledger "$$LEDGER" --strict; \
-	fi
+	@test -f "$(DROP)" || (echo "❌ DROP missing: $(DROP)" && exit 1)
+	@test -f "$(LEDGER)" || (echo "❌ LEDGER missing: $(LEDGER)" && exit 1)
+	$(PYTHON) scripts/verify_drop_packet.py --drop "$(DROP)" --run-ledger "$(LEDGER)" --drop-packet-sha "$(DROP_SHA)" --strict
 	$(PYTHON) scripts/check_dependency_cycles.py
 	@echo "🛡️  Fiduciary Verified: $(shell date)"
 
