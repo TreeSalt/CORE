@@ -227,3 +227,17 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: Chaos Fix: Two-Pass Manifest for Bit-Perfect Reproduction v4.4.54 (v4.4.53)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.53 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

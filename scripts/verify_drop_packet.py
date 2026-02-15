@@ -143,7 +143,16 @@ def main() -> int:
                 # Manifest
                 pm_raw = cz.read("docs/ready_to_drop/PAYLOAD_MANIFEST.json").decode("utf-8")
                 pm_obj = json.loads(pm_raw)
-                manifest_sha = canonical_manifest_sha(pm_obj)
+                
+                # [STAGE 1 FIX: Paradox Resolve] Calculate fingerprint EXCLUDING the canon itself
+                # This allow the canon to bind the rest of the manifest without circularity.
+                # We save a copy to modify
+                pm_fingerprint_obj = pm_obj.copy()
+                if "file_sha256" in pm_fingerprint_obj:
+                    pm_fingerprint_obj["file_sha256"] = pm_fingerprint_obj["file_sha256"].copy()
+                    pm_fingerprint_obj["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
+                
+                manifest_sha = canonical_manifest_sha(pm_fingerprint_obj)
                 # Canon
                 canon_txt = cz.read("docs/ready_to_drop/COUNCIL_CANON.yaml").decode("utf-8")
                 c_ver, c_finger = parse_canon_fields(canon_txt)

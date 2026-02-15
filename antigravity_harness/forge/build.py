@@ -174,10 +174,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     # Run the smoke test
     try:
+        env = os.environ.copy()
+        env["METADATA_RELEASE_MODE"] = "1"
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
             "--symbols", "MOCK", "--synthetic", "--outdir", "reports/forge/synthetic_smoke"
-        ], cwd=repo_root)
+        ], cwd=repo_root, env=env)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"SMOKE TEST FAILURE: Cannot package evidence if smoke test fails. {e}") from e
 
