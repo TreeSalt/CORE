@@ -117,7 +117,17 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     Orchestrate the creation of the TRADER_OPS drop packet.
     Returns the ledger dictionary.
     """
+    # 0. Dist Hygiene (The Clean Room)
+    if dist_dir.exists():
+        print(f"🧹 Purging Dist Folder: {dist_dir.name}...")
+        shutil.rmtree(dist_dir)
     dist_dir.mkdir(parents=True, exist_ok=True)
+
+    # Temporary holding area for intermediate artifacts (Isolated from final dist)
+    build_tmp = repo_root / "reports/forge/build_tmp"
+    if build_tmp.exists():
+        shutil.rmtree(build_tmp)
+    build_tmp.mkdir(parents=True, exist_ok=True)
 
     # 0. Git Provenance (Pre-Flight)
     # We must check BEFORE bumping version, otherwise we are always dirty.
@@ -148,8 +158,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     evidence_zip_name = f"TRADER_OPS_EVIDENCE_v{version}.zip"
     drop_zip_name = f"TRADER_OPS_READY_TO_DROP_v{version}.zip"
 
-    code_zip = dist_dir / code_zip_name
-    evidence_zip = dist_dir / evidence_zip_name
+    code_zip = build_tmp / code_zip_name
+    evidence_zip = build_tmp / evidence_zip_name
     drop_zip = dist_dir / drop_zip_name
 
     # 1.5 Safety Check (Hygiene)
@@ -370,9 +380,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 5.1 Create INNER LEDGER (shipped inside drop)
     # This ledger MUST NOT contain artifacts.ready_to_drop to avoid circularity.
-    # It is stored in a temporary directory to keep 'dist' clean.
-    build_tmp = repo_root / "reports/forge/build_tmp"
-    build_tmp.mkdir(parents=True, exist_ok=True)
     ledger_inner_name = f"RUN_LEDGER_INNER_v{version}.json"
     ledger_inner_path = build_tmp / ledger_inner_name
     with open(ledger_inner_path, "w") as f:
@@ -385,9 +392,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         zf.write(code_zip, code_zip_name)
         zf.write(evidence_zip, evidence_zip_name)
         zf.write(ledger_inner_path, ledger_inner_name)
-        if (repo_root / "SOVEREIGN_REPORT.md").exists():
-            zf.write(repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
-
         if (repo_root / "SOVEREIGN_REPORT.md").exists():
             zf.write(repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
 
@@ -434,13 +438,15 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     versioned_sidecar = dist_dir / f"DROP_PACKET_SHA256_v{version}.txt"
     versioned_sidecar.write_text(f"{drop_hash}  {drop_zip_name}\n")
     
-    # Generate versioned sidecars
+    # Generate versioned sidecars (Deliverables only)
+    (dist_dir / f"{drop_zip_name}.sha256").write_text(f"{drop_hash}  {drop_zip_name}\n")
+    
+    # Intermediate sidecars (History Only - in build_tmp)
     for artifact_name, artifact_hash in [
         (code_zip_name, code_hash),
         (evidence_zip_name, evidence_hash),
-        (drop_zip_name, drop_hash)
     ]:
-        (dist_dir / f"{artifact_name}.sha256").write_text(f"{artifact_hash}  {artifact_name}\n")
+        (build_tmp / f"{artifact_name}.sha256").write_text(f"{artifact_hash}  {artifact_name}\n")
 
     # 8. Inner/Outer Consistency Gate
     expected_inner = json.loads(json.dumps(ledger))
