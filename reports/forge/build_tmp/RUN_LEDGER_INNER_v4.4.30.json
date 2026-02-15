@@ -1,0 +1,18 @@
+{
+  "artifacts": {
+    "code": {
+      "filename": "TRADER_OPS_CODE_v4.4.30.zip",
+      "sha256": "7889d054dffc1c3c51f53e059cc14e93aa959ad1d1746194454bd452539a55cf"
+    },
+    "evidence": {
+      "filename": "TRADER_OPS_EVIDENCE_v4.4.30.zip",
+      "sha256": "57784af7bf18d8fdf7aaa932bfe8bb85b0850049fb58374214ceef5edb604ae8"
+    }
+  },
+  "sovereign_binding": {
+    "builder_id": "Institutional-Gold-Node",
+    "payload_manifest_sha256": "37279e2d709de5b547dfdc06fcc957d9bebc96faa2c52757f3299386e3c1694c"
+  },
+  "timestamp_utc": "2026-02-15T02:25:13.139520+00:00",
+  "version": "4.4.30"
+}

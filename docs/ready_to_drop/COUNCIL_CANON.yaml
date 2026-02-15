@@ -1,0 +1,96 @@
+repo:
+  name: TRADER_OPS
+  engine_root: 02_STRATEGY_ENGINE
+  version: "4.4.30"
+  generated_at_utc: "2026-02-15T02:25:13Z"
+  fingerprint_type: "payload_manifest_sha256"
+  fingerprint_sha256: "37279e2d709de5b547dfdc06fcc957d9bebc96faa2c52757f3299386e3c1694c"
+
+phases:
+  - id: "6E"
+    name: "Multi-Asset Fortress"
+    status: "COMPLETE"
+    notes: "Strict safety gates for Equities implemented."
+  - id: "6F"
+    name: "Continuous Adaptation (Minimal)"
+    status: "COMPLETE"
+    notes: "Framework for adaptation exists; params pending."
+  - id: "8"
+    name: "Vanguard Reality"
+    status: "COMPLETE"
+    notes: "Reality gap modeling and signal shifting enforced."
+  - id: "9A"
+    name: "Portfolio Regime Router"
+    status: "COMPLETE"
+    notes: "RegimeDetector, 4 policies (Momentum/MeanRev/InvVol/Cash), PortfolioRouter with regime→policy mapping."
+  - id: "9B"
+    name: "Council-Grade Hardening"
+    status: "COMPLETE"
+    notes: "No-lookahead t-1 semantics enforced. Deterministic tests with anti-lookahead trap."
+  - id: "9C"
+    name: "Council Evidence Alignment"
+    status: "COMPLETE"
+    notes: "PORTFOLIO_SUMMARY.json, COUNCIL_PORTFOLIO_BRIEF.md, packet SHA alignment."
+  - id: "9D"
+    name: "Fast Safety Overlay + Concentration Caps"
+    status: "COMPLETE"
+    notes: "Per-bar DD brake (RISK_REDUCE/-15%, RISK_OFF/-25%, HARD_FAIL/-40%), hysteresis state machine, concentration caps (max_weight_per_asset=0.50, min_positions=2). 23 tests pass."
+
+status_system:
+  profit_status: [PASS, FAIL]
+  safety_status: [PASS, WARN, FAIL]
+  overall_status: [PASS, WARN, FAIL]
+  truth_table:
+    - [PASS, PASS, PASS]
+    - [PASS, WARN, WARN]
+    - [PASS, FAIL, FAIL]
+    - [FAIL, PASS, FAIL]
+    - [FAIL, WARN, FAIL]
+    - [FAIL, FAIL, FAIL]
+
+non_downgradable_fail_conditions:
+  - "profit_status == FAIL"
+  - "safety_status == FAIL"
+  - "DATA_INTEGRITY_ERROR"
+  - "GATE_MISCLASSIFICATION"
+
+gate_profiles:
+  equity_fortress:
+    asset_class: EQUITIES
+    min_pf_profit: 1.1
+    min_sharpe_profit: 0.5
+    min_trades_window: 40
+    max_dd_warn: 0.15
+    max_dd_fail: 0.20
+    min_vol_annual: 0.0
+  crypto_profit:
+    asset_class: CRYPTO
+    min_pf_profit: 1.6
+    min_sharpe_profit: 0.0
+    min_trades_window: 40
+    max_dd_warn: 0.25
+    max_dd_fail: 0.40
+    min_vol_annual: 0.40
+
+commands:
+  preflight_default: "python scripts/preflight.py"
+  preflight_autoclean: "python scripts/preflight.py --auto-clean"
+  clean_verify_strict: "python scripts/clean_repo.py --verify-strict"
+  council_sweep_script: "bash scripts/council_sweep_crypto.sh"
+  reality_gap_fixture: "python -m antigravity_harness.cli reality-gap --fills tests/fixtures/fills.csv --signals tests/fixtures/signals.csv --outdir reports/reality_check_final"
+  portfolio_backtest: "python -m antigravity_harness.cli portfolio-backtest --symbols BTC-USD,ETH-USD,SOL-USD --router regime_v1 --outdir reports/portfolio/run_001"
+  package_core: "python scripts/package_core.py"
+
+artifacts:
+  latest_reports_paths:
+    - "reports/certification/SWEEPS/COUNCIL_CRYPTO_..."
+    - "reports/certification/PORTFOLIO/COUNCIL_PORTFOLIO_BRIEF.md"
+  latest_manifests_paths:
+    - "manifests/..."
+
+next_actions:
+  - "Run preflight"
+  - "Run council sweep"
+  - "Run portfolio backtest"
+  - "Review COUNCIL_BRIEF + failure breakdown"
+  - "Only after that: alpha hunting"

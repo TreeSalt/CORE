@@ -1,0 +1,47 @@
+from __future__ import annotations
+
+from typing import Dict, Type
+
+from antigravity_harness.strategies.base import Strategy
+from antigravity_harness.strategies.registry import STRATEGY_REGISTRY, StrategyRegistry
+from antigravity_harness.strategies.v032_simple import V032Simple
+from antigravity_harness.strategies.v040_alpha_prime import V040AlphaPrime
+from antigravity_harness.strategies.v050_trend_momentum import V050TrendMomentum
+from antigravity_harness.strategies.v060_bit_uni_core import V060BitUniCore
+from antigravity_harness.strategies.v070_donchian_breakout import V070DonchianBreakout
+from antigravity_harness.strategies.v080_volatility_guard_trend import V080VolatilityGuardTrend
+from antigravity_harness.strategies.v090_essence_follower import V090EssenceFollower
+from antigravity_harness.strategies.v100_consensual_momentum import V100ConsensualMomentum
+
+__all__ = [
+    "REGISTRY",
+    "STRATEGY_REGISTRY",
+    "Strategy",
+    "V032Simple",
+    "V040AlphaPrime",
+    "V050TrendMomentum",
+    "V060BitUniCore",
+    "V070DonchianBreakout",
+    "V080VolatilityGuardTrend",
+    "V090EssenceFollower",
+    "V100ConsensualMomentum",
+    "get_strategy",
+]
+
+# Pillar 2: Registry Inversion of Control
+STRATEGY_REGISTRY.register("v032_simple", V032Simple)
+STRATEGY_REGISTRY.register("v040_alpha_prime", V040AlphaPrime)
+STRATEGY_REGISTRY.register("v050_trend_momentum", V050TrendMomentum)
+STRATEGY_REGISTRY.register("v060_bit_uni_core", V060BitUniCore)
+STRATEGY_REGISTRY.register("v070_donchian_breakout", V070DonchianBreakout)
+STRATEGY_REGISTRY.register("v080_volatility_guard_trend", V080VolatilityGuardTrend)
+STRATEGY_REGISTRY.register("v090_essence_follower", V090EssenceFollower)
+STRATEGY_REGISTRY.register("v100_consensual_momentum", V100ConsensualMomentum)
+
+# Legacy alias (for gradual migration)
+REGISTRY = {name: STRATEGY_REGISTRY.get_class(name) for name in STRATEGY_REGISTRY.available_strategies}
+
+
+def get_strategy(name: str, registry: StrategyRegistry = STRATEGY_REGISTRY) -> Strategy:
+    """Sovereign retrieval of strategy instance."""
+    return registry.instantiate(name)

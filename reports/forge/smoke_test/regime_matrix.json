@@ -1,0 +1,9 @@
+{
+  "TREND_LOW_VOL": {
+    "days_in_regime": 80,
+    "max_drawdown_pct_global": -10.92,
+    "sharpe_ratio": -1.6,
+    "total_return_pct": -6.65,
+    "within_segment_max_drawdown_pct": 0.0
+  }
+}

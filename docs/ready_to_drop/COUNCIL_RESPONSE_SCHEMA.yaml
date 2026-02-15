@@ -1,0 +1,54 @@
+# COUNCIL_RESPONSE_SCHEMA.yaml — Required Response Format
+# Every Council reviewer MUST respond using this exact structure.
+
+response:
+  reviewer_id: "<your identifier>"
+  reviewed_at_utc: "<ISO8601 timestamp>"
+  packet_sha256: "<SHA256 of the zip — MUST match DROP_PACKET_SHA256.txt>"
+  canon_fingerprint: "<payload_manifest_sha256 from COUNCIL_CANON.yaml inside zip>"
+
+  verdict: "<PASS | WARN | FAIL>"
+
+  checklist:
+    - item: "Dependencies install cleanly (bootstrap.sh)"
+      status: "<PASS | FAIL>"
+      notes: "<optional>"
+
+    - item: "Preflight passes (--auto-clean)"
+      status: "<PASS | FAIL>"
+      notes: "<optional>"
+
+    - item: "Reality gap test passes (matched_rows == 2)"
+      status: "<PASS | FAIL>"
+      notes: "<optional>"
+
+    - item: "Packet SHA256 matches checksum file"
+      status: "<PASS | FAIL>"
+      notes: "<optional>"
+
+    - item: "Canon Fingerprint matches Payload Manifest"
+      status: "<PASS | FAIL>"
+      notes: "<optional>"
+
+    - item: "READY_TO_DROP.md is accurate and complete"
+      status: "<PASS | WARN | FAIL>"
+      notes: "<optional>"
+
+  blockers:
+    # List any hard-stop issues that prevent approval.
+    # If verdict is PASS, this MUST be empty.
+    - "<description of blocker>"
+
+  evidence:
+    # Paste or link to terminal output, test results, or screenshots.
+    preflight_output: "<paste or 'attached'>"
+    test_output: "<paste or 'attached'>"
+    sha_verification: "<paste>"
+
+  notes: "<free-form observations, suggestions, or praise>"
+
+rules:
+  - "Any checklist item with status FAIL => verdict MUST be FAIL."
+  - "If packet_sha256 does not match DROP_PACKET_SHA256.txt => automatic FAIL."
+  - "Scope violations (v5 work, gate relaxation) => automatic FAIL."
+  - "WARN items do not block approval but must be documented."

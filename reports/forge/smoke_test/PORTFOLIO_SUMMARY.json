@@ -1,0 +1,37 @@
+{
+  "overall": {
+    "benchmark": {
+      "benchmark_max_drawdown_pct": -15.33,
+      "benchmark_sharpe_ratio": 0.44,
+      "benchmark_total_return_pct": 3.92,
+      "excess_return_pct": -10.57,
+      "information_ratio": -1.05,
+      "max_dd_diff_pct": 4.41,
+      "tracking_error": 0.1998
+    },
+    "exposure_cap_events": 0,
+    "max_drawdown_date_range": {
+      "peak_ts": "2021-05-10 00:00:00",
+      "trough_ts": "2021-07-16 00:00:00"
+    },
+    "overall_max_drawdown_pct": -10.92,
+    "profit_factor": 0.76,
+    "rebalance_events": 7,
+    "sharpe_ratio": -1.01,
+    "time_in_safety_states": {
+      "NORMAL": 200
+    },
+    "total_days": 200,
+    "total_return_pct": -6.65,
+    "worst_1d_return_pct": -3.1448
+  },
+  "per_regime": {
+    "TREND_LOW_VOL": {
+      "days_in_regime": 80,
+      "max_drawdown_pct_global": -10.92,
+      "sharpe_ratio": -1.6,
+      "total_return_pct": -6.65,
+      "within_segment_max_drawdown_pct": 0.0
+    }
+  }
+}

@@ -1,0 +1,50 @@
+# COUNCIL_REQUEST.yaml — Review Request for TRADER_OPS v4.3.4
+# This file defines exactly what the Council reviewer must evaluate.
+
+request:
+  type: "READY_TO_DROP_REVIEW"
+  version: "4.3.4"
+  context: "builder_template"
+  packet: "dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip"
+  checksum_file: "docs/ready_to_drop/DROP_PACKET_SHA256.txt"
+  canon_manifest_file: "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
+  note: "Consumers: ignore dist/ references; verify the received zip using sidecar DROP_PACKET_SHA256.txt."
+
+scope_boundaries:
+  allowed:
+    - "Verify harness integrity (preflight, tests, fixtures)"
+    - "Run council sweep and evaluate results"
+    - "Inspect gate profiles and status logic"
+    - "Validate packaging completeness"
+  forbidden:
+    - "v5 Event Horizon work"
+    - "Gate relaxation or threshold changes"
+    - "New strategy creation"
+    - "Engine physics modifications"
+
+verification_steps:
+  - id: 1
+    action: "Install dependencies"
+    command: "bash scripts/bootstrap.sh"
+  - id: 2
+    action: "Run preflight"
+    command: "python3 scripts/preflight.py --auto-clean"
+    expected: "PASS"
+  - id: 3
+    action: "Run reality gap test"
+    command: "python3 -m unittest antigravity_harness.tests.test_reality_gap -v"
+    expected: "2 tests OK, matched_rows == 2"
+  - id: 4
+    action: "Verify packet SHA (Identity)"
+    command: "sha256sum dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip"
+    expected: "Must match DROP_PACKET_SHA256.txt"
+  - id: 5
+    action: "Verify Manifest (Canon Fingerprint)"
+    command: "unzip -p dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip docs/ready_to_drop/COUNCIL_CANON.yaml | grep fingerprint_sha256"
+    expected: "Matches PAYLOAD_MANIFEST.json inside zip"
+  - id: 6
+    action: "Run council sweep (optional, long)"
+    command: "bash scripts/council_sweep_crypto.sh"
+    expected: "COUNCIL_BRIEF.md generated"
+
+required_response: "COUNCIL_RESPONSE_SCHEMA.yaml"

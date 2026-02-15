@@ -1,0 +1,8 @@
+timestamp,regime,trend_dir,vol_scalar,safety_rate,final_leverage,top_weights,final_weights_hash,safety_state
+2021-01-02,UNKNOWN,0.0,1.0,,,"{""MOCK1"":0.0,""MOCK2"":0.0,""MOCK3"":0.0}",49846664a429,NORMAL
+2021-02-01,UNKNOWN,1.0,1.0,,,"{""MOCK1"":0.0,""MOCK2"":0.0,""MOCK3"":0.0}",49846664a429,NORMAL
+2021-03-01,UNKNOWN,-1.0,1.0,,,"{""MOCK1"":0.0,""MOCK2"":0.0,""MOCK3"":0.0}",49846664a429,NORMAL
+2021-04-01,UNKNOWN,1.0,1.0,,,"{""MOCK1"":0.0,""MOCK2"":0.0,""MOCK3"":0.0}",49846664a429,NORMAL
+2021-05-01,TREND_LOW_VOL,1.0,1.0,,,"{""MOCK1"":0.5,""MOCK2"":0.5,""MOCK3"":0.0}",6488eff7f73f,NORMAL
+2021-06-01,TREND_LOW_VOL,-1.0,1.0,,,"{""MOCK1"":0.0,""MOCK2"":0.0,""MOCK3"":0.0}",49846664a429,NORMAL
+2021-07-01,TREND_LOW_VOL,1.0,1.0,,,"{""MOCK1"":0.5,""MOCK2"":0.5,""MOCK3"":0.0}",6488eff7f73f,NORMAL

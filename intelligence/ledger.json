@@ -1,0 +1,11 @@
+{
+    "entries": [
+        {
+            "source": "MARKET_PULSE",
+            "timestamp": 1771110794,
+            "sha256": "8ff69dda875e9ec22df0c3a88ff1b611571477f207974f034627a122fbc2be84",
+            "path": "intelligence/raw/MARKET_PULSE_1771110794_8ff69dda.html",
+            "type": "Sentiment"
+        }
+    ]
+}

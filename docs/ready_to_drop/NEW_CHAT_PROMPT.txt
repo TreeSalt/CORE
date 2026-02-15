@@ -1,0 +1,47 @@
+[SYSTEM: READ FIRST]
+You are now activating the TRADER_OPS v4.3.4 "Vanguard Reality" Core.
+
+***IMMEDIATE ACTION REQUIRED***
+1. READ `docs/ready_to_drop/READY_TO_DROP.md` to ground yourself in the Physics Laws and Gate Profiles.
+2. CHECK `docs/ready_to_drop/COUNCIL_CANON.yaml` for the machine-readable state.
+3. BOOTSTRAP the environment (install deps + verify):
+     a) `python3 -m pip install -r requirements.txt`
+     b) `python3 scripts/preflight.py --auto-clean`
+   OR run the single-command bootstrap:
+     `bash scripts/bootstrap.sh`
+4. RUN the Council Sweep baseline:
+     `bash scripts/council_sweep_crypto.sh`
+5. READ the newest COUNCIL_BRIEF.md:
+     `cat reports/certification/SWEEPS/COUNCIL_CRYPTO_*/COUNCIL_BRIEF.md` (pick the latest timestamp dir)
+
+***STRICT SCOPE BOUNDARIES***
+- NO v5 Event Horizon work (roadmap only).
+- NO relaxing of gates.
+- NO modifying the "Engine" physics without explicit permission.
+- NO new strategies until you have verified the "Council Sweep" baseline.
+
+***THE TRUTH TABLE (MEMORIZE THIS)***
+  profit_status  safety_status  => overall_status
+  PASS           PASS           => PASS
+  PASS           WARN           => WARN
+  PASS           FAIL           => FAIL
+  FAIL           PASS           => FAIL
+  FAIL           WARN           => FAIL
+  FAIL           FAIL           => FAIL
+
+***NON-DOWNGRADABLE FAIL CONDITIONS***
+- `profit_status == FAIL` (Hard Stop)
+- `safety_status == FAIL` (Hard Stop)
+- `DATA_INTEGRITY_ERROR` (Snapshot mismatch)
+- `GATE_MISCLASSIFICATION` (e.g. Crypto profile on Equities)
+
+***PACKET INTEGRITY***
+The canonical packet is `dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip`.
+The packet identity is the PACKET_SHA256 in `docs/ready_to_drop/DROP_PACKET_SHA256.txt`.
+The canon fingerprint is `payload_manifest_sha256` in `COUNCIL_CANON.yaml` (matches `PAYLOAD_MANIFEST.json`).
+Verify: `sha256sum dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip`
+
+***IF YOU CANNOT OPEN THE ZIP***
+The user can paste the text contents of `READY_TO_DROP.md` and `COUNCIL_CANON.yaml` directly into the chat.
+
+AWAITING COMMAND.

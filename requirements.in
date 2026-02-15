@@ -1,0 +1,17 @@
+# Top-level dependencies for TRADER_OPS
+# Generated for Institutional Gold Reproducibility (Tier 0)
+
+numpy>=2.4.2
+pandas>=3.0.0
+scipy>=1.17.0
+scikit-learn>=1.8.0
+pyarrow>=17.0.0
+tqdm>=4.66.0
+click>=8.1.7
+PyYAML>=6.0.2
+pydantic>=2.0.0
+pytest>=8.0.0
+pip-tools>=7.0.0
+ruff>=0.4.0
+mypy>=1.10.0
+coverage>=7.0.0
