@@ -269,6 +269,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 5. Create Ledger
     ledger: Dict[str, Any] = {
+        "version": version,
+        "timestamp_utc": _get_timestamp(),
+        "artifacts": {
+            "code": {"filename": code_zip_name, "sha256": code_hash},
+            "evidence": {"filename": evidence_zip_name, "sha256": evidence_hash},
+        },
         "sovereign_binding": {
             "payload_manifest_sha256": manifest_sha, 
             "builder_id": "Institutional-Gold-Node",
