@@ -317,6 +317,11 @@ def main() -> int:
             outer = json.load(f)
         if outer.get("artifacts", {}).get("ready_to_drop", {}).get("sha256") != drop_sha:
             issues.append(Issue(FAIL, "OUTER_LEDGER_DROP_HASH_MISMATCH", f"Outer({outer.get('artifacts', {}).get('ready_to_drop', {}).get('sha256')[:8]}) != Actual({drop_sha[:8]})"))
+        
+        # [STAGE 1 FIX] Enforce Outer Ledger Version Match
+        outer_ver = outer.get("version", "")
+        if version and outer_ver != version:
+             issues.append(Issue(FAIL, "OUTER_LEDGER_VERSION_MISMATCH", f"OuterLedger({outer_ver}) != InnerCode({version})"))
 
     hard_fails = [i for i in issues if i.level == FAIL]
     if hard_fails:
