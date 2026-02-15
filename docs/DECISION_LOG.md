@@ -87,3 +87,17 @@ Implemented a "Clean Room" standard for distribution.
 ### Trade-offs
 - **Pros**: Eliminates shipment risk; enforces a strictly clean delivery environment.
 - **Cons**: Intermediate files are now ephemeral (unless manually retrieved from build_tmp).
+
+---
+
+## 2026-02-15: Automate Decision Logging: Fixed-Point Sovereignty v4.4.43 (v4.4.43)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.43 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

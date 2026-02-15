@@ -220,8 +220,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "requirements.txt",
         "setup.py",
         "README.md",
-        "docs/ready_to_drop/COUNCIL_CANON.yaml",  # Command I: Close the Canon Hole (Solari)
-        "docs/DECISION_LOG.md",  # Automatic Sovereignty (v4.4.43)
+        "docs",  # Include all Sovereign Books and Canon
     ]
     manifest_data = _generate_manifest_data(repo_root, includes=includes)
     payload_manifest = {"version": version, "file_sha256": manifest_data}

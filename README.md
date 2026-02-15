@@ -1,11 +1,27 @@
-# ANTIGRAVITY HARNESS v4.4.42 (OMEGA SOVEREIGN)
+# ANTIGRAVITY HARNESS v4.4.43 (OMEGA SOVEREIGN)
 
-**Status**: OMEGA IMMORTAL (v4.4.42)
+**Status**: OMEGA IMMORTAL (v4.4.43)
 **Objective**: Absolute, bit-perfect trading strategy sovereignty.
 
-## 🐉 Sovereign Build Protocol
-The TRADER_OPS build is protected by **12 Institutional Gates**. It is bit-perfect, deterministic, and eternally verifiable.
-See [SOVEREIGN_PROTOCOL.md](docs/SOVEREIGN_PROTOCOL.md) for the full audit specification.
+## 📂 Sovereign Library (The Books)
+The project's constitutional and architectural "books" are now centralized in the `docs/` folder:
+- [Fiduciary Constitution](docs/fiduciary_constitution.md): The binding legal/code framework.
+- [Council Preamble](docs/COUNCIL_PREAMBLE.md): The core mandates and ethical framework.
+- [Decision Log](docs/DECISION_LOG.md): Historical record of all architectural pivots.
+- [Vision: Event Horizon](docs/vision_event_horizon.md): Long-term roadmap for options trading.
+- [Essence Engine Spec](docs/essence_engine.md): Technical design for the consensus layer.
+
+## 🧬 Fiduciary Versioning (The Rules)
+The version number is a cryptographic claim. Rules enforced in `build.py`:
+- **Patch (x.x.X)**: Automated increment for hygiene, refactors, and minor fixes.
+- **Minor (x.X.0)**: Feature additions. Requires manual consensus.
+- **Major (X.0.0)**: Breaking changes. Requires **Council Vote**.
+
+## 🔮 The Essence Engine
+The state-of-the-art consensus layer for market intelligence.
+- **Module**: `antigravity_harness/essence.py`
+- **Logic**: Implements weighted signal averaging and confidence thresholds.
+- **Flagship Strategy**: `v090_essence_follower.py`
 
 ## 🏆 Certification Verdict System
 
@@ -107,7 +123,7 @@ Output includes a verified zip and a `.sha256` checksum.
 
 ---
 ---
-*Built by Antigravity Harness (v4.4.42)*
+*Built by Antigravity Harness (v4.4.43)*
 
 ## 📂 Documentation (Institutional Gold)
 - [Vision: Event Horizon (Option Trading)](docs/vision_event_horizon.md)
