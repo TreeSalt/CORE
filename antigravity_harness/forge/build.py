@@ -119,7 +119,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     """
     dist_dir.mkdir(parents=True, exist_ok=True)
 
-    # 0. Dynamic Version (Automated Bump & Sync)
+    # 0. Git Provenance (Pre-Flight)
+    # We must check BEFORE bumping version, otherwise we are always dirty.
+    git_info = get_git_info(repo_root)
+    print(f"🧬 Git Provenance: {git_info['sha'][:8]} (Dirty: {git_info['dirty']})")
+
+    # 0.1 Dynamic Version (Automated Bump & Sync)
     version = bump_version(repo_root / "antigravity_harness/__init__.py")
 
     # 0.1 Strict Version Gate (The Triple Lock)
@@ -193,10 +198,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if not ev_version.startswith(version):
             raise RuntimeError(f"VERSION DRIFT DETECTED: Evidence ({ev_version}) != Code ({version})")
 
-    # 1.7 Harvest Git Context (Early Binding)
-    git_info = get_git_info(repo_root)
-    print(f"🧬 Git Provenance: {git_info['sha'][:8]} (Dirty: {git_info['dirty']})")
-
+    
     # 2. Create CODE Manifest (BREAK THE LOOP)
     print("📋 Generating CODE Manifest...")
     # NOTE: COUNCIL_CANON.yaml is EXCLUDED from manifest entries to break circularity
