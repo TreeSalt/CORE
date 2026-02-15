@@ -208,7 +208,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "scripts",
         "tests",
         "requirements.txt",
-        "requirements-lock.txt",
         "setup.py",
         "README.md",
     ]
@@ -396,7 +395,20 @@ def _write_to_zip(zf: zipfile.ZipFile, path: Path, arcname: str) -> None:
     # For now, we stick to the script's logic: 2020-01-01 to ensure bit-perfect builds across machines.
     zinfo = zipfile.ZipInfo(str(arcname), date_time=(2020, 1, 1, 0, 0, 0))
     zinfo.compress_type = zipfile.ZIP_DEFLATED
-    zinfo.external_attr = 0o644 << 16  # Unix permissions
+    
+    # PERMISSION PRESERVATION (Institutional Grade)
+    # Default to 644 (rw-r--r--)
+    perms = 0o644
+    if path.suffix == ".sh" or path.name == "reproduce.sh":
+        perms = 0o755
+    # Check for shebang if it's a python script (optional but good practice)
+    elif path.suffix == ".py":
+        with open(path, "rb") as f:
+            first_line = f.readline()
+            if first_line.startswith(b"#!"):
+                perms = 0o755
+
+    zinfo.external_attr = perms << 16  # Unix permissions
 
     with open(path, "rb") as f:
         zf.writestr(zinfo, f.read())

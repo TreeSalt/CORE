@@ -163,18 +163,25 @@ def main() -> int:
             with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
                 e_names = set(ez.namelist())
                 # Stricter audit of evidence suite
+                # Evidence Lanes: Allow "synthetic_smoke" OR "smoke_test" (legacy)
+                # We check for the new path first
+                evidence_root = "reports/forge/synthetic_smoke"
+                if f"{evidence_root}/RUN_METADATA.json" not in e_names:
+                     # Fallback for older artifacts or if user reverts
+                     evidence_root = "reports/forge/smoke_test"
+
                 required_evidence = [
-                    "reports/forge/smoke_test/RUN_METADATA.json",
-                    "reports/forge/smoke_test/router_trace.csv",
-                    "reports/forge/smoke_test/PORTFOLIO_SUMMARY.json",
-                    "reports/forge/smoke_test/SUMMARY.md"
+                    f"{evidence_root}/RUN_METADATA.json",
+                    f"{evidence_root}/router_trace.csv",
+                    f"{evidence_root}/PORTFOLIO_SUMMARY.json",
+                    f"{evidence_root}/SUMMARY.md"
                 ]
                 for r in required_evidence:
                     if r not in e_names:
                         issues.append(Issue(FAIL, "EVIDENCE_SKELETAL", f"Missing mandated evidence: {r}"))
 
-                if "reports/forge/smoke_test/RUN_METADATA.json" in e_names:
-                    rm_txt = ez.read("reports/forge/smoke_test/RUN_METADATA.json").decode("utf-8")
+                if f"{evidence_root}/RUN_METADATA.json" in e_names:
+                    rm_txt = ez.read(f"{evidence_root}/RUN_METADATA.json").decode("utf-8")
                     rm = json.loads(rm_txt)
                     if not rm.get("trader_ops_version", "").startswith(version):
                         issues.append(Issue(FAIL, "EVIDENCE_VER_DRIFT", f"Ev:{rm.get('trader_ops_version')} != Code:{version}"))
@@ -184,16 +191,16 @@ def main() -> int:
                         issues.append(Issue(FAIL, "EVIDENCE_MANIFEST_BINDING_FAIL", "Evidence does not bind Manifest hash"))
 
                 # Row count check for traces
-                if "reports/forge/smoke_test/router_trace.csv" in e_names:
-                    trace = ez.read("reports/forge/smoke_test/router_trace.csv").decode("utf-8").strip().split("\n")
+                if f"{evidence_root}/router_trace.csv" in e_names:
+                    trace = ez.read(f"{evidence_root}/router_trace.csv").decode("utf-8").strip().split("\n")
                     if len(trace) < 5:  # Arbitrary but reasonable for a real smoke test
                         issues.append(Issue(FAIL, "EVIDENCE_TRIVIAL", f"router_trace.csv only has {len(trace)} lines (skeletal)"))
 
                 # Tier 1: Evidence Manifest
-                if "reports/forge/smoke_test/EVIDENCE_MANIFEST.json" not in e_names:
+                if f"{evidence_root}/EVIDENCE_MANIFEST.json" not in e_names:
                     issues.append(Issue(FAIL, "EVIDENCE_MANIFEST_MISSING", "Tier 1: EVIDENCE_MANIFEST.json missing"))
                 else:
-                    em_txt = ez.read("reports/forge/smoke_test/EVIDENCE_MANIFEST.json").decode("utf-8")
+                    em_txt = ez.read(f"{evidence_root}/EVIDENCE_MANIFEST.json").decode("utf-8")
                     em = json.loads(em_txt)
                     # Verify Git Context Binding
                     if em.get("environment", {}).get("git_commit") == "UNKNOWN":
@@ -201,10 +208,10 @@ def main() -> int:
                     evidence_git_commit = em.get("environment", {}).get("git_commit")
                 
                 # Tier 1: Data Manifest
-                if "reports/forge/smoke_test/DATA_MANIFEST.json" not in e_names:
+                if f"{evidence_root}/DATA_MANIFEST.json" not in e_names:
                     issues.append(Issue(FAIL, "DATA_MANIFEST_MISSING", "Tier 1: DATA_MANIFEST.json missing"))
                 else:
-                    dm_txt = ez.read("reports/forge/smoke_test/DATA_MANIFEST.json").decode("utf-8")
+                    dm_txt = ez.read(f"{evidence_root}/DATA_MANIFEST.json").decode("utf-8")
                     dm = json.loads(dm_txt)
                     dm_root = dm.get("merkle_root_sha256")
                     if not dm_root:
