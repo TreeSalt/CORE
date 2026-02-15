@@ -269,3 +269,17 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: Hydra Protocol: Determinism, Symlinks, ZipBombs, and NaN Guards v4.4.58 (v4.4.56)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.56 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

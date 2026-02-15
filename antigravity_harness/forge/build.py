@@ -60,21 +60,21 @@ def bump_version(init_path: Path) -> str:
         return "0.0.1"
 
     major, minor, patch = map(int, match.groups())
+    current_version = f"{major}.{minor}.{patch}"
 
     # ---------------------------------------------------------
     # FIDUCIARY VERSIONING LOGIC GATE
     # ---------------------------------------------------------
-    # 1. Patch (x.x.X): Automated increment. Bug fixes, refactors.
-    # 2. Minor (x.X.0): Feature add. Requires MANUAL intervention to set here.
-    # 3. Major (X.0.0): Breaking Change. Requires COUNCIL VOTE.
-    #
-    # Current Mode: AUTOMATED PATCH INCREMENT
-    # ---------------------------------------------------------
-    new_version = f"{major}.{minor}.{patch + 1}"
+    # [HYDRA FIX: Determinism] Allow disabling bump for bit-perfect testing
+    if os.environ.get("ALLOW_VERSION_BUMP") == "0":
+        print(f"📉 Version Frozen: {current_version}")
+        new_version = current_version
+    else:
+        new_version = f"{major}.{minor}.{patch + 1}"
+        print(f"📈 Version Bumped: {current_version} -> {new_version}")
 
     new_content = re.sub(r'__version__\s*=\s*"\d+\.\d+\.\d+"', f'__version__ = "{new_version}"', content)
     init_path.write_text(new_content)
-    print(f"📈 Version Bumped: {major}.{minor}.{patch} -> {new_version}")
 
     # Synchronize COUNCIL_CANON.yaml (Strict Version Gate Prep)
     canon_path = init_path.parent.parent / "docs/ready_to_drop/COUNCIL_CANON.yaml"
