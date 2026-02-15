@@ -9,3 +9,4 @@ vault/
 htmlcov/
 *.egg-info/
 .reproduce_venv/
+*.key

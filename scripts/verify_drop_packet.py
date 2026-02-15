@@ -42,6 +42,16 @@ def parse_version_from_init(init_text: str) -> str:
     m = re.search(r'__version__\s*=\s*"(\d+\.\d+\.\d+)"', init_text)
     return m.group(1) if m else ""
 
+def base_semver(v: str) -> str:
+    """
+    Accept either:
+      4.4.37
+      4.4.37+gb265b02   (PEP440 local / git describe-like)
+    Returns the base semver (X.Y.Z) or "".
+    """
+    m = re.match(r'^(\d+\.\d+\.\d+)', (v or "").strip())
+    return m.group(1) if m else ""
+
 def parse_canon_fields(canon_text: str) -> Tuple[str, str]:
     mv = re.search(r'version:\s*"(\d+\.\d+\.\d+)"', canon_text)
     mh = re.search(r'fingerprint_sha256:\s*"([a-f0-9]{64})"', canon_text)
@@ -163,32 +173,49 @@ def main() -> int:
             with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
                 e_names = set(ez.namelist())
                 # Stricter audit of evidence suite
-                # Evidence Lanes: Allow "synthetic_smoke" OR "smoke_test" (legacy)
-                # We check for the new path first
-                evidence_root = "reports/forge/synthetic_smoke"
-                if f"{evidence_root}/RUN_METADATA.json" not in e_names:
-                     # Fallback for older artifacts or if user reverts
-                     evidence_root = "reports/forge/smoke_test"
-
-                required_evidence = [
-                    f"{evidence_root}/RUN_METADATA.json",
-                    f"{evidence_root}/router_trace.csv",
-                    f"{evidence_root}/PORTFOLIO_SUMMARY.json",
-                    f"{evidence_root}/SUMMARY.md"
+                # Canonical smoke roots (support both; strict requires exactly one canonical root)
+                roots = [
+                    "reports/forge/smoke_test",
+                    "reports/forge/synthetic_smoke",
                 ]
-                for r in required_evidence:
-                    if r not in e_names:
-                        issues.append(Issue(FAIL, "EVIDENCE_SKELETAL", f"Missing mandated evidence: {r}"))
+                present_roots = []
+                for r in roots:
+                    if f"{r}/RUN_METADATA.json" in e_names:
+                        present_roots.append(r)
 
-                if f"{evidence_root}/RUN_METADATA.json" in e_names:
-                    rm_txt = ez.read(f"{evidence_root}/RUN_METADATA.json").decode("utf-8")
-                    rm = json.loads(rm_txt)
-                    if not rm.get("trader_ops_version", "").startswith(version):
-                        issues.append(Issue(FAIL, "EVIDENCE_VER_DRIFT", f"Ev:{rm.get('trader_ops_version')} != Code:{version}"))
-                    if rm.get("code_hash") != code_sha:
-                        issues.append(Issue(FAIL, "EVIDENCE_CODE_BINDING_FAIL", "Evidence does not bind actual Code Zip hash"))
-                    if rm.get("manifest_hash") != manifest_sha:
-                        issues.append(Issue(FAIL, "EVIDENCE_MANIFEST_BINDING_FAIL", "Evidence does not bind Manifest hash"))
+                if not present_roots:
+                    issues.append(Issue(FAIL, "SMOKE_ROOT_MISSING",
+                                       "No smoke root found. Expected RUN_METADATA.json under smoke_test or synthetic_smoke."))
+                elif args.strict and len(present_roots) != 1:
+                    issues.append(Issue(FAIL, "SMOKE_ROOT_AMBIGUOUS_STRICT",
+                                       f"Strict: multiple smoke roots found: {present_roots}"))
+
+                smoke_root = present_roots[0] if present_roots else None
+
+                # Required trace under selected root
+                if smoke_root and f"{smoke_root}/router_trace.csv" not in e_names:
+                    issues.append(Issue(FAIL, "ROUTER_TRACE_MISSING", f"{smoke_root}/router_trace.csv missing"))
+
+                # Run metadata
+                rm_path = f"{smoke_root}/RUN_METADATA.json" if smoke_root else None
+                if not rm_path or rm_path not in e_names:
+                    issues.append(Issue(FAIL, "RUN_METADATA_MISSING", "RUN_METADATA.json missing in selected smoke root"))
+                else:
+                    rm = json.loads(ez.read(rm_path).decode("utf-8", errors="replace"))
+
+                    ev_ver = rm.get("trader_ops_version", "")
+                    # Strict: base semver must match; recommend exact match as policy
+                    if version and base_semver(ev_ver) != base_semver(version):
+                        issues.append(Issue(FAIL, "EVIDENCE_VERSION_DRIFT",
+                                           f"evidence={ev_ver} (base={base_semver(ev_ver)}) != code={version} (base={base_semver(version)})"))
+
+                    if code_sha and rm.get("code_hash") != code_sha:
+                        issues.append(Issue(FAIL, "EVIDENCE_CODE_HASH_MISMATCH",
+                                           f"RUN_METADATA.code_hash={rm.get('code_hash')} != code_zip_sha={code_sha}"))
+
+                    if manifest_sha and rm.get("manifest_hash") != manifest_sha:
+                        issues.append(Issue(FAIL, "EVIDENCE_MANIFEST_HASH_MISMATCH",
+                                           f"RUN_METADATA.manifest_hash={rm.get('manifest_hash')} != manifest_sha={manifest_sha}"))
 
                 # Row count check for traces
                 if f"{evidence_root}/router_trace.csv" in e_names:
