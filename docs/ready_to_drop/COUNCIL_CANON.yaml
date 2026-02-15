@@ -1,10 +1,10 @@
 repo:
   name: TRADER_OPS
   engine_root: 02_STRATEGY_ENGINE
-  version: "4.4.66"
+  version: "4.4.67"
   generated_at_utc: "2020-01-01T00:00:00Z"
   fingerprint_type: "payload_manifest_sha256"
-  fingerprint_sha256: "062e724b0f3aac33a797fde41d5a9b4592ea7fec875076d0a87b6416edb9ccdd"
+  fingerprint_sha256: "0c225a6a3de218087349d85c60ff880cb8d3aeaa011d5d42da325f900e2955a0"
 
 phases:
   - id: "6E"

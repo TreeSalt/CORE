@@ -391,46 +391,26 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
             )
         else:
             # Phase 9F: Robust Fallback for unsupported platforms (e.g. Python 3.14)
-            print("Ray: Not installed. Using local multiprocessing fallback...")
-            if Parallel is not None and delayed is not None:
-                raw_results = Parallel(n_jobs=n_jobs, prefer="processes")(
-                    delayed(_run_one)(
-                        strategy_name,
-                        p,
-                        data_cfg,
-                        engine_cfg,
-                        thresholds,
-                        include_ablation,
-                        include_time_split,
-                        s,
-                        start,
-                        end,
-                        gate_profile,
-                        tf,
-                        registry=registry,
-                    )
-                    for s, tf, p in total_combinations
+            # Force serial execution to avoid process/semaphore leakage in joblib
+            print("Ray: Not installed. Forcing serial execution to prevent resource leakage...")
+            raw_results = [
+                _run_one(
+                    strategy_name,
+                    p,
+                    data_cfg,
+                    engine_cfg,
+                    thresholds,
+                    include_ablation,
+                    include_time_split,
+                    s,
+                    start,
+                    end,
+                    gate_profile,
+                    tf,
+                    registry=registry,
                 )
-            else:
-                # Absolute fallback: serial
-                raw_results = [
-                    _run_one(
-                        strategy_name,
-                        p,
-                        data_cfg,
-                        engine_cfg,
-                        thresholds,
-                        include_ablation,
-                        include_time_split,
-                        s,
-                        start,
-                        end,
-                        gate_profile,
-                        tf,
-                        registry=registry,
-                    )
-                    for s, tf, p in total_combinations
-                ]
+                for s, tf, p in total_combinations
+            ]
     elif Parallel is not None and delayed is not None:
         raw_results = Parallel(n_jobs=n_jobs, prefer="processes")(
             delayed(_run_one)(

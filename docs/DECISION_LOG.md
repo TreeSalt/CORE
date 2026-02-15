@@ -325,3 +325,17 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: Fiduciary Hardening: Real-time Binding & Sovereign Seal (v4.4.67) (v4.4.67)
+
+### Context
+Automated entry captured via Git Provenance during the v4.4.67 forge.
+
+### Decision
+No additional context provided.
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

@@ -204,14 +204,14 @@ class SimulatedAccount:
             target_qty = min(qty, self.qty)
 
         # HYDRA GUARD: Volume Oracle (Vector 136)
-        # Enforce a systemic execution cap of 5% if not specified,
-        # and reject unrealistic volume-less candles.
-        h_limit_pct = limit_pct if limit_pct > 0 else 0.05
-        if volume <= 0:
-            return False
-            
-        max_vol_qty = volume * h_limit_pct
-        qty_to_sell = min(target_qty, max_vol_qty)
+        # Semantics: limit_pct <= 0 means **no participation cap**.
+        if limit_pct <= 0.0:
+            qty_to_sell = target_qty
+        else:
+            if volume <= 0:
+                return False
+            max_vol_qty = float(volume) * float(limit_pct)
+            qty_to_sell = min(target_qty, max_vol_qty)
 
         if qty_to_sell <= 0:
             return False
@@ -479,46 +479,47 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     bars_held = 1
                     stop_price = proposed_stop
 
+
             # 3. Intrabar Risk (Stop Loss)
-        if account.in_position and not np.isnan(stop_price) and low <= stop_price:
-            # HIT!
-            if o < stop_price:
-                # Gap Down
-                account.sell(
-                    o,
-                    current_ts,
-                    "gap_stop",
-                    volume=v_limit,
-                    limit_pct=engine_cfg.volume_limit_pct,
-                    comm_frac=engine_cfg.commission_rate_frac,
-                    comm_fixed=engine_cfg.commission_fixed,
-                )
-            else:
-                # Intraday touch
-                account.sell(
-                    stop_price,
-                    current_ts,
-                    "stop",
-                    volume=v_limit,
-                    limit_pct=engine_cfg.volume_limit_pct,
-                    comm_frac=engine_cfg.commission_rate_frac,
-                    comm_fixed=engine_cfg.commission_fixed,
-                )
-            stop_price = np.nan
-
-        # 4. Mark to Market
-        equity_arr[i] = account.total_value(c)
-
-        # HYDRA GUARD: Speed Watchdog (Vector 103)
-        bar_elapsed = time.perf_counter() - bar_start
-        if bar_elapsed > 1.0: # 1 second per bar limit
-            raise RuntimeError(f"TEMPORAL SLOWDOWN DETECTED: Bar {i} took {bar_elapsed:.4f}s. Limit: 1.0s.")
-
-        # HYDRA GUARD: RAM Spike Detection (Vector 110)
-        if i % 100 == 0:
-            current_mem = proc.memory_info().rss / (1024 * 1024)
-            if current_mem > 4096: # 4GB Hard Limit
-                raise RuntimeError(f"RESOURCE EXHAUSTION: Process RAM ({current_mem:.2f} MB) exceeded 4GB threshold.")
+            if account.in_position and not np.isnan(stop_price) and low <= stop_price:
+                # HIT!
+                if o < stop_price:
+                    # Gap Down
+                    account.sell(
+                        o,
+                        current_ts,
+                        "gap_stop",
+                        volume=v_limit,
+                        limit_pct=engine_cfg.volume_limit_pct,
+                        comm_frac=engine_cfg.commission_rate_frac,
+                        comm_fixed=engine_cfg.commission_fixed,
+                    )
+                else:
+                    # Intraday touch
+                    account.sell(
+                        stop_price,
+                        current_ts,
+                        "stop",
+                        volume=v_limit,
+                        limit_pct=engine_cfg.volume_limit_pct,
+                        comm_frac=engine_cfg.commission_rate_frac,
+                        comm_fixed=engine_cfg.commission_fixed,
+                    )
+                stop_price = np.nan
+    
+            # 4. Mark to Market
+            equity_arr[i] = account.total_value(c)
+    
+            # HYDRA GUARD: Speed Watchdog (Vector 103)
+            bar_elapsed = time.perf_counter() - bar_start
+            if bar_elapsed > 1.0: # 1 second per bar limit
+                raise RuntimeError(f"TEMPORAL SLOWDOWN DETECTED: Bar {i} took {bar_elapsed:.4f}s. Limit: 1.0s.")
+    
+            # HYDRA GUARD: RAM Spike Detection (Vector 110)
+            if i % 100 == 0:
+                current_mem = proc.memory_info().rss / (1024 * 1024)
+                if current_mem > 4096: # 4GB Hard Limit
+                    raise RuntimeError(f"RESOURCE EXHAUSTION: Process RAM ({current_mem:.2f} MB) exceeded 4GB threshold.")
 
     except Exception as e:
         # P7 FIX: Auditability - Rethrow with context

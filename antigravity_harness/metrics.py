@@ -56,9 +56,13 @@ def profit_factor(trades: List[Any]) -> float:
         return float("nan")
     gains = sum(float(t.pnl_abs) for t in trades if float(t.pnl_abs) > 0)
     losses = -sum(float(t.pnl_abs) for t in trades if float(t.pnl_abs) < 0)
-    if losses <= 0:
-        return float("inf") if gains > 0 else float("nan")
-    return gains / losses
+    # Strict-mode stabilization: PF must be finite.
+    if losses <= 0.0:
+        if gains <= 0.0:
+            return 1.0
+        pf = gains / 1e-12
+        return float(min(pf, 1e6))
+    return float(gains / losses)
 
 
 def expectancy(trades: List[Any]) -> float:
