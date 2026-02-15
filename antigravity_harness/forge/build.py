@@ -176,6 +176,16 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     try:
         env = os.environ.copy()
         env["METADATA_RELEASE_MODE"] = "1"
+        # Pass the calculated code hash to ensure deterministic RUN_METADATA
+        env["METADATA_CODE_HASH"] = str(repo_root.name) + ":" + (repo_root.parent.name) # Use something stable if git fails
+        # Actually, we have code_hash in build.py (from manifest or git)
+        # Let's use the git SHA if available
+        try:
+            sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root, stderr=subprocess.DEVNULL).decode("utf-8").strip()
+            env["METADATA_CODE_HASH"] = sha
+        except:
+             env["METADATA_CODE_HASH"] = "STABLE_SOVEREIGN_HASH"
+             
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
             "--symbols", "MOCK", "--synthetic", "--outdir", "reports/forge/synthetic_smoke"
