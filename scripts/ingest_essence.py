@@ -125,27 +125,7 @@ class IntelligenceIngestor:
         os.replace(tmp_ledger, LEDGER_FILE)
 
 
-def parse_cnn_fear_greed(_raw_html: bytes) -> Dict[str, Any]:
-    """Extract Fear & Greed essence from CNN."""
-    # Modular parser for Fear & Greed indices.
-    # For now, we mock the 'Truth' extraction
-    try:
-        # Looking for the dial value
-        # In a real scenario, we'd find the specific <div> or <span>
-        # For this demonstration, we'll return a stub indicating truth was found
-        return {"value": 50, "rating": "Neutral", "status": "Success"}
-    except Exception:
-        return {"status": "Extraction Error", "value": 50.0}
-
-
-def parse_market_alpha(_raw_data: bytes) -> Dict[str, Any]:
-    """Extract alpha score from institutional news feeds."""
-    # Sovereign implementation for multi-source consensus.
-    try:
-        # Mocking an alpha score of 'High Optimism' (0.8)
-        return {"status": "Verified", "alpha": 0.8}
-    except Exception:
-        return {"status": "Extraction Error", "alpha": 0.0}
+from antigravity_harness.essence import parse_cnn_fear_greed, parse_market_alpha
 
 
 if __name__ == "__main__":
