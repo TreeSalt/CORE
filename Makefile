@@ -10,7 +10,7 @@ LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
 DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
 ONE_TRUE := scripts/one_true_command.sh
 
-.PHONY: help install lint format type-check test test-hardening preflight clean forge build all
+.PHONY: help install lint format type-check test test-hardening preflight clean forge build all heal
 help:
 	@echo ""
 	@echo "🐉 TRADER_OPS — Antigravity Harness (v$(VERSION))"
@@ -18,7 +18,8 @@ help:
 	@echo ""
 	@echo "  🔧 CORE"
 	@echo "    make install          Install dependencies"
-	@echo "    make all              Full pipeline: lint → test → build → verify"
+	@echo "    make all              Full pipeline: heal → lint → test → build → verify"
+	@echo "    make heal             Proactively repair project (Self-Healing)"
 	@echo "    make release          clean → build → verify (Council delivery)"
 	@echo ""
 	@echo "  🔍 QUALITY"
@@ -99,7 +100,7 @@ build:
 DIST ?= dist
 ONE_TRUE := scripts/one_true_command.sh
 
-.PHONY: audit audit-fast hashes zip-verify cert-verify show-dist heal
+.PHONY: audit audit-fast hashes zip-verify cert-verify show-dist
 
 audit:  ## The one word the Council should run
 	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
