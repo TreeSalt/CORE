@@ -31,7 +31,7 @@ def main():
         # Ensure a fresh build is present for artifact sabotages
         if v in ["v251", "v252", "v253", "v254", "v259", "v260", "v261", "v262"]:
             print("  🔨 Building fresh drop packet for artifact sabotage...")
-            subprocess.run(["python3", "-B", "scripts/make_drop_packet.py"], cwd=root, capture_output=True)
+            subprocess.run(["python3", "-B", "scripts/make_drop_packet.py"], cwd=root, capture_output=True, check=False)
 
         # 2. Execute Stress Test
         print(f"  🔥 Unleashing Chaos Hydra Monkey: {v}")

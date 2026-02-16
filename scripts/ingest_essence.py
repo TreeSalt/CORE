@@ -15,7 +15,6 @@ import time
 from pathlib import Path
 
 import httpx
-from antigravity_harness.essence import parse_cnn_fear_greed
 
 # Paths
 INTEL_DIR = Path("intelligence")
