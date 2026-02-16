@@ -14,8 +14,6 @@ from typing import Any, Dict, List
 import numpy as np
 
 
-
-
 class EssenceLab:
     def __init__(self, intel_dir: Path):
         self.intel_dir = intel_dir
