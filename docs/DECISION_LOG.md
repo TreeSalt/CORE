@@ -93,28 +93,34 @@ Implemented a "Clean Room" standard for distribution.
 ## 2026-02-15: Automate Decision Logging: Fixed-Point Sovereignty v4.4.43 (v4.4.43)
 
 ### Context
-Automated entry captured via Git Provenance during the v4.4.43 forge.
+The forge process required updating version strings in `__init__.py` and `README.md`, but `STRICT_MODE` enforced a clean repository state. This created a "Circular Dependency" where the forge could not complete because it was technically "dirtying" the repo.
 
 ### Decision
-No additional context provided.
+Decoupled initial cleanliness checks from the mid-build mutations. 
+- **Action**: Check for a clean tree *before* version bumping.
+- **Action**: Allow a whitelist of authorized files (`__init__.py`, `README.md`, `COUNCIL_CANON.yaml`) to be dirty during the final "Purity Assert".
+- **Action**: Automated the decision log entry to reflect these atomic transitions.
 
 ### Trade-offs
-- **Pros**: Guaranteed provenance; zero-effort documentation.
-- **Cons**: Depth of log depends on commit message quality.
+- **Pros**: Enables fully automated, versioned releases while maintaining strict integrity guarantees for all other source files.
+- **Cons**: Requires keeping an explicit "Authorized Mutation Whitelist" in the build script.
 
 ---
 
 ## 2026-02-15: All-Knowing README: Constitutional Centralization and Self-Updating Gateway v4.4.44 (v4.4.44)
 
 ### Context
-Automated entry captured via Git Provenance during the v4.4.44 forge.
+Institutional auditability requires that the project's primary entry point (`README.md`) reflects the current fiduciary state and provides a clear map to all constitutional documents.
 
 ### Decision
-No additional context provided.
+Transformed the `README.md` into a "Master Gateway".
+- **Action**: Centralized all core documentation links in a "Sovereign Library" section.
+- **Action**: Integrated the `certify-run` and `verify-cert-bundle` commands as the primary operational paths.
+- **Action**: Standardized the "Certification Verdict System" (PASS/WARN/FAIL) for all consumer-facing reports.
 
 ### Trade-offs
-- **Pros**: Guaranteed provenance; zero-effort documentation.
-- **Cons**: Depth of log depends on commit message quality.
+- **Pros**: Significantly reduces time-to-onboarding for new operators/agents; ensures the "One Source of Truth" is the first thing seen.
+- **Cons**: Requires careful syncing between `README.md` and the actual `antigravity_harness` implementation.
 
 ---
 
@@ -303,14 +309,17 @@ No additional context provided.
 ## 2020-01-01: Institutional Gold: Sovereign Auditor Unification (v4.4.65) (v4.4.65)
 
 ### Context
-Automated entry captured via Git Provenance during the v4.4.65 forge.
+Historical integrity was previously managed by a fragmented `WriteAheadLog`. To reach "Institutional Gold" grade, a unified auditing regime was required to monitor physics, invariants, and state transitions concurrently.
 
 ### Decision
-No additional context provided.
+Unified all monitoring into the `SovereignAuditor` (Phoenix Protocol).
+- **Action**: Deprecated legacy `WriteAheadLog` in favor of a centralized `engine.auditor` instance.
+- **Action**: Implemented "Hydra Guard" invariant checks (Exposure, Order Counting) directly into the auditor.
+- **Action**: Automated the "Final Audit Report" generation at engine shutdown as a portable artifact.
 
 ### Trade-offs
-- **Pros**: Guaranteed provenance; zero-effort documentation.
-- **Cons**: Depth of log depends on commit message quality.
+- **Pros**: Reduces system complexity; provides a single, high-fidelity forensic trail for all strategy executions.
+- **Cons**: Temporary regression risk for historical tests relying on the original WAL interface (remediated via `test_engine_wal.py` revival).
 
 ---
 
@@ -409,3 +418,19 @@ No additional context provided.
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: finalize certificate injection and audit gate in build system (v4.4.86) (v4.4.79)
+
+### Context
+The forge sequencer had a race condition where the Fiduciary Certificate was signed *after* the Evidence Zip was finalized, meaning the signature of the zip itself was not captured within the signed proof.
+
+### Decision
+Standardized the "Master Forge Sequence".
+- **Action**: Generate the Evidence Zip -> Generate the Certificate (binding the Zip hash) -> Sign the Certificate -> Inject Certificate/Signature/Pubkey into the Evidence Zip -> Finalize Drop Zip.
+- **Action**: Restored the `verify_drop_packet.py` gate to the build script to ensure no artifact is promoted without a successful "End-to-End Audit".
+
+### Trade-offs
+- **Pros**: Achieves absolute cryptographic closure; ensures bit-perfect verification is possible using only the contents of the drop packet.
+- **Cons**: Increases forge complexity by requiring multiple zip-injection passes.

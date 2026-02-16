@@ -1,13 +1,15 @@
-# ANTIGRAVITY HARNESS v4.4.78 (OMEGA SOVEREIGN)
+# ANTIGRAVITY HARNESS v4.4.79 (OMEGA SOVEREIGN)
 
-**Status**: OMEGA IMMORTAL (v4.4.78)
+**Status**: OMEGA IMMORTAL (v4.4.79)
 **Objective**: Absolute, bit-perfect trading strategy sovereignty.
 
 ## 📂 Sovereign Library (The Books)
 The project's constitutional and architectural "books" are now centralized in the `docs/` folder:
+- [AGENT ONBOARDING](docs/AGENT_ONBOARDING.md): **Start Here** for new models/operators.
+- [ARCHITECTURE MAP](docs/ARCHITECTURE_MAP.md): visualized system topology and physics layers.
+- [Decision Log](docs/DECISION_LOG.md): Historical record of all architectural pivots.
 - [Fiduciary Constitution](docs/fiduciary_constitution.md): The binding legal/code framework.
 - [Council Preamble](docs/COUNCIL_PREAMBLE.md): The core mandates and ethical framework.
-- [Decision Log](docs/DECISION_LOG.md): Historical record of all architectural pivots.
 - [Vision: Event Horizon](docs/vision_event_horizon.md): Long-term roadmap for options trading.
 - [Essence Engine Spec](docs/essence_engine.md): Technical design for the consensus layer.
 
@@ -123,7 +125,7 @@ Output includes a verified zip and a `.sha256` checksum.
 
 ---
 ---
-*Built by Antigravity Harness (v4.4.78)*
+*Built by Antigravity Harness (v4.4.79)*
 
 ## 📂 Documentation (Institutional Gold)
 - [Vision: Event Horizon (Option Trading)](docs/vision_event_horizon.md)
