@@ -71,7 +71,7 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
         portfolio.add_asset(
             sym,
             slippage=engine_config.slippage_per_side,
-            comm_frac=engine_config.commission_rate_frac,
+            comm_bps=engine_config.commission_rate_frac,
             comm_fixed=engine_config.commission_fixed,
             volume_limit_pct=engine_config.volume_limit_pct,
         )

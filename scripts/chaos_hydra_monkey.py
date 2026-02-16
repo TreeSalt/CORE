@@ -28,6 +28,12 @@ def main() -> int:
         "v228": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Slippage Poisoning"},
         "v240": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "NaN Detection"},
         "v231": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Ledger Inflation"},
+        "v241": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Temporal Paradox"},
+        "v242": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Identity Mimic"},
+        "v243": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Memory Bomb"},
+        "v244": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "FD Exhaustion"},
+        "v245": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Signal Tsunami"},
+        "v246": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Symlink Poisoning"},
     }
 
     try:

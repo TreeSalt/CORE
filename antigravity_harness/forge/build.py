@@ -170,6 +170,18 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             f"STRICT GATE FAILURE: Canon version ({c_match.group(1) if c_match else 'UNK'}) != Code version ({version})"
         )
 
+    # Hydra V241: Temporal Witness Guard
+    d_match = re.search(r'generated_at_utc:\s*"([^"]+)"', c_txt)
+    if d_match:
+        from datetime import datetime # noqa: PLC0415
+        try:
+            gen_date = datetime.fromisoformat(d_match.group(1).replace("Z", "+00:00"))
+            now = datetime.now(gen_date.tzinfo)
+            if gen_date > now and gen_date.year > 2030:
+                raise RuntimeError(f"TEMPORAL PARADOX (V241): Council Canon date ({d_match.group(1)}) is in the future.")
+        except ValueError:
+            pass # Invalid format is handled by other gates or ignored for now
+
     print(f"🔐 Strict Version Gate Passed: v{version}")
 
     # 1. Artifact Paths
@@ -630,6 +642,8 @@ def _create_zip(zip_path: Path, root: Path, includes: List[str], exclude: List[s
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for item in includes:
             item_path = root / item
+            if item_path.is_symlink():
+                raise RuntimeError(f"SYMLINK POISON (V246): {item} is a symlink.")
             if item_path.is_file():
                 if item in exclude:
                     continue

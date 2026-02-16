@@ -12,6 +12,9 @@ import zipfile
 from pathlib import Path
 from typing import Any, Callable, Dict
 
+import os
+import re
+
 import pandas as pd
 
 # Constants
@@ -323,6 +326,71 @@ class ChaosMonkey:
         self._save_ledger(ledger)
         print("🎈 [HYDRA V231] Bloated ledger to 11MB.")
 
+    def sabotage_timestamp_paradox(self):
+        """Hydra V241: Temporal Paradox (Future Date)."""
+        canon_path = Path("docs/ready_to_drop/COUNCIL_CANON.yaml")
+        if canon_path.exists():
+            content = canon_path.read_text()
+            # Set date to 2045
+            new_content = re.sub(r'generated_at_utc:\s*"[^"]*"', 'generated_at_utc: "2045-01-01T00:00:00Z"', content)
+            canon_path.write_text(new_content)
+            print("⏳ [HYDRA V241] Shifted Council Canon into the future (2045).")
+
+    def sabotage_homoglyph_strategy(self):
+        """Hydra V242: Identity Mimic (Homoglyph Strategy)."""
+        # We'll create a new strategy file that looks like v032_simple but isn't.
+        # Cyrillic 'а' (U+0430) instead of 'a'
+        target_path = Path("antigravity_harness/strategies/v032_simple_mimic.py")
+        content = """from .base import BaseStrategy
+class v032_simple(BaseStrategy): # This name looks the same but we'll try to register it
+    def generate_signals(self, df): return df['Close'] * 0
+"""
+        target_path.write_text(content)
+        # We also need to hack the registry or just wait for it to be picked up
+        print("🎭 [HYDRA V242] Deployed homoglyph strategy 'v032_simple' mimic.")
+
+    def sabotage_memory_bomb(self):
+        """Hydra V243: Memory Pressure Bomb."""
+        # Inject memory-hogging logic into a strategy
+        strat_path = Path("antigravity_harness/strategies/v032_simple.py")
+        if strat_path.exists():
+            content = strat_path.read_text()
+            leak_logic = "\n        self._leak = []\n        for _ in range(100): self._leak.append('X' * 10**7) # 1GB total leak per call\n"
+            content = content.replace("def generate_signals(self, df):", "def generate_signals(self, df):" + leak_logic)
+            strat_path.write_text(content)
+            print("🧨 [HYDRA V243] Primed v032_simple with a 1GB memory bomb.")
+
+    def sabotage_fd_exhaustion(self):
+        """Hydra V244: File Descriptor Exhaustion."""
+        strat_path = Path("antigravity_harness/strategies/v032_simple.py")
+        if strat_path.exists():
+            content = strat_path.read_text()
+            fd_logic = "\n        self._fds = []\n        for _ in range(2000): self._fds.append(open(__file__))\n"
+            content = content.replace("def generate_signals(self, df):", "def generate_signals(self, df):" + fd_logic)
+            strat_path.write_text(content)
+            print("📂 [HYDRA V244] Primed v032_simple for FD exhaustion.")
+
+    def sabotage_signal_tsunami(self):
+        """Hydra V245: Signal Tsunami."""
+        # Force emit.py to generate a massive payload
+        emit_path = Path("antigravity_harness/emit.py")
+        if emit_path.exists():
+            content = emit_path.read_text()
+            flood_logic = "\n    for i in range(1000000): signals.append({'ts': '2020-01-01', 'val': i})\n"
+            content = content.replace("def unique_signals(signals: List[Dict[str, Any]]) -> List[Dict[str, Any]]:", 
+                                      "def unique_signals(signals: List[Dict[str, Any]]) -> List[Dict[str, Any]]:" + flood_logic)
+            emit_path.write_text(content)
+            print("🌊 [HYDRA V245] Flooded signal emitter with 1M entries.")
+
+    def sabotage_symlink_poison(self):
+        """Hydra V246: Symlink Poisoning."""
+        target_path = Path("antigravity_harness/engine.py")
+        if target_path.exists():
+            target_path.unlink()
+            # Point to something sensitive or just different
+            os.symlink("setup.py", target_path)
+            print("🔗 [HYDRA V246] Poisoned engine.py with a symlink pivot.")
+
     def run_all(self):
         phases = [
             self.sabotage_binary,
@@ -338,6 +406,12 @@ class ChaosMonkey:
             self.sabotage_mimic,
             self.sabotage_legion,
             self.sabotage_gorgon,
+            self.sabotage_timestamp_paradox,
+            self.sabotage_homoglyph_strategy,
+            self.sabotage_memory_bomb,
+            self.sabotage_fd_exhaustion,
+            self.sabotage_signal_tsunami,
+            self.sabotage_symlink_poison,
         ]
         for p in phases:
             p()

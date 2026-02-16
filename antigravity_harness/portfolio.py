@@ -43,7 +43,7 @@ class PortfolioAccount:
         self,
         symbol: str,
         slippage: float = 0.001,
-        comm_frac: float = 0.0,
+        comm_bps: float = 0.0,
         comm_fixed: float = 0.0,
         volume_limit_pct: float = 0.0,
     ) -> None:
@@ -60,8 +60,6 @@ class PortfolioAccount:
             initial_cash=0.0,
             slippage=slippage,
             allow_fractional=self.allow_fractional,
-            compliance=self.compliance,
-            wal=self.wal,
         )
         # Patch friction configs which usually come from EngineConfig
         # But SimulatedAccount doesn't store them, they are passed to buy/sell.
@@ -70,7 +68,7 @@ class PortfolioAccount:
         self.accounts[symbol] = acct
         self._asset_configs[symbol] = {
             "slippage": slippage,
-            "comm_frac": comm_frac,
+            "comm_bps": comm_bps,
             "comm_fixed": comm_fixed,
             "volume_limit_pct": volume_limit_pct,
         }
@@ -160,7 +158,7 @@ class PortfolioAccount:
                     qty=qty_to_sell,
                     volume=current_volumes.get(sym, 0.0) if current_volumes else np.inf,
                     limit_pct=conf.get("volume_limit_pct", 0.0),
-                    comm_frac=conf.get("comm_frac", 0.0),
+                    comm_bps=conf.get("comm_bps", 0.0),
                     comm_fixed=conf.get("comm_fixed", 0.0),
                 )
 
@@ -197,7 +195,7 @@ class PortfolioAccount:
                 timestamp,
                 volume=current_volumes.get(sym, 0.0) if current_volumes else np.inf,
                 limit_pct=conf.get("volume_limit_pct", 0.0),
-                comm_frac=conf.get("comm_frac", 0.0),
+                comm_bps=conf.get("comm_bps", 0.0),
                 comm_fixed=conf.get("comm_fixed", 0.0),
             )
 

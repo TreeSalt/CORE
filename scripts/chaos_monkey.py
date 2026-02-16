@@ -42,6 +42,12 @@ def main():
         "v228": monkey.sabotage_slippage,
         "v240": monkey.sabotage_nan,
         "v231": monkey.sabotage_ledger_bloat,
+        "v241": monkey.sabotage_timestamp_paradox,
+        "v242": monkey.sabotage_homoglyph_strategy,
+        "v243": monkey.sabotage_memory_bomb,
+        "v244": monkey.sabotage_fd_exhaustion,
+        "v245": monkey.sabotage_signal_tsunami,
+        "v246": monkey.sabotage_symlink_poison,
     }
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
