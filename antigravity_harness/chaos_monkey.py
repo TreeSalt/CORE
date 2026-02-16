@@ -7,13 +7,12 @@ Ensures the Sovereign Filter is truly Dragonproof.
 
 import hashlib
 import json
+import os
+import re
 import shutil
 import zipfile
 from pathlib import Path
 from typing import Any, Callable, Dict
-
-import os
-import re
 
 import pandas as pd
 

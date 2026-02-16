@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
@@ -28,6 +28,7 @@ class BacktestResult:
     trades: List[Trade]
     metrics: Dict[str, Any]
     config: Dict[str, Any]
+    trace: pd.DataFrame = field(default_factory=pd.DataFrame)
 
 
 def _apply_slippage(price: float, side: str, slippage: float) -> float:
@@ -63,7 +64,7 @@ class SimulatedAccount:
     def _calculate_commission(self, price: float, qty: float, bps: float, fixed: float) -> float:
         return (price * qty * bps) + fixed
 
-    def buy(
+    def buy(  # noqa: PLR0912
         self,
         price: float,
         timestamp: pd.Timestamp,
@@ -71,9 +72,13 @@ class SimulatedAccount:
         risk_pct: float = 0.0,
         volume: float = np.inf,
         limit_pct: float = 0.0,
+        comm_frac: float = 0.0,
         comm_bps: float = 0.0,
         comm_fixed: float = 0.0,
     ) -> bool:
+        # Compatibility: comm_bps is legacy name; comm_frac is canonical (decimal fraction)
+        if comm_frac == 0.0 and comm_bps != 0.0:
+            comm_frac = float(comm_bps)
 
         fill_price = _apply_slippage(price, "buy", self.slippage)
         if fill_price <= 0:
@@ -109,7 +114,7 @@ class SimulatedAccount:
 
         if qty_to_buy > 0:
             gross_cost = qty_to_buy * fill_price
-            commission = self._calculate_commission(fill_price, qty_to_buy, comm_bps, comm_fixed)
+            commission = self._calculate_commission(fill_price, qty_to_buy, comm_frac, comm_fixed)
             total_cost = gross_cost + commission
 
             if total_cost > self.cash:
@@ -117,7 +122,7 @@ class SimulatedAccount:
                 # Cost = Q * P * (1 + bps) + fixed
                 # Q = (Cash - fixed) / (P * (1 + bps))
                 if self.cash > comm_fixed:
-                    qty_to_buy = (self.cash - comm_fixed) / (fill_price * (1 + comm_bps))
+                    qty_to_buy = (self.cash - comm_fixed) / (fill_price * (1 + comm_frac))
 
                     if not self.allow_fractional:
                         qty_to_buy = int(qty_to_buy)
@@ -125,7 +130,7 @@ class SimulatedAccount:
                         return False
 
                     gross_cost = qty_to_buy * fill_price
-                    commission = self._calculate_commission(fill_price, qty_to_buy, comm_bps, comm_fixed)
+                    commission = self._calculate_commission(fill_price, qty_to_buy, comm_frac, comm_fixed)
                     total_cost = gross_cost + commission
                 else:
                     return False
@@ -152,10 +157,15 @@ class SimulatedAccount:
         reason: str,
         volume: float = np.inf,
         limit_pct: float = 0.0,
+        comm_frac: float = 0.0,
         comm_bps: float = 0.0,
         comm_fixed: float = 0.0,
         qty: float = 0.0,  # Explicit quantity to sell (0.0 = All)
     ) -> bool:
+        # Compatibility: comm_bps is legacy name; comm_frac is canonical (decimal fraction)
+        if comm_frac == 0.0 and comm_bps != 0.0:
+            comm_frac = float(comm_bps)
+
         if not self.in_position:
             return False
 
@@ -175,7 +185,7 @@ class SimulatedAccount:
 
         fill_price = _apply_slippage(price, "sell", self.slippage)
         gross_proceeds = qty_to_sell * fill_price
-        commission = self._calculate_commission(fill_price, qty_to_sell, comm_bps, comm_fixed)
+        commission = self._calculate_commission(fill_price, qty_to_sell, comm_frac, comm_fixed)
         net_proceeds = gross_proceeds - commission
 
         self.cash += net_proceeds
@@ -210,7 +220,7 @@ class SimulatedAccount:
         return True
 
 
-def run_backtest(
+def run_backtest(  # noqa: PLR0912, PLR0915
     df: pd.DataFrame,
     prepared: pd.DataFrame,
     params: StrategyParams,
@@ -227,11 +237,7 @@ def run_backtest(
     # Avoid copying main DF, access numpy views directly
 
     # Align Signals (Fast Path)
-    if prepared.index.equals(df.index):
-        sig = prepared
-    else:
-        # Only reindex if necessary (slow path)
-        sig = prepared.reindex(df.index)
+    sig = prepared if prepared.index.equals(df.index) else prepared.reindex(df.index)
 
     # Warmup Validation
     required = ["entry_signal", "exit_signal"]
@@ -243,7 +249,7 @@ def run_backtest(
     valid_mask = sig[required].notna().all(axis=1)
     if not valid_mask.any():
         equity = pd.Series(engine_cfg.initial_cash, index=df.index, dtype=float)
-        metrics = compute_metrics(equity, [])
+        metrics = compute_metrics(equity, [], periods_per_year=engine_cfg.periods_per_year)
         return BacktestResult(
             equity, [], metrics, config={"engine": engine_cfg.model_dump(), "params": params.model_dump()}
         )
@@ -279,6 +285,10 @@ def run_backtest(
 
     n_bars = len(df)
     equity_arr = np.full(n_bars, np.nan)
+    cash_arr = np.full(n_bars, np.nan)
+    qty_arr = np.full(n_bars, np.nan)
+    in_pos_arr = np.zeros(n_bars, dtype=bool)
+    stop_arr = np.full(n_bars, np.nan)
 
     # 4. Account Setup
     account = SimulatedAccount(
@@ -300,6 +310,10 @@ def run_backtest(
         # Warmup check
         if i < start_ix:
             equity_arr[i] = account.cash
+            cash_arr[i] = account.cash
+            qty_arr[i] = account.qty
+            in_pos_arr[i] = account.in_position
+            stop_arr[i] = stop_price
             continue
 
         current_ts = timestamps[i]
@@ -307,7 +321,6 @@ def run_backtest(
         low = lows[i]
         c = closes[i]
 
-        v = volumes[i]
 
         # Counters
         if account.in_position:
@@ -320,57 +333,52 @@ def run_backtest(
         # 1. Execute Scheduled Orders
         executed_exit = False
 
-        if account.in_position:
-            # Check Exit Signal
-            # Turnover Control: min_hold_bars
-            if (bars_held > params.min_hold_bars) and exit_sig[i]:
-                if account.sell(
-                    o,
-                    current_ts,
-                    "signal_exit",
-                    volume=v,
-                    limit_pct=engine_cfg.volume_limit_pct,
-                    comm_bps=engine_cfg.commission_bps,
-                    comm_fixed=engine_cfg.commission_fixed,
-                ):
-                    # If partial sell, we are STILL in position.
-                    # bars_since_exit resets ONLY if FULL EXIT?
-                    # Simplification: If we sold ANY, we consider it an exit event for cooldown?
-                    # No, traditionally turnover is about round trips.
-                    # If qty > 0, we are still holding.
-                    if not account.in_position:
-                        bars_since_exit = 0
-                        executed_exit = True
-                        stop_price = np.nan
+        # T-1 Volume for at-open execution (no lookahead)
+        v_limit_ref = volumes[i-1] if i > 0 else 0.0
 
-        if not account.in_position and not executed_exit:
-            # Check Entry Signal
-            # Turnover Control: cooldown
-            if (bars_since_exit >= params.cooldown_bars) and entry_sig[i]:
-                # Pre-calc Stop for Sizing
-                proposed_stop = np.nan
-                if not params.disable_stop:
-                    if atr_shifted is None:
-                        raise ValueError("ATR data missing for stop calculation")
-                    atr_ref = atr_shifted[i]
-                    if np.isfinite(atr_ref) and atr_ref > 0:
-                        stop_dist = float(params.stop_atr) * atr_ref
-                        proposed_stop = o - stop_dist  # Assume entry at Open 'o'
+        if account.in_position and (bars_held > params.min_hold_bars) and exit_sig[i] and account.sell(
+            o,
+            current_ts,
+            "signal_exit",
+            volume=v_limit_ref,
+            limit_pct=engine_cfg.volume_limit_pct,
+            comm_frac=engine_cfg.commission_rate_frac,
+            comm_fixed=engine_cfg.commission_fixed,
+        ) and not account.in_position:
+            # If partial sell, we are STILL in position.
+            # bars_since_exit resets ONLY if FULL EXIT?
+            # Simplification: If we sold ANY, we consider it an exit event for cooldown?
+            # No, traditionally turnover is about round trips.
+            # If qty > 0, we are still holding.
+            bars_since_exit = 0
+            executed_exit = True
+            stop_price = np.nan
 
-                # Execute Buy with Sizing
-                # If proposed_stop is nan (disable_stop=True), risk_pct is ignored -> Full Equity
-                if account.buy(
-                    o,
-                    current_ts,
-                    stop_price=proposed_stop,
-                    risk_pct=params.risk_per_trade,
-                    volume=v,
-                    limit_pct=engine_cfg.volume_limit_pct,
-                    comm_bps=engine_cfg.commission_bps,
-                    comm_fixed=engine_cfg.commission_fixed,
-                ):
-                    bars_held = 1
-                    stop_price = proposed_stop
+        if not account.in_position and not executed_exit and (bars_since_exit >= params.cooldown_bars) and entry_sig[i]:
+            # Pre-calc Stop for Sizing
+            proposed_stop = np.nan
+            if not params.disable_stop:
+                if atr_shifted is None:
+                    raise ValueError("ATR data missing for stop calculation")
+                atr_ref = atr_shifted[i]
+                if np.isfinite(atr_ref) and atr_ref > 0:
+                    stop_dist = float(params.stop_atr) * atr_ref
+                    proposed_stop = o - stop_dist  # Assume entry at Open 'o'
+
+            # Execute Buy with Sizing
+            # If proposed_stop is nan (disable_stop=True), risk_pct is ignored -> Full Equity
+            if account.buy(
+                o,
+                current_ts,
+                stop_price=proposed_stop,
+                risk_pct=params.risk_per_trade,
+                volume=v_limit_ref,
+                limit_pct=engine_cfg.volume_limit_pct,
+                comm_frac=engine_cfg.commission_rate_frac,
+                comm_fixed=engine_cfg.commission_fixed,
+            ):
+                bars_held = 1
+                stop_price = proposed_stop
 
                     # If we have a stop but it was invalid (e.g. negative), we might have bought full equity
                     # But if we intended to have a stop and calculation failed?
@@ -378,46 +386,50 @@ def run_backtest(
                     # This matches "disable_stop" behavior.
 
         # 3. Intrabar Risk (Stop Loss)
-        if account.in_position and not np.isnan(stop_price):
-            if low <= stop_price:
-                # HIT!
-                if o < stop_price:
-                    # Gap Down
-                    account.sell(
-                        o,
-                        current_ts,
-                        "gap_stop",
-                        volume=v,
-                        limit_pct=engine_cfg.volume_limit_pct,
-                        comm_bps=engine_cfg.commission_bps,
-                        comm_fixed=engine_cfg.commission_fixed,
-                    )
-                else:
-                    # Intraday touch
-                    account.sell(
-                        stop_price,
-                        current_ts,
-                        "stop",
-                        volume=v,
-                        limit_pct=engine_cfg.volume_limit_pct,
-                        comm_bps=engine_cfg.commission_bps,
-                        comm_fixed=engine_cfg.commission_fixed,
-                    )
-                stop_price = np.nan
+        if account.in_position and not np.isnan(stop_price) and low <= stop_price:
+            # HIT!
+            if o < stop_price:
+                # Gap Down
+                account.sell(
+                    o,
+                    current_ts,
+                    "gap_stop",
+                    volume=v_limit_ref,
+                    limit_pct=engine_cfg.volume_limit_pct,
+                    comm_frac=engine_cfg.commission_rate_frac,
+                    comm_fixed=engine_cfg.commission_fixed,
+                )
+            else:
+                # Intraday touch
+                account.sell(
+                    stop_price,
+                    current_ts,
+                    "stop",
+                    volume=v_limit_ref,
+                    limit_pct=engine_cfg.volume_limit_pct,
+                    comm_frac=engine_cfg.commission_rate_frac,
+                    comm_fixed=engine_cfg.commission_fixed,
+                )
+            stop_price = np.nan
 
         # 4. Mark to Market
         equity_arr[i] = account.total_value(c)
+        cash_arr[i] = account.cash
+        qty_arr[i] = account.qty
+        in_pos_arr[i] = account.in_position
+        stop_arr[i] = stop_price
 
     # 6. Force Close
     if account.in_position:
         last_price = closes[-1]
-        # Force close ignores volume limits? No, physics is physics.
-        # But end of sim. We dump.
+        # Force close uses T-0 volume because it's the end of the state, but typically it shouldn't matter.
+        # For simplicity we use the last known volume.
         account.sell(
             last_price,
             timestamps[-1],
             "force_close",
-            comm_bps=engine_cfg.commission_bps,
+            volume=volumes[-1],
+            comm_frac=engine_cfg.commission_rate_frac,
             comm_fixed=engine_cfg.commission_fixed,
         )
         equity_arr[-1] = account.total_value(last_price)  # Reflect cash
@@ -425,7 +437,30 @@ def run_backtest(
     # Cleanup
     # Cleanup - Fix FutureWarning: Explicit cast to avoid downcasting warning
     equity_series = pd.Series(equity_arr, index=timestamps).ffill().fillna(float(engine_cfg.initial_cash)).astype(float)
-    metrics = compute_metrics(equity_series, account.trades)
+    metrics = compute_metrics(equity_series, account.trades, periods_per_year=engine_cfg.periods_per_year)
+
+    # 7. Trace Production
+    trace = pd.DataFrame(
+        {
+            "time": timestamps,
+            "open": opens,
+            "high": _highs,
+            "low": lows,
+            "close": closes,
+            "volume": volumes,
+            "entry_signal_exec": entry_sig,
+            "exit_signal_exec": exit_sig,
+            "in_position": in_pos_arr,
+            "qty": qty_arr,
+            "cash": cash_arr,
+            "equity": equity_series.values,
+            "stop_price": stop_arr,
+        }
+    )
+    if "regime" in sig.columns:
+        trace["regime"] = sig["regime"].values
+    if "confirmed_regime" in sig.columns:
+        trace["confirmed_regime"] = sig["confirmed_regime"].values
 
     # Raw Signal Counts (from original arrays)
     metrics["raw_entry_signals"] = int(np.sum(entry_raw))
@@ -436,4 +471,5 @@ def run_backtest(
         trades=account.trades,
         metrics=metrics,
         config={"engine": engine_cfg.model_dump(), "params": params.model_dump()},
+        trace=trace,
     )

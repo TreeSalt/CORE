@@ -175,14 +175,14 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # Hydra V241: Temporal Witness Guard
     d_match = re.search(r'generated_at_utc:\s*"([^"]+)"', c_txt)
     if d_match:
-        from datetime import datetime # noqa: PLC0415
         try:
+            from datetime import datetime  # noqa: PLC0415
             gen_date = datetime.fromisoformat(d_match.group(1).replace("Z", "+00:00"))
             now = datetime.now(gen_date.tzinfo)
             if gen_date > now and gen_date.year > 2050:
                 raise RuntimeError(f"TEMPORAL PARADOX (V241): Council Canon date ({d_match.group(1)}) is in the future.")
         except ValueError:
-            pass # Invalid format is handled by other gates or ignored for now
+            pass
 
     print(f"🔐 Strict Version Gate Passed: v{version}")
 
