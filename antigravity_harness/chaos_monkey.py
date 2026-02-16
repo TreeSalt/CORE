@@ -390,6 +390,51 @@ class v032_simple(BaseStrategy): # This name looks the same but we'll try to reg
             os.symlink("setup.py", target_path)
             print("🔗 [HYDRA V246] Poisoned engine.py with a symlink pivot.")
 
+    def sabotage_immutability_paradox(self):
+        """Hydra V247: Immutability Paradox (Unauthorized Mutation)."""
+        # Mutate a file NOT in the authorized list during forge
+        target = Path("antigravity_harness/utils.py")
+        if target.exists():
+            target.write_text(target.read_text() + "\n# UNAUTHORIZED MUTATION\n")
+            print("🛡️  [HYDRA V247] Triggered unauthorized mutation in utils.py.")
+
+    def sabotage_audit_race(self):
+        """Hydra V248: Audit Race Condition (Post-Sign Corruption)."""
+        # This occurs if evidence is corrupted AFTER the certificate is signed.
+        # We simulate this by corrupting a ledger entry or evidence zip directly in dist.
+        ledger = self._get_ledger()
+        if not ledger:
+            return
+        ev_file = self.dist_dir / ledger["artifacts"]["evidence"]["filename"]
+        if ev_file.exists():
+            # Append junk to the zip (invalidates hash but not necessarily the zip structure)
+            with open(ev_file, "ab") as f:
+                f.write(b"RACE_CONDITION_POISON")
+            print(f"🏎️  [HYDRA V248] Corrupted {ev_file.name} post-forge.")
+
+    def sabotage_audit_resilience(self):
+        """Hydra V249: Audit Failure Resilience (Locked Reports Dir)."""
+        # We can't easily lock a dir on all OSs, but we can make it a file
+        # or remove write permissions if possible. 
+        # For simplicity in this mock environment, we'll just delete the reports dir
+        # and create a file with the same name.
+        reports_dir = Path("reports")
+        if reports_dir.exists():
+            if reports_dir.is_dir():
+                shutil.rmtree(reports_dir)
+            else:
+                reports_dir.unlink()
+        reports_dir.touch() # Now it's a file, mkdir will fail
+        print("🔒 [HYDRA V249] Locked 'reports/' directory by replacing it with a file.")
+
+    def sabotage_version_schism(self):
+        """Hydra V250: Version Schism (Sync Failure)."""
+        # Desync __init__.py and COUNCIL_CANON.yaml
+        init_path = Path("antigravity_harness/__init__.py")
+        if init_path.exists():
+            init_path.write_text('__version__ = "9.9.9-SCHISM"\n')
+        print("💔 [HYDRA V250] Created a version schism in __init__.py.")
+
     def run_all(self):
         phases = [
             self.sabotage_binary,
@@ -411,6 +456,10 @@ class v032_simple(BaseStrategy): # This name looks the same but we'll try to reg
             self.sabotage_fd_exhaustion,
             self.sabotage_signal_tsunami,
             self.sabotage_symlink_poison,
+            self.sabotage_immutability_paradox,
+            self.sabotage_audit_race,
+            self.sabotage_audit_resilience,
+            self.sabotage_version_schism,
         ]
         for p in phases:
             p()

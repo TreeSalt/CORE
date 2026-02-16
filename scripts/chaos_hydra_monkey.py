@@ -34,6 +34,10 @@ def main() -> int:
         "v244": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "FD Exhaustion"},
         "v245": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Signal Tsunami"},
         "v246": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Symlink Poisoning"},
+        "v247": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Immutability Paradox"},
+        "v248": {"cmd": ["scripts/verify_drop_packet.py", "dist"], "expected_fail": True, "reason": "Audit Race Condition"},
+        "v249": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": False, "reason": "Audit Failure Resilience"},
+        "v250": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Version Schism"},
     }
 
     try:

@@ -48,6 +48,10 @@ def main():
         "v244": monkey.sabotage_fd_exhaustion,
         "v245": monkey.sabotage_signal_tsunami,
         "v246": monkey.sabotage_symlink_poison,
+        "v247": monkey.sabotage_immutability_paradox,
+        "v248": monkey.sabotage_audit_race,
+        "v249": monkey.sabotage_audit_resilience,
+        "v250": monkey.sabotage_version_schism,
     }
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
