@@ -112,10 +112,8 @@ def main():  # noqa: PLR0912, PLR0915
             manifest_bytes = zf.read("docs/ready_to_drop/PAYLOAD_MANIFEST.json")
             manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
             
-            # 5b. Check Canon (should NOT be in manifest to break circularity)
-            manifest = json.loads(manifest_bytes)
-            files = manifest.get("file_sha256", {})
             # 5b. Check Canon (Historical Note: previously checked for circularity)
+            # files = manifest.get("file_sha256", {})
             # if "docs/ready_to_drop/COUNCIL_CANON.yaml" in files:
             #     print_fail("COUNCIL_CANON.yaml found in Manifest (Circular Dependency Detected!)")
             
