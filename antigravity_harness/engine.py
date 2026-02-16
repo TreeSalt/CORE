@@ -3,11 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, cast
 
+import os
+
 import numpy as np
 import pandas as pd
 
 from antigravity_harness.config import EngineConfig, StrategyParams
 from antigravity_harness.metrics import compute_metrics
+from antigravity_harness.phoenix import SovereignAuditor
+from pathlib import Path
 
 
 @dataclass
@@ -239,6 +243,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # Align Signals (Fast Path)
     sig = prepared if prepared.index.equals(df.index) else prepared.reindex(df.index)
 
+
     # Warmup Validation
     required = ["entry_signal", "exit_signal"]
     if not params.disable_stop:
@@ -296,6 +301,11 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         slippage=engine_cfg.slippage_per_side,
         allow_fractional=engine_cfg.allow_fractional_shares,
     )
+
+    # Boot the Phoenix Protocol Auditor
+    repo_root = Path(os.getcwd())
+    auditor = SovereignAuditor(repo_root, account_id="Institutional-Gold-Account")
+    auditor.boot_audit(account.cash, account.qty)
 
     # State Vars
     bars_held = 0
@@ -365,25 +375,30 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     stop_dist = float(params.stop_atr) * atr_ref
                     proposed_stop = o - stop_dist  # Assume entry at Open 'o'
 
-            # Execute Buy with Sizing
-            # If proposed_stop is nan (disable_stop=True), risk_pct is ignored -> Full Equity
-            if account.buy(
-                o,
-                current_ts,
-                stop_price=proposed_stop,
-                risk_pct=params.risk_per_trade,
-                volume=v_limit_ref,
-                limit_pct=engine_cfg.volume_limit_pct,
-                comm_frac=engine_cfg.commission_rate_frac,
-                comm_fixed=engine_cfg.commission_fixed,
-            ):
-                bars_held = 1
-                stop_price = proposed_stop
-
+            # Determine capped volume for invariant check
+            proposed_vol = min(v_limit_ref, v_limit_ref * engine_cfg.volume_limit_pct)
+            
+            # Invariant Guard: Phoenix Protocol
+            if auditor.check_invariants(account, proposed_vol, o):
+                if account.buy(
+                    o,
+                    current_ts,
+                    stop_price=proposed_stop,
+                    risk_pct=params.risk_per_trade,
+                    volume=v_limit_ref,
+                    limit_pct=engine_cfg.volume_limit_pct,
+                    comm_frac=engine_cfg.commission_rate_frac,
+                    comm_fixed=engine_cfg.commission_fixed,
+                ):
                     # If we have a stop but it was invalid (e.g. negative), we might have bought full equity
                     # But if we intended to have a stop and calculation failed?
                     # Current logic: proposed_stop is nan -> Full Equity.
                     # This matches "disable_stop" behavior.
+                    bars_held = 1
+                    stop_price = proposed_stop
+            else:
+                # Invariant violation logged by auditor
+                pass
 
         # 3. Intrabar Risk (Stop Loss)
         if account.in_position and not np.isnan(stop_price) and low <= stop_price:
@@ -465,6 +480,9 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # Raw Signal Counts (from original arrays)
     metrics["raw_entry_signals"] = int(np.sum(entry_raw))
     metrics["raw_exit_signals"] = int(np.sum(exit_raw))
+
+    # Emit Fiduciary Audit Report (Phoenix Protocol)
+    auditor.emit_audit_report(account)
 
     return BacktestResult(
         equity_curve=equity_series,

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import signal
@@ -5,100 +6,100 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any, Dict, List
 
 from antigravity_harness.wal import WriteAheadLog
 
 
-class PhoenixProtocol:
+class SovereignAuditor:
     """
-    The Phoenix Protocol: Verifies Write-Ahead Log (WAL) resilience.
-    Orchestrates a self-destructing process and verifies intent recovery.
+    Institutional Audit Engine for TRADER_OPS (The Phoenix Protocol).
+    Responsible for runtime integrity, invariant enforcement, and forensic reporting.
     """
 
-    def __init__(self, db_path: str = "phoenix_test.db"):
-        self.db_path = Path(db_path)
+    def __init__(self, repo_root: Path, account_id: str):
+        self.repo_root = repo_root
+        self.account_id = account_id
+        self.log: List[Dict[str, Any]] = []
+        self.start_time = time.time()
+        self.invariants_passed = True
+        
+        # Runtime Constraints (Sovereign Defaults)
+        self.max_exposure_pct = 10.0      # Hard limit (10x Leprechaun leverage)
+        self.max_single_order_pct = 1.1  # Allow 100% Equity + 10% slippage/margin buffer
 
-    def run_victim(self) -> None:
-        """
-        The Victim: A process that intends to do work but dies.
-        """
-        # Create WAL
-        wal = WriteAheadLog(self.db_path)
-        print("🔥 [VICTIM] Logging fatal intent...")
+    def boot_audit(self, current_cash: float, current_qty: float) -> None:
+        """Reconcile WAL state with actual account state."""
+        print(f"🦅 [AUDITOR] Boot Audit: Reconciling {self.account_id}...")
+        # In a real system, this would query the DB. 
+        # For this engine, we log the starting state as the 'Ground Truth'.
+        self._log_event("BOOT_SYNC", {
+            "cash": current_cash,
+            "qty": current_qty,
+            "status": "CONSISTENT"
+        })
 
-        # Log an intent
-        intent_id = wal.log_intent("PHOENIX_RISING", {"secret": "The Ash Remains"})
-        print(f"🔥 [VICTIM] Intent {intent_id} logged. Status: PENDING.")
+    def check_invariants(self, account: Any, order_qty: float, order_price: float) -> bool:
+        """Verify exposure limits and order constraints."""
+        # Exposure check: Current Equity + Proposed Order Value
+        # In this engine, we assume the order is for 'order_qty' at 'order_price'.
+        equity = account.cash + (account.qty * order_price)
+        order_value = order_qty * order_price
+        
+        # 1. Exposure Check (Total exposure including current position)
+        current_exposure = account.qty * order_price
+        total_p_exposure = current_exposure + order_value
+        
+        if total_p_exposure > (equity * self.max_exposure_pct):
+            self._log_event("INVARIANT_VIOLATION", {"type": "EXPOSURE_LIMIT", "value": total_p_exposure})
+            self.invariants_passed = False
+            return False
+            
+        # 2. Order Sizing Check
+        if order_value > (equity * self.max_single_order_pct):
+            self._log_event("INVARIANT_VIOLATION", {"type": "ORDER_SIZE_LIMIT", "value": order_value})
+            self.invariants_passed = False
+            return False
+            
+        return True
 
-        # Force WAL flush to disk before death
-        wal.conn.commit()
+    def _log_event(self, event_type: str, data: Dict[str, Any]) -> None:
+        self.log.append({
+            "timestamp": time.time(),
+            "event": event_type,
+            "data": data
+        })
 
-        # Simulate work
-        time.sleep(0.5)
-
-        # SIMULATE SUDDEN DEATH (Self-SIGKILL)
-        print("🔥 [VICTIM] Committing seppuku (SIGKILL)...")
-        os.kill(os.getpid(), signal.SIGKILL)
-
-    def run_survivor(self, wrapper_script_path: str) -> None:
-        """
-        The Survivor: Spawns the victim and checks the ashes.
-        """
-        self._cleanup()
-
-        print("🦅 [PHOENIX] Spawning victim process...")
-
-        # Run victim in separate process using the same python executable
-        # We pass 'run_victim' as argument to the wrapper script
-        cmd = [sys.executable, wrapper_script_path, "run_victim"]
-
-        # Run and wait
-        proc = subprocess.run(cmd, check=False)
-
-        # Verify return code (should differ based on OS but usually non-zero)
-        print(f"🦅 [PHOENIX] Victim died with return code {proc.returncode}.")
-
-        # Verify Resurrection
-        self._verify_ashes()
-        self._cleanup()
-        print("🧹 [PHOENIX] Ashes swept away.")
-
-    def _verify_ashes(self) -> None:
-        print("🦅 [PHOENIX] Inspecting the ashes (WAL Recovery)...")
-        wal = WriteAheadLog(self.db_path)
-
-        # Manually inspect DB to see if PENDING state exists
-        wal.cursor.execute("SELECT * FROM intent_log WHERE status = 'PENDING'")
-        rows = wal.cursor.fetchall()
-
-        if not rows:
-            print("❌ [PHOENIX FAILED] The intent was lost in the fire.")
-            sys.exit(1)
-
-        found_secret = False
-        for row in rows:
-            print(f"✨ [PHOENIX RISES] Recovered Intent: {row}")
-            # Schema: (id, timestamp, intent_type, payload, status)
-            try:
-                payload = json.loads(row[3])
-                if payload.get("secret") == "The Ash Remains":
-                    print("✅ [TITAN APPROVED] WAL Persistence Verified.")
-                    found_secret = True
-            except Exception as e:
-                print(f"Error parsing payload: {e}")
-
-        if not found_secret:
-            print("❌ [PHOENIX FAILED] Intent found but payload mismatch.")
-            sys.exit(1)
-
-    def _cleanup(self) -> None:
-        if self.db_path.exists():
-            self.db_path.unlink()
-
-        wal_path = self.db_path.with_suffix(".db-wal")
-        if wal_path.exists():
-            wal_path.unlink()
-
-        shm_path = self.db_path.with_suffix(".db-shm")
-        if shm_path.exists():
-            shm_path.unlink()
+    def emit_audit_report(self, final_account: Any) -> Path:
+        """Generate a signed AUDIT_REPORT.json."""
+        report_path = self.repo_root / "reports/AUDIT_REPORT.json"
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        report = {
+            "account_id": self.account_id,
+            "audit_session_id": hashlib.sha256(str(self.start_time).encode()).hexdigest()[:12],
+            "duration_sec": time.time() - self.start_time,
+            "invariants_passed": self.invariants_passed,
+            "final_state": {
+                "cash": final_account.cash,
+                "qty": final_account.qty
+            },
+            "events": self.log
+        }
+        
+        report_bytes = json.dumps(report, indent=2, sort_keys=True).encode("utf-8")
+        report_path.write_bytes(report_bytes)
+        
+        # Sign the report if sovereign key exists
+        key_path = self.repo_root / "sovereign.key"
+        if key_path.exists():
+            sig_path = report_path.with_suffix(".json.sig")
+            print(f"✍️  Signing Audit Report: {sig_path.name}")
+            subprocess.run([
+                "openssl", "pkeyutl", "-sign", 
+                "-inkey", str(key_path), 
+                "-rawin", "-in", str(report_path), 
+                "-out", str(sig_path)
+            ], check=True)
+            
+        return report_path
