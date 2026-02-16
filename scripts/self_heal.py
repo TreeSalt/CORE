@@ -87,10 +87,14 @@ def check_hygiene(fix=False):
     if fix:
         print_status("Running automated deep-clean...")
         subprocess.run(
-            [sys.executable, "-B", "scripts/clean_repo.py", "--clean"],
+            [sys.executable, "-B", "scripts/clean_repo.py", "--clean", "--clean-generated"],
             cwd=REPO_ROOT,
             check=False,
         )
+        # Git Sweep: Remove untracked files that clean_repo might miss
+        if (REPO_ROOT / ".git").exists():
+            print_status("Purging untracked artifacts (git clean)...")
+            subprocess.run(["git", "clean", "-fd"], cwd=REPO_ROOT, check=False)
         return True
 
     result = subprocess.run(
