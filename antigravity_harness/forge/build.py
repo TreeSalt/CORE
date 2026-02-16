@@ -209,7 +209,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             authorized = ["antigravity_harness/__init__.py", "README.md", "docs/ready_to_drop/COUNCIL_CANON.yaml"]
             unexpected = []
             for line in lines:
-                file_path = line[3:].strip()
+                # Porcelain format: XY <path> or XY "path"
+                # Robustly extract path part
+                file_path = line[3:].strip().replace('"', '')
                 if file_path not in authorized:
                     unexpected.append(file_path)
             
