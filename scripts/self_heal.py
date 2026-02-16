@@ -77,10 +77,10 @@ def check_hygiene(fix=False):
     print_status("Checking Repository Hygiene...")
     if fix:
         print_status("Running automated deep-clean...")
-        subprocess.run([sys.executable, "-B", "scripts/clean_repo.py", "--clean"], cwd=REPO_ROOT)
+        subprocess.run([sys.executable, "-B", "scripts/clean_repo.py", "--clean"], cwd=REPO_ROOT, check=False)
         return True
     
-    result = subprocess.run([sys.executable, "-B", "scripts/clean_repo.py", "--verify-strict"], cwd=REPO_ROOT, capture_output=True)
+    result = subprocess.run([sys.executable, "-B", "scripts/clean_repo.py", "--verify-strict"], cwd=REPO_ROOT, capture_output=True, check=False)
     if result.returncode != 0:
         print_status("Hygiene violations detected.", "WARN")
         return False
