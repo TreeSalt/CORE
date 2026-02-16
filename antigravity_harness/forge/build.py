@@ -645,10 +645,8 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
     
     # Avoid duplicate entries for the same version
     # Check specifically for the version header to avoid false positives in body text
-    if f"## {date_str}: " in content and f" (v{version})" in content:
-        # Check if the exact version header exists
-        if re.search(rf"^## {date_str}: .* \(v{version}\)$", content, re.M):
-            return
+    if f"## {date_str}: " in content and f" (v{version})" in content and re.search(rf"^## {date_str}: .* \(v{version}\)$", content, re.M):
+        return
 
     # Extract subject and body
     msg = git_info["message"].strip()
@@ -663,15 +661,18 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
 
     if "Context:" in body_raw:
         m = re.search(r"Context:\s*(.*?)(?=\s*(Decision:|Trade-offs:)|$)", body_raw, re.S)
-        if m: context = m.group(1).strip()
+        if m:
+            context = m.group(1).strip()
     
     if "Decision:" in body_raw:
         m = re.search(r"Decision:\s*(.*?)(?=\s*(Context:|Trade-offs:)|$)", body_raw, re.S)
-        if m: decision = m.group(1).strip()
+        if m:
+            decision = m.group(1).strip()
     
     if "Trade-offs:" in body_raw:
         m = re.search(r"Trade-offs:\s*(.*?)(?=\s*(Context:|Decision:)|$)", body_raw, re.S)
-        if m: trade_offs = m.group(1).strip()
+        if m:
+            trade_offs = m.group(1).strip()
 
     new_entry = (
         f"\n---\n\n"
