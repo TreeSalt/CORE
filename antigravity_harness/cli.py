@@ -846,8 +846,52 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     pb.add_argument("--equity", action="store_true", help="Use Equity (252 days) physics instead of Crypto (365)")
     pb.set_defaults(func=cmd_portfolio_backtest)
 
+    # Help All (Institutional Discovery)
+    ha = sub.add_parser("help-all", help="Display all project commands and scripts")
+    ha.set_defaults(func=cmd_help_all)
+
     return p
 
+def cmd_help_all(args: argparse.Namespace) -> None:
+    """Display comprehensive help for the entire project landscape."""
+    print("🦅 ANTIGRAVITY HARNESS: THE COMPLETE COMMAND INDEX")
+    print("-" * 60)
+    print("\n[MAIN CLI COMMANDS]")
+    print("  calibrate         - Parameter grid search and plateau discovery")
+    print("  validate          - Full 6-gate validation on a single config")
+    print("  certify-run       - Full certification bundle creation")
+    print("  portfolio-backtest - Multi-asset simulation with safety overlays")
+    print("  stage-candidate   - Promote a validated config to STAGING")
+    print("  council-sweep     - Run discovery sweep across all targets")
+    print("  info              - Display project sanity and health status")
+    print("  list-strategies   - List all strategies (Tiers/Quarantine)")
+    print("  reality-gap      - Execution drag forensic analysis")
+    print("  spotcheck         - Rapid tear-sheet generation for one config")
+    print("  snapshot-data     - Create immutable data witnesses")
+    print("  verify-cert-bundle - Third-party audit of certification artifacts")
+    
+    print("\n[CORE SCRIPTS (scripts/)]")
+    scripts = {
+        "one_true_command.sh": "The Sovereign Audit (strict, fail-closed verification)",
+        "make_drop_packet.py": "Bundles v4.5.x graduate artifacts into a signed drop",
+        "clean_repo.py": "Enforces repository purity (removes pycache/logs)",
+        "preflight.py": "Runs the full institutional pre-graduation suite",
+        "chaos_sweep.py": "Automated recursive stress test of all Hydra vectors",
+        "chaos_hydra_monkey.py": "Unified saboteur for targeted security testing",
+        "verify_drop_packet.py": "Deep surgical audit of build artifacts",
+        "vault_keeper.py": "Cryptographic sealing and signing utility",
+        "check_dependency_cycles.py": "Ensures architectural modularity",
+    }
+    for s, desc in scripts.items():
+        print(f"  {s:<22} - {desc}")
+    
+    print("\n[MAKEFILE TARGETS]")
+    print("  make all          - Full preflight + Graduation + Verification")
+    print("  make build        - Create a graduate drop packet (dist/)")
+    print("  make verify       - Run the Sovereign Audit on latest dist")
+    print("  make clean        - Reset to a pure repository state")
+    print("-" * 60)
+    print("Run any CLI command with -h for details. Example: 'python3 -m antigravity_harness.cli calibrate -h'")
 
 def cmd_reality_gap(args: argparse.Namespace) -> None:
 
