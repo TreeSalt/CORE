@@ -65,6 +65,15 @@ def _sync_project_metadata(repo_root: Path, new_version: str) -> None:
             path.write_text(new_content)
             print(f"🧬 Synced Bridge: {path.name} -> v{new_version}")
 
+    # 3. Sync Council Canon
+    canon_path = repo_root / "docs/ready_to_drop/COUNCIL_CANON.yaml"
+    if canon_path.exists():
+        content = canon_path.read_text()
+        new_content = re.sub(r'(version:\s*")\d+\.\d+\.\d+(")', f"\\g<1>{new_version}\\g<2>", content)
+        if new_content != content:
+            canon_path.write_text(new_content)
+            print(f"⚖️  Synced Canon: {canon_path.name} -> v{new_version}")
+
 
 def bump_version(init_path: Path) -> str:
     """Increment the patch version in __init__.py."""
