@@ -12,7 +12,7 @@ sys.path.append(str(REPO_ROOT))
 
 # ANTIGRAVITY HARNESS: Error Classification
 try:
-    from scripts.archivist import log_event # noqa: E402
+    from scripts.archivist import log_event  # noqa: E402, I001
 except ImportError:
     # Failsafe if run in isolation/bootstrapping
     def log_event(*args, **kwargs): pass
