@@ -45,6 +45,7 @@ class EssenceLab:
         return {"status": "Unsupported Source"}
 
     def _find_latest_entry(self, source_id: str) -> Dict[str, Any]:
+        """Internal helper to locate the most recent ledger entry for a source."""
         if not self.ledger_file.exists():
             return {}
         ledger = json.loads(self.ledger_file.read_text())
@@ -57,22 +58,22 @@ class EssenceLab:
 
     def get_signal_tensor(self, sources: List[str]) -> Dict[str, float]:
         """Aggregate essence into a signal tensor for strategy consumption."""
-        tensor = {}
+        tensor: Dict[str, float] = {}
         for source in sources:
             essence = self.get_latest_essence(source)
             if essence.get("status") == "Verified":
                 if source == "MARKET_PULSE":
                     # Normalize truth to [-1.0, 1.0]
                     # Fear & Greed is [0, 100], so (value - 50) / 50
-                    val = essence["value"]
+                    val = float(essence["value"])
                     tensor["sentiment"] = (val - 50.0) / 50.0
                 elif source == "MARKET_ALPHA":
                     # Alpha is already [0.0, 1.0]
                     # Map [0, 1] to [-1, 1] for consensus averaging
-                    tensor["alpha"] = (essence["alpha"] * 2.0) - 1.0
+                    tensor["alpha"] = (float(essence["alpha"]) * 2.0) - 1.0
         return tensor
 
-    def get_consensus_signal(self, sources: List[str]) -> Dict[str, float]:
+    def get_consensus_signal(self, sources: List[str]) -> Dict[str, Any]:
         """
         Calculate a unified consensus signal from multiple sources.
         Applies a 'Consensus Penalty' if sources disagree (high variance).

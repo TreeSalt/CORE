@@ -26,29 +26,44 @@ def read_version(init_path: Path) -> str:
     return match.group(1) if match else "0.0.0"
 
 
-def _sync_readme_version(repo_root: Path, new_version: str) -> None:
+def _sync_project_metadata(repo_root: Path, new_version: str) -> None:
     """
-    Sync the version in README.md to match the new build version.
-    Target pattern: "**Status**: OMEGA IMMORTAL (vX.Y.Z)" or similar,
-    and the Title: "# ANTIGRAVITY HARNESS vX.Y.Z"
+    Unified synchronization of project metadata across README, docs, and manifests.
+    Ensures that the 'Cognitive Bridge' is contemporary and version-consistent.
     """
+    # 1. Sync README.md
     readme_path = repo_root / "README.md"
-    if not readme_path.exists():
-        return
+    if readme_path.exists():
+        content = readme_path.read_text()
+        # Update Title: # ANTIGRAVITY HARNESS vX.Y.Z ...
+        content = re.sub(r"(# ANTIGRAVITY HARNESS v)(\d+\.\d+\.\d+)", f"\\g<1>{new_version}", content)
+        # Update Status Line: **Status**: ... (vX.Y.Z)
+        content = re.sub(r"(\(v)(\d+\.\d+\.\d+)(\))", f"\\g<1>{new_version}\\g<3>", content)
+        if content != readme_path.read_text():
+            readme_path.write_text(content)
+            print(f"📜 README.md Synced: v{new_version}")
 
-    content = readme_path.read_text()
+    # 2. Sync Cognitive Bridge (Docs)
+    bridge_files = [
+        repo_root / "docs/AGENT_ONBOARDING.md",
+        repo_root / "docs/ARCHITECTURE_MAP.md"
+    ]
+    for path in bridge_files:
+        if not path.exists():
+            continue
+        content = path.read_text()
+        # Matches (v4.3.4), (v4.4.x), etc. and replaces with the current version
+        new_content = re.sub(r'\(v\d+\.\d+\.[^)]+\)', f'(v{new_version})', content)
+        new_content = re.sub(r'version v\d+\.\d+\.\d+', f'version v{new_version}', new_content)
+        
+        # Architecture Map specific: Update "Last Verified" timestamp if present
+        if path.name == "ARCHITECTURE_MAP.md":
+            now_str = _get_wallclock()
+            new_content = re.sub(r'Last Verified: .*', f'Last Verified: {now_str}', new_content)
 
-    # 1. Update Title Version
-    # Pattern: # ANTIGRAVITY HARNESS v4.3.4 ...
-    content = re.sub(r"(# ANTIGRAVITY HARNESS v)(\d+\.\d+\.\d+)", f"\\g<1>{new_version}", content)
-
-    # 2. Update Status Line
-    # Pattern: **Status**: ... (v4.3.4)
-    content = re.sub(r"(\(v)(\d+\.\d+\.\d+)(\))", f"\\g<1>{new_version}\\g<3>", content)
-
-    if content != readme_path.read_text():
-        readme_path.write_text(content)
-        print(f"📜 README.md Synced: v{new_version}")
+        if new_content != content:
+            path.write_text(new_content)
+            print(f"🧬 Synced Bridge: {path.name} -> v{new_version}")
 
 
 def bump_version(init_path: Path) -> str:
@@ -159,9 +174,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # 0.1 Dynamic Version (Automated Bump & Sync)
     version = bump_version(repo_root / "antigravity_harness/__init__.py")
     
-    # [COGNITIVE BRIDGE] Natural documentation sync
-    _sync_cognitive_bridge(repo_root, version)
-    _sync_readme_version(repo_root, version)
+    # [COGNITIVE BRIDGE] Natural metadata & documentation sync
+    _sync_project_metadata(repo_root, version)
 
     # 0.1 Strict Version Gate (The Triple Lock)
     # 1. Check __init__ (Implicit via read)
@@ -629,29 +643,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         raise RuntimeError(f"FINAL AUDIT FAILURE: assembled packet failed verification. {e}") from e
 
     return ledger
-
-
-def _sync_cognitive_bridge(repo_root: Path, version: str) -> None:
-    """Synchronize Cognitive Bridge documents with the current version."""
-    bridge_files = [
-        repo_root / "docs/AGENT_ONBOARDING.md",
-        repo_root / "docs/ARCHITECTURE_MAP.md"
-    ]
-    
-    for path in bridge_files:
-        if not path.exists():
-            print(f"⚠️  Bridge File Missing: {path.name}")
-            continue
-            
-        content = path.read_text()
-        # [STAGE 1 FIX] More flexible version replacement
-        # Matches (v4.3.4), (v4.4.x), etc. and replaces with the current version
-        new_content = re.sub(r'\(v\d+\.\d+\.[^)]+\)', f'(v{version})', content)
-        new_content = re.sub(r'version v\d+\.\d+\.\d+', f'version v{version}', new_content)
-        
-        if new_content != content:
-            path.write_text(new_content)
-            print(f"🧬 Synced Bridge: {path.name} -> v{version}")
 
 
 def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) -> None:
