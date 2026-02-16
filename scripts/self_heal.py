@@ -107,9 +107,13 @@ def check_hygiene(fix=False):
             check=False,
         )
         if (REPO_ROOT / ".git").exists():
-            print_status("Purging untracked and ignored artifacts (protecting identity)...")
-            # Protect key and pub from clean sweep to maintain identity permanence
-            subprocess.run(["git", "clean", "-fdx", "-e", "sovereign.key", "-e", "sovereign.pub"], cwd=REPO_ROOT, check=False)
+            print_status("Purging untracked and ignored artifacts (protecting identity and ledger)...")
+            # Protect key, pub, and ledger from clean sweep to maintain institutional memory
+            subprocess.run(
+                ["git", "clean", "-fdx", "-e", "sovereign.key", "-e", "sovereign.pub", "-e", "05_DATA_CACHE/ERROR_LEDGER.json"],
+                cwd=REPO_ROOT,
+                check=False,
+            )
         return True
 
     result = subprocess.run(
