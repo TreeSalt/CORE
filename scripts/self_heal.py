@@ -50,21 +50,34 @@ def check_version_sync(fix=False):
     init_path = REPO_ROOT / "antigravity_harness/__init__.py"
     current_version = read_version(init_path)
 
-    # Check Canon
-    canon_path = REPO_ROOT / "docs/ready_to_drop/COUNCIL_CANON.yaml"
+    # Canonical manifests that we management
+    manifests = [
+        REPO_ROOT / "docs/ready_to_drop/COUNCIL_CANON.yaml",
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "docs/AGENT_ONBOARDING.md",
+    ]
+
+    if fix:
+        for m in manifests:
+            if m.exists():
+                # Revert ANY local changes to manifests to ensure no sabotage (fingerprints, etc) persists.
+                # We will re-sync the version immediately after.
+                rel = m.relative_to(REPO_ROOT)
+                print_status(f"Restoring {rel} to Golden State...", "WARN")
+                subprocess.run(["git", "checkout", "HEAD", "--", str(rel)], cwd=REPO_ROOT, check=False)
+
     version_synced = True
+    # Verify Canon
+    canon_path = manifests[0]
     if canon_path.exists():
         content = canon_path.read_text()
         match = re.search(r'version:\s*"(\d+\.\d+\.\d+)"', content)
         if not match or match.group(1) != current_version:
-            print_status(
-                f"Version mismatch: Code({current_version}) != Canon({match.group(1) if match else 'NONE'})",
-                "WARN",
-            )
+            print_status(f"Version mismatch: Code({current_version}) != Canon({match.group(1) if match else 'NONE'})", "WARN")
             version_synced = False
 
-    # Check README
-    readme_path = REPO_ROOT / "README.md"
+    # Verify README
+    readme_path = manifests[1]
     if readme_path.exists():
         content = readme_path.read_text()
         if f"v{current_version}" not in content:
@@ -74,7 +87,7 @@ def check_version_sync(fix=False):
     if not version_synced:
         if fix:
             _sync_project_metadata(REPO_ROOT, current_version)
-            print_status("Version synchronized across Canon and Docs.", "PASS")
+            print_status("Version synchronized across manifest chain.", "PASS")
             return True
         return False
 
@@ -123,16 +136,22 @@ def check_environment(fix=False):
             for line in status.splitlines():
                 if line.startswith(" D "):
                     path = line[3:].strip().strip('"')
-                    # Don't restore sovereign.pub if sovereign.key exists; we'll re-derive it
-                    if path not in ["antigravity_harness/__init__.py", "sovereign.pub"]:
-                        subprocess.run(["git", "checkout", "--", path], cwd=REPO_ROOT, check=False)
+                    # Don't restore identity keys; we'll manage them surgically
+                    if path not in ["antigravity_harness/__init__.py", "sovereign.pub", "sovereign.key"]:
+                        subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=REPO_ROOT, check=False)
 
-        # Identity Restoration: Ensure pub matches key if key exists
+        # Identity Restoration
         key_path = REPO_ROOT / "sovereign.key"
         pub_path = REPO_ROOT / "sovereign.pub"
         if key_path.exists():
-            print_status("Re-deriving identity (sovereign.pub)...")
+            print_status("Synchronizing identity (sovereign.pub)...")
             subprocess.run(["openssl", "pkey", "-in", str(key_path), "-pubout", "-out", str(pub_path)], cwd=REPO_ROOT, check=False)
+        else:
+            # If we don't have a key but have a phantom pub key restored from Git, purge it
+            # so a fresh pair can be generated during the build.
+            if pub_path.exists():
+                print_status("Purging orphaned public key to allow fresh identity generation...", "WARN")
+                pub_path.unlink()
         return True
 
     # Verify-only
