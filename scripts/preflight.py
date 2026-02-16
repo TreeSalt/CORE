@@ -61,6 +61,8 @@ def main() -> None:  # noqa: PLR0912
 
     # 1. Hygiene (Strict or Auto-Clean)
     if args.auto_clean:
+        print(f"{BOLD}🧹 AUTO-CLEAN (Deep Clean)...{RESET}")
+        run_cmd("python3 -B scripts/clean_repo.py --clean --clean-generated", root)
 
     try:
         # 2. Unit Tests
