@@ -6,6 +6,11 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+GREEN = "\033[92m"
+RED = "\033[91m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+
 # Task 1: Institutional Cleanliness (Bytecode Prevention)
 sys.dont_write_bytecode = True
 
@@ -34,6 +39,7 @@ def run_cmd(cmd: str, cwd: Path, env: Optional[dict] = None) -> bool:
 def main() -> None:  # noqa: PLR0912
     parser = argparse.ArgumentParser(description="Antigravity Preflight")
     parser.add_argument("--auto-clean", action="store_true", help="Clean repo before verification")
+    parser.add_argument("--heal", action="store_true", help="Automatically repair versioning and hygiene blockers")
     parser.add_argument("--qa", action="store_true", help="Run static quality gates (ruff + mypy)")
     args = parser.parse_args()
 
@@ -46,18 +52,15 @@ def main() -> None:  # noqa: PLR0912
     root = Path(__file__).parent.parent.resolve()
     success = True
 
-    # 1. Hygiene (Strict or Auto-Clean)
-    if args.auto_clean:
-        print("🧹 AUTO-CLEAN ENABLED")
-        if not run_cmd("python3 -B scripts/clean_repo.py --clean --clean-generated", root):
+    # 0. Self-Healing (Proactive Restoration)
+    if args.heal:
+        print(f"{BOLD}🩹 INITIATING SELF-HEALING...{RESET}")
+        if not run_cmd("python3 -B scripts/self_heal.py --fix", root):
+            print("   ❌ FAIL: Self-healing could not resolve all issues.")
             sys.exit(1)
 
-    # Always Verify Strict (No Mutation allowed here)
-    print("🔍 VERIFYING CLEANLINESS (Pre-Test)...")
-    if not run_cmd("python3 -B scripts/clean_repo.py --verify-strict", root):
-        if not args.auto_clean:
-            print("   💡 Hint: Run with --auto-clean to fix.")
-        sys.exit(1)
+    # 1. Hygiene (Strict or Auto-Clean)
+    if args.auto_clean:
 
     try:
         # 2. Unit Tests

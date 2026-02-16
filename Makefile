@@ -81,7 +81,10 @@ test-hardening:
 
 preflight:
 	$(PYTHON) -B scripts/verify_imports.py
-	$(PYTHON) -B scripts/preflight.py --qa --auto-clean
+	$(PYTHON) -B scripts/preflight.py --heal --qa --auto-clean
+
+heal:
+	$(PYTHON) -B scripts/self_heal.py --fix
 
 clean:
 	$(PYTHON) -B scripts/clean_repo.py --clean --clean-generated
@@ -96,7 +99,7 @@ build:
 DIST ?= dist
 ONE_TRUE := scripts/one_true_command.sh
 
-.PHONY: audit audit-fast hashes zip-verify cert-verify show-dist
+.PHONY: audit audit-fast hashes zip-verify cert-verify show-dist heal
 
 audit:  ## The one word the Council should run
 	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
