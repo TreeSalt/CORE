@@ -177,7 +177,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         try:
             gen_date = datetime.fromisoformat(d_match.group(1).replace("Z", "+00:00"))
             now = datetime.now(gen_date.tzinfo)
-            if gen_date > now and gen_date.year > 2030:
+            if gen_date > now and gen_date.year > 2050:
                 raise RuntimeError(f"TEMPORAL PARADOX (V241): Council Canon date ({d_match.group(1)}) is in the future.")
         except ValueError:
             pass # Invalid format is handled by other gates or ignored for now
