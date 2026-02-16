@@ -158,6 +158,10 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 0.1 Dynamic Version (Automated Bump & Sync)
     version = bump_version(repo_root / "antigravity_harness/__init__.py")
+    
+    # [COGNITIVE BRIDGE] Natural documentation sync
+    _sync_cognitive_bridge(repo_root, version)
+    _sync_readme_version(repo_root, version)
 
     # 0.1 Strict Version Gate (The Triple Lock)
     # 1. Check __init__ (Implicit via read)
@@ -206,7 +210,13 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if status:
             lines = status.split("\n")
             # Filter out authorized mutations
-            authorized = ["antigravity_harness/__init__.py", "README.md", "docs/ready_to_drop/COUNCIL_CANON.yaml"]
+            authorized = [
+                "antigravity_harness/__init__.py", 
+                "README.md", 
+                "docs/ready_to_drop/COUNCIL_CANON.yaml",
+                "docs/AGENT_ONBOARDING.md",
+                "docs/ARCHITECTURE_MAP.md"
+            ]
             unexpected = []
             for line in lines:
                 # Porcelain format: XY PATH (where PATH can be "quoted")
@@ -621,6 +631,28 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     return ledger
 
 
+def _sync_cognitive_bridge(repo_root: Path, version: str) -> None:
+    """Synchronize Cognitive Bridge documents with the current version."""
+    bridge_files = [
+        repo_root / "docs/AGENT_ONBOARDING.md",
+        repo_root / "docs/ARCHITECTURE_MAP.md"
+    ]
+    
+    for path in bridge_files:
+        if not path.exists():
+            print(f"⚠️  Bridge File Missing: {path.name}")
+            continue
+            
+        content = path.read_text()
+        # [STAGE 1 FIX] Robust version replacement (covers vX.Y.Z and X.Y.Z)
+        new_content = re.sub(r'\(v\d+\.\d+\.\d+\)', f'(v{version})', content)
+        new_content = re.sub(r'version v\d+\.\d+\.\d+', f'version v{version}', new_content)
+        
+        if new_content != content:
+            path.write_text(new_content)
+            print(f"🧬 Synced Bridge: {path.name} -> v{version}")
+
+
 def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) -> None:
     """Automatically append git context to the Decision Log."""
     log_path = repo_root / "docs/DECISION_LOG.md"
@@ -636,20 +668,37 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
         return
 
     # Extract subject and body
-    lines = git_info["message"].strip().splitlines()
+    msg = git_info["message"].strip()
+    lines = msg.splitlines()
     subject = lines[0] if lines else "Manual Build"
-    body = "\n".join(lines[1:]).strip() if len(lines) > 1 else "No additional context provided."
+    body_raw = "\n".join(lines[1:]).strip() if len(lines) > 1 else ""
+
+    # Enhanced Parsing for Structured Commit Messages
+    context = "Automated entry captured via Git Provenance during the v{version} forge."
+    decision = subject
+    trade_offs = "- **Pros**: Guaranteed provenance; zero-effort documentation.\n- **Cons**: Depth of log depends on commit message quality."
+
+    if "Context:" in body_raw:
+        m = re.search(r"Context:\s*(.*?)(?=\s*(Decision:|Trade-offs:)|$)", body_raw, re.S)
+        if m: context = m.group(1).strip()
+    
+    if "Decision:" in body_raw:
+        m = re.search(r"Decision:\s*(.*?)(?=\s*(Context:|Trade-offs:)|$)", body_raw, re.S)
+        if m: decision = m.group(1).strip()
+    
+    if "Trade-offs:" in body_raw:
+        m = re.search(r"Trade-offs:\s*(.*?)(?=\s*(Context:|Decision:)|$)", body_raw, re.S)
+        if m: trade_offs = m.group(1).strip()
 
     new_entry = (
         f"\n---\n\n"
         f"## {date_str}: {subject} (v{version})\n\n"
         f"### Context\n"
-        f"Automated entry captured via Git Provenance during the v{version} forge.\n\n"
+        f"{context}\n\n"
         f"### Decision\n"
-        f"{body if body else subject}\n\n"
+        f"{decision}\n\n"
         f"### Trade-offs\n"
-        f"- **Pros**: Guaranteed provenance; zero-effort documentation.\n"
-        f"- **Cons**: Depth of log depends on commit message quality.\n"
+        f"{trade_offs}\n"
     )
     
     log_path.write_text(content + new_entry)
