@@ -23,7 +23,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 sys.path.append(str(REPO_ROOT))
 
 # ANTIGRAVITY HARNESS: Fortress Protocol
-from antigravity_harness.forge.build import read_version, _sync_project_metadata  # noqa: E402
+from antigravity_harness.forge.build import _sync_project_metadata, read_version  # noqa: E402
 from antigravity_harness.paths import (  # noqa: E402
     CERT_DIR,
     DATA_DIR,
