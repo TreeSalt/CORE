@@ -406,6 +406,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "verifier_version": "v1.0.4",
         "strict_mode": (os.environ.get("STRICT_MODE", "1") == "1"),
         "trader_ops_version": version,
+        "version": version,
+        "artifact_version": version,
         "git_commit": git_info["sha"],
         "git_dirty": git_info["dirty"],
         "timestamp_utc": _get_timestamp(),

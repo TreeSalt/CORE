@@ -145,10 +145,16 @@ def verify_certificate(zf: zipfile.ZipFile, ledger_data: Dict[str, Any], version
                     with open(p_path, "wb") as f:
                         f.write(ezf.read(pub_n[0]))
 
-                    if json.loads(ezf.read(cert_n[0])).get("version") == version:
+                    cert_obj = json.loads(ezf.read(cert_n[0]))
+                    cert_ver = (
+                        cert_obj.get("trader_ops_version")
+                        or cert_obj.get("version")
+                        or cert_obj.get("artifact_version")
+                    )
+                    if cert_ver == version:
                         ok(f"Certificate version matches: v{version}")
                     else:
-                        fail("Certificate version mismatch")
+                        fail(f"Certificate version mismatch (found: {cert_ver})")
 
                     _run_openssl_verify(p_path, c_path, s_path)
                 else:
