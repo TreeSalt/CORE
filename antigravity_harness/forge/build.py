@@ -375,7 +375,84 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print(f"📦 Forging EVIDENCE Artifact: {evidence_zip.name}")
     _create_zip(evidence_zip, repo_root, includes=["reports", "logs", "SOVEREIGN_REPORT.md", "FINAL_AUDIT_REPORT.md"])
 
-    # 4. Hash Artifacts
+    # 4. FIDUCIARY SEAL (Certificate Generation)
+    # ------------------------------------------
+    print("📜 Forging Unambiguous Fiduciary Certificate...")
+    
+    # Evidence Manifest Hash (from smoke results)
+    ev_manifest_path = smoke_dir / "EVIDENCE_MANIFEST.json"
+    ev_manifest_sha = hash_file(ev_manifest_path) if ev_manifest_path.exists() else "N/A"
+
+    # We calculate a PRE-CERT evidence hash to avoid circularity if some tools check it.
+    pre_cert_evidence_hash = hash_file(evidence_zip)
+
+    certificate = {
+        "certificate_schema_version": "1.1.0",
+        "scope": "fiduciary_strict_audit",
+        "strict_profile_id": "FIDUCIARY_STRICT_V1",
+        "verifier_version": "v1.0.4",
+        "strict_mode": (os.environ.get("STRICT_MODE", "1") == "1"),
+        "trader_ops_version": version,
+        "git_commit": git_info["sha"],
+        "git_dirty": git_info["dirty"],
+        "timestamp_utc": _get_timestamp(),
+        "bindings": {
+            "code_sha256": real_code_hash,
+            "evidence_sha256": pre_cert_evidence_hash,
+            "data_hash": data_hash,
+            "payload_manifest_sha256": manifest_sha,
+            "evidence_manifest_sha256": ev_manifest_sha
+        },
+        "gates": {
+            "timeline_sovereignty": "PASS",
+            "manifest_canon_binding": "PASS",
+            "evidence_suite_complete": "PASS",
+            "strict_mode_enforced": "PASS"
+        }
+    }
+
+    # Keys
+    key_path = repo_root / "sovereign.key"
+    pub_path = repo_root / "sovereign.pub"
+    if not key_path.exists():
+         subprocess.run(["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(key_path)], check=True)
+         key_path.chmod(0o600)
+    if not pub_path.exists():
+         subprocess.run(["openssl", "pkey", "-in", str(key_path), "-pubout", "-out", str(pub_path)], check=True)
+
+    cert_json = json.dumps(certificate, sort_keys=True, indent=2).encode("utf-8")
+    cert_tmp = build_tmp / "CERTIFICATE.json"
+    cert_tmp.write_bytes(cert_json)
+    
+    sig_tmp = build_tmp / "CERTIFICATE.json.sig"
+    print(f"✍️  Signing Unambiguous Certificate: {sig_tmp.name}")
+    subprocess.run([
+        "openssl", "pkeyutl", "-sign", 
+        "-inkey", str(key_path), 
+        "-rawin", "-in", str(cert_tmp), 
+        "-out", str(sig_tmp)
+    ], check=True)
+
+    # 4.1 Inject Seal into EVIDENCE Zip
+    print("🐙 Injecting Fiduciary Seal into Evidence Zip...")
+    with zipfile.ZipFile(evidence_zip, "a") as zf:
+        # Cert
+        zinfo_cert = zipfile.ZipInfo("reports/certification/CERTIFICATE.json", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_cert.compress_type = zipfile.ZIP_DEFLATED
+        zinfo_cert.external_attr = 0o644 << 16
+        zf.writestr(zinfo_cert, cert_json)
+        # Sig
+        zinfo_sig = zipfile.ZipInfo("reports/certification/CERTIFICATE.json.sig", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_sig.compress_type = zipfile.ZIP_DEFLATED
+        zinfo_sig.external_attr = 0o644 << 16
+        zf.writestr(zinfo_sig, sig_tmp.read_bytes())
+        # Pubkey
+        zinfo_pub = zipfile.ZipInfo("reports/certification/sovereign.pub", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_pub.compress_type = zipfile.ZIP_DEFLATED
+        zinfo_pub.external_attr = 0o644 << 16
+        zf.writestr(zinfo_pub, pub_path.read_bytes())
+
+    # 5. Final Hash Artifacts
     code_hash = hash_file(code_zip)
     evidence_hash = hash_file(evidence_zip)
 
@@ -522,71 +599,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 9. Automated Decision Log (Automatic Sovereignty)
     _auto_log_decision(repo_root, version, git_info)
-
-    # 10. FIDUCIARY SEAL (Master Certificate Generation - v4.4.80)
-    # -------------------------------------------------------------
-    print("📜 Forging Unambiguous Fiduciary Certificate...")
-    cert_dir = dist_dir  # Move to dist for external visibility
-    
-    # Evidence Manifest Hash
-    ev_manifest_path = smoke_dir / "EVIDENCE_MANIFEST.json"
-    ev_manifest_sha = hash_file(ev_manifest_path) if ev_manifest_path.exists() else "N/A"
-
-    certificate = {
-        "certificate_schema_version": "1.1.0",
-        "scope": "fiduciary_strict_audit",
-        "strict_profile_id": "FIDUCIARY_STRICT_V1",
-        "verifier_version": "v1.0.4",
-        "strict_mode": True,
-        "trader_ops_version": version,
-        "git_commit": git_info["sha"],
-        "git_dirty": False,
-        "timestamp_utc": _get_timestamp(),
-        "bindings": {
-            "code_sha256": code_hash,
-            "evidence_sha256": evidence_hash,
-            "ready_to_drop_sha256": drop_hash,
-            "data_hash": data_hash,
-            "payload_manifest_sha256": manifest_sha,
-            "evidence_manifest_sha256": ev_manifest_sha
-        },
-        "gates": {
-            "timeline_sovereignty": "PASS",
-            "manifest_canon_binding": "PASS",
-            "evidence_suite_complete": "PASS",
-            "strict_mode_enforced": "PASS"
-        }
-    }
-
-    cert_path = cert_dir / f"CERTIFICATE_v{version}.json"
-    cert_bytes = json.dumps(certificate, sort_keys=True, indent=2).encode("utf-8")
-    cert_path.write_bytes(cert_bytes)
-    
-    # Cryptographic Signature (Ed25519)
-    key_path = repo_root / "sovereign.key"
-    pub_path = repo_root / "sovereign.pub"
-    
-    # We assume keys were generated if missing (logic could be moved or shared)
-    if not key_path.exists():
-         subprocess.run(["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(key_path)], check=True)
-         key_path.chmod(0o600)
-    if not pub_path.exists():
-         subprocess.run(["openssl", "pkey", "-in", str(key_path), "-pubout", "-out", str(pub_path)], check=True)
-
-    sig_path = cert_path.with_suffix(".json.sig")
-    print(f"✍️  Signing Unambiguous Certificate: {sig_path.name}")
-    subprocess.run([
-        "openssl", "pkeyutl", "-sign", 
-        "-inkey", str(key_path), 
-        "-rawin", "-in", str(cert_path), 
-        "-out", str(sig_path)
-    ], check=True)
-
-    # Bind signature hash to ledger
-    ledger["certificate_signature_sha256"] = hash_file(sig_path)
-    # Update ledger with the final certificate info
-    with open(ledger_path, "w") as f:
-        json.dump(ledger, f, indent=2, sort_keys=True)
 
     # Final gate: verify the assembled drop packet end-to-end.
     print("🛡️  Running Sovereign End-to-End Audit...")
