@@ -36,7 +36,7 @@ def main():
         # 2. Execute Stress Test
         print(f"  🔥 Unleashing Chaos Hydra Monkey: {v}")
         proc = subprocess.run([sys.executable, "scripts/chaos_hydra_monkey.py", "--mode", v], 
-                              cwd=root, capture_output=True, text=True)
+                              cwd=root, capture_output=True, text=True, check=False)
         
         if proc.returncode == 0:
             print(f"  ✅ PASS: {v} fail-closed verified.")

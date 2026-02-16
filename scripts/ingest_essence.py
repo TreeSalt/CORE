@@ -13,9 +13,9 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict
 
 import httpx
+from antigravity_harness.essence import parse_cnn_fear_greed
 
 # Paths
 INTEL_DIR = Path("intelligence")
@@ -123,10 +123,6 @@ class IntelligenceIngestor:
             os.fsync(f.fileno())
         
         os.replace(tmp_ledger, LEDGER_FILE)
-
-
-from antigravity_harness.essence import parse_cnn_fear_greed
-
 
 if __name__ == "__main__":
     ingestor = IntelligenceIngestor()
