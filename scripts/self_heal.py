@@ -25,6 +25,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 sys.path.append(str(REPO_ROOT))
 
 from antigravity_harness.forge.build import read_version, _sync_project_metadata
+from antigravity_harness.paths import ensure_dirs, REPO_ROOT, DATA_DIR, REPORT_DIR, SNAPSHOT_DIR, CERT_DIR, INTEL_DIR
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -45,16 +46,13 @@ def check_version_sync(fix=False):
     
     # Check Canon
     canon_path = REPO_ROOT / "docs/ready_to_drop/COUNCIL_CANON.yaml"
+    version_synced = True
     if canon_path.exists():
         content = canon_path.read_text()
         match = re.search(r'version:\s*"(\d+\.\d+\.\d+)"', content)
         if not match or match.group(1) != current_version:
             print_status(f"Version mismatch: Code({current_version}) != Canon({match.group(1) if match else 'NONE'})", "WARN")
-            if fix:
-                _sync_project_metadata(REPO_ROOT, current_version)
-                print_status("Version synchronized across Canon and Docs.", "PASS")
-                return True
-            return False
+            version_synced = False
     
     # Check README
     readme_path = REPO_ROOT / "README.md"
@@ -62,10 +60,14 @@ def check_version_sync(fix=False):
         content = readme_path.read_text()
         if f"v{current_version}" not in content:
             print_status("README.md is out of date.", "WARN")
-            if fix:
-                _sync_project_metadata(REPO_ROOT, current_version)
-                print_status("README.md updated.", "PASS")
-                return True
+            version_synced = False
+            
+    if not version_synced:
+        if fix:
+            _sync_project_metadata(REPO_ROOT, current_version)
+            print_status("Version synchronized across Canon and Docs.", "PASS")
+            return True
+        return False
     
     print_status("Version is synchronized.", "PASS")
     return True
@@ -89,22 +91,17 @@ def check_hygiene(fix=False):
 
 def check_environment(fix=False):
     print_status("Checking Environment Anchors...")
-    required_dirs = ["reports", "dist", "logs", "data"]
-    missing = []
-    for d in required_dirs:
-        path = REPO_ROOT / d
-        if not path.exists():
-            missing.append(d)
+    if fix:
+        print_status("Repairing mandatory subdirectories...")
+        ensure_dirs()
+        return True
     
-    if missing:
-        print_status(f"Missing directories: {missing}", "WARN")
-        if fix:
-            for d in missing:
-                (REPO_ROOT / d).mkdir(parents=True, exist_ok=True)
-                print_status(f"Created directory: {d}", "PASS")
-            return True
-        return False
-    
+    # Verify-only
+    for d in (DATA_DIR, SNAPSHOT_DIR, REPORT_DIR, CERT_DIR, INTEL_DIR):
+        if not d.exists() or not d.is_dir():
+            print_status(f"Missing anchor: {d.relative_to(REPO_ROOT)}", "WARN")
+            return False
+            
     print_status("Environment anchors present.", "PASS")
     return True
 
@@ -121,6 +118,7 @@ def git_surgeon(fix=False):
         return True
     
     lines = status.split("\n")
+    # Unified list from build.py + localized additions
     authorized = [
         "antigravity_harness/__init__.py",
         "README.md",
@@ -128,7 +126,10 @@ def git_surgeon(fix=False):
         "docs/AGENT_ONBOARDING.md",
         "docs/ARCHITECTURE_MAP.md",
         "docs/DECISION_LOG.md",
-        "skill.md"
+        "skill.md",
+        "scripts/self_heal.py", # Self-awareness
+        "scripts/preflight.py", # Infra
+        "Makefile"              # Infra
     ]
     
     to_add = []
