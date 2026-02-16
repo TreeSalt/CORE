@@ -214,22 +214,23 @@ def cmd_info(args: argparse.Namespace) -> None:
     # 1. Structural Check
     folders = [
         "00_CORE_MANIFEST",
-        "01_ENGINE",
-        "02_STRATEGIES",
-        "03_CALIBRATION_GRIDS",
-        "04_PRODUCTION_REPORTS",
-        "05_DATA_CACHE",
+        "antigravity_harness",
+        "scripts",
+        "tests",
+        str(REPORT_DIR.relative_to(REPO_ROOT)),
+        str(DATA_DIR.relative_to(REPO_ROOT)),
     ]
     print("CORE STRUCTURE:")
     for f in folders:
-        exists = os.path.isdir(f) if f != "01_ENGINE" else os.path.isdir(f)
+        path = REPO_ROOT / f
+        exists = path.is_dir()
         status = "🟢" if exists else "🔴"
         print(f"  {status} {f}")
 
     # 2. Manifest Check
-    manifest_path = "00_CORE_MANIFEST/PROJECT_MANIFEST.md"
-    m_status = "🟢" if os.path.exists(manifest_path) else "🔴"
-    print(f"MANIFEST: {m_status} {manifest_path}")
+    manifest_path = REPO_ROOT / "docs/ready_to_drop/COUNCIL_CANON.yaml"
+    m_status = "🟢" if manifest_path.exists() else "🔴"
+    print(f"CANON: {m_status} {manifest_path.relative_to(REPO_ROOT)}")
 
     # 3. Strategy Registry
     print(f"STRATEGY REGISTRY: {len(REGISTRY)} active")
