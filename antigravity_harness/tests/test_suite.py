@@ -261,6 +261,7 @@ class TestSuite(unittest.TestCase):
             interval="1d",
             gate_profile="equity_fortress",
             equity=False,
+            debug=False,
         )
 
         # Phase 10: Fix strategy registration

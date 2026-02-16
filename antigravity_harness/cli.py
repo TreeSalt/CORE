@@ -167,6 +167,7 @@ def cmd_validate(args: argparse.Namespace) -> None:  # noqa: PLR0915
         end=args.end,
         gate_profile=args.gate_profile,
         interval=args.interval,
+        debug=args.debug,
     )
 
     # Save Report
@@ -271,7 +272,7 @@ def cmd_emit(args: argparse.Namespace) -> None:
         print(json_out)
 
 
-def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0915
+def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0912, PLR0915
     """
     One-Command Spotcheck: Run a single detailed validaton + raw sim.
     Output: tear_sheet.yaml, equity.csv, trades.csv
@@ -328,6 +329,7 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0915
         .with_symbol(args.symbol)
         .with_window(start_date, args.end)
         .with_gate_profile(args.gate_profile)
+        .with_debug(args.debug)
         .build()
     )
     gate_results = evaluate_gates(ctx)
@@ -385,7 +387,7 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0915
 
     df = load_ohlc(args.symbol, start_date, args.end, dcfg)
     prepared = strat.prepare_data(df, final_params)
-    backtest_res = run_backtest(df, prepared, final_params, EngineConfig())
+    backtest_res = run_backtest(df, prepared, final_params, EngineConfig(), debug=args.debug)
     equity = backtest_res.equity_curve
 
     equity.to_csv(f"{out_dir}/equity.csv")
@@ -393,6 +395,14 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0915
     # Phase 10: Trace & Metadata
     if not backtest_res.trace.empty:
         safe_to_csv(backtest_res.trace, f"{out_dir}/router_trace.csv", index=False)
+
+    # Forensic Debug Artifacts
+    if args.debug:
+        audit_path = Path(out_dir) / "FORENSIC_AUDIT.json"
+        if audit_path.exists():
+            print(f"  🔬 Forensic Audit saved to {audit_path}")
+        else:
+            print("  ⚠️  Debug mode active but no Forensic Audit was emitted (no invariant events).")
 
     save_run_metadata(
         out_dir,
@@ -643,6 +653,7 @@ def cmd_stage_candidate(args: argparse.Namespace) -> None:
 
 def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     p = argparse.ArgumentParser(prog="antigravity_harness", description="FORTRESS PROTOCOL harness")
+    p.add_argument("--debug", "-d", action="store_true", help="Enable high-fidelity forensic telemetry")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     c = sub.add_parser("calibrate", help="Run grid search + plateau selection")
@@ -850,7 +861,166 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     ha = sub.add_parser("help-all", help="Display all project commands and scripts")
     ha.set_defaults(func=cmd_help_all)
 
+    # Forensic Debug Playback
+    dbg = sub.add_parser("debug-playback", help="Forensic playback of an AUDIT_REPORT.json")
+    dbg.add_argument("--report", required=True, help="Path to AUDIT_REPORT.json")
+    dbg.add_argument("--filter", default=None, help="Filter decisions by type (e.g. ENTRY_EXEC, EXIT_REJECTED)")
+    dbg.add_argument("--summary", action="store_true", help="Show summary statistics only")
+    dbg.add_argument("--bar-range", default=None, help="Bar index range to display (e.g. 100-200)")
+    dbg.set_defaults(func=cmd_debug_playback)
+
     return p
+
+def cmd_debug_playback(args: argparse.Namespace) -> None:  # noqa: PLR0915
+    """
+    Forensic Debug Playback: Read a saved AUDIT_REPORT.json and present
+    a human-readable bar-by-bar walkthrough of every trading decision.
+    """
+    report_path = Path(args.report)
+    if not report_path.exists():
+        print(f"❌ Report not found: {report_path}")
+        return
+
+    with open(report_path, encoding="utf-8") as f:
+        report = json.load(f)
+
+    decisions = report.get("forensic_decisions", [])
+    events = report.get("events", [])
+    final_state = report.get("final_state", {})
+    invariants_passed = report.get("invariants_passed", True)
+    session_id = report.get("audit_session_id", "unknown")
+    duration = report.get("duration_sec", 0)
+
+    print("🔬 FORENSIC DEBUG PLAYBACK")
+    print("=" * 60)
+    print(f"  Session:    {session_id}")
+    print(f"  Duration:   {duration:.2f}s")
+    print(f"  Invariants: {'✅ PASSED' if invariants_passed else '❌ VIOLATED'}")
+    print(f"  Final Cash: ${final_state.get('cash', 0):,.2f}")
+    print(f"  Final Qty:  {final_state.get('qty', 0):.6f}")
+    print(f"  Events:     {len(events)}")
+    print(f"  Decisions:  {len(decisions)}")
+    print("=" * 60)
+
+    if not decisions:
+        print("\n⚠️  No forensic decisions captured. Was --debug enabled during the simulation?")
+        if events:
+            print(f"\n📋 {len(events)} audit events are present:")
+            for ev in events:
+                print(f"  [{ev.get('event', '?')}] {ev.get('data', {})}")
+        return
+
+    # Parse optional filters
+    bar_start, bar_end = 0, float("inf")
+    if args.bar_range:
+        parts = args.bar_range.split("-")
+        bar_start = int(parts[0])
+        bar_end = int(parts[1]) if len(parts) > 1 else bar_start
+
+    decision_filter = args.filter.upper() if args.filter else None
+
+    # Summary mode
+    if args.summary:
+        _print_debug_summary(decisions)
+        return
+
+    # Full playback
+    print(f"\n{'BAR':>6} | {'TIMESTAMP':>22} | {'DECISION':<18} | CONTEXT")
+    print("-" * 90)
+
+    displayed = 0
+    for d in decisions:
+        idx = d.get("bar_idx", -1)
+        if idx < bar_start or idx > bar_end:
+            continue
+        if decision_filter and d.get("decision", "") != decision_filter:
+            continue
+
+        ts = d.get("timestamp", "")[:22]
+        dec = d.get("decision", "?")
+        ctx = d.get("context", {})
+
+        # Color-code decision types
+        icon = _decision_icon(dec)
+        ctx_str = _format_context(ctx)
+        print(f"{idx:>6} | {ts:>22} | {icon} {dec:<15} | {ctx_str}")
+        displayed += 1
+
+    print("-" * 90)
+    print(f"Displayed {displayed}/{len(decisions)} decisions.")
+
+    # Always print summary at the end
+    print()
+    _print_debug_summary(decisions)
+
+
+def _decision_icon(decision: str) -> str:
+    """Map decision types to visual icons."""
+    icons = {
+        "ENTRY_EXEC": "🟢",
+        "ENTRY_SKIPPED": "🟡",
+        "ENTRY_REJECTED": "🔴",
+        "FULL_EXIT": "🔵",
+        "PARTIAL_EXIT": "🟣",
+        "EXIT_SKIPPED": "🟡",
+        "EXIT_REJECTED": "🔴",
+        "STOP_LOSS": "🛑",
+        "FORCE_CLOSE": "⏹️",
+    }
+    return icons.get(decision, "⚪")
+
+
+def _format_context(ctx: dict) -> str:
+    """Format a context dict into a concise one-line string."""
+    parts = []
+    for k, v in ctx.items():
+        if isinstance(v, float):
+            if k == "price":
+                parts.append(f"{k}=${v:,.2f}")
+            elif k == "risk":
+                parts.append(f"{k}={v:.1%}")
+            else:
+                parts.append(f"{k}={v:.4f}")
+        else:
+            parts.append(f"{k}={v}")
+    return ", ".join(parts)
+
+
+def _print_debug_summary(decisions: list) -> None:
+    """Print aggregate statistics from forensic decisions."""
+    from collections import Counter  # noqa: PLC0415
+    counts = Counter(d.get("decision", "?") for d in decisions)
+
+    print("📊 DECISION SUMMARY")
+    print("-" * 40)
+    for dec_type in ["ENTRY_EXEC", "ENTRY_SKIPPED", "ENTRY_REJECTED",
+                     "FULL_EXIT", "PARTIAL_EXIT", "EXIT_SKIPPED", "EXIT_REJECTED",
+                     "STOP_LOSS", "FORCE_CLOSE"]:
+        c = counts.get(dec_type, 0)
+        if c > 0:
+            icon = _decision_icon(dec_type)
+            print(f"  {icon} {dec_type:<18} {c:>5}")
+
+    # Unknown types
+    known = {"ENTRY_EXEC", "ENTRY_SKIPPED", "ENTRY_REJECTED",
+             "FULL_EXIT", "PARTIAL_EXIT", "EXIT_SKIPPED", "EXIT_REJECTED",
+             "STOP_LOSS", "FORCE_CLOSE"}
+    for dec_type, c in counts.items():
+        if dec_type not in known:
+            print(f"  ⚪ {dec_type:<18} {c:>5}")
+
+    total = len(decisions)
+    entries = counts.get("ENTRY_EXEC", 0)
+    exits = counts.get("FULL_EXIT", 0) + counts.get("PARTIAL_EXIT", 0) + counts.get("STOP_LOSS", 0) + counts.get("FORCE_CLOSE", 0)
+    rejected = counts.get("ENTRY_REJECTED", 0) + counts.get("EXIT_REJECTED", 0)
+    skipped = counts.get("ENTRY_SKIPPED", 0) + counts.get("EXIT_SKIPPED", 0)
+
+    print(f"\n  Total Decisions:  {total}")
+    print(f"  Executed:         {entries + exits} ({(entries + exits) / max(1, total) * 100:.1f}%)")
+    print(f"  Rejected:         {rejected} ({rejected / max(1, total) * 100:.1f}%)")
+    print(f"  Skipped:          {skipped} ({skipped / max(1, total) * 100:.1f}%)")
+    print("-" * 40)
+
 
 def cmd_help_all(args: argparse.Namespace) -> None:
     """Display comprehensive help for the entire project landscape."""
@@ -866,6 +1036,7 @@ def cmd_help_all(args: argparse.Namespace) -> None:
     print("  info              - Display project sanity and health status")
     print("  list-strategies   - List all strategies (Tiers/Quarantine)")
     print("  reality-gap      - Execution drag forensic analysis")
+    print("  debug-playback    - Forensic playback of AUDIT_REPORT.json (--debug)")
     print("  spotcheck         - Rapid tear-sheet generation for one config")
     print("  snapshot-data     - Create immutable data witnesses")
     print("  verify-cert-bundle - Third-party audit of certification artifacts")

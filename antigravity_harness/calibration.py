@@ -188,6 +188,7 @@ def _run_one(  # noqa: PLR0913
     interval: str = "1d",
     snapshot_df: Optional[pd.DataFrame] = None,  # For Phase 6F Walk-Forward
     registry: StrategyRegistry = STRATEGY_REGISTRY,
+    debug: bool = False,
 ) -> SimulationResult:
     runner = SovereignRunner(registry=registry)
     strat = registry.instantiate(strategy_name)
@@ -204,6 +205,7 @@ def _run_one(  # noqa: PLR0913
         .with_gate_profile(gate_profile)
         .with_override_df(snapshot_df)
         .with_intelligence(EssenceLab(INTEL_DIR).get_consensus_signal(["MARKET_PULSE", "MARKET_ALPHA"]))
+        .with_debug(debug)
         .build()
     )
     return runner.run_simulation(ctx)

@@ -228,6 +228,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     prepared: pd.DataFrame,
     params: StrategyParams,
     engine_cfg: EngineConfig,
+    debug: bool = False,
 ) -> BacktestResult:
     """
     Fortress Protocol v2.1.0 - Optimized Physics Engine
@@ -303,7 +304,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
 
     # Boot the Phoenix Protocol Auditor
     repo_root = Path(os.getcwd())
-    auditor = SovereignAuditor(repo_root, account_id="Institutional-Gold-Account")
+    auditor = SovereignAuditor(repo_root, account_id="Institutional-Gold-Account", debug_mode=debug)
     auditor.boot_audit(account.cash, account.qty)
 
     # State Vars
@@ -345,23 +346,28 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         # T-1 Volume for at-open execution (no lookahead)
         v_limit_ref = volumes[i-1] if i > 0 else 0.0
 
-        if account.in_position and (bars_held > params.min_hold_bars) and exit_sig[i] and account.sell(
-            o,
-            current_ts,
-            "signal_exit",
-            volume=v_limit_ref,
-            limit_pct=engine_cfg.volume_limit_pct,
-            comm_frac=engine_cfg.commission_rate_frac,
-            comm_fixed=engine_cfg.commission_fixed,
-        ) and not account.in_position:
-            # If partial sell, we are STILL in position.
-            # bars_since_exit resets ONLY if FULL EXIT?
-            # Simplification: If we sold ANY, we consider it an exit event for cooldown?
-            # No, traditionally turnover is about round trips.
-            # If qty > 0, we are still holding.
-            bars_since_exit = 0
-            executed_exit = True
-            stop_price = np.nan
+        if account.in_position and (bars_held > params.min_hold_bars) and exit_sig[i]:
+            if account.sell(
+                o,
+                current_ts,
+                "signal_exit",
+                volume=v_limit_ref,
+                limit_pct=engine_cfg.volume_limit_pct,
+                comm_frac=engine_cfg.commission_rate_frac,
+                comm_fixed=engine_cfg.commission_fixed,
+            ):
+                if not account.in_position:
+                    # Full Exit
+                    auditor.log_decision(i, current_ts, "FULL_EXIT", {"reason": "signal_exit", "price": o})
+                    bars_since_exit = 0
+                    executed_exit = True
+                    stop_price = np.nan
+                else:
+                    auditor.log_decision(i, current_ts, "PARTIAL_EXIT", {"reason": "signal_exit", "price": o})
+            else:
+                 auditor.log_decision(i, current_ts, "EXIT_SKIPPED", {"reason": "execution_failure", "price": o})
+        elif account.in_position and exit_sig[i]:
+             auditor.log_decision(i, current_ts, "EXIT_REJECTED", {"reason": "min_hold_bars_violation", "held": bars_held, "min": params.min_hold_bars})
 
         if not account.in_position and not executed_exit and (bars_since_exit >= params.cooldown_bars) and entry_sig[i]:
             # Pre-calc Stop for Sizing
@@ -389,15 +395,16 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     comm_frac=engine_cfg.commission_rate_frac,
                     comm_fixed=engine_cfg.commission_fixed,
                 ):
-                    # If we have a stop but it was invalid (e.g. negative), we might have bought full equity
-                    # But if we intended to have a stop and calculation failed?
-                    # Current logic: proposed_stop is nan -> Full Equity.
-                    # This matches "disable_stop" behavior.
+                    auditor.log_decision(i, current_ts, "ENTRY_EXEC", {"price": o, "stop": proposed_stop, "risk": params.risk_per_trade})
                     bars_held = 1
                     stop_price = proposed_stop
+                else:
+                    auditor.log_decision(i, current_ts, "ENTRY_SKIPPED", {"reason": "insufficient_funds_or_volume", "price": o})
             else:
                 # Invariant violation logged by auditor
-                pass
+                auditor.log_decision(i, current_ts, "ENTRY_REJECTED", {"reason": "invariant_violation", "price": o})
+        elif not account.in_position and not executed_exit and entry_sig[i]:
+             auditor.log_decision(i, current_ts, "ENTRY_REJECTED", {"reason": "cooldown_active", "bars_since_exit": bars_since_exit, "min_cooldown": params.cooldown_bars})
 
         # 3. Intrabar Risk (Stop Loss)
         if account.in_position and not np.isnan(stop_price) and low <= stop_price:
@@ -413,6 +420,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     comm_frac=engine_cfg.commission_rate_frac,
                     comm_fixed=engine_cfg.commission_fixed,
                 )
+                auditor.log_decision(i, current_ts, "STOP_LOSS", {"type": "gap_down", "exec_price": o, "stop": stop_price})
             else:
                 # Intraday touch
                 account.sell(
@@ -424,6 +432,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     comm_frac=engine_cfg.commission_rate_frac,
                     comm_fixed=engine_cfg.commission_fixed,
                 )
+                auditor.log_decision(i, current_ts, "STOP_LOSS", {"type": "intraday", "exec_price": stop_price, "stop": stop_price})
             stop_price = np.nan
 
         # 4. Mark to Market
@@ -446,6 +455,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
             comm_frac=engine_cfg.commission_rate_frac,
             comm_fixed=engine_cfg.commission_fixed,
         )
+        auditor.log_decision(len(closes) - 1, timestamps[-1], "FORCE_CLOSE", {"price": last_price})
         equity_arr[-1] = account.total_value(last_price)  # Reflect cash
 
     # Cleanup

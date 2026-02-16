@@ -133,3 +133,4 @@ class SimulationContext(BaseModel):
     gate_profile: str = "equity_fortress"
     override_df: Optional[pd.DataFrame] = None
     intelligence: Dict[str, Any] = Field(default_factory=dict)
+    debug: bool = False

@@ -13,20 +13,34 @@ class SovereignAuditor:
     Responsible for runtime integrity, invariant enforcement, and forensic reporting.
     """
 
-    def __init__(self, repo_root: Path, account_id: str):
+    def __init__(self, repo_root: Path, account_id: str, debug_mode: bool = False):
         """
         Initialize the auditor with a repository root and an account identifier.
         The auditor initializes with Sovereign Defaults for invariant enforcement.
         """
         self.repo_root = repo_root
         self.account_id = account_id
+        self.debug_mode = debug_mode
         self.log: List[Dict[str, Any]] = []
+        self.decisions: List[Dict[str, Any]] = []
         self.start_time = time.time()
         self.invariants_passed = True
         
         # Runtime Constraints (Sovereign Defaults)
         self.max_exposure_pct = 10.0      # Hard limit (10x Leprechaun leverage)
         self.max_single_order_pct = 1.1  # Allow 100% Equity + 10% slippage/margin buffer
+
+    def log_decision(self, bar_idx: int, timestamp: Any, decision: str, context: Dict[str, Any]) -> None:
+        """Capture high-fidelity decision telemetry for forensic debugging."""
+        if not self.debug_mode:
+            return
+            
+        self.decisions.append({
+            "bar_idx": bar_idx,
+            "timestamp": str(timestamp),
+            "decision": decision,
+            "context": context
+        })
 
     def boot_audit(self, current_cash: float, current_qty: float) -> None:
         """
@@ -94,7 +108,8 @@ class SovereignAuditor:
                     "cash": final_account.cash,
                     "qty": final_account.qty
                 },
-                "events": self.log
+                "events": self.log,
+                "forensic_decisions": self.decisions if self.debug_mode else []
             }
             
             report_bytes = json.dumps(report, indent=2, sort_keys=True).encode("utf-8")

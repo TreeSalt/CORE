@@ -33,6 +33,11 @@ class SimulationContextBuilder:
         self._gate_profile: str = "equity_fortress"
         self._override_df: Optional[pd.DataFrame] = None
         self._intelligence: Dict[str, Any] = {}
+        self._debug: bool = False
+
+    def with_debug(self, enabled: bool) -> SimulationContextBuilder:
+        self._debug = enabled
+        return self
 
     def with_strategy(self, name: str, instance: Any) -> SimulationContextBuilder:
         self._strategy_name = name
@@ -126,4 +131,5 @@ class SimulationContextBuilder:
             gate_profile=self._gate_profile,
             override_df=self._override_df,
             intelligence=self._intelligence,
+            debug=self._debug,
         )
