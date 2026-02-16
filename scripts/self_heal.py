@@ -168,6 +168,7 @@ def git_surgeon(fix=False):
         "docs/ARCHITECTURE_MAP.md",
         "docs/DECISION_LOG.md",
         "skill.md",
+        "sovereign.pub",  # Identity Binding
         "scripts/self_heal.py",  # Self-awareness
         "scripts/preflight.py",  # Infra
         "Makefile",  # Infra
