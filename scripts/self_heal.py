@@ -91,10 +91,10 @@ def check_hygiene(fix=False):
             cwd=REPO_ROOT,
             check=False,
         )
-        # Git Sweep: Remove untracked files that clean_repo might miss
+        # Git Sweep: Remove untracked and ignored artifacts (git clean)
         if (REPO_ROOT / ".git").exists():
-            print_status("Purging untracked artifacts (git clean)...")
-            subprocess.run(["git", "clean", "-fd"], cwd=REPO_ROOT, check=False)
+            print_status("Purging untracked and ignored artifacts (git clean -fdx)...")
+            subprocess.run(["git", "clean", "-fdx"], cwd=REPO_ROOT, check=False)
         return True
 
     result = subprocess.run(
@@ -116,6 +116,15 @@ def check_environment(fix=False):
     if fix:
         print_status("Repairing mandatory subdirectories...")
         ensure_dirs()
+        # Restore missing tracked files (except __init__.py which may hold the new version truth)
+        if (REPO_ROOT / ".git").exists():
+            print_status("Restoring missing tracked files (git checkout)...")
+            status = subprocess.check_output(["git", "status", "--porcelain"], cwd=REPO_ROOT, text=True)
+            for line in status.splitlines():
+                if line.startswith(" D "):
+                    path = line[3:].strip().strip('"')
+                    if path != "antigravity_harness/__init__.py":
+                        subprocess.run(["git", "checkout", "--", path], cwd=REPO_ROOT, check=False)
         return True
 
     # Verify-only
