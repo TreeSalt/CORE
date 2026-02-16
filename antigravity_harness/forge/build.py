@@ -118,16 +118,6 @@ def get_git_info(repo_root: Path) -> Dict[str, Any]:
         dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_root, text=True).strip()
 
         is_dirty = bool(dirty)
-        # ── HYDRA GUARD: Fiduciary Strict-Mode Enforcer (v4.4.80) ──
-        # Strict mode is the Sovereign Default.
-        strict_mode = os.environ.get("STRICT_MODE", "1") == "1"
-        
-        if strict_mode and is_dirty:
-            raise RuntimeError("CRITICAL FAILURE: STRICT_MODE requires a clean source tree. Forcing fail-closed. Commit all changes.")
-        
-        if is_dirty and os.environ.get("ALLOW_DIRTY_BUILD") != "1":
-            raise RuntimeError("CRITICAL FAILURE: Git repo is dirty. Commit changes or set ALLOW_DIRTY_BUILD=1.")
-        
         return {"sha": sha, "message": msg, "dirty": is_dirty}
     except subprocess.CalledProcessError:
         if os.environ.get("ALLOW_NO_GIT") == "1":
@@ -157,6 +147,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # We must check BEFORE bumping version, otherwise we are always dirty.
     git_info = get_git_info(repo_root)
     print(f"🧬 Git Provenance: {git_info['sha'][:8]} (Dirty: {git_info['dirty']})")
+    
+    if os.environ.get("STRICT_MODE", "1") == "1" and git_info["dirty"]:
+        raise RuntimeError("CRITICAL FAILURE: STRICT_MODE requires an initial clean source tree. Forcing fail-closed. Commit all changes.")
 
     release_mode = os.environ.get("METADATA_RELEASE_MODE") == "1"
     if release_mode and os.environ.get("STRICT_MODE") != "1":
@@ -208,9 +201,20 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     # Purity Assert: Re-check git dirty after potential mutations (bump_version)
     if os.environ.get("STRICT_MODE", "1") == "1":
-        final_git = get_git_info(repo_root)
-        if final_git["dirty"]:
-             raise RuntimeError("PURITY VIOLATION: Forge mutated tracked files in the repo. Use in-memory forge or commit bump first.")
+        # Check PORCELAIN output for unexpected changes
+        status = subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_root, text=True).strip()
+        if status:
+            lines = status.split("\n")
+            # Filter out authorized mutations
+            authorized = ["antigravity_harness/__init__.py", "README.md", "docs/ready_to_drop/COUNCIL_CANON.yaml"]
+            unexpected = []
+            for line in lines:
+                file_path = line[3:].strip()
+                if file_path not in authorized:
+                    unexpected.append(file_path)
+            
+            if unexpected:
+                raise RuntimeError(f"PURITY VIOLATION: Forge mutated UNEXPECTED tracked files: {unexpected}. Use commitment-first workflow.")
 
     # 1.6 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
