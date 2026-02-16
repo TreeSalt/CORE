@@ -421,7 +421,7 @@ No additional context provided.
 
 ---
 
-## 2020-01-01: fix: finalize certificate injection and audit gate in build system (v4.4.86) (v4.4.79)
+## 2020-01-01: fix: finalize certificate injection and audit gate in build system (v4.4.79)
 
 ### Context
 The forge sequencer had a race condition where the Fiduciary Certificate was signed *after* the Evidence Zip was finalized, meaning the signature of the zip itself was not captured within the signed proof.

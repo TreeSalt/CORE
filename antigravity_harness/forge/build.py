@@ -644,8 +644,9 @@ def _sync_cognitive_bridge(repo_root: Path, version: str) -> None:
             continue
             
         content = path.read_text()
-        # [STAGE 1 FIX] Robust version replacement (covers vX.Y.Z and X.Y.Z)
-        new_content = re.sub(r'\(v\d+\.\d+\.\d+\)', f'(v{version})', content)
+        # [STAGE 1 FIX] More flexible version replacement
+        # Matches (v4.3.4), (v4.4.x), etc. and replaces with the current version
+        new_content = re.sub(r'\(v\d+\.\d+\.[^)]+\)', f'(v{version})', content)
         new_content = re.sub(r'version v\d+\.\d+\.\d+', f'version v{version}', new_content)
         
         if new_content != content:
@@ -664,8 +665,11 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
     date_str = "2020-01-01"
     
     # Avoid duplicate entries for the same version
-    if f"(v{version})" in content:
-        return
+    # Check specifically for the version header to avoid false positives in body text
+    if f"## {date_str}: " in content and f" (v{version})" in content:
+        # Check if the exact version header exists
+        if re.search(rf"^## {date_str}: .* \(v{version}\)$", content, re.M):
+            return
 
     # Extract subject and body
     msg = git_info["message"].strip()
@@ -674,7 +678,7 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
     body_raw = "\n".join(lines[1:]).strip() if len(lines) > 1 else ""
 
     # Enhanced Parsing for Structured Commit Messages
-    context = "Automated entry captured via Git Provenance during the v{version} forge."
+    context = f"Automated entry captured via Git Provenance during the v{version} forge."
     decision = subject
     trade_offs = "- **Pros**: Guaranteed provenance; zero-effort documentation.\n- **Cons**: Depth of log depends on commit message quality."
 
