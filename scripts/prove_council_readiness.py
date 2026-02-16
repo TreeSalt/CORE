@@ -108,9 +108,19 @@ def main():  # noqa: PLR0912, PLR0915
     canon_verified = False
     with zipfile.ZipFile(code_zip, "r") as zf:
         try:
-            # 5a. Get Manifest Hash
+            # 5a. Get Manifest Hash (Paradox Resolve: exclude canon itself)
             manifest_bytes = zf.read("docs/ready_to_drop/PAYLOAD_MANIFEST.json")
-            manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
+            manifest = json.loads(manifest_bytes)
+            
+            # Create a copy for fingerprinting that excludes the canon
+            fingerprint_obj = manifest.copy()
+            if "file_sha256" in fingerprint_obj:
+                fingerprint_obj["file_sha256"] = fingerprint_obj["file_sha256"].copy()
+                fingerprint_obj["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
+            
+            # Canonical JSON hash
+            manifest_json = json.dumps(fingerprint_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+            manifest_hash = hashlib.sha256(manifest_json.encode("utf-8")).hexdigest()
             
             # 5b. Check Canon (Historical Note: previously checked for circularity)
             # files = manifest.get("file_sha256", {})
