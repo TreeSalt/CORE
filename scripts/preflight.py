@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
+from scripts.archivist import log_event # noqa: E402
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -97,7 +98,9 @@ def main() -> None:  # noqa: PLR0912
         # 4. Final Hygiene Check (Task 3: Post-Test Verification)
         print("🔍 VERIFYING CLEANLINESS (Final Audit)...")
         if not run_cmd("python3 -B scripts/clean_repo.py --verify-strict", root):
-            print("   ❌ FAIL: Repo is dirty.")
+            msg = "Repo is dirty (Post-audit check failed)"
+            log_event("HYGIENE", msg, "STARTUP")
+            print(f"   ❌ FAIL: {msg}")
             success = False
 
     except KeyboardInterrupt:

@@ -32,6 +32,7 @@ from antigravity_harness.paths import (  # noqa: E402
     SNAPSHOT_DIR,
     ensure_dirs,
 )
+from scripts.archivist import log_event  # noqa: E402
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -87,6 +88,7 @@ def check_version_sync(fix=False):
     if not version_synced:
         if fix:
             _sync_project_metadata(REPO_ROOT, current_version)
+            log_event("METADATA", f"Synchronized project version to {current_version}", "RECOVERY", "Auto-Sync")
             print_status("Version synchronized across manifest chain.", "PASS")
             return True
         return False
@@ -138,6 +140,7 @@ def check_environment(fix=False):
                     path = line[3:].strip().strip('"')
                     # Don't restore identity keys; we'll manage them surgically
                     if path not in ["antigravity_harness/__init__.py", "sovereign.pub", "sovereign.key"]:
+                        log_event("INFRA", f"Restoring missing tracked file: {path}", "RECOVERY", "Git Checkout")
                         subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=REPO_ROOT, check=False)
 
         # Identity Restoration
@@ -146,12 +149,11 @@ def check_environment(fix=False):
         if key_path.exists():
             print_status("Synchronizing identity (sovereign.pub)...")
             subprocess.run(["openssl", "pkey", "-in", str(key_path), "-pubout", "-out", str(pub_path)], cwd=REPO_ROOT, check=False)
-        else:
+        elif pub_path.exists():
             # If we don't have a key but have a phantom pub key restored from Git, purge it
             # so a fresh pair can be generated during the build.
-            if pub_path.exists():
-                print_status("Purging orphaned public key to allow fresh identity generation...", "WARN")
-                pub_path.unlink()
+            print_status("Purging orphaned public key to allow fresh identity generation...", "WARN")
+            pub_path.unlink()
         return True
 
     # Verify-only
