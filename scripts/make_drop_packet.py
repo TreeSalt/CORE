@@ -4,6 +4,7 @@ Sovereign Connector for TRADER_OPS Build System.
 Delegates all logic to antigravity_harness.forge.
 """
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,7 +26,6 @@ def main():
         
         # Post-Build Verification: Fail-Closed Gate
         print("🛡️  Sovereign Gate: Executing Post-Build Verification...")
-        import subprocess
         drop_zip = dist_dir / f"TRADER_OPS_READY_TO_DROP_v{ledger['version']}.zip"
         
         # Run verify_drop_packet.py

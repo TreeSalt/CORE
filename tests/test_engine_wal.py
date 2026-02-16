@@ -2,9 +2,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import pandas as pd
-import numpy as np
-
 from antigravity_harness.engine import SimulatedAccount
 from antigravity_harness.phoenix import SovereignAuditor
 from antigravity_harness.wal import WriteAheadLog

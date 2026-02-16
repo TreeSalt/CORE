@@ -125,7 +125,7 @@ class IntelligenceIngestor:
         os.replace(tmp_ledger, LEDGER_FILE)
 
 
-from antigravity_harness.essence import parse_cnn_fear_greed, parse_market_alpha
+from antigravity_harness.essence import parse_cnn_fear_greed
 
 
 if __name__ == "__main__":
