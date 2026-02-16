@@ -175,6 +175,55 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.15",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/BTC-USD_1d_20260215_6f8c7c08.csv",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/BTC-USD_4h_20260215_fdb34373.csv",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/ETH-USD_1d_20260215_c2032108.csv",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/SOL-USD_1d_20260215_ed4617cd.csv",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/TEST_INTEGRITY_S.csv",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/TEST_INTEGRITY_S_12345678.csv",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-16T23:47:58Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.15",
+            "resolution": "Auto-Sync"
         }
     ],
     "vaccines": {}
