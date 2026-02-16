@@ -91,10 +91,10 @@ def check_hygiene(fix=False):
             cwd=REPO_ROOT,
             check=False,
         )
-        # Git Sweep: Remove untracked and ignored artifacts (git clean)
         if (REPO_ROOT / ".git").exists():
-            print_status("Purging untracked and ignored artifacts (git clean -fdx)...")
-            subprocess.run(["git", "clean", "-fdx"], cwd=REPO_ROOT, check=False)
+            print_status("Purging untracked and ignored artifacts (protecting identity)...")
+            # Protect key and pub from clean sweep to maintain identity permanence
+            subprocess.run(["git", "clean", "-fdx", "-e", "sovereign.key", "-e", "sovereign.pub"], cwd=REPO_ROOT, check=False)
         return True
 
     result = subprocess.run(
