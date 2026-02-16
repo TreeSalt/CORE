@@ -24,7 +24,7 @@ from antigravity_harness.data import load_ohlc
 from antigravity_harness.emit import unique_signals
 from antigravity_harness.engine import run_backtest
 from antigravity_harness.gates import evaluate_gates
-from antigravity_harness.paths import DATA_DIR, REPORT_DIR, ensure_dirs
+from antigravity_harness.paths import DATA_DIR, REPO_ROOT, REPORT_DIR, ensure_dirs
 from antigravity_harness.portfolio_engine import run_portfolio_backtest_verbose
 from antigravity_harness.portfolio_policies import PolicyConfig
 from antigravity_harness.portfolio_regime_report import generate_regime_report
@@ -229,8 +229,8 @@ def cmd_info(args: argparse.Namespace) -> None:
 
     # 2. Manifest Check
     manifest_path = REPO_ROOT / "docs/ready_to_drop/COUNCIL_CANON.yaml"
-    m_status = "🟢" if manifest_path.exists() else "🔴"
-    print(f"CANON: {m_status} {manifest_path.relative_to(REPO_ROOT)}")
+    m_icon = "🟢" if manifest_path.exists() else "🔴"
+    print(f"CANON: {m_icon} {manifest_path.relative_to(REPO_ROOT)}")
 
     # 3. Strategy Registry
     print(f"STRATEGY REGISTRY: {len(REGISTRY)} active")
