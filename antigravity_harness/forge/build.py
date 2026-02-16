@@ -118,11 +118,13 @@ def get_git_info(repo_root: Path) -> Dict[str, Any]:
         dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_root, text=True).strip()
 
         is_dirty = bool(dirty)
+        # ── HYDRA GUARD: Surgical Strict-Mode Enforcer ──
+        if is_dirty and os.environ.get("STRICT_MODE") == "1":
+            raise RuntimeError("CRITICAL FAILURE: STRICT_MODE requires a clean source tree. Commit all changes before forging.")
+
         if is_dirty and os.environ.get("ALLOW_DIRTY_BUILD") != "1":
             raise RuntimeError("CRITICAL FAILURE: Git repo is dirty. Commit changes or set ALLOW_DIRTY_BUILD=1.")
-        if is_dirty and os.environ.get("ALLOW_DIRTY_BUILD") == "1" and os.environ.get("STRICT_MODE") == "1":
-            raise RuntimeError("CRITICAL FAILURE: ALLOW_DIRTY_BUILD is not permitted when STRICT_MODE=1.")
-
+        
         return {"sha": sha, "message": msg, "dirty": is_dirty}
     except subprocess.CalledProcessError:
         if os.environ.get("ALLOW_NO_GIT") == "1":
