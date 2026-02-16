@@ -116,15 +116,23 @@ def check_environment(fix=False):
     if fix:
         print_status("Repairing mandatory subdirectories...")
         ensure_dirs()
-        # Restore missing tracked files (except __init__.py which may hold the new version truth)
+        # Restore missing tracked files (except __init__.py and identity)
         if (REPO_ROOT / ".git").exists():
             print_status("Restoring missing tracked files (git checkout)...")
             status = subprocess.check_output(["git", "status", "--porcelain"], cwd=REPO_ROOT, text=True)
             for line in status.splitlines():
                 if line.startswith(" D "):
                     path = line[3:].strip().strip('"')
-                    if path != "antigravity_harness/__init__.py":
+                    # Don't restore sovereign.pub if sovereign.key exists; we'll re-derive it
+                    if path not in ["antigravity_harness/__init__.py", "sovereign.pub"]:
                         subprocess.run(["git", "checkout", "--", path], cwd=REPO_ROOT, check=False)
+
+        # Identity Restoration: Ensure pub matches key if key exists
+        key_path = REPO_ROOT / "sovereign.key"
+        pub_path = REPO_ROOT / "sovereign.pub"
+        if key_path.exists():
+            print_status("Re-deriving identity (sovereign.pub)...")
+            subprocess.run(["openssl", "pkey", "-in", str(key_path), "-pubout", "-out", str(pub_path)], cwd=REPO_ROOT, check=False)
         return True
 
     # Verify-only
