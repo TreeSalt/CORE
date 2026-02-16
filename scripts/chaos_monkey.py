@@ -52,6 +52,9 @@ def main():
         "v248": monkey.sabotage_audit_race,
         "v249": monkey.sabotage_audit_resilience,
         "v250": monkey.sabotage_version_schism,
+        "v263": monkey.sabotage_nan_midflight,
+        "v264": monkey.sabotage_gate_bomb,
+        "v265": monkey.sabotage_reports_heal_test,
     }
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"

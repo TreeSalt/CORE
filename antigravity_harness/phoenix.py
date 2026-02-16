@@ -3,8 +3,73 @@ import json
 import subprocess
 import sys
 import time
+import traceback
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+
+class FlightRecorder:
+    """Centralized error/recovery logger for mid-flight resilience.
+
+    Records every error, self-heal action, and recovery with timestamps.
+    Persists to FLIGHT_LOG.json so post-mortem analysis is always possible.
+    Singleton per process — access via FlightRecorder.instance().
+    """
+
+    _instance: Optional["FlightRecorder"] = None
+
+    def __init__(self, log_dir: Path) -> None:
+        self._log_dir = log_dir
+        self._events: List[Dict[str, Any]] = []
+
+    @classmethod
+    def instance(cls, log_dir: Optional[Path] = None) -> "FlightRecorder":
+        """Get or create the singleton FlightRecorder."""
+        if cls._instance is None:
+            if log_dir is None:
+                log_dir = Path("reports")
+            cls._instance = cls(log_dir)
+        return cls._instance
+
+    def record_error(self, source: str, error: Exception, severity: str = "ERROR") -> None:
+        """Record an error that was caught and contained."""
+        self._events.append({
+            "timestamp": time.time(),
+            "type": "ERROR",
+            "severity": severity,
+            "source": source,
+            "error": str(error),
+            "error_type": type(error).__name__,
+            "traceback": traceback.format_exc(),
+        })
+
+    def record_recovery(self, source: str, action: str, detail: str = "") -> None:
+        """Record a self-heal action that was taken."""
+        self._events.append({
+            "timestamp": time.time(),
+            "type": "RECOVERY",
+            "source": source,
+            "action": action,
+            "detail": detail,
+        })
+
+    def flush(self) -> Optional[Path]:
+        """Persist the flight log to disk. Returns the path or None on failure."""
+        if not self._events:
+            return None
+        try:
+            self._log_dir.mkdir(parents=True, exist_ok=True)
+            path = self._log_dir / "FLIGHT_LOG.json"
+            payload = {
+                "recorded_at": time.time(),
+                "event_count": len(self._events),
+                "events": self._events,
+            }
+            path.write_text(json.dumps(payload, indent=2, default=str))
+            return path
+        except OSError:
+            # Recording failures must NEVER crash the system
+            return None
 
 
 class SovereignAuditor:

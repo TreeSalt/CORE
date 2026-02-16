@@ -21,32 +21,57 @@ class SovereignRunner:
         self.registry = registry
 
     def run_simulation(self, ctx: SimulationContext) -> SimulationResult:
-        """Execute a single simulation and return the consolidated result."""
-        # 1. Evaluate Gates
-        gate_results = evaluate_gates(ctx)
+        """Execute a single simulation and return the consolidated result.
 
-        # 2. Extract Overall Status
-        p_status, s_status, status, warns, fails = _status_from_gate_results(gate_results)
+        Self-healing: any exception is caught and returned as FAIL, never crashes.
+        """
+        try:
+            # 1. Evaluate Gates
+            gate_results = evaluate_gates(ctx)
 
-        # 3. Consolidate Metrics
-        metrics = self._extract_metrics(gate_results)
+            # 2. Extract Overall Status
+            p_status, s_status, status, warns, fails = _status_from_gate_results(gate_results)
 
-        # 4. Final Output Construction
-        trace_df = None
-        if gate_results and hasattr(gate_results[0], "trace"):
-            trace_df = gate_results[0].trace
+            # 3. Consolidate Metrics
+            metrics = self._extract_metrics(gate_results)
 
-        return SimulationResult(
-            params=ctx.params.model_dump(),
-            status=status,
-            profit_status=p_status,
-            safety_status=s_status,
-            fail_reason="; ".join(fails),
-            warns=warns,
-            gate_results=gate_results,
-            metrics=metrics,
-            trace=trace_df,
-        )
+            # 4. Final Output Construction
+            trace_df = None
+            if gate_results and hasattr(gate_results[0], "trace"):
+                trace_df = gate_results[0].trace
+
+            return SimulationResult(
+                params=ctx.params.model_dump(),
+                status=status,
+                profit_status=p_status,
+                safety_status=s_status,
+                fail_reason="; ".join(fails),
+                warns=warns,
+                gate_results=gate_results,
+                metrics=metrics,
+                trace=trace_df,
+            )
+        except Exception as e:
+            # Mid-flight recovery: log error, return structured FAIL
+            from antigravity_harness.phoenix import FlightRecorder  # noqa: PLC0415
+
+            recorder = FlightRecorder.instance()
+            recorder.record_error("SovereignRunner.run_simulation", e, severity="CRITICAL")
+            recorder.record_recovery("SovereignRunner.run_simulation", "FAIL_SAFE_RETURN",
+                                     f"Returned FAIL result instead of crashing: {e}")
+            logger.error("Simulation failed (contained): %s", e)
+
+            return SimulationResult(
+                params=ctx.params.model_dump() if ctx.params else {},
+                status="FAIL",
+                profit_status="FAIL",
+                safety_status="FAIL",
+                fail_reason=f"RUNTIME_ERROR: {type(e).__name__}: {e}",
+                warns=[],
+                gate_results=[],
+                metrics=MetricSet(),
+                trace=None,
+            )
 
     def _extract_metrics(self, gate_results: List[GateResult]) -> MetricSet:
         """Extract flat metrics from GateResult objects."""

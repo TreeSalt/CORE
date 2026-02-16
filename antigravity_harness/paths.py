@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 # DETERMINISTIC REPO LAYOUT
@@ -17,10 +18,23 @@ CERT_DIR = REPORT_DIR / "certification"
 INTEL_DIR = REPO_ROOT / "intelligence"
 
 
+def _safe_mkdir(path: Path) -> None:
+    """Create a directory, auto-healing if a file is blocking the path.
+
+    Handles Hydra V249-class attacks where a file replaces a directory.
+    """
+    if path.exists() and not path.is_dir():
+        # Self-heal: a file is blocking the directory path
+        print(f"⚕️  [HEAL] Removing blocking file at {path} (expected directory)", file=sys.stderr)
+        path.unlink()
+    os.makedirs(path, exist_ok=True)
+
+
 def ensure_dirs() -> None:
-    """Create project directories only when explicitly requested (or CLI starts)."""
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-    os.makedirs(REPORT_DIR, exist_ok=True)
-    os.makedirs(CERT_DIR, exist_ok=True)
-    os.makedirs(INTEL_DIR, exist_ok=True)
+    """Create project directories only when explicitly requested (or CLI starts).
+
+    Self-heals any path corruption (e.g., file blocking a directory).
+    """
+    for d in (DATA_DIR, SNAPSHOT_DIR, REPORT_DIR, CERT_DIR, INTEL_DIR):
+        _safe_mkdir(d)
+

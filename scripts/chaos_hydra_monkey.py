@@ -38,6 +38,9 @@ def main() -> int:
         "v248": {"cmd": ["scripts/verify_drop_packet.py", "dist"], "expected_fail": True, "reason": "Audit Race Condition"},
         "v249": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": False, "reason": "Audit Failure Resilience"},
         "v250": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Version Schism"},
+        "v263": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Mid-Flight NaN Injection"},
+        "v264": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Gate Exception Bomb"},
+        "v265": {"cmd": ["make", "verify"], "expected_fail": False, "reason": "Reports Dir Auto-Heal"},
     }
 
     try:

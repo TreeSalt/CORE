@@ -448,3 +448,17 @@ docs: sync all cognitive bridge assets for v4.4.79
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: sync COUNCIL_CANON.yaml to v4.5.9 for build forge (v4.5.9)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.9 forge.
+
+### Decision
+chore: sync COUNCIL_CANON.yaml to v4.5.9 for build forge
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

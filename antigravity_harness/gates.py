@@ -46,6 +46,16 @@ def _run_sim(ctx: SimulationContext) -> Dict[str, Any]:  # noqa: PLR0915
     if df.empty:
         return {}
 
+    # Data Integrity Pre-Check (NaN / Zero-Volume Guard)
+    ohlc_cols = [c for c in ("Open", "High", "Low", "Close") if c in df.columns]
+    nan_counts = df[ohlc_cols].isna().sum()
+    bad_cols = nan_counts[nan_counts > 0]
+    if not bad_cols.empty:
+        raise ValueError(f"DATA_INTEGRITY: NaN detected in OHLC columns: {dict(bad_cols)}")
+
+    if "Volume" in df.columns and (df["Volume"] == 0).all():
+        raise ValueError("DATA_INTEGRITY: All volume bars are zero (zero-volume saturation)")
+
     # Physics is already injected in ctx via Builder
     periods_year = engine_cfg.periods_per_year
     vol = _calc_annual_vol(df, periods=periods_year)

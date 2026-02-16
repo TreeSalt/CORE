@@ -435,6 +435,62 @@ class v032_simple(BaseStrategy): # This name looks the same but we'll try to reg
             init_path.write_text('__version__ = "9.9.9-SCHISM"\n')
         print("💔 [HYDRA V250] Created a version schism in __init__.py.")
 
+    def sabotage_nan_midflight(self):
+        """Hydra V263: Mid-Flight NaN Injection.
+
+        Corrupts cached OHLC data with NaN values to test data integrity guards.
+        """
+        data_dir = Path("05_DATA_CACHE")
+        if not data_dir.exists():
+            print("⚠️  [HYDRA V263] No data cache found. Skipping.")
+            return
+        parquets = list(data_dir.glob("*.parquet"))
+        if not parquets:
+            print("⚠️  [HYDRA V263] No parquet files found. Skipping.")
+            return
+        target = parquets[0]
+        try:
+            df = pd.read_parquet(target)
+            # Inject NaN into 10% of Close values
+            mask = df.index[:max(1, len(df) // 10)]
+            df.loc[mask, "Close"] = float("nan")
+            df.to_parquet(target)
+            print(f"☠️  [HYDRA V263] Injected NaN into {target.name} ({len(mask)} rows).")
+        except Exception as e:
+            print(f"⚠️  [HYDRA V263] Injection failed: {e}")
+
+    def sabotage_gate_bomb(self):
+        """Hydra V264: Gate Exception Bomb.
+
+        Corrupts a strategy file to raise an exception during prepare_data(),
+        testing per-gate isolation and runner resilience.
+        """
+        target = Path("antigravity_harness/strategies/v032_simple.py")
+        if not target.exists():
+            print("⚠️  [HYDRA V264] Target strategy not found.")
+            return
+        content = target.read_text()
+        bomb = "\n    def prepare_data(self, *a, **kw): raise RuntimeError('HYDRA V264 GATE BOMB')\n"
+        # Inject at end of class
+        content = content.rstrip() + bomb
+        target.write_text(content)
+        print("💣 [HYDRA V264] Planted gate exception bomb in v032_simple.py.")
+
+    def sabotage_reports_heal_test(self):
+        """Hydra V265: Reports Dir Sabotage (V249 Auto-Heal Test).
+
+        Replaces the reports directory with a file to test ensure_dirs() self-healing.
+        Unlike V249, this vector EXPECTS the system to auto-heal.
+        """
+        reports_dir = Path("reports")
+        if reports_dir.exists():
+            if reports_dir.is_dir():
+                shutil.rmtree(reports_dir)
+            else:
+                reports_dir.unlink()
+        reports_dir.touch()
+        print("🧪 [HYDRA V265] Reports dir replaced with file (auto-heal test).")
+
     def run_all(self):
         phases = [
             self.sabotage_binary,
@@ -460,6 +516,10 @@ class v032_simple(BaseStrategy): # This name looks the same but we'll try to reg
             self.sabotage_audit_race,
             self.sabotage_audit_resilience,
             self.sabotage_version_schism,
+            self.sabotage_nan_midflight,
+            self.sabotage_gate_bomb,
+            self.sabotage_reports_heal_test,
         ]
         for p in phases:
             p()
+

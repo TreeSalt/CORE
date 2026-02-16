@@ -1432,9 +1432,35 @@ def main(argv: Any = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "func"):
-        args.func(args)
+        _safe_run(args.func, args)
     else:
         parser.print_help()
+
+
+def _safe_run(func: Any, args: Any) -> None:  # noqa: ANN401
+    """Run a CLI command with full error containment.
+
+    Catches all unhandled exceptions, logs them via FlightRecorder,
+    and exits cleanly with a user-friendly message instead of a raw traceback.
+    """
+    try:
+        func(args)
+    except KeyboardInterrupt:
+        print("\n⛔ Interrupted by user.", file=sys.stderr)
+        sys.exit(130)
+    except SystemExit:
+        raise  # Let sys.exit() pass through
+    except Exception as e:
+        from antigravity_harness.phoenix import FlightRecorder  # noqa: PLC0415
+
+        recorder = FlightRecorder.instance()
+        recorder.record_error(f"CLI.{func.__name__}", e, severity="FATAL")
+        log_path = recorder.flush()
+
+        print(f"\n🛑 FATAL ERROR in '{func.__name__}': {type(e).__name__}: {e}", file=sys.stderr)
+        if log_path:
+            print(f"📋 Flight log saved: {log_path}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

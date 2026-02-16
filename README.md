@@ -1,6 +1,6 @@
-# ANTIGRAVITY HARNESS v4.5.8 (OMEGA SOVEREIGN)
+# ANTIGRAVITY HARNESS v4.5.9 (OMEGA SOVEREIGN)
 
-**Status**: OMEGA IMMORTAL (v4.5.8)
+**Status**: OMEGA IMMORTAL (v4.5.9)
 **Objective**: Absolute, bit-perfect trading strategy sovereignty.
 
 ## 📂 Sovereign Library (The Books)
@@ -125,7 +125,7 @@ Output includes a verified zip and a `.sha256` checksum.
 
 ---
 ---
-*Built by Antigravity Harness (v4.5.8)*
+*Built by Antigravity Harness (v4.5.9)*
 
 ## 📂 Documentation (Institutional Gold)
 - [Vision: Event Horizon (Option Trading)](docs/vision_event_horizon.md)
