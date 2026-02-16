@@ -5,7 +5,17 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
-from scripts.archivist import log_event # noqa: E402
+
+# Add repo root for imports
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+sys.path.append(str(REPO_ROOT))
+
+# ANTIGRAVITY HARNESS: Error Classification
+try:
+    from scripts.archivist import log_event # noqa: E402
+except ImportError:
+    # Failsafe if run in isolation/bootstrapping
+    def log_event(*args, **kwargs): pass
 
 GREEN = "\033[92m"
 RED = "\033[91m"
