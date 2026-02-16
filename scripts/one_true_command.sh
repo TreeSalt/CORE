@@ -223,8 +223,7 @@ fi
 
 bold "5) Zip verifier"
 if [[ -f "scripts/zip_verifier.py" ]]; then
-  # Most versions assume dist/ by default; if yours supports flags, add them here.
-  python3 scripts/zip_verifier.py
+  python3 scripts/zip_verifier.py --dist "$DIST_DIR"
   ok "zip_verifier.py PASS"
 else
   warn "scripts/zip_verifier.py not found; skipping"

@@ -476,3 +476,17 @@ chore: sync COUNCIL_CANON.yaml to v4.5.10 for build forge
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: feat: comprehensive make help + sync canon to v4.5.11 (v4.5.11)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.11 forge.
+
+### Decision
+feat: comprehensive make help + sync canon to v4.5.11
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

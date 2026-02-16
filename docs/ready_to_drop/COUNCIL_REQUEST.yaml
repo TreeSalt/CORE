@@ -1,14 +1,14 @@
-# COUNCIL_REQUEST.yaml — Review Request for TRADER_OPS v4.3.4
-# This file defines exactly what the Council reviewer must evaluate.
+# COUNCIL_REQUEST.yaml — Review Request for TRADER_OPS
+# Version is dynamic: see COUNCIL_CANON.yaml → repo.version
 
 request:
   type: "READY_TO_DROP_REVIEW"
-  version: "4.3.4"
+  version_source: "docs/ready_to_drop/COUNCIL_CANON.yaml"
   context: "builder_template"
-  packet: "dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip"
-  checksum_file: "docs/ready_to_drop/DROP_PACKET_SHA256.txt"
+  packet: "dist/TRADER_OPS_READY_TO_DROP_v{VERSION}.zip"
+  checksum_file: "dist/DROP_PACKET_SHA256_v{VERSION}.txt"
   canon_manifest_file: "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
-  note: "Consumers: ignore dist/ references; verify the received zip using sidecar DROP_PACKET_SHA256.txt."
+  note: "Replace {VERSION} with the version from COUNCIL_CANON.yaml. Consumers: verify using versioned sidecar or run `python3 drop_auditor.py <zip>`."
 
 scope_boundaries:
   allowed:
@@ -25,26 +25,27 @@ scope_boundaries:
 verification_steps:
   - id: 1
     action: "Install dependencies"
-    command: "bash scripts/bootstrap.sh"
+    command: "make install"
   - id: 2
-    action: "Run preflight"
-    command: "python3 scripts/preflight.py --auto-clean"
-    expected: "PASS"
+    action: "Run full verification pipeline"
+    command: "make verify"
+    expected: "ALL CHECKS PASSED"
   - id: 3
-    action: "Run reality gap test"
-    command: "python3 -m unittest antigravity_harness.tests.test_reality_gap -v"
-    expected: "2 tests OK, matched_rows == 2"
+    action: "Run tests"
+    command: "make test"
+    expected: "All tests pass"
   - id: 4
     action: "Verify packet SHA (Identity)"
-    command: "sha256sum dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip"
-    expected: "Must match DROP_PACKET_SHA256.txt"
+    command: "sha256sum dist/TRADER_OPS_READY_TO_DROP_v{VERSION}.zip"
+    expected: "Must match DROP_PACKET_SHA256_v{VERSION}.txt"
   - id: 5
-    action: "Verify Manifest (Canon Fingerprint)"
-    command: "unzip -p dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip docs/ready_to_drop/COUNCIL_CANON.yaml | grep fingerprint_sha256"
-    expected: "Matches PAYLOAD_MANIFEST.json inside zip"
+    action: "Verify drop self-audit (standalone)"
+    command: "python3 drop_auditor.py TRADER_OPS_READY_TO_DROP_v{VERSION}.zip"
+    expected: "PASS"
+    note: "drop_auditor.py is embedded inside the drop zip"
   - id: 6
-    action: "Run council sweep (optional, long)"
-    command: "bash scripts/council_sweep_crypto.sh"
-    expected: "COUNCIL_BRIEF.md generated"
+    action: "Verify certificate"
+    command: "python3 scripts/verify_certificate.py --evidence dist/TRADER_OPS_EVIDENCE_v{VERSION}.zip"
+    expected: "Certificate Verified"
 
 required_response: "COUNCIL_RESPONSE_SCHEMA.yaml"

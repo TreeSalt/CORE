@@ -1275,6 +1275,9 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
     # Phase 4.1: Evidence Manifest (Tier 1 Credibility)
     _generate_evidence_manifest(out_dir, args)
 
+    # Phase 4.2: Tier-0 results.csv (one-row, machine-friendly summary)
+    _emit_results_csv(out_dir)
+
     # Final Stats
     final_eq = curve["equity"].iloc[-1]
     ret = (final_eq / 100_000.0) - 1.0
@@ -1283,6 +1286,29 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
     print(f"   Total Return: {ret:.2%}")
     print(f"   Regime Log: {len(regime_log)} periods")
     print(f"   Artifacts: {out_dir}")
+
+
+def _emit_results_csv(out_dir: Path) -> None:
+    """Tier-0 results.csv (one-row, machine-friendly summary)."""
+    try:
+        summary_path = out_dir / "PORTFOLIO_SUMMARY.json"
+        if summary_path.exists():
+            with open(summary_path) as f:
+                summary = json.load(f)
+            overall = summary.get("overall", {})
+            row = {
+                "status": "SMOKE_OK",
+                "fail_gate": "",
+                "fail_reason": "",
+                "profit_factor": overall.get("profit_factor"),
+                "trade_count": overall.get("rebalance_events", 0),
+                "sharpe_ratio": overall.get("sharpe_ratio"),
+                "max_dd_pct": overall.get("overall_max_drawdown_pct"),
+                "total_return_pct": overall.get("total_return_pct"),
+            }
+            pd.DataFrame([row]).to_csv(out_dir / "results.csv", index=False)
+    except Exception as e:
+        print(f"⚠️  Could not write results.csv: {e}")
 
 
 def _write_council_brief(regime_log, curve, out_dir, args):

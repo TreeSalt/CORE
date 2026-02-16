@@ -217,7 +217,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 "README.md", 
                 "docs/ready_to_drop/COUNCIL_CANON.yaml",
                 "docs/AGENT_ONBOARDING.md",
-                "docs/ARCHITECTURE_MAP.md"
+                "docs/ARCHITECTURE_MAP.md",
+                "docs/DECISION_LOG.md",
             ]
             unexpected = []
             for line in lines:
@@ -532,6 +533,16 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         zinfo_s.compress_type = zipfile.ZIP_DEFLATED
         zf.writestr(zinfo_s, sidecar_internal_txt)
 
+        # Inject Drop Auditor (Self-Contained Verifier)
+        auditor_path = repo_root / "scripts" / "drop_auditor.py"
+        if auditor_path.exists():
+            _write_to_zip(zf, auditor_path, "drop_auditor.py")
+            print("🔍 Injected drop_auditor.py into drop zip")
+        # Inject public key for standalone certificate verification
+        if pub_path.exists():
+            _write_to_zip(zf, pub_path, "sovereign.pub")
+            print("🔑 Injected sovereign.pub into drop zip")
+
     with zipfile.ZipFile(drop_zip, "a", zipfile.ZIP_DEFLATED) as zf:
         # Update metadata to list the correct inner ledger
         timestamp = _get_timestamp()
@@ -577,10 +588,28 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     with open(ledger_path, "w") as f:
         json.dump(ledger, f, indent=2, sort_keys=True)
 
+    # 6.2 Sign the RUN_LEDGER (Sovereign Binding)
+    key_path = repo_root / "sovereign.key"
+    if key_path.exists():
+        ledger_sig_path = dist_dir / f"RUN_LEDGER_v{version}.json.sig"
+        try:
+            subprocess.run([
+                "openssl", "pkeyutl", "-sign",
+                "-inkey", str(key_path),
+                "-rawin", "-in", str(ledger_path),
+                "-out", str(ledger_sig_path)
+            ], check=True)
+            print(f"✍️  Ledger Signed: {ledger_sig_path.name}")
+        except Exception as e:
+            print(f"⚠️  Ledger signing failed (non-fatal): {e}")
+
     # 7. Automated Sidecars (Hygiene Enforcement)
     print("🩹 Regenerating Sidecars...")
-    # Clean OLD DROP_PACKET_SHA256.txt to avoid "Timeline Fracture"
-    # The unversioned sidecar is removed as per instruction.
+    # POISON CLEANUP: Delete ALL unversioned sidecars (timeline-poison prevention)
+    for stale in [dist_dir / "DROP_PACKET_SHA256.txt", repo_root / "docs/ready_to_drop/DROP_PACKET_SHA256.txt"]:
+        if stale.exists():
+            stale.unlink()
+            print(f"🗑️  Removed stale sidecar: {stale.name}")
     
     # Versioned Sidecar (Immutable History)
     versioned_sidecar = dist_dir / f"DROP_PACKET_SHA256_v{version}.txt"

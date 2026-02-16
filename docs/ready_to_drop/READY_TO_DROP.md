@@ -1,18 +1,21 @@
-# READY-TO-DROP: TRADER_OPS v4.3.4 (OMEGA SOVEREIGN)
+# READY-TO-DROP: TRADER_OPS (Sovereign Protocol)
+
+> **Current Version**: See `COUNCIL_CANON.yaml` → `repo.version`
+> **Verification**: `make verify` (fail-closed, strict mode)
 
 ## 1) What This Repo Is
-**TRADER_OPS** is the institutional-grade strategy engine and certification harness for the Vanguard Reality trading system. It is protected by the **OMEGA Sovereign Protocol** (12 Institutional Gates).
-**Current Status**: **OMEGA IMMORTAL**. The core harness is stable (v4.3.4), bit-perfect, and ready for absolute distribution.
+**TRADER_OPS** is the institutional-grade strategy engine and certification harness for the Vanguard Reality trading system. It is protected by the **Sovereign Protocol** (12 Institutional Gates + Fiduciary Certificate).
 
-## Builders vs Consumers (Important)
-- **Builder (repo workspace)**: `make_drop_packet.py` produces `dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip`. The `dist/` prefix is a build artifact path, not part of the zip contents. Verify with `sha256sum dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip` and compare to `docs/ready_to_drop/DROP_PACKET_SHA256.txt`.
-- **Consumer (received packet)**: You receive the zip directly (no `dist/` folder inside). Verify using the sidecar `DROP_PACKET_SHA256.txt` provided alongside the zip: `sha256sum TRADER_OPS_READY_TO_DROP_v4.3.4.zip`.
+## Builders vs Consumers
+
+- **Builder (repo workspace)**: Run `make all` to produce `dist/TRADER_OPS_READY_TO_DROP_v{VERSION}.zip`. Verify with `make verify`.
+- **Consumer (received packet)**: Run `python3 drop_auditor.py TRADER_OPS_READY_TO_DROP_v{VERSION}.zip` (included in drop). Or manually: `sha256sum TRADER_OPS_READY_TO_DROP_v{VERSION}.zip` and compare to `DROP_PACKET_SHA256_v{VERSION}.txt`.
 
 > [!NOTE]
 > `PAYLOAD_MANIFEST.json` does not list itself in `file_sha256` to prevent hash recursion; this is intentional and standard.
 
 > [!NOTE]
-> Older reports/manifests may reference 4.3.4; do not edit them; new runs will stamp 4.3.4.
+> Only versioned sidecars (`DROP_PACKET_SHA256_v{VERSION}.txt`) are authoritative. Unversioned sidecars are legacy and should be ignored.
 
 ## 2) Physics Laws (Non-Negotiables)
 1.  **Engine Owns Signal Shifting**: The engine automatically shifts signals by 1 candle to prevent look-ahead bias. Strategies must not shift signals themselves.
@@ -49,7 +52,6 @@ Defined in `antigravity_harness/profiles.py`.
 *   **Min Sharpe**: 0.5
 *   **Min Trades**: 40
 *   **Max Drawdown**: >15% (WARN), >20% (FAIL)
-*   **Min Volatility**: N/A
 
 ### B) crypto_profit (Growth First)
 *   **Asset Class**: Crypto
@@ -61,85 +63,57 @@ Defined in `antigravity_harness/profiles.py`.
 
 **GATE_MISCLASSIFICATION is FAIL**: Applying a crypto profile to a low-volatility asset (or vice versa) results in a hard failure.
 
-## 5) Regime vs Safety Overlay (Clarification)
-- **Regime**: Market-state label (e.g. `TREND_LOW_VOL`, `PANIC`). Determines **how** we want to be positioned (Momentum vs Mean Reversion vs Cash). Evaluated at **rebalance cadence** (e.g. Monthly).
+## 5) Regime vs Safety Overlay
+- **Regime**: Market-state label (e.g. `TREND_LOW_VOL`, `PANIC`). Determines **how** we want to be positioned. Evaluated at **rebalance cadence** (e.g. Monthly).
 - **Safety Overlay**: Portfolio brake (airbags). Reacts to drawdown limits regardless of regime. Evaluated **every bar**. **Phase 9D overlay default = ON for deployment evaluation.**
 
 **Two Distinct Drawdowns:**
-- **Basket Drawdown** (regime physics): Scale-invariant; computed from a returns-based basket index (`basket_index[t] = basket_index[t-1] * (1 + mean(asset_returns[t]))`). Used by `regimes.py` for PANIC detection.
+- **Basket Drawdown** (regime physics): Scale-invariant; computed from a returns-based basket index. Used by `regimes.py` for PANIC detection.
 - **Portfolio Drawdown** (certification/safety): Computed from the portfolio's actual equity curve. Used by `portfolio_safety_overlay.py` for DD Brake decisions.
 
-## 6) Red-Team Defenses Implemented (Bullet List)
-*   **Snapshot Integrity Hashing**: SHA256 verification of input data; run rejected on mismatch.
-*   **Walk-Forward Leakage Prevention**: Strict train/test split enforcement in Certification Runs.
-*   **Zombie Defense**: (Not yet implemented; pending v5).
-*   **Bad Apple Portfolio Rule**: If ANY single strategy/asset pair in a portfolio FAILS, the ENTIRE portfolio FAILS.
-*   **WARN Laundering Cap**: If >30% of assets in a portfolio trigger a WARN, the portfolio FAILS.
-*   **Empty Portfolio Defense**: A portfolio with 0 trades is a FAIL.
-*   **Drift/Consistency Rule**: Strategy must maintain `pass_ratio >= 0.60` across walk-forward windows (Safety Fail).
+## 6) Verification Commands
 
-## 6) Core CLI Commands (Reproducible)
+### One True Command (Council Audit)
+```bash
+make verify
+# or: bash scripts/one_true_command.sh dist
+```
+
+### Full Build + Verify Pipeline
+```bash
+make all
+```
 
 ### Tests
 ```bash
-python -m unittest discover tests
-# OR
-pytest tests/
+make test
 ```
 
-### Preflight (The Institutional Audit)
+### Preflight
 ```bash
-python scripts/preflight.py --auto-clean
+make preflight
 ```
 
-### Clean Repo (Strict verification)
+### Clean
 ```bash
-python scripts/clean_repo.py --verify-strict
+make clean
 ```
 
-### Council Sweep (Crypto)
-```bash
-bash scripts/council_sweep_crypto.sh
-```
-
-### Portfolio Backtest (Phase 9 + 9D Safety)
-```bash
-python -m antigravity_harness.cli portfolio-backtest \
-  --symbols BTC-USD,ETH-USD,SOL-USD \
-  --start 2021-01-01 --end 2024-12-31 \
-  --rebalance M --router regime_v1 \
-  --dd_reduce -0.15 --dd_off -0.25 --dd_hard -0.40 \
-  --max_weight_per_asset 0.50 --min_positions 2 \
-  --outdir reports/portfolio/run_001
-```
-**Outputs**: `equity_curve.csv`, `regime_log.csv`, `regime_matrix.json`, `PORTFOLIO_SUMMARY.json`, `SUMMARY.md`, `COUNCIL_PORTFOLIO_BRIEF.md`.
-
-**Phase 9D Safety Overlay** (evaluated every bar, not just at rebalance):
-- **DD Brake**: RISK_REDUCE at -15%, RISK_OFF at -25%, HARD_FAIL at -40%.
-- **Hysteresis**: No severity downgrade (RISK_OFF → RISK_REDUCE forbidden). Recovery requires DD past separate thresholds.
-- **Concentration Caps**: Max 50% per asset, min 2 distinct positions.
-- **Safety CLI flags**: `--dd_reduce`, `--dd_off`, `--dd_hard`, `--reduce_multiplier`, `--reentry_off`, `--reentry_reduce`, `--max_weight_per_asset`, `--min_positions`, `--enable_shock_overlay`.
-
-### Reality Gap Check (Fixture Test)
-```bash
-python -m antigravity_harness.cli reality-gap \
-  --fills tests/fixtures/fills.csv \
-  --signals tests/fixtures/signals.csv \
-  --outdir reports/reality_check_final
-```
-
-### Package Core
-```bash
-python scripts/package_core.py
-```
+Run `make help` for the full command reference.
 
 ## 7) What We Know vs What We Don't
 *   **Known Good**: The harness infrastructure (preflight, packaging, sweep pipeline, reality-gap sensor, portfolio regime router) is robust and operational.
 *   **Unknown**: Profitable configurations under `crypto_profit`. Recent sweeps yielded 0 candidates due to profit consistency < 60%. We have the tools to find them, but the specific parameters are not yet locked.
 
-## 8) Next Actions (Ordered)
-1.  **Run Preflight**: Ensure the jet is airworthy.
-2.  **Run Council Sweep**: Execute the standard crypto sweep.
-3.  **Run Portfolio Backtest**: Evaluate regime-aware allocation.
-4.  **Inspect COUNCIL_BRIEF**: Analyze `reports/certification/PORTFOLIO/COUNCIL_PORTFOLIO_BRIEF.md`.
-5.  **Alpha Hunting**: ONLY after the above are confirmed, proceed to Tiered hunting (Strategy work).
+## 8) Claim Scope (Fiduciary)
+This certification covers:
+- **Artifact integrity**: Cryptographic binding of code + evidence + drop via RUN_LEDGER
+- **Signed certification**: Ed25519 certificate + signature
+- **Signed ledger**: Ed25519 ledger signature
+- **Self-auditing**: Drop contains `drop_auditor.py` for standalone verification
+- **Strict mode**: Fail-closed on dirty tree, version mismatch, hash mismatch
+
+This certification does **NOT** claim:
+- Live-market profitability
+- Real data provenance (only synthetic smoke evidence is certified)
+- Forward-looking performance guarantees

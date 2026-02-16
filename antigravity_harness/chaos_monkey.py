@@ -491,6 +491,47 @@ class v032_simple(BaseStrategy): # This name looks the same but we'll try to reg
         reports_dir.touch()
         print("🧪 [HYDRA V265] Reports dir replaced with file (auto-heal test).")
 
+    def sabotage_stale_sidecar(self):
+        """Hydra V266: Stale Unversioned Sidecar Injection.
+
+        Creates a fake unversioned DROP_PACKET_SHA256.txt with a wrong hash
+        in dist/ to test that the build system cleans it up and verifiers
+        prefer the versioned sidecar.
+        """
+        dist_dir = Path("dist")
+        dist_dir.mkdir(parents=True, exist_ok=True)
+        stale = dist_dir / "DROP_PACKET_SHA256.txt"
+        stale.write_text("0000000000000000000000000000000000000000000000000000000000000000  FAKE_POISON.zip\n")
+        print("☠️  [HYDRA V266] Injected stale unversioned sidecar into dist/.")
+
+    def sabotage_docs_version_drift(self):
+        """Hydra V267: Docs Version Drift Attack.
+
+        Injects a wrong version into READY_TO_DROP.md to test that
+        build/verification catches temporal inconsistencies in documentation.
+        """
+        target = Path("docs/ready_to_drop/READY_TO_DROP.md")
+        if target.exists():
+            content = target.read_text()
+            content = content.replace("COUNCIL_CANON.yaml", "v0.0.0-POISON")
+            target.write_text(content)
+            print("☠️  [HYDRA V267] Injected version drift into READY_TO_DROP.md.")
+        else:
+            print("⚠️  [HYDRA V267] READY_TO_DROP.md not found. Skipping.")
+
+    def sabotage_drop_auditor_tamper(self):
+        """Hydra V268: Drop Auditor Tampering.
+
+        Corrupts the drop_auditor.py script to test that the build system
+        uses the actual script from repo, not a cached/corrupted copy.
+        """
+        target = Path("scripts/drop_auditor.py")
+        if target.exists():
+            target.write_text("#!/usr/bin/env python3\nprint('TAMPERED AUDITOR')\nimport sys; sys.exit(1)\n")
+            print("☠️  [HYDRA V268] Tampered with drop_auditor.py.")
+        else:
+            print("⚠️  [HYDRA V268] drop_auditor.py not found. Skipping.")
+
     def run_all(self):
         phases = [
             self.sabotage_binary,
@@ -519,6 +560,9 @@ class v032_simple(BaseStrategy): # This name looks the same but we'll try to reg
             self.sabotage_nan_midflight,
             self.sabotage_gate_bomb,
             self.sabotage_reports_heal_test,
+            self.sabotage_stale_sidecar,
+            self.sabotage_docs_version_drift,
+            self.sabotage_drop_auditor_tamper,
         ]
         for p in phases:
             p()

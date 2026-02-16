@@ -1,33 +1,48 @@
-# COUNCIL BRIEF — Phase 9E v2
+# COUNCIL BRIEF — TRADER_OPS Sovereign Audit
 
-**Version**: 4.3.4 | **Build Date**: 2026-02-13
-**Status**: **OPERATIONAL**
-**Latest Milestone**: Sovereign Omega v4.3.4 Lockdown
+> **Version**: See `COUNCIL_CANON.yaml` → `repo.version`
+> **Status**: **OPERATIONAL — STRICT MODE ENFORCED**
 
-## What Changed
+## What Changed (Cumulative from v4.3.4 → Current)
 
-### 1. Portfolio API Consistency
-- `run_portfolio_backtest` is the **single canonical function**. Returns `(portfolio, regime_log, equity_curve_df)`.
-- Previous wrapper pattern (`_verbose`) removed — all callers use the same function.
-- CLI now supports `--prices-csv <path>` for fully offline backtesting.
+### 1. Fiduciary Chain (Sovereignty)
+- **RUN_LEDGER** now cryptographically binds code zip + evidence zip + drop zip with SHA-256
+- **CERTIFICATE.json** signed with Ed25519 (`sovereign.key/sovereign.pub`)
+- **RUN_LEDGER** is now signed: `RUN_LEDGER_v{VERSION}.json.sig`
+- **Drop packet contains self-auditor**: `drop_auditor.py` (standalone, no imports)
+- Only **versioned sidecars** (`DROP_PACKET_SHA256_v{VERSION}.txt`) are produced; unversioned sidecars are deleted
 
-### 2. Regime Physics V2 (Scale-Invariant Basket)
-- **Before**: Basket drawdown used `mean(raw_prices)` — a $35,000 asset dominated a $150 asset.
-- **After**: Uses returns-based `basket_index = cumprod(1 + mean(per_asset_returns)) * 100`. Multiplying any asset by 10x has **zero effect** on drawdown or panic decisions.
-- Safety overlay shock trigger also fixed to use per-asset returns.
-- New test: `test_basket_scale_invariant.py` (3 assertions).
+### 2. Strict Mode (Fail-Closed)
+- `STRICT_MODE=1` is default for all builds
+- Dirty git tree → build aborts
+- Version mismatch (code vs canon) → build aborts
+- Evidence version drift → build aborts
+- All verification scripts enforce `--strict`
 
-### 3. Portability Restore
-- Drop packet whitelist now includes: `clean_repo.py`, `package_core.py`, `council_sweep_crypto.sh`.
-- `TRADER_OPS_READY_TO_DROP_vX.Y.Z.zip` + SHA sidecar copied to engine root.
-- No machine-specific absolute paths anywhere.
+### 3. Runtime Resilience
+- `FlightRecorder` singleton for centralized error/recovery logging
+- `SovereignRunner.run_simulation()` returns FAIL instead of crashing
+- `_safe_run()` CLI wrapper catches all unhandled exceptions
+- NaN/zero-volume data integrity guards in gate evaluation
+- `ensure_dirs()` auto-heals file-blocking-dir attacks
 
-### 4. Offline Defaults
-- CLI errors clearly if neither `--prices-csv` nor `--fetch` is provided.
-- No silent network calls.
+### 4. Portfolio API Consistency
+- `run_portfolio_backtest` is the single canonical function
+- CLI supports `--prices-csv <path>` for fully offline backtesting
+- Regime physics uses scale-invariant returns-based basket
+
+### 5. Evidence Smoke Test
+- Forge forces evidence regeneration on every build
+- Produces `results.csv` (one-row, machine-friendly summary)
+- `EVIDENCE_MANIFEST.json` + `DATA_MANIFEST.json` with Merkle roots
 
 ## What Did NOT Change
 - Gate thresholds (untouched)
 - Strategy logic (untouched)
 - Certification semantics (untouched)
 - Safety overlay DD thresholds (untouched)
+
+## Verification (One Command)
+```bash
+make verify
+```

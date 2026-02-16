@@ -41,6 +41,9 @@ def main() -> int:
         "v263": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Mid-Flight NaN Injection"},
         "v264": {"cmd": ["make", "verify"], "expected_fail": True, "reason": "Gate Exception Bomb"},
         "v265": {"cmd": ["make", "verify"], "expected_fail": False, "reason": "Reports Dir Auto-Heal"},
+        "v266": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": False, "reason": "Stale Sidecar Cleanup"},
+        "v267": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": True, "reason": "Docs Version Drift"},
+        "v268": {"cmd": ["make", "build", "ALLOW_DIRTY_BUILD=1"], "expected_fail": False, "reason": "Drop Auditor Tampering"},
     }
 
     try:
