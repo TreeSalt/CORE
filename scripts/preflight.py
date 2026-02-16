@@ -47,7 +47,8 @@ def run_cmd(cmd: str, cwd: Path, env: Optional[dict] = None) -> bool:
         return False
 
 
-def main() -> None:  # noqa: PLR0912
+def main() -> None:  # noqa: PLR0912, PLR0915
+    """Antigravity Preflight main logic."""
     parser = argparse.ArgumentParser(description="Antigravity Preflight")
     parser.add_argument("--auto-clean", action="store_true", help="Clean repo before verification")
     parser.add_argument("--heal", action="store_true", help="Automatically repair versioning and hygiene blockers")
