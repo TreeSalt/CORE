@@ -196,6 +196,8 @@ def git_surgeon(fix=False):
         "sovereign.pub",  # Identity Binding
         "scripts/self_heal.py",  # Self-awareness
         "scripts/preflight.py",  # Infra
+        "scripts/archivist.py",  # Memory
+        "05_DATA_CACHE/ERROR_LEDGER.json", # Memory
         "Makefile",  # Infra
     ]
 
