@@ -33,11 +33,12 @@ STRATEGY_CATALOG: Dict[str, StrategyMeta] = {
     ),
     "v050_trend_momentum": StrategyMeta(
         name="v050_trend_momentum",
-        tier=1,
+        tier=0,
         regime="trend",
-        description="Trend Momentum: Aggressive trend following.",
-        core_risks=["Whipsaw in chop", "Drawdown"],
+        description="[LEGACY] Trend Momentum: Aggressive trend following. Uses deprecated StrategyBase contract.",
+        core_risks=["Whipsaw in chop", "Drawdown", "Deprecated architecture"],
         recommended_assets=["BTC-USD", "SOL-USD"],
+        is_quarantined=True,
     ),
     "v060_bit_uni_core": StrategyMeta(
         name="v060_bit_uni_core",

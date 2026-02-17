@@ -13,7 +13,20 @@ from pathlib import Path
 from typing import Dict
 
 
-def hash_file(path: Path) -> str:
+try:
+    from antigravity_harness.data.market_tape import MarketTape
+except ImportError:
+    # Fallback if running outside of package context
+    MarketTape = None
+
+def hash_file_or_tape(path: Path) -> str:
+    """Compute hash of file, using MarketTape logic for CSVs if possible."""
+    if path.suffix.lower() == ".csv" and MarketTape:
+        try:
+            return MarketTape.from_csv(path).data_hash
+        except Exception as e:
+            print(f"⚠️  MarketTape failed for {path.name} (falling back to raw hash): {e}")
+    
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -29,7 +42,7 @@ def generate_manifest(data_root: Path) -> Dict[str, str]:
     for path in sorted(data_root.rglob("*")):
         if path.is_file() and not path.name.startswith("."):
             rel_path = path.relative_to(data_root).as_posix()
-            manifest[rel_path] = hash_file(path)
+            manifest[rel_path] = hash_file_or_tape(path)
     return manifest
 
 def main():

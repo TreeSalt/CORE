@@ -405,14 +405,15 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     ev_manifest_path = smoke_dir / "EVIDENCE_MANIFEST.json"
     ev_manifest_sha = hash_file(ev_manifest_path) if ev_manifest_path.exists() else "N/A"
 
-    # We calculate a PRE-CERT evidence hash to avoid circularity if some tools check it.
-    pre_cert_evidence_hash = hash_file(evidence_zip)
+    # NOTE: evidence_sha256 was REMOVED from cert bindings in v4.5.29.
+    # The cert lived inside the evidence zip, making the hash circular.
+    # Integrity is now provided by the detached MANIFEST.json (see Step 5.5).
 
     certificate = {
-        "certificate_schema_version": "1.1.0",
+        "certificate_schema_version": "2.0.0",
         "scope": "fiduciary_strict_audit",
         "strict_profile_id": "FIDUCIARY_STRICT_V1",
-        "verifier_version": "v1.0.4",
+        "verifier_version": "v1.1.0",
         "strict_mode": (os.environ.get("STRICT_MODE", "1") == "1"),
         "trader_ops_version": version,
         "version": version,
@@ -422,7 +423,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "timestamp_utc": _get_timestamp(),
         "bindings": {
             "code_sha256": real_code_hash,
-            "evidence_sha256": pre_cert_evidence_hash,
             "data_hash": data_hash,
             "payload_manifest_sha256": manifest_sha,
             "evidence_manifest_sha256": ev_manifest_sha
@@ -532,6 +532,23 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         f"{hash_file(ledger_inner_path)}  {ledger_inner_name}\n"
     )
 
+    # 5.5 DETACHED MANIFEST (v4.5.29+)
+    # The manifest hashes both code and evidence zips AFTER they are finalized.
+    # The cert does NOT hash the evidence zip (breaking circularity).
+    # The manifest lives in the READY zip outer envelope alongside (not inside) the payload zips.
+    drop_manifest = {
+        "manifest_schema_version": "1.0.0",
+        "generated_at_utc": _get_timestamp(),
+        "trader_ops_version": version,
+        "files": [
+            {"path": code_zip_name, "sha256": code_hash, "type": "code"},
+            {"path": evidence_zip_name, "sha256": evidence_hash, "type": "evidence"},
+        ],
+    }
+    manifest_json_bytes = json.dumps(drop_manifest, indent=2, sort_keys=True).encode("utf-8")
+    drop_manifest_hash = hashlib.sha256(manifest_json_bytes).hexdigest()
+    print(f"📋 Detached MANIFEST.json forged: {drop_manifest_hash[:8]}...")
+
     with zipfile.ZipFile(drop_zip, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.write(code_zip, code_zip_name)
         zf.write(evidence_zip, evidence_zip_name)
@@ -539,6 +556,13 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if (repo_root / "SOVEREIGN_REPORT.md").exists():
             _write_to_zip(zf, repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
         
+        # Inject Detached MANIFEST.json
+        zinfo_m = zipfile.ZipInfo("MANIFEST.json", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_m.compress_type = zipfile.ZIP_DEFLATED
+        zinfo_m.external_attr = 0o644 << 16
+        zf.writestr(zinfo_m, manifest_json_bytes)
+        print("📋 Injected MANIFEST.json into READY zip")
+
         # Inject Internal Witness Sidecar
         zinfo_s = zipfile.ZipInfo(f"DROP_WITNESS_INNER_SHA256_v{version}.txt", date_time=(2020, 1, 1, 0, 0, 0))
         zinfo_s.compress_type = zipfile.ZIP_DEFLATED

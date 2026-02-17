@@ -6,7 +6,7 @@ from antigravity_harness.strategies.base import Strategy
 from antigravity_harness.strategies.registry import STRATEGY_REGISTRY, StrategyRegistry
 from antigravity_harness.strategies.v032_simple import V032Simple
 from antigravity_harness.strategies.v040_alpha_prime import V040AlphaPrime
-from antigravity_harness.strategies.v050_trend_momentum import V050TrendMomentum
+from antigravity_harness.strategies.legacy.v050_trend_momentum import V050TrendMomentum
 from antigravity_harness.strategies.v060_bit_uni_core import V060BitUniCore
 from antigravity_harness.strategies.v070_donchian_breakout import V070DonchianBreakout
 from antigravity_harness.strategies.v080_volatility_guard_trend import V080VolatilityGuardTrend

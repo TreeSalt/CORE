@@ -209,6 +209,46 @@ print("OK: drop contains inner ledger + embedded artifacts + METADATA")
 PY
 ok "drop contains required internals"
 
+bold "3.5) Seed Profile Presence (fail-closed)"
+python3 - "$DROP_ZIP" <<'PY'
+import sys, zipfile, io
+drop = sys.argv[1]
+with zipfile.ZipFile(drop, 'r') as z:
+    code_zips = [n for n in z.namelist() if 'TRADER_OPS_CODE' in n and n.endswith('.zip')]
+    if not code_zips:
+        raise SystemExit("FAIL: no CODE zip in drop")
+    code_data = z.read(code_zips[0])
+    with zipfile.ZipFile(io.BytesIO(code_data)) as cz:
+        profiles = [n for n in cz.namelist() if 'seed_profile.yaml' in n]
+        if not profiles:
+            raise SystemExit("FAIL: profiles/seed_profile.yaml NOT in CODE zip")
+        print(f"OK: seed_profile.yaml found at {profiles[0]}")
+PY
+ok "seed_profile.yaml present in CODE zip"
+
+bold "3.6) Detached MANIFEST.json (integrity chain)"
+python3 - "$DROP_ZIP" <<'PY'
+import sys, zipfile, hashlib, json
+drop = sys.argv[1]
+with zipfile.ZipFile(drop, 'r') as z:
+    names = z.namelist()
+    if 'MANIFEST.json' not in names:
+        print("WARN: No MANIFEST.json (pre-v4.5.29 build)")
+        raise SystemExit(0)
+    manifest = json.loads(z.read('MANIFEST.json'))
+    for entry in manifest.get('files', []):
+        path = entry['path']
+        expected = entry['sha256']
+        if path not in names:
+            raise SystemExit(f"FAIL: MANIFEST references missing file: {path}")
+        actual = hashlib.sha256(z.read(path)).hexdigest()
+        if actual != expected:
+            raise SystemExit(f"FAIL: MANIFEST hash mismatch for {path}")
+    print(f"OK: MANIFEST.json verified ({len(manifest.get('files',[]))} files)")
+PY
+ok "MANIFEST.json integrity chain verified"
+
+
 bold "4) Self-audit scripts (strict)"
 if [[ -f "scripts/verify_drop_packet.py" ]]; then
   if [[ -n "$SIDECAR" ]]; then
