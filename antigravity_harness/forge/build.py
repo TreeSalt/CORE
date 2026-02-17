@@ -304,6 +304,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "antigravity_harness",
         "scripts",
         "tests",
+        "profiles",
         "requirements.txt",
         "setup.py",
         "README.md",
