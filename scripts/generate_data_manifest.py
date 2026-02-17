@@ -12,7 +12,6 @@ import json
 from pathlib import Path
 from typing import Dict
 
-
 try:
     from antigravity_harness.data.market_tape import MarketTape
 except ImportError:
