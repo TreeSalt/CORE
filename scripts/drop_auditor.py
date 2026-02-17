@@ -19,13 +19,14 @@ Gate report emitted to: dist/audit/gate_report.json
 
 import argparse
 import hashlib
+import io
 import json
+import logging
 import os
-import subprocess
 import sys
-import tempfile
 import zipfile
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -294,7 +295,6 @@ def verify_seed_profile(zf: zipfile.ZipFile, names: List[str], acc: GateAccumula
 
     code_data = zf.read(code_zips[0])
     try:
-        import io
         with zipfile.ZipFile(io.BytesIO(code_data)) as czf:
             profile_matches = [n for n in czf.namelist() if "seed_profile.yaml" in n]
             if profile_matches:
