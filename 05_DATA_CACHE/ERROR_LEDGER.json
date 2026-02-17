@@ -434,6 +434,41 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.29",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-17T16:04:23Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "Circular hash dependency in build chain (Epic B)",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-02-17T16:04:23Z",
+            "category": "INFRA",
+            "gate": "RUNTIME",
+            "message": "ImportError: load_ohlc from antigravity_harness.data",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-02-17T16:04:23Z",
+            "category": "HYGIENE",
+            "gate": "RUNTIME",
+            "message": "profiles/seed_profile.yaml missing from CODE zip",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-02-17T16:04:24Z",
+            "category": "LOGIC",
+            "gate": "RUNTIME",
+            "message": "Inaccurate data_hash (empty/static)",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-02-17T16:04:55Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.29",
+            "resolution": "Auto-Sync"
         }
     ],
     "vaccines": {
@@ -444,6 +479,22 @@
         "LINT": {
             "learned_at": "2026-02-17T13:14:28Z",
             "resolution": "Run 'make format' to auto-resolve stylistic issues (ruff --fix)"
+        },
+        "CIRCULAR_HASH": {
+            "learned_at": "2026-02-17T16:04:23Z",
+            "resolution": "Use detached MANIFEST.json generated after all zip artifacts are finalized."
+        },
+        "IMPORT_COLLISION": {
+            "learned_at": "2026-02-17T16:04:23Z",
+            "resolution": "Consolidate data.py into data/__init__.py to prevent module shadowing."
+        },
+        "BUILD_INCLUSION": {
+            "learned_at": "2026-02-17T16:04:24Z",
+            "resolution": "Explicitly include 'profiles/' directory in build.py includes list."
+        },
+        "DATA_PROVENANCE": {
+            "learned_at": "2026-02-17T16:04:24Z",
+            "resolution": "Implement MarketTape with round(8) and sorting for deterministic hashing."
         }
     }
 }
