@@ -1,0 +1,12 @@
+{
+    "artifact_name": "Council_Patch_v4.5.30",
+    "target_version": "4.5.30",
+    "completed_at_utc": null,
+    "status": "IN_PROGRESS",
+    "epics": [],
+    "signer": {
+        "identity": "sovereign",
+        "public_key_file": "sovereign.pub",
+        "signed_at_utc": null
+    }
+}

@@ -117,6 +117,7 @@
             ]
         }
     ],
+    "vaccines_learned": 6,
     "drop_sha256": "7b296841e0e306f600e3a4f23f4cc74976d4d1414653ef720867268948703244",
     "signer": {
         "identity": "sovereign",

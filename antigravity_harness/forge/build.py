@@ -90,13 +90,10 @@ def bump_version(init_path: Path) -> str:
     # ---------------------------------------------------------
     # FIDUCIARY VERSIONING LOGIC GATE
     # ---------------------------------------------------------
-    # [HYDRA FIX: Determinism] Allow disabling bump for bit-perfect testing
-    if os.environ.get("ALLOW_VERSION_BUMP") == "0":
-        print(f"📉 Version Frozen: {current_version}")
-        new_version = current_version
-    else:
-        new_version = f"{major}.{minor}.{patch + 1}"
-        print(f"📈 Version Bumped: {current_version} -> {new_version}")
+    # Continuous Versioning: Always increment the patch version to ensure
+    # that every institutional build is unique and auditable.
+    new_version = f"{major}.{minor}.{patch + 1}"
+    print(f"📈 Version Bumped: {current_version} -> {new_version}")
 
     new_content = re.sub(r'__version__\s*=\s*"\d+\.\d+\.\d+"', f'__version__ = "{new_version}"', content)
     if new_content != content:
