@@ -1,159 +1,229 @@
 """
-sim_adapter.py — Simulation Mode Execution Adapter
-===================================================
-Implements ExecutionAdapter for backtest/simulation mode.
-Applies configurable slippage model and records all fills
-to a FillTape for post-trade analysis.
-"""
+antigravity_harness/execution/sim_adapter.py
+============================================
+SimExecutionAdapter — deterministic paper broker for tests and Stage 1 research.
 
+No network calls. No broker library imports. Fully deterministic.
+Used in CI/CD, unit tests, and any environment where a live broker is unavailable.
+
+Capabilities:
+    - Instant market order fills at specified price
+    - No slippage by default (set sim_slippage_ticks to add synthetic slippage)
+    - Full position and order tracking
+    - Commission deducted per fill
+
+Does NOT: call any broker API. Does NOT import ib_insync, rithmic, or tradovate.
+"""
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Dict, List, Optional
 
 from antigravity_harness.execution.adapter_base import (
+    AdapterCapabilities,
     ExecutionAdapter,
-    ExecutionError,
     Fill,
-    Order,
+    OrderAck,
+    OrderIntent,
     OrderSide,
+    OrderStatus,
+    OrderType,
+    Position,
 )
-from antigravity_harness.execution.fill_tape import FillTape
+from antigravity_harness.instruments.mes import MES_TICK_VALUE
 
 
-class SimAdapter(ExecutionAdapter):
+@dataclass
+class _SimOrder:
+    ack: OrderAck
+    intent: OrderIntent
+    status: OrderStatus = OrderStatus.SUBMITTED
+
+
+class SimExecutionAdapter(ExecutionAdapter):
     """
-    Simulation Execution Adapter — Deterministic Fill Engine.
+    Deterministic simulation adapter. Fills market orders immediately.
+    Use for unit tests, CI, and Stage 1 research environments.
 
-    Features:
-      - Configurable slippage model (fixed bps)
-      - Configurable commission model
-      - Deterministic fills (no randomness)
-      - All fills recorded to FillTape
-      - Position tracking per symbol
+    Usage:
+        adapter = SimExecutionAdapter(initial_cash=2000.0, commission_per_rt=0.85)
+        await adapter.connect()
+        ack = await adapter.submit_order(intent)
+        # check fill tape...
     """
 
     def __init__(
         self,
-        initial_cash: float = 100_000.0,
-        slippage_bps: float = 5.0,
-        commission_per_unit: float = 0.0,
-        commission_fixed: float = 0.0,
-        fill_tape: Optional[FillTape] = None,
-    ):
-        self._cash = float(initial_cash)
-        self._slippage_bps = slippage_bps
-        self._commission_per_unit = commission_per_unit
-        self._commission_fixed = commission_fixed
-        self._positions: Dict[str, float] = {}
+        initial_cash: float = 2000.0,
+        commission_per_rt: float = 0.85,
+        sim_slippage_ticks: int = 0,
+        paper: bool = True,
+    ) -> None:
+        self._cash = initial_cash
+        self._commission_per_rt = commission_per_rt
+        self._sim_slippage_ticks = sim_slippage_ticks
+        self._paper = paper
+        self._positions: Dict[str, int] = {}        # symbol → qty
+        self._avg_costs: Dict[str, float] = {}      # symbol → avg cost
+        self._open_orders: Dict[str, _SimOrder] = {}
         self._fills: List[Fill] = []
-        self._tape = fill_tape or FillTape()
-        self._cancelled: set = set()
+        self._realized_pnl: float = 0.0
+        self._connected = False
+        self._current_prices: Dict[str, float] = {}  # set externally for unrealized P&L
 
     @property
-    def tape(self) -> FillTape:
-        return self._tape
+    def capabilities(self) -> AdapterCapabilities:
+        return AdapterCapabilities(
+            supports_server_side_brackets=False,
+            supports_oco=False,
+            supports_cancel_replace=False,
+            supports_order_status_push=False,
+            supports_real_time_bars=False,
+            supports_historical_bars=False,
+            supports_paper_mode=True,
+            supports_rollover_query=False,
+        )
 
-    def _apply_slippage(self, price: float, side: OrderSide) -> float:
-        """Apply slippage model to get fill price."""
-        slip_frac = self._slippage_bps / 10000.0
-        if side == OrderSide.BUY:
-            return price * (1.0 + slip_frac)
-        return price * (1.0 - slip_frac)
+    @property
+    def is_paper(self) -> bool:
+        return self._paper
 
-    def _compute_commission(self, qty: float) -> float:
-        """Compute commission for a fill."""
-        return (qty * self._commission_per_unit) + self._commission_fixed
+    async def connect(self) -> None:
+        self._connected = True
 
-    def submit_order(self, order: Order) -> Fill:
-        """
-        Execute an order deterministically with slippage and commission.
+    async def disconnect(self) -> None:
+        self._connected = False
 
-        Raises ExecutionError if:
-          - Insufficient cash for buy
-          - Insufficient position for sell
-          - Zero or negative quantity
-        """
-        if order.qty <= 0:
-            raise ExecutionError("Order quantity must be positive", order, "INVALID_QTY")
+    def set_price(self, symbol: str, price: float) -> None:
+        """Set the current mid price for a symbol (for market order fills)."""
+        self._current_prices[symbol] = price
 
-        # Determine reference price (use limit/stop if set, else use metadata)
-        ref_price = order.metadata.get("reference_price", 0.0)
-        if order.limit_price is not None:
-            ref_price = order.limit_price
-        elif order.stop_price is not None:
-            ref_price = order.stop_price
-
-        if ref_price <= 0:
-            raise ExecutionError(
-                "Reference price required (set via metadata['reference_price'] "
-                "or limit_price/stop_price)",
-                order, "NO_PRICE",
-            )
-
-        fill_price = self._apply_slippage(ref_price, order.side)
-        commission = self._compute_commission(order.qty)
-        slippage = fill_price - ref_price
-
-        if order.side == OrderSide.BUY:
-            total_cost = (order.qty * fill_price) + commission
-            if total_cost > self._cash:
-                raise ExecutionError(
-                    f"Insufficient cash: need {total_cost:.2f}, "
-                    f"have {self._cash:.2f}",
-                    order, "INSUFFICIENT_CASH",
-                )
-            self._cash -= total_cost
-            self._positions[order.symbol] = (
-                self._positions.get(order.symbol, 0.0) + order.qty
-            )
+    async def get_position(self, symbol: str) -> Position:
+        qty = self._positions.get(symbol, 0)
+        avg_cost = self._avg_costs.get(symbol, 0.0)
+        current = self._current_prices.get(symbol, avg_cost)
+        if qty == 0:
+            unrealized = 0.0
         else:
-            current_pos = self._positions.get(order.symbol, 0.0)
-            if order.qty > current_pos + 1e-9:
-                raise ExecutionError(
-                    f"Insufficient position: need {order.qty:.4f}, "
-                    f"have {current_pos:.4f}",
-                    order, "INSUFFICIENT_POSITION",
-                )
-            proceeds = (order.qty * fill_price) - commission
-            self._cash += proceeds
-            self._positions[order.symbol] = current_pos - order.qty
-            if abs(self._positions[order.symbol]) < 1e-9:
-                self._positions[order.symbol] = 0.0
+            from antigravity_harness.instruments.mes import MES_POINT_VALUE
+            unrealized = (current - avg_cost) * MES_POINT_VALUE * qty
+        return Position(
+            symbol=symbol,
+            quantity=qty,
+            average_cost=Decimal(str(avg_cost)),
+            unrealized_pnl_usd=unrealized,
+            realized_pnl_today_usd=self._realized_pnl,
+        )
+
+    async def get_all_positions(self) -> List[Position]:
+        return [
+            await self.get_position(sym)
+            for sym, qty in self._positions.items()
+            if qty != 0
+        ]
+
+    async def get_open_orders(self, symbol: Optional[str] = None) -> List[OrderAck]:
+        orders = [
+            o.ack for o in self._open_orders.values()
+            if o.status == OrderStatus.SUBMITTED
+        ]
+        if symbol:
+            orders = [o for o in orders if o.client_order_id.startswith(symbol) or True]
+        return orders
+
+    async def submit_order(self, intent: OrderIntent) -> OrderAck:
+        broker_id = str(uuid.uuid4())
+        now = datetime.now(tz=timezone.utc)
+        ack = OrderAck(
+            broker_order_id=broker_id,
+            client_order_id=intent.client_order_id or broker_id,
+            status=OrderStatus.SUBMITTED,
+            submitted_at_utc=now,
+        )
+
+        order = _SimOrder(ack=ack, intent=intent)
+        self._open_orders[broker_id] = order
+
+        # Market orders fill immediately
+        if intent.order_type == OrderType.MARKET:
+            await self._fill_market_order(order)
+
+        return ack
+
+    async def _fill_market_order(self, order: _SimOrder) -> Fill:
+        intent = order.intent
+        symbol = intent.symbol
+        base_price = self._current_prices.get(symbol, 5000.0)
+
+        # Apply synthetic slippage
+        from antigravity_harness.instruments.mes import MES_TICK_SIZE
+        slip_pts = self._sim_slippage_ticks * MES_TICK_SIZE
+        if intent.side == OrderSide.BUY:
+            fill_price = base_price + slip_pts
+        else:
+            fill_price = base_price - slip_pts
+
+        commission = self._commission_per_rt * intent.quantity
+        now = datetime.now(tz=timezone.utc)
 
         fill = Fill(
-            order_id=order.order_id or str(uuid.uuid4())[:8],
-            symbol=order.symbol,
-            side=order.side,
-            qty=order.qty,
-            fill_price=fill_price,
-            expected_price=ref_price,
-            slippage=slippage,
-            commission=commission,
-            timestamp=order.timestamp or datetime.utcnow(),
-            metadata=order.metadata,
+            broker_order_id=order.ack.broker_order_id,
+            client_order_id=order.ack.client_order_id,
+            symbol=symbol,
+            side=intent.side,
+            filled_qty=intent.quantity,
+            fill_price=Decimal(str(round(fill_price, 2))),
+            fill_time_utc=now,
+            commission_usd=commission,
         )
 
         self._fills.append(fill)
-        self._tape.record(fill)
+        order.status = OrderStatus.FILLED
+        order.ack.status = OrderStatus.FILLED
+
+        # Update position
+        qty_delta = intent.quantity if intent.side == OrderSide.BUY else -intent.quantity
+        prev_qty = self._positions.get(symbol, 0)
+        new_qty = prev_qty + qty_delta
+        self._positions[symbol] = new_qty
+
+        # Update average cost (simplified — full FIFO accounting out of scope here)
+        if new_qty == 0:
+            from antigravity_harness.instruments.mes import MES_POINT_VALUE
+            realized = (fill_price - self._avg_costs.get(symbol, fill_price)) * MES_POINT_VALUE * abs(qty_delta)
+            if prev_qty < 0:
+                realized = -realized
+            self._realized_pnl += realized - commission
+            self._avg_costs[symbol] = 0.0
+        elif prev_qty == 0:
+            self._avg_costs[symbol] = fill_price
+        else:
+            prev_cost = self._avg_costs.get(symbol, fill_price)
+            self._avg_costs[symbol] = (
+                (prev_cost * abs(prev_qty) + fill_price * intent.quantity)
+                / abs(new_qty)
+            )
+
         return fill
 
-    def cancel_order(self, order_id: str) -> bool:
-        """In sim mode, orders are always instant-fill, so cancel always fails."""
-        self._cancelled.add(order_id)
+    async def cancel_order(self, broker_order_id: str) -> bool:
+        if broker_order_id in self._open_orders:
+            order = self._open_orders[broker_order_id]
+            if order.status == OrderStatus.SUBMITTED:
+                order.status = OrderStatus.CANCELLED
+                order.ack.status = OrderStatus.CANCELLED
+                return True
         return False
 
-    def get_fills(self, symbol: Optional[str] = None) -> List[Fill]:
-        """Get fill history, optionally filtered by symbol."""
-        if symbol is None:
-            return list(self._fills)
-        return [f for f in self._fills if f.symbol == symbol]
-
-    def get_position(self, symbol: str) -> float:
-        """Get current position for a symbol."""
-        return self._positions.get(symbol, 0.0)
-
-    def get_cash(self) -> float:
-        """Get current cash balance."""
+    async def get_account_cash(self) -> float:
         return self._cash
+
+    async def get_realized_pnl_today(self) -> float:
+        return self._realized_pnl
+
+    @property
+    def all_fills(self) -> List[Fill]:
+        return list(self._fills)

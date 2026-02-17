@@ -1,217 +1,313 @@
 """
-safety.py — Execution Safety Guardrails
-========================================
-Pre-trade validation layer that wraps any ExecutionAdapter.
-Enforces max position size, order rate limits, duplicate detection,
-and calendar-aware trading cutoffs.
-"""
+antigravity_harness/execution/safety.py
+=======================================
+Execution Safety Layer — the last gate before any order reaches a broker.
 
+Enforces operator hard limits from seed_profile. These are not suggestions.
+Violations raise ExecutionSafetyError. Nothing can override them.
+
+Layer order (from strategy to broker):
+    Strategy → [Safety] → WAL → Compliance → Adapter
+
+This module ONLY enforces per-trade and per-session hard limits.
+Portfolio-level drawdown (SafetyOverlay) lives in portfolio_safety_overlay.py.
+
+Does NOT: contain strategy logic, broker calls, or profile mutation.
+"""
 from __future__ import annotations
 
-import hashlib
-import time
-from collections import deque
-from dataclasses import dataclass
-from typing import Any, Deque, Dict, Optional, Set
+import asyncio
+import logging
+from dataclasses import dataclass, field
+from datetime import date, datetime, timezone
+from decimal import Decimal
+from typing import Optional
 
 from antigravity_harness.execution.adapter_base import (
+    CalendarAdapter,
     ExecutionAdapter,
-    ExecutionError,
     Fill,
-    Order,
+    OrderIntent,
     OrderSide,
+    OrderType,
+    Position,
+)
+from antigravity_harness.instruments.mes import (
+    MES_DAILY_ATR_NO_TRADE,
+    MES_DAILY_LOSS_CAP_USD,
+    MES_MAX_CONTRACTS_PHASE1,
+    MES_MAX_PLANNED_RISK_USD,
+    MES_POINT_VALUE,
+    MES_SLIPPAGE_BUFFER_TICKS,
+    MES_STOP_POINTS,
+    MES_TICK_VALUE,
 )
 
+logger = logging.getLogger("EXECUTION_SAFETY")
+
+
+# ─── Errors ───────────────────────────────────────────────────────────────────
+
+
+class ExecutionSafetyError(RuntimeError):
+    """Raised when a hard safety limit would be violated. Order is NOT submitted."""
+    pass
+
+
+class DailyLossCapReached(ExecutionSafetyError):
+    """Trading is paused for the session. Daily loss cap has been hit."""
+    pass
+
+
+class SessionBoundaryViolation(ExecutionSafetyError):
+    """Order rejected: outside allowed trading window."""
+    pass
+
+
+class ATRFilterBlock(ExecutionSafetyError):
+    """Order rejected: daily ATR exceeds no-trade threshold."""
+    pass
+
+
+class RiskLimitViolation(ExecutionSafetyError):
+    """Order rejected: planned risk exceeds $40 hard limit."""
+    pass
+
+
+class ContractLimitViolation(ExecutionSafetyError):
+    """Order rejected: would exceed max_contracts_phase1."""
+    pass
+
+
+# ─── Session State ────────────────────────────────────────────────────────────
+
 
 @dataclass
-class SafetyConfig:
-    """Configuration for execution safety guardrails."""
-    max_position_size: float = 100.0
-    max_notional_value: float = 1_000_000.0
-    max_orders_per_minute: int = 60
-    duplicate_window_seconds: float = 5.0
-    enable_calendar_cutoff: bool = True
+class SessionState:
+    """
+    Mutable state for a single trading session.
+    Reset at session open. Persisted to WAL for crash recovery.
+    """
+    session_date: date
+    realized_pnl_usd: float = 0.0
+    unrealized_pnl_usd: float = 0.0
+    trades_today: int = 0
+    pause_trading: bool = False      # True after daily loss cap hit
+    pause_reason: str = ""
+    fills_today: list = field(default_factory=list)
+
+    @property
+    def total_pnl_usd(self) -> float:
+        return self.realized_pnl_usd + self.unrealized_pnl_usd
 
 
-@dataclass
-class SafetyTelemetry:
-    """Telemetry counters for safety gate activity."""
-    orders_submitted: int = 0
-    orders_blocked_position: int = 0
-    orders_blocked_rate: int = 0
-    orders_blocked_duplicate: int = 0
-    orders_blocked_calendar: int = 0
-    orders_blocked_notional: int = 0
+# ─── Safety Config ────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class ExecutionSafetyConfig:
+    """
+    Hard limits. All values must match seed_profile v1.0.1.
+    Frozen — do not modify defaults without explicit profile update.
+    """
+    max_planned_risk_usd: float = MES_MAX_PLANNED_RISK_USD           # $40.00
+    daily_loss_cap_usd: float = MES_DAILY_LOSS_CAP_USD               # $80.00
+    max_contracts: int = MES_MAX_CONTRACTS_PHASE1                    # 1
+    daily_atr_no_trade: float = MES_DAILY_ATR_NO_TRADE               # 80 pts
+    stop_points: float = MES_STOP_POINTS                             # 7 pts
+    slippage_buffer_ticks: int = MES_SLIPPAGE_BUFFER_TICKS           # 4 tks
+
+
+# ─── Safety Layer ─────────────────────────────────────────────────────────────
 
 
 class ExecutionSafety:
     """
-    Sovereign Safety Wrapper — Pre-Trade Guardrails.
+    The last gate before any order reaches a broker.
 
-    Wraps an ExecutionAdapter and enforces:
-      1. Max position size per symbol
-      2. Max notional value per order
-      3. Order rate limiting (orders/minute)
-      4. Duplicate order detection (fingerprint-based)
-      5. Calendar-aware cutoff (no new positions after cutoff)
+    Usage:
+        safety = ExecutionSafety(config, calendar)
+        safety.new_session(today)
 
-    All violations are fail-closed: order is REJECTED, not queued.
+        # Before every order:
+        safety.check_intent(intent, current_daily_atr, current_time_utc)
+
+        # After every fill:
+        safety.record_fill(fill)
+
+        # After every bar (unrealized P&L update):
+        safety.update_unrealized(pnl_usd)
     """
 
     def __init__(
         self,
-        adapter: ExecutionAdapter,
-        config: Optional[SafetyConfig] = None,
-        calendar: Any = None,
-    ):
-        self._adapter = adapter
-        self._config = config or SafetyConfig()
-        self._calendar = calendar
+        config: ExecutionSafetyConfig,
+        calendar: CalendarAdapter,
+    ) -> None:
+        self.config = config
+        self.calendar = calendar
+        self._state: Optional[SessionState] = None
 
-        # Rate limiting state
-        self._order_timestamps: Deque[float] = deque()
-
-        # Duplicate detection state
-        self._recent_fingerprints: Dict[str, float] = {}
-
-        # Telemetry
-        self.telemetry = SafetyTelemetry()
+    def new_session(self, session_date: date) -> SessionState:
+        """Call at session open to reset daily counters."""
+        self._state = SessionState(session_date=session_date)
+        logger.info(f"Safety: new session {session_date}")
+        return self._state
 
     @property
-    def config(self) -> SafetyConfig:
-        return self._config
+    def state(self) -> SessionState:
+        if self._state is None:
+            raise RuntimeError("ExecutionSafety: call new_session() before trading.")
+        return self._state
 
-    def _order_fingerprint(self, order: Order) -> str:
-        """Generate a deterministic fingerprint for duplicate detection."""
-        raw = f"{order.symbol}|{order.side.value}|{order.qty}|{order.order_type.value}"
-        return hashlib.sha256(raw.encode()).hexdigest()[:16]
+    # ── Gate 0: Pause Mode ────────────────────────────────────────────────────
 
-    def _check_rate_limit(self) -> bool:
-        """Check if order rate is within limits."""
-        now = time.monotonic()
-        cutoff = now - 60.0
+    def _check_pause(self) -> None:
+        if self.state.pause_trading:
+            raise DailyLossCapReached(
+                f"Trading PAUSED for session. Reason: {self.state.pause_reason}. "
+                f"Realized P&L today: ${self.state.realized_pnl_usd:.2f}. "
+                f"Total (incl. unrealized): ${self.state.total_pnl_usd:.2f}"
+            )
 
-        # Purge old timestamps
-        while self._order_timestamps and self._order_timestamps[0] < cutoff:
-            self._order_timestamps.popleft()
+    # ── Gate 1: Daily Loss Cap ─────────────────────────────────────────────────
 
-        return len(self._order_timestamps) < self._config.max_orders_per_minute
+    def _check_daily_loss(self) -> None:
+        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd:
+            self.state.pause_trading = True
+            self.state.pause_reason = (
+                f"Daily loss cap hit: ${self.state.total_pnl_usd:.2f} <= "
+                f"-${self.config.daily_loss_cap_usd:.2f}"
+            )
+            logger.critical(f"🛑 {self.state.pause_reason}")
+            raise DailyLossCapReached(self.state.pause_reason)
 
-    def _check_duplicate(self, order: Order) -> bool:
-        """Check if this order is a duplicate within the detection window."""
-        fingerprint = self._order_fingerprint(order)
-        now = time.monotonic()
+    # ── Gate 2: ATR Filter ────────────────────────────────────────────────────
 
-        # Purge expired fingerprints
-        expired: Set[str] = set()
-        for fp, ts in self._recent_fingerprints.items():
-            if now - ts > self._config.duplicate_window_seconds:
-                expired.add(fp)
-        for fp in expired:
-            del self._recent_fingerprints[fp]
+    def _check_atr(self, daily_atr_points: float) -> None:
+        if daily_atr_points > self.config.daily_atr_no_trade:
+            raise ATRFilterBlock(
+                f"Daily ATR {daily_atr_points:.1f} pts exceeds "
+                f"no-trade threshold {self.config.daily_atr_no_trade:.1f} pts. "
+                f"An 8-point stop is statistically unreliable in this volatility."
+            )
 
-        if fingerprint in self._recent_fingerprints:
-            return True  # Duplicate detected
+    # ── Gate 3: Session Boundary ──────────────────────────────────────────────
 
-        self._recent_fingerprints[fingerprint] = now
-        return False
+    def _check_session(self, now_utc: datetime) -> None:
+        d = now_utc.date()
+        if not self.calendar.is_trading_day(d):
+            raise SessionBoundaryViolation(f"{d} is not a trading day.")
 
-    def _check_position_limit(self, order: Order) -> bool:
-        """Check if resulting position would exceed max size."""
-        current = self._adapter.get_position(order.symbol)
-        projected = current + order.qty if order.side == OrderSide.BUY else current - order.qty
+        no_new = self.calendar.no_new_positions_time_utc(d)
+        if no_new and now_utc >= no_new:
+            raise SessionBoundaryViolation(
+                f"No new positions after {no_new.strftime('%H:%M')} UTC. "
+                f"Current time: {now_utc.strftime('%H:%M')} UTC."
+            )
 
-        return abs(projected) <= self._config.max_position_size
+    # ── Gate 4: Contract Limit ────────────────────────────────────────────────
 
-    def _check_notional_limit(self, order: Order, reference_price: float) -> bool:
-        """Check if order notional exceeds max allowed."""
-        notional = order.qty * reference_price
-        return notional <= self._config.max_notional_value
+    def _check_contracts(self, intent: OrderIntent, current_position: int) -> None:
+        if abs(intent.quantity) > self.config.max_contracts:
+            raise ContractLimitViolation(
+                f"Intent requests {intent.quantity} contracts. "
+                f"Hard limit: {self.config.max_contracts}."
+            )
+        # Would the resulting position exceed the limit?
+        new_position = current_position + (
+            intent.quantity if intent.side == OrderSide.BUY else -intent.quantity
+        )
+        if abs(new_position) > self.config.max_contracts:
+            raise ContractLimitViolation(
+                f"Order would result in position of {new_position} contracts. "
+                f"Hard limit: {self.config.max_contracts}."
+            )
 
-    def _check_calendar_cutoff(self, order: Order) -> bool:
-        """Check if calendar says no new positions allowed."""
-        if not self._config.enable_calendar_cutoff:
-            return True
-        if self._calendar is None:
-            return True
+    # ── Gate 5: Risk Math ─────────────────────────────────────────────────────
 
-        # Only block new position entries, not flattening exits
-        if order.side == OrderSide.SELL:
-            return True
-
-        if order.timestamp is not None:
-            return not self._calendar.no_new_positions_after(order.timestamp)
-
-        return True
-
-    def submit_order(
-        self, order: Order, reference_price: Optional[float] = None
-    ) -> Fill:
+    def _check_risk(self, intent: OrderIntent) -> None:
         """
-        Submit an order through all safety gates.
+        Verify planned_stop_risk + buffer_risk <= $40.
 
-        Raises ExecutionError if any gate blocks the order.
+        For limit/market entries: stop risk = stop_points × point_value × contracts
+        For stop orders being used as exits: risk is already committed; skip this gate.
         """
-        self.telemetry.orders_submitted += 1
+        if intent.order_type in (OrderType.STOP, OrderType.STOP_LIMIT):
+            # This is an exit order, not an entry. Risk already committed.
+            return
 
-        # Gate 1: Rate limit
-        if not self._check_rate_limit():
-            self.telemetry.orders_blocked_rate += 1
-            raise ExecutionError(
-                f"Rate limit exceeded ({self._config.max_orders_per_minute}/min)",
-                order=order,
-                reason="RATE_LIMIT",
+        stop_risk = self.config.stop_points * MES_POINT_VALUE * intent.quantity
+        buffer_risk = self.config.slippage_buffer_ticks * MES_TICK_VALUE * intent.quantity
+        total_planned = stop_risk + buffer_risk
+
+        if total_planned > self.config.max_planned_risk_usd:
+            raise RiskLimitViolation(
+                f"Planned risk ${total_planned:.2f} exceeds hard limit "
+                f"${self.config.max_planned_risk_usd:.2f}. "
+                f"stop=${stop_risk:.2f} + buffer=${buffer_risk:.2f}. "
+                f"Reduce contracts or widen buffer tolerance."
             )
 
-        # Gate 2: Duplicate detection
-        if self._check_duplicate(order):
-            self.telemetry.orders_blocked_duplicate += 1
-            raise ExecutionError(
-                f"Duplicate order detected for {order.symbol}",
-                order=order,
-                reason="DUPLICATE",
-            )
+    # ── Public Gate Check ─────────────────────────────────────────────────────
 
-        # Gate 3: Position size
-        if not self._check_position_limit(order):
-            self.telemetry.orders_blocked_position += 1
-            raise ExecutionError(
-                f"Position limit exceeded for {order.symbol} "
-                f"(max: {self._config.max_position_size})",
-                order=order,
-                reason="POSITION_LIMIT",
-            )
+    def check_intent(
+        self,
+        intent: OrderIntent,
+        daily_atr_points: float,
+        now_utc: datetime,
+        current_position: int = 0,
+    ) -> None:
+        """
+        Run all safety gates against an OrderIntent.
 
-        # Gate 4: Notional limit
-        if reference_price is not None and not self._check_notional_limit(order, reference_price):
-            self.telemetry.orders_blocked_notional += 1
-            raise ExecutionError(
-                    f"Notional limit exceeded for {order.symbol} "
-                    f"(max: {self._config.max_notional_value})",
-                    order=order,
-                    reason="NOTIONAL_LIMIT",
+        Raises ExecutionSafetyError (or subclass) if any gate fails.
+        Returns None (silently) if all gates pass.
+
+        Call this BEFORE logging to WAL or submitting to broker.
+        """
+        self._check_pause()
+        self._check_daily_loss()
+        self._check_atr(daily_atr_points)
+        self._check_session(now_utc)
+        self._check_contracts(intent, current_position)
+        self._check_risk(intent)
+        logger.debug(f"Safety: intent approved [{intent.symbol} {intent.side.value} {intent.quantity}]")
+
+    # ── Fill Recording ────────────────────────────────────────────────────────
+
+    def record_fill(self, fill: Fill) -> None:
+        """
+        Update session state after a fill.
+        Called by FillTape after every confirmed execution.
+        """
+        # P&L contribution from commission (cost)
+        self.state.realized_pnl_usd -= fill.commission_usd
+        self.state.trades_today += 1
+        self.state.fills_today.append(fill)
+
+        # Check if daily cap is now hit
+        try:
+            self._check_daily_loss()
+        except DailyLossCapReached:
+            pass  # Already logged and state.pause_trading set in _check_daily_loss
+
+    def record_realized_pnl(self, pnl_usd: float) -> None:
+        """Call when a position is closed to record realized P&L."""
+        self.state.realized_pnl_usd += pnl_usd
+        try:
+            self._check_daily_loss()
+        except DailyLossCapReached:
+            pass
+
+    def update_unrealized(self, unrealized_pnl_usd: float) -> None:
+        """Update unrealized P&L (call on every bar tick)."""
+        self.state.unrealized_pnl_usd = unrealized_pnl_usd
+        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd:
+            if not self.state.pause_trading:
+                self.state.pause_trading = True
+                self.state.pause_reason = (
+                    f"Daily loss cap hit on unrealized: "
+                    f"${self.state.total_pnl_usd:.2f}"
                 )
-
-        # Gate 5: Calendar cutoff
-        if not self._check_calendar_cutoff(order):
-            self.telemetry.orders_blocked_calendar += 1
-            raise ExecutionError(
-                "Calendar cutoff — no new positions after trading cutoff",
-                order=order,
-                reason="CALENDAR_CUTOFF",
-            )
-
-        # All gates passed — record timestamp and delegate
-        self._order_timestamps.append(time.monotonic())
-        return self._adapter.submit_order(order)
-
-    def get_telemetry(self) -> Dict[str, Any]:
-        """Return safety telemetry as a dictionary."""
-        return {
-            "orders_submitted": self.telemetry.orders_submitted,
-            "orders_blocked_position": self.telemetry.orders_blocked_position,
-            "orders_blocked_rate": self.telemetry.orders_blocked_rate,
-            "orders_blocked_duplicate": self.telemetry.orders_blocked_duplicate,
-            "orders_blocked_calendar": self.telemetry.orders_blocked_calendar,
-            "orders_blocked_notional": self.telemetry.orders_blocked_notional,
-        }
+                logger.critical(f"🛑 {self.state.pause_reason}")

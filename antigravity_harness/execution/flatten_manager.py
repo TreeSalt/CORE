@@ -1,176 +1,273 @@
 """
-flatten_manager.py — Widowmaker Fix: Mandatory Session Flattening
-=================================================================
-Handles end-of-session mandatory position flattening.
-Integrates with CalendarAdapter.should_flatten() to determine
-when to force-close all positions before session close.
+antigravity_harness/execution/flatten_manager.py
+================================================
+FlattenManager — the "Widowmaker Fix."
 
-The "Widowmaker Fix" ensures no positions are carried through
-illiquid periods (e.g., overnight, over-weekend) where slippage
-risk is catastrophic.
+Ensures clean position exit at session close or on safety trigger.
+Handles the double-fill race condition that can accidentally reverse a position.
+
+Protocol: "Close then Cancel"
+    1. If position != 0: submit market close order first.
+    2. Wait for position == 0 (verification loop, timeout).
+    3. Then cancel all remaining open orders.
+    4. Final verify: position == 0 AND open_orders == 0.
+    5. If accidental reversal detected (double-fill race): immediately close the reversal.
+
+Why "Close then Cancel" (not Cancel then Close):
+    If you cancel a bracket's stop/target BEFORE closing the position,
+    you are momentarily exposed without any protective order.
+    Close the position first, then clean up the orders.
+
+Does NOT: contain strategy logic or broker-specific code.
 """
-
 from __future__ import annotations
 
+import asyncio
 import logging
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import List, Optional
 
 from antigravity_harness.execution.adapter_base import (
     ExecutionAdapter,
-    Fill,
-    Order,
+    OrderIntent,
     OrderSide,
     OrderType,
+    Position,
+    TimeInForce,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("FLATTEN_MANAGER")
+
+# Tuning constants
+VERIFY_POLL_INTERVAL_SEC: float = 0.5
+VERIFY_TIMEOUT_SEC: float = 30.0
+MAX_REVERSAL_CLOSE_ATTEMPTS: int = 3
+
+
+# ─── Result Types ──────────────────────────────────────────────────────────────
 
 
 @dataclass
-class FlattenEvent:
-    """Telemetry record for a flatten operation."""
-    timestamp: datetime
+class FlattenResult:
+    """Outcome of a flatten operation."""
+    success: bool
     symbol: str
-    qty_flattened: float
-    fill_price: float
-    slippage_bps: float
-    reason: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    initial_position: int              # Position before flatten started
+    final_position: int                # Should be 0 if success
+    orders_cancelled: int
+    reversal_detected: bool = False    # True if double-fill race occurred
+    reversal_closed: bool = False      # True if reversal was auto-closed
+    elapsed_sec: float = 0.0
+    error: Optional[str] = None
+
+
+# ─── FlattenManager ───────────────────────────────────────────────────────────
 
 
 class FlattenManager:
     """
-    Widowmaker Fix — Mandatory Session Flattening.
+    Manages clean position exit for a single instrument.
 
-    Monitors the calendar and forces all open positions flat
-    when the trading session is approaching close. This prevents
-    carrying positions through illiquid overnight/weekend gaps.
+    Usage:
+        fm = FlattenManager(adapter)
+        result = await fm.flatten("MES", reason="SESSION_CLOSE")
 
-    Flow:
-      1. On each bar/tick, call `check_and_flatten(timestamp)`
-      2. If `calendar.should_flatten(timestamp)` returns True, all
-         open positions are closed via market orders
-      3. Every flatten operation is logged to the event tape
+    Always await the result and check result.success.
+    If result.success is False, escalate — do not leave a live position unattended.
     """
 
     def __init__(
         self,
         adapter: ExecutionAdapter,
-        calendar: Any = None,
-        on_flatten: Optional[Callable[[FlattenEvent], None]] = None,
-    ):
-        self._adapter = adapter
-        self._calendar = calendar
-        self._on_flatten = on_flatten
-        self._events: List[FlattenEvent] = []
-        self._flatten_count = 0
+        poll_interval_sec: float = VERIFY_POLL_INTERVAL_SEC,
+        timeout_sec: float = VERIFY_TIMEOUT_SEC,
+    ) -> None:
+        self.adapter = adapter
+        self.poll_interval = poll_interval_sec
+        self.timeout = timeout_sec
 
-    @property
-    def events(self) -> List[FlattenEvent]:
-        """Immutable view of flatten event history."""
-        return list(self._events)
-
-    @property
-    def flatten_count(self) -> int:
-        return self._flatten_count
-
-    def check_and_flatten(
-        self,
-        timestamp: datetime,
-        symbols: List[str],
-        reference_prices: Optional[Dict[str, float]] = None,
-    ) -> List[Fill]:
+    async def flatten(self, symbol: str, reason: str = "UNSPECIFIED") -> FlattenResult:
         """
-        Check calendar and flatten all positions if required.
+        Flatten all positions and cancel all orders for symbol.
 
-        Args:
-            timestamp: Current bar/tick timestamp
-            symbols: List of symbols to check for open positions
-            reference_prices: Optional map of symbol → current price
-                              (used for slippage telemetry)
+        Steps:
+            1. Read current position.
+            2. If position != 0: submit market close order.
+            3. Poll until position == 0 OR timeout.
+            4. Cancel all open orders.
+            5. Verify: position == 0 AND open_orders == 0.
+            6. If double-fill race created a reversal: close it.
 
-        Returns:
-            List of fills from flatten orders (empty if no flattening needed)
+        Returns FlattenResult. Always logs. Never raises (catches all exceptions
+        so the caller can decide how to escalate a failed flatten).
         """
-        if self._calendar is None:
-            return []
+        logger.warning(f"FLATTEN initiated: {symbol} | reason={reason}")
+        started_at = datetime.now(tz=timezone.utc)
+        orders_cancelled = 0
+        reversal_detected = False
+        reversal_closed = False
 
-        if not self._calendar.should_flatten(timestamp):
-            return []
+        try:
+            # ── Step 1: Read current position ─────────────────────────────────
+            position = await self.adapter.get_position(symbol)
+            initial_qty = position.quantity
+            logger.info(f"FLATTEN {symbol}: initial position={initial_qty}")
 
-        logger.info("🔥 Widowmaker Flatten triggered at %s", timestamp)
-        fills: List[Fill] = []
+            if initial_qty == 0:
+                # No position — just cancel any orphan orders
+                orders_cancelled = await self._cancel_all_orders(symbol)
+                final_pos = await self.adapter.get_position(symbol)
+                elapsed = (datetime.now(tz=timezone.utc) - started_at).total_seconds()
+                logger.info(f"FLATTEN {symbol}: was already flat. Cancelled {orders_cancelled} orders.")
+                return FlattenResult(
+                    success=True, symbol=symbol,
+                    initial_position=0, final_position=0,
+                    orders_cancelled=orders_cancelled, elapsed_sec=elapsed,
+                )
 
-        for symbol in symbols:
-            position = self._adapter.get_position(symbol)
-            if abs(position) < 1e-9:
-                continue
+            # ── Step 2: Submit market close order ─────────────────────────────
+            close_side = OrderSide.SELL if initial_qty > 0 else OrderSide.BUY
+            close_qty = abs(initial_qty)
 
-            # Determine side: if long, sell; if short, buy
-            side = OrderSide.SELL if position > 0 else OrderSide.BUY
-            qty = abs(position)
-
-            ref_price = (reference_prices or {}).get(symbol, 0.0)
-
-            order = Order(
-                order_id=f"FLATTEN-{symbol}-{self._flatten_count}",
+            close_intent = OrderIntent(
                 symbol=symbol,
-                side=side,
-                qty=qty,
+                side=close_side,
+                quantity=close_qty,
                 order_type=OrderType.MARKET,
-                timestamp=timestamp,
-                metadata={
-                    "reason": "widowmaker_flatten",
-                    "trigger": str(timestamp),
-                    "reference_price": ref_price,
-                },
+                time_in_force=TimeInForce.IOC,  # Immediate or Cancel — no orphan
+                client_order_id=f"FLATTEN_{symbol}_{int(started_at.timestamp())}",
             )
 
+            logger.info(f"FLATTEN {symbol}: submitting market close {close_side.value} {close_qty}")
+            ack = await self.adapter.submit_order(close_intent)
+            logger.info(f"FLATTEN {symbol}: close order submitted broker_id={ack.broker_order_id}")
+
+            # ── Step 3: Poll until flat or timeout ────────────────────────────
+            flat = await self._wait_for_flat(symbol, initial_qty)
+
+            # ── Step 4: Cancel all remaining open orders ──────────────────────
+            orders_cancelled = await self._cancel_all_orders(symbol)
+            logger.info(f"FLATTEN {symbol}: cancelled {orders_cancelled} open orders")
+
+            # ── Step 5: Final verification ────────────────────────────────────
+            final_pos = await self.adapter.get_position(symbol)
+            final_qty = final_pos.quantity
+
+            # ── Step 6: Double-fill race detection ────────────────────────────
+            if final_qty != 0:
+                # Check if this is an accidental reversal (double-fill)
+                # Reversal: we were long, close filled, then another fill came in
+                # and now we are short (or vice versa)
+                if (initial_qty > 0 and final_qty < 0) or (initial_qty < 0 and final_qty > 0):
+                    reversal_detected = True
+                    logger.critical(
+                        f"🚨 FLATTEN {symbol}: DOUBLE-FILL RACE DETECTED. "
+                        f"Initial={initial_qty}, Final={final_qty}. "
+                        f"Attempting auto-close of reversal."
+                    )
+                    reversal_closed = await self._close_reversal(symbol, final_qty)
+                    final_pos = await self.adapter.get_position(symbol)
+                    final_qty = final_pos.quantity
+
+            elapsed = (datetime.now(tz=timezone.utc) - started_at).total_seconds()
+            success = final_qty == 0
+
+            if success:
+                logger.info(f"✅ FLATTEN {symbol}: complete in {elapsed:.1f}s")
+            else:
+                logger.critical(
+                    f"❌ FLATTEN {symbol}: INCOMPLETE after {elapsed:.1f}s. "
+                    f"Position still {final_qty}. OPERATOR INTERVENTION REQUIRED."
+                )
+
+            return FlattenResult(
+                success=success,
+                symbol=symbol,
+                initial_position=initial_qty,
+                final_position=final_qty,
+                orders_cancelled=orders_cancelled,
+                reversal_detected=reversal_detected,
+                reversal_closed=reversal_closed,
+                elapsed_sec=elapsed,
+                error=None if success else f"Position {final_qty} remains after flatten",
+            )
+
+        except Exception as e:
+            elapsed = (datetime.now(tz=timezone.utc) - started_at).total_seconds()
+            logger.critical(f"❌ FLATTEN {symbol}: EXCEPTION after {elapsed:.1f}s: {e}")
             try:
-                fill = self._adapter.submit_order(order)
-                fills.append(fill)
+                final_pos = await self.adapter.get_position(symbol)
+                final_qty = final_pos.quantity
+            except Exception:
+                final_qty = -9999  # Unknown — worst case sentinel
+            return FlattenResult(
+                success=False,
+                symbol=symbol,
+                initial_position=initial_qty if 'initial_qty' in dir() else 0,
+                final_position=final_qty,
+                orders_cancelled=orders_cancelled,
+                reversal_detected=reversal_detected,
+                reversal_closed=reversal_closed,
+                elapsed_sec=elapsed,
+                error=str(e),
+            )
 
-                event = FlattenEvent(
-                    timestamp=timestamp,
-                    symbol=symbol,
-                    qty_flattened=qty,
-                    fill_price=fill.fill_price,
-                    slippage_bps=fill.slippage_bps,
-                    reason="widowmaker_flatten",
-                    metadata={"order_id": order.order_id},
-                )
-                self._events.append(event)
-                self._flatten_count += 1
+    async def _wait_for_flat(self, symbol: str, initial_qty: int) -> bool:
+        """Poll until position == 0 or timeout. Returns True if flat."""
+        deadline = asyncio.get_event_loop().time() + self.timeout
+        while asyncio.get_event_loop().time() < deadline:
+            pos = await self.adapter.get_position(symbol)
+            if pos.quantity == 0:
+                return True
+            await asyncio.sleep(self.poll_interval)
+        logger.error(f"FLATTEN {symbol}: timed out after {self.timeout}s waiting for flat.")
+        return False
 
-                if self._on_flatten:
-                    self._on_flatten(event)
-
-                logger.info(
-                    "  Flattened %s: %.4f @ %.2f (slippage: %.1f bps)",
-                    symbol, qty, fill.fill_price, fill.slippage_bps,
-                )
-
+    async def _cancel_all_orders(self, symbol: str) -> int:
+        """Cancel all open orders for symbol. Returns count cancelled."""
+        open_orders = await self.adapter.get_open_orders(symbol)
+        cancelled = 0
+        for order in open_orders:
+            try:
+                result = await self.adapter.cancel_order(order.broker_order_id)
+                if result:
+                    cancelled += 1
             except Exception as e:
-                logger.error(
-                    "⛔ Flatten FAILED for %s: %s — POSITION STILL OPEN",
-                    symbol, e,
+                logger.error(f"FLATTEN: failed to cancel order {order.broker_order_id}: {e}")
+        return cancelled
+
+    async def _close_reversal(self, symbol: str, reversal_qty: int) -> bool:
+        """
+        Attempt to close an accidental reversal position.
+        Returns True if successfully closed.
+        """
+        close_side = OrderSide.SELL if reversal_qty > 0 else OrderSide.BUY
+        for attempt in range(1, MAX_REVERSAL_CLOSE_ATTEMPTS + 1):
+            try:
+                intent = OrderIntent(
+                    symbol=symbol,
+                    side=close_side,
+                    quantity=abs(reversal_qty),
+                    order_type=OrderType.MARKET,
+                    time_in_force=TimeInForce.IOC,
+                    client_order_id=f"REVERSAL_CLOSE_{symbol}_{attempt}",
                 )
-                # Fail-open for flatten: log error but don't crash
-                # The position remains open, which is dangerous
-                # but crashing during flatten is worse
+                await self.adapter.submit_order(intent)
+                await asyncio.sleep(self.poll_interval * 2)
+                pos = await self.adapter.get_position(symbol)
+                if pos.quantity == 0:
+                    logger.info(f"✅ Reversal closed on attempt {attempt}")
+                    return True
+            except Exception as e:
+                logger.error(f"Reversal close attempt {attempt} failed: {e}")
+        logger.critical(f"❌ REVERSAL CLOSE FAILED after {MAX_REVERSAL_CLOSE_ATTEMPTS} attempts.")
+        return False
 
-        return fills
-
-    def get_telemetry(self) -> Dict[str, Any]:
-        """Return flatten telemetry summary."""
-        total_slippage = sum(e.slippage_bps for e in self._events)
-        avg_slippage = total_slippage / len(self._events) if self._events else 0.0
-
-        return {
-            "flatten_count": self._flatten_count,
-            "total_events": len(self._events),
-            "avg_slippage_bps": round(avg_slippage, 2),
-            "symbols_flattened": list({e.symbol for e in self._events}),
-        }
+    async def flatten_all(self, symbols: List[str], reason: str = "UNSPECIFIED") -> List[FlattenResult]:
+        """
+        Flatten all positions across multiple symbols concurrently.
+        Returns list of FlattenResult, one per symbol.
+        """
+        tasks = [self.flatten(symbol, reason=reason) for symbol in symbols]
+        return await asyncio.gather(*tasks)

@@ -1,378 +1,570 @@
 """
-test_execution_safety.py — Execution Safety & MES Stack Tests
-=============================================================
-Tests for:
-  1. ExecutionSafety guardrails (max position, rate limit, duplicate, calendar)
-  2. FlattenManager Widowmaker logic
-  3. FillTape slippage drift tracking
-  4. SimAdapter basic execution
+tests/test_execution_safety.py
+================================
+Tests for the execution safety layer.
+
+Every safety rule must have:
+    1. A test that proves it FIRES when it should
+    2. A test that proves it PASSES when conditions are within limits
+
+Anti-vacuous: all tests are deterministic and use SimExecutionAdapter.
+No network calls. No broker dependencies.
 """
+from __future__ import annotations
 
-from datetime import datetime, timezone
-from unittest.mock import MagicMock
+import asyncio
+import sys
+import os
+import unittest
+from datetime import date, datetime, timezone, timedelta
+from decimal import Decimal
 
-import pytest
+# Add patch path for import
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from antigravity_harness.execution.adapter_base import (
-    ExecutionAdapter,
-    ExecutionError,
-    Fill,
-    Order,
+    CalendarAdapter,
+    OrderIntent,
     OrderSide,
+    OrderType,
+    TimeInForce,
 )
-from antigravity_harness.execution.fill_tape import FillTape
+from antigravity_harness.execution.fill_tape import FillTape, DRIFT_THRESHOLD_PCT
 from antigravity_harness.execution.flatten_manager import FlattenManager
-from antigravity_harness.execution.safety import ExecutionSafety, SafetyConfig
-from antigravity_harness.execution.sim_adapter import SimAdapter
+from antigravity_harness.execution.rollover import (
+    RolloverError,
+    RolloverGuard,
+    front_month_symbol,
+    get_expiry_date,
+    third_friday,
+)
+from antigravity_harness.execution.safety import (
+    ATRFilterBlock,
+    ContractLimitViolation,
+    DailyLossCapReached,
+    ExecutionSafety,
+    ExecutionSafetyConfig,
+    RiskLimitViolation,
+    SessionBoundaryViolation,
+)
+from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
+from antigravity_harness.instruments.mes import (
+    MES_DAILY_LOSS_CAP_USD,
+    MES_DAILY_ATR_NO_TRADE,
+    MES_MAX_CONTRACTS_PHASE1,
+    MES_MAX_PLANNED_RISK_USD,
+    MES_POINT_VALUE,
+    MES_SLIPPAGE_BUFFER_TICKS,
+    MES_STOP_POINTS,
+    MESRiskParams,
+)
 
-# ===========================================================
-# Fixtures
-# ===========================================================
-
-@pytest.fixture
-def sim():
-    """Fresh SimAdapter with defaults."""
-    return SimAdapter(initial_cash=100_000.0, slippage_bps=5.0)
+import tempfile
+from pathlib import Path
 
 
-@pytest.fixture
-def tape():
-    """Fresh FillTape."""
-    return FillTape(drift_alert_threshold_bps=50.0, rolling_window=5)
+# ─── Test Calendar ─────────────────────────────────────────────────────────────
 
 
-def _make_order(symbol="MES", side=OrderSide.BUY, qty=1.0, price=4500.0,
-                order_id="ORD-001", timestamp=None):
-    """Helper to create a standard order."""
-    return Order(
-        order_id=order_id,
-        symbol=symbol,
-        side=side,
-        qty=qty,
-        timestamp=timestamp or datetime(2026, 1, 15, 15, 0, tzinfo=timezone.utc),
-        metadata={"reference_price": price},
+class TestCalendar(CalendarAdapter):
+    """Minimal calendar for testing. Mon-Fri trading, 09:30-16:00 ET → UTC offset -5."""
+
+    def is_trading_day(self, d: date) -> bool:
+        return d.weekday() < 5  # Mon-Fri
+
+    def session_open_utc(self, d: date) -> datetime:
+        if not self.is_trading_day(d):
+            return None
+        return datetime(d.year, d.month, d.day, 14, 30, tzinfo=timezone.utc)  # 09:30 ET = 14:30 UTC
+
+    def session_close_utc(self, d: date) -> datetime:
+        if not self.is_trading_day(d):
+            return None
+        return datetime(d.year, d.month, d.day, 21, 0, tzinfo=timezone.utc)  # 16:00 ET = 21:00 UTC
+
+    def is_early_close(self, d: date) -> bool:
+        return False
+
+    def next_trading_day(self, d: date) -> date:
+        next_d = d + timedelta(days=1)
+        while not self.is_trading_day(next_d):
+            next_d += timedelta(days=1)
+        return next_d
+
+
+    def no_new_positions_time_utc(self, d: date) -> Optional[datetime]:
+        """
+        STRICT MOCK: Enforce 15-minute buffer explicitly for tests.
+        16:00 ET - 15m = 15:45 ET (20:45 UTC).
+        """
+        close = self.session_close_utc(d)
+        if close is None:
+            return None
+        return close - timedelta(minutes=15)
+
+
+def make_intent(
+    symbol: str = "MES",
+    side: OrderSide = OrderSide.BUY,
+    qty: int = 1,
+    order_type: OrderType = OrderType.MARKET,
+) -> OrderIntent:
+    return OrderIntent(
+        symbol=symbol, side=side, quantity=qty, order_type=order_type,
+        time_in_force=TimeInForce.DAY,
+        client_order_id=f"test_{symbol}_{side.value}",
     )
 
 
-def _make_fill(symbol="MES", side=OrderSide.BUY, qty=1.0, fill_price=4502.25,
-               expected_price=4500.0, slippage=2.25, commission=1.0,
-               order_id="ORD-001", timestamp=None):
-    """Helper to create a fill record."""
-    return Fill(
-        order_id=order_id,
-        symbol=symbol,
-        side=side,
-        qty=qty,
-        fill_price=fill_price,
-        expected_price=expected_price,
-        slippage=slippage,
-        commission=commission,
-        timestamp=timestamp or datetime(2026, 1, 15, 15, 0, tzinfo=timezone.utc),
-    )
+def trading_time() -> datetime:
+    """Return a datetime during RTH (Tuesday 10:00 ET = 15:00 UTC)."""
+    return datetime(2026, 2, 17, 15, 0, 0, tzinfo=timezone.utc)
 
 
-# ===========================================================
-# SimAdapter Tests
-# ===========================================================
-
-class TestSimAdapter:
-    """Basic SimAdapter execution tests."""
-
-    def test_buy_deducts_cash(self, sim):
-        order = _make_order(qty=1.0, price=4500.0)
-        fill = sim.submit_order(order)
-        assert fill.qty == 1.0
-        assert sim.get_cash() < 100_000.0
-        assert sim.get_position("MES") == 1.0
-
-    def test_sell_returns_cash(self, sim):
-        buy = _make_order(qty=1.0, price=4500.0)
-        sim.submit_order(buy)
-        sell = _make_order(side=OrderSide.SELL, qty=1.0, price=4510.0, order_id="ORD-002")
-        sim.submit_order(sell)
-        assert sim.get_position("MES") == 0.0
-        assert sim.get_cash() > 0
-
-    def test_insufficient_cash_rejected(self, sim):
-        order = _make_order(qty=1000.0, price=4500.0)
-        with pytest.raises(ExecutionError, match="Insufficient cash"):
-            sim.submit_order(order)
-
-    def test_insufficient_position_rejected(self, sim):
-        sell = _make_order(side=OrderSide.SELL, qty=1.0, price=4500.0)
-        with pytest.raises(ExecutionError, match="Insufficient position"):
-            sim.submit_order(sell)
-
-    def test_zero_qty_rejected(self, sim):
-        order = _make_order(qty=0.0)
-        with pytest.raises(ExecutionError, match="positive"):
-            sim.submit_order(order)
-
-    def test_fills_recorded_to_tape(self, sim):
-        order = _make_order(qty=1.0, price=4500.0)
-        sim.submit_order(order)
-        assert sim.tape.fill_count == 1
-
-    def test_slippage_applied(self, sim):
-        """5 bps slippage on a buy should increase fill price."""
-        order = _make_order(qty=1.0, price=4500.0)
-        fill = sim.submit_order(order)
-        expected_fill = 4500.0 * (1 + 5.0 / 10000.0)
-        assert abs(fill.fill_price - expected_fill) < 0.01
+def after_cutoff_time() -> datetime:
+    """Return a datetime after the 15:45 ET cutoff (15:46 ET = 20:46 UTC)."""
+    return datetime(2026, 2, 17, 20, 46, 0, tzinfo=timezone.utc)
 
 
-# ===========================================================
-# ExecutionSafety Tests
-# ===========================================================
+# ─── MES Constants Tests ──────────────────────────────────────────────────────
 
-class TestExecutionSafety:
-    """Test safety guardrails."""
 
-    def test_position_limit_blocks(self):
-        sim = SimAdapter(initial_cash=1_000_000_000.0, slippage_bps=0)
-        config = SafetyConfig(max_position_size=10.0)
-        safety = ExecutionSafety(sim, config)
+class TestMESConstants(unittest.TestCase):
+    def test_risk_math_resolved(self):
+        """Verify the frozen risk math: stop $35 + buffer $5 = $40."""
+        from antigravity_harness.instruments.mes import (
+            MES_STOP_RISK_USD, MES_SLIPPAGE_BUFFER_USD, MES_MAX_PLANNED_RISK_USD
+        )
+        self.assertAlmostEqual(MES_STOP_RISK_USD, 35.00)
+        self.assertAlmostEqual(MES_SLIPPAGE_BUFFER_USD, 5.00)
+        self.assertAlmostEqual(MES_MAX_PLANNED_RISK_USD, 40.00)
 
-        # Buy 10 — OK
-        o1 = _make_order(qty=10.0, price=100.0, order_id="O1")
-        safety.submit_order(o1)
+    def test_risk_params_validate(self):
+        """MESRiskParams with 7pt stop + 4tk buffer = exactly $40 — should pass."""
+        params = MESRiskParams(stop_points=7.0, slippage_buffer_ticks=4, max_contracts=1)
+        params.validate()  # Should not raise
 
-        # Buy 1 more — should be blocked (would exceed 10)
-        o2 = _make_order(qty=1.0, price=100.0, order_id="O2")
-        with pytest.raises(ExecutionError, match="Position limit"):
-            safety.submit_order(o2)
+    def test_risk_params_reject_over_limit(self):
+        """8pt stop + 4tk buffer = $45 — must raise."""
+        params = MESRiskParams(stop_points=8.0, slippage_buffer_ticks=4, max_contracts=1)
+        with self.assertRaises(ValueError):
+            params.validate()
 
-        assert safety.telemetry.orders_blocked_position == 1
 
-    def test_duplicate_detection(self):
-        sim = SimAdapter(initial_cash=1_000_000.0, slippage_bps=0)
-        config = SafetyConfig(max_position_size=100.0)
-        safety = ExecutionSafety(sim, config)
+# ─── Safety Gate Tests ────────────────────────────────────────────────────────
 
-        o1 = _make_order(qty=1.0, price=100.0, order_id="O1")
-        safety.submit_order(o1)
 
-        # Same fingerprint within window → duplicate
-        o2 = _make_order(qty=1.0, price=100.0, order_id="O2")
-        with pytest.raises(ExecutionError, match="Duplicate"):
-            safety.submit_order(o2)
+class TestExecutionSafetyGates(unittest.TestCase):
 
-        assert safety.telemetry.orders_blocked_duplicate == 1
+    def setUp(self):
+        self.config = ExecutionSafetyConfig()
+        self.calendar = TestCalendar()
+        self.safety = ExecutionSafety(self.config, self.calendar)
+        self.safety.new_session(date(2026, 2, 17))
 
-    def test_calendar_cutoff_blocks(self):
-        sim = SimAdapter(initial_cash=1_000_000.0, slippage_bps=0)
-        config = SafetyConfig(enable_calendar_cutoff=True)
-
-        # Mock calendar that always says "no new positions"
-        mock_cal = MagicMock()
-        mock_cal.no_new_positions_after.return_value = True
-
-        safety = ExecutionSafety(sim, config, calendar=mock_cal)
-
-        order = _make_order(qty=1.0, price=100.0)
-        with pytest.raises(ExecutionError, match="Calendar cutoff"):
-            safety.submit_order(order)
-
-        assert safety.telemetry.orders_blocked_calendar == 1
-
-    def test_calendar_allows_during_session(self):
-        sim = SimAdapter(initial_cash=1_000_000.0, slippage_bps=0)
-        config = SafetyConfig(
-            enable_calendar_cutoff=True,
-            max_position_size=100.0,
+    def _ok_check(self) -> None:
+        """A check that should pass under normal conditions."""
+        self.safety.check_intent(
+            intent=make_intent(),
+            daily_atr_points=30.0,
+            now_utc=trading_time(),
+            current_position=0,
         )
 
-        mock_cal = MagicMock()
-        mock_cal.no_new_positions_after.return_value = False
+    # ── Gate 0: Pause Mode ────────────────────────────────────────────────────
 
-        safety = ExecutionSafety(sim, config, calendar=mock_cal)
+    def test_pause_mode_blocks_all_orders(self):
+        """Once pause_trading=True, all orders are blocked."""
+        self.safety.state.pause_trading = True
+        self.safety.state.pause_reason = "TEST"
+        with self.assertRaises(DailyLossCapReached):
+            self._ok_check()
 
-        order = _make_order(qty=1.0, price=100.0)
-        fill = safety.submit_order(order)
-        assert fill.qty == 1.0
-        assert safety.telemetry.orders_blocked_calendar == 0
+    # ── Gate 1: Daily Loss Cap ─────────────────────────────────────────────────
 
-    def test_notional_limit_blocks(self):
-        sim = SimAdapter(initial_cash=1_000_000.0, slippage_bps=0)
-        config = SafetyConfig(
-            max_notional_value=10_000.0,
-            max_position_size=1000.0,
-        )
-        safety = ExecutionSafety(sim, config)
+    def test_daily_loss_cap_fires(self):
+        """When total P&L hits -$80, next order raises DailyLossCapReached."""
+        self.safety.state.realized_pnl_usd = -80.00
+        with self.assertRaises(DailyLossCapReached):
+            self._ok_check()
+        self.assertTrue(self.safety.state.pause_trading)
 
-        order = _make_order(qty=10.0, price=5000.0, order_id="O1")
-        with pytest.raises(ExecutionError, match="Notional limit"):
-            safety.submit_order(order, reference_price=5000.0)
+    def test_daily_loss_cap_does_not_fire_at_79(self):
+        """$79 loss does not trigger cap ($80 is the threshold)."""
+        self.safety.state.realized_pnl_usd = -79.00
+        self._ok_check()  # Should not raise
 
-    def test_telemetry_report(self):
-        sim = SimAdapter(initial_cash=1_000_000.0, slippage_bps=0)
-        safety = ExecutionSafety(sim, SafetyConfig(max_position_size=100.0))
+    def test_unrealized_included_in_daily_cap(self):
+        """Unrealized P&L counts toward daily loss cap."""
+        self.safety.state.realized_pnl_usd = -50.00
+        self.safety.update_unrealized(-30.01)  # Total = -$80.01
+        with self.assertRaises(DailyLossCapReached):
+            self._ok_check()
 
-        order = _make_order(qty=1.0, price=100.0)
-        safety.submit_order(order)
+    def test_pause_persists_after_recovery(self):
+        """Once paused, system stays paused even if P&L recovers."""
+        self.safety.state.realized_pnl_usd = -80.00
+        try:
+            self._ok_check()
+        except DailyLossCapReached:
+            pass
+        # Now pretend P&L "recovered"
+        self.safety.state.realized_pnl_usd = -10.00
+        with self.assertRaises(DailyLossCapReached):
+            self._ok_check()  # Still paused — pause_trading remains True
 
-        telem = safety.get_telemetry()
-        assert telem["orders_submitted"] == 1
-        assert telem["orders_blocked_position"] == 0
+    # ── Gate 2: ATR Filter ─────────────────────────────────────────────────────
 
-
-# ===========================================================
-# FillTape Tests
-# ===========================================================
-
-class TestFillTape:
-    """Test append-only fill ledger and slippage drift."""
-
-    def test_basic_record(self, tape):
-        fill = _make_fill()
-        result = tape.record(fill)
-        assert tape.fill_count == 1
-        # No alert for single fill below threshold
-        assert result is None
-
-    def test_immutable_view(self, tape):
-        fill = _make_fill()
-        tape.record(fill)
-        fills_copy = tape.fills
-        assert len(fills_copy) == 1
-        # Modifying the copy should not affect the tape
-        fills_copy.clear()
-        assert tape.fill_count == 1
-
-    def test_slippage_bps_calculation(self):
-        fill = _make_fill(fill_price=4502.25, expected_price=4500.0)
-        expected_bps = (4502.25 - 4500.0) / 4500.0 * 10000.0
-        assert abs(fill.slippage_bps - expected_bps) < 0.01
-
-    def test_drift_alert_when_threshold_exceeded(self):
-        tape = FillTape(drift_alert_threshold_bps=10.0, rolling_window=3)
-
-        # Record fills with high slippage
-        for i in range(5):
-            fill = _make_fill(
-                fill_price=4600.0,
-                expected_price=4500.0,
-                slippage=100.0,
-                order_id=f"O{i}",
+    def test_atr_filter_fires_above_threshold(self):
+        """Daily ATR > 80 blocks all new orders."""
+        with self.assertRaises(ATRFilterBlock):
+            self.safety.check_intent(
+                intent=make_intent(),
+                daily_atr_points=80.1,
+                now_utc=trading_time(),
             )
-            result = tape.record(fill)
 
-        # After enough fills with high slippage, should get alert
-        assert result is not None
-        assert result.drift_alert is True
-
-    def test_telemetry_report(self, tape):
-        fill1 = _make_fill(fill_price=4502.0, expected_price=4500.0, order_id="O1")
-        fill2 = _make_fill(fill_price=4503.0, expected_price=4500.0, order_id="O2")
-        tape.record(fill1)
-        tape.record(fill2)
-
-        telem = tape.get_telemetry()
-        assert telem["total_fills"] == 2
-        assert telem["symbols"] == ["MES"]
-
-    def test_per_symbol_telemetry(self, tape):
-        fill1 = _make_fill(symbol="MES", order_id="O1")
-        fill2 = _make_fill(symbol="ES", order_id="O2")
-        tape.record(fill1)
-        tape.record(fill2)
-
-        per_sym = tape.get_per_symbol_telemetry()
-        assert "MES" in per_sym
-        assert "ES" in per_sym
-        assert per_sym["MES"]["fill_count"] == 1
-
-
-# ===========================================================
-# FlattenManager Tests
-# ===========================================================
-
-class TestFlattenManager:
-    """Test Widowmaker flatten logic."""
-
-    def test_flatten_triggered_by_calendar(self):
-        sim = SimAdapter(initial_cash=100_000.0, slippage_bps=0)
-        # Buy a position first
-        order = _make_order(qty=1.0, price=4500.0)
-        sim.submit_order(order)
-        assert sim.get_position("MES") == 1.0
-
-        # Mock calendar that says flatten
-        mock_cal = MagicMock()
-        mock_cal.should_flatten.return_value = True
-
-        flatten_events = []
-        fm = FlattenManager(
-            sim, calendar=mock_cal,
-            on_flatten=flatten_events.append,
+    def test_atr_filter_passes_at_threshold(self):
+        """Daily ATR exactly 80 passes (threshold is >80, not >=80)."""
+        self.safety.check_intent(
+            intent=make_intent(),
+            daily_atr_points=80.0,
+            now_utc=trading_time(),
         )
 
-        now = datetime(2026, 1, 15, 20, 46, tzinfo=timezone.utc)
-        fills = fm.check_and_flatten(now, ["MES"], {"MES": 4500.0})
+    def test_atr_filter_passes_normal(self):
+        """Normal daily ATR of 35 passes."""
+        self.safety.check_intent(
+            intent=make_intent(),
+            daily_atr_points=35.0,
+            now_utc=trading_time(),
+        )
 
-        assert len(fills) == 1
-        assert sim.get_position("MES") == 0.0
-        assert fm.flatten_count == 1
-        assert len(flatten_events) == 1
+    # ── Gate 3: Session Boundary ──────────────────────────────────────────────
 
-    def test_no_flatten_when_calendar_says_no(self):
-        sim = SimAdapter(initial_cash=100_000.0, slippage_bps=0)
-        order = _make_order(qty=1.0, price=4500.0)
-        sim.submit_order(order)
+    def test_session_boundary_blocks_exact_cutoff(self):
+        """
+        Prove strict 15:45 ET cutoff.
+        Close 16:00 ET -> cutoff 15:45 ET (20:45 UTC).
 
-        mock_cal = MagicMock()
-        mock_cal.should_flatten.return_value = False
+        15:46 ET (20:46 UTC) -> FAIL
+        15:44 ET (20:44 UTC) -> PASS
+        """
+        late_time = datetime(2026, 2, 17, 20, 46, 0, tzinfo=timezone.utc)
+        with self.assertRaises(SessionBoundaryViolation):
+            self.safety.check_intent(
+                intent=make_intent(),
+                daily_atr_points=30.0,
+                now_utc=late_time,
+            )
 
-        fm = FlattenManager(sim, calendar=mock_cal)
-        now = datetime(2026, 1, 15, 18, 0, tzinfo=timezone.utc)
-        fills = fm.check_and_flatten(now, ["MES"])
-
-        assert len(fills) == 0
-        assert sim.get_position("MES") == 1.0
-
-    def test_no_flatten_when_flat(self):
-        sim = SimAdapter(initial_cash=100_000.0, slippage_bps=0)
-
-        mock_cal = MagicMock()
-        mock_cal.should_flatten.return_value = True
-
-        fm = FlattenManager(sim, calendar=mock_cal)
-        now = datetime(2026, 1, 15, 20, 46, tzinfo=timezone.utc)
-        fills = fm.check_and_flatten(now, ["MES"])
-
-        assert len(fills) == 0
-        assert fm.flatten_count == 0
-
-    def test_telemetry(self):
-        sim = SimAdapter(initial_cash=100_000.0, slippage_bps=5.0)
-        order = _make_order(qty=1.0, price=4500.0)
-        sim.submit_order(order)
-
-        mock_cal = MagicMock()
-        mock_cal.should_flatten.return_value = True
-
-        fm = FlattenManager(sim, calendar=mock_cal)
-        now = datetime(2026, 1, 15, 20, 46, tzinfo=timezone.utc)
-        fm.check_and_flatten(now, ["MES"], {"MES": 4500.0})
-
-        telem = fm.get_telemetry()
-        assert telem["flatten_count"] == 1
-        assert "MES" in telem["symbols_flattened"]
+        safe_time = datetime(2026, 2, 17, 20, 44, 0, tzinfo=timezone.utc)
+        # Should not raise
+        self.safety.check_intent(
+            intent=make_intent(),
+            daily_atr_points=30.0,
+            now_utc=safe_time,
+        )
 
 
-# ===========================================================
-# Adapter Base Contract Tests
-# ===========================================================
+    def test_session_boundary_blocks_after_cutoff(self):
+        """Orders after 15:45 ET (no_new_positions) are blocked."""
+        with self.assertRaises(SessionBoundaryViolation):
+            self.safety.check_intent(
+                intent=make_intent(),
+                daily_atr_points=30.0,
+                now_utc=after_cutoff_time(),
+            )
 
-class TestAdapterContract:
-    """Verify SimAdapter satisfies ExecutionAdapter contract."""
+    def test_session_boundary_passes_during_hours(self):
+        """Orders at 10:00 ET pass session gate."""
+        self.safety.check_intent(
+            intent=make_intent(),
+            daily_atr_points=30.0,
+            now_utc=trading_time(),
+        )
 
-    def test_is_subclass(self):
-        assert issubclass(SimAdapter, ExecutionAdapter)
+    def test_early_close_day(self):
+        """On non-trading day, all orders blocked."""
 
-    def test_implements_all_methods(self, sim):
-        assert hasattr(sim, "submit_order")
-        assert hasattr(sim, "cancel_order")
-        assert hasattr(sim, "get_fills")
-        assert hasattr(sim, "get_position")
-        assert hasattr(sim, "get_cash")
+        class EarlyCloseCalendar(TestCalendar):
+            def is_trading_day(self, d):
+                return False
+
+        safety = ExecutionSafety(self.config, EarlyCloseCalendar())
+        safety.new_session(date(2026, 2, 17))
+        with self.assertRaises(SessionBoundaryViolation):
+            safety.check_intent(
+                intent=make_intent(),
+                daily_atr_points=30.0,
+                now_utc=trading_time(),
+            )
+
+    # ── Gate 4: Contract Limit ────────────────────────────────────────────────
+
+    def test_contract_limit_fires(self):
+        """Requesting 2 contracts when limit is 1 raises ContractLimitViolation."""
+        with self.assertRaises(ContractLimitViolation):
+            self.safety.check_intent(
+                intent=make_intent(qty=2),
+                daily_atr_points=30.0,
+                now_utc=trading_time(),
+            )
+
+    def test_contract_limit_fires_on_resulting_position(self):
+        """Already long 1 contract: adding another buy raises ContractLimitViolation."""
+        with self.assertRaises(ContractLimitViolation):
+            self.safety.check_intent(
+                intent=make_intent(qty=1),
+                daily_atr_points=30.0,
+                now_utc=trading_time(),
+                current_position=1,  # Already long 1
+            )
+
+    def test_contract_limit_passes_at_max(self):
+        """1 contract with no existing position passes."""
+        self.safety.check_intent(
+            intent=make_intent(qty=1),
+            daily_atr_points=30.0,
+            now_utc=trading_time(),
+            current_position=0,
+        )
+
+    # ── Gate 5: Risk Math ──────────────────────────────────────────────────────
+
+    def test_risk_math_passes_with_correct_config(self):
+        """Default config: 7pt stop + 4tk buffer = $40 — passes."""
+        self._ok_check()
+
+    def test_stop_orders_skip_risk_check(self):
+        """Stop orders are exits — they skip the entry risk check."""
+        stop_intent = make_intent(order_type=OrderType.STOP)
+        self.safety.check_intent(
+            intent=stop_intent,
+            daily_atr_points=30.0,
+            now_utc=trading_time(),
+        )
+
+
+# ─── FillTape Tests ───────────────────────────────────────────────────────────
+
+
+class TestFillTape(unittest.TestCase):
+
+    def _make_fill(self, side: OrderSide, fill_price: float):
+        from antigravity_harness.execution.adapter_base import Fill
+        return Fill(
+            broker_order_id="test-001",
+            client_order_id="test-001",
+            symbol="MES",
+            side=side,
+            filled_qty=1,
+            fill_price=Decimal(str(fill_price)),
+            fill_time_utc=datetime(2026, 2, 17, 15, 0, tzinfo=timezone.utc),
+            commission_usd=0.85,
+        )
+
+    def test_slippage_recorded(self):
+        """FillTape computes slippage_realized_ticks correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            fill = self._make_fill(OrderSide.BUY, fill_price=5000.25)
+            record = tape.record(fill, expected_price=5000.00)
+            # 0.25 points / 0.25 tick_size = 1 tick of slippage
+            self.assertEqual(record.slippage_realized_ticks, 1)
+            self.assertFalse(record.slippage_exceeded_buffer)
+
+    def test_buffer_exceeded_flag(self):
+        """Fill with 5 ticks slippage exceeds 4-tick buffer — flag set."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            fill = self._make_fill(OrderSide.BUY, fill_price=5001.25)  # 5 ticks above
+            record = tape.record(fill, expected_price=5000.00)
+            self.assertEqual(record.slippage_realized_ticks, 5)
+            self.assertTrue(record.slippage_exceeded_buffer)
+
+    def test_drift_flag_emitted_above_threshold(self):
+        """20%+ of fills exceeding buffer triggers ProfileDriftFlag artifact."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            # 3 fills with >4 ticks slippage + 2 normal = 60% — above 20% threshold
+            for i in range(3):
+                fill = self._make_fill(OrderSide.BUY, fill_price=5001.50)  # 6 ticks
+                tape.record(fill, expected_price=5000.00)
+            for i in range(2):
+                fill = self._make_fill(OrderSide.BUY, fill_price=5000.25)  # 1 tick
+                tape.record(fill, expected_price=5000.00)
+            tape.close()
+            flag_file = Path(tmpdir) / "profile_drift_flag_2026-02-17.json"
+            self.assertTrue(flag_file.exists(), "Drift flag not emitted")
+
+    def test_no_drift_flag_below_threshold(self):
+        """Single fill with excess slippage (20% of 1 = 100%? No: check exact math)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            # 1 excess + 9 normal = 10% — below 20% threshold
+            fill_bad = self._make_fill(OrderSide.BUY, fill_price=5001.50)
+            tape.record(fill_bad, expected_price=5000.00)
+            for i in range(9):
+                fill_ok = self._make_fill(OrderSide.BUY, fill_price=5000.00)
+                tape.record(fill_ok, expected_price=5000.00)
+            tape.close()
+            flag_file = Path(tmpdir) / "profile_drift_flag_2026-02-17.json"
+            self.assertFalse(flag_file.exists(), "Drift flag should NOT be emitted at 10%")
+
+
+# ─── Rollover Tests ───────────────────────────────────────────────────────────
+
+
+class TestRollover(unittest.TestCase):
+
+    def test_third_friday_march_2026(self):
+        """3rd Friday of March 2026 is March 20."""
+        expiry = third_friday(2026, 3)
+        self.assertEqual(expiry, date(2026, 3, 20))
+        self.assertEqual(expiry.weekday(), 4)  # Friday
+
+    def test_expiry_parsing(self):
+        """MESH26 parses to March 2026 expiry (3rd Friday)."""
+        expiry = get_expiry_date("MESH26")
+        self.assertEqual(expiry.month, 3)
+        self.assertEqual(expiry.year, 2026)
+
+    def test_continuous_contract_no_expiry(self):
+        """'MES' (continuous) returns None."""
+        self.assertIsNone(get_expiry_date("MES"))
+
+    def test_rollover_guard_fires_within_2_days(self):
+        """Order on 2026-03-19 for MESH26 (expiry 2026-03-20) — 1 day away — rejected."""
+        guard = RolloverGuard(min_days_to_expiry=2)
+        with self.assertRaises(RolloverError):
+            guard.check("MESH26", date(2026, 3, 19))
+
+    def test_rollover_guard_passes_outside_window(self):
+        """Order on 2026-03-01 for MESH26 (expiry 2026-03-20) — 19 days — passes."""
+        guard = RolloverGuard(min_days_to_expiry=2)
+        guard.check("MESH26", date(2026, 3, 1))  # Should not raise
+
+    def test_rollover_guard_continuous_always_passes(self):
+        """Continuous 'MES' contract never triggers rollover guard."""
+        guard = RolloverGuard()
+        guard.check("MES", date(2026, 3, 19))  # Should not raise
+
+    def test_front_month_before_roll_window(self):
+        """March 1 is before the 5-day roll window — front month is March."""
+        sym = front_month_symbol(date(2026, 3, 1))
+        self.assertIn("H26", sym)  # MESH26
+
+    def test_front_month_during_roll_window(self):
+        """March 16 is within 5 days of March 20 expiry — front month rolls to June."""
+        sym = front_month_symbol(date(2026, 3, 16))
+        self.assertIn("M26", sym)  # MESM26
+
+
+# ─── FlattenManager Tests ─────────────────────────────────────────────────────
+
+
+class TestFlattenManager(unittest.IsolatedAsyncioTestCase):
+
+    async def test_flatten_long_position(self):
+        """FlattenManager closes a long position and reports success."""
+        adapter = SimExecutionAdapter(initial_cash=2000.0)
+        await adapter.connect()
+        adapter.set_price("MES", 5000.0)
+
+        # Open a long position
+        intent = make_intent(symbol="MES", side=OrderSide.BUY, qty=1)
+        await adapter.submit_order(intent)
+
+        # Flatten
+        fm = FlattenManager(adapter, poll_interval_sec=0.01, timeout_sec=5.0)
+        result = await fm.flatten("MES", reason="TEST")
+
+        self.assertTrue(result.success)
+        self.assertEqual(result.initial_position, 1)
+        self.assertEqual(result.final_position, 0)
+        self.assertFalse(result.reversal_detected)
+
+    async def test_flatten_already_flat(self):
+        """FlattenManager handles already-flat position gracefully."""
+        adapter = SimExecutionAdapter(initial_cash=2000.0)
+        await adapter.connect()
+        adapter.set_price("MES", 5000.0)
+
+        fm = FlattenManager(adapter, poll_interval_sec=0.01, timeout_sec=5.0)
+        result = await fm.flatten("MES", reason="TEST_FLAT")
+
+        self.assertTrue(result.success)
+        self.assertEqual(result.initial_position, 0)
+        self.assertEqual(result.final_position, 0)
+
+    async def test_flatten_cancels_open_orders(self):
+        """FlattenManager cancels open orders after position is closed."""
+        adapter = SimExecutionAdapter(initial_cash=2000.0)
+        await adapter.connect()
+        adapter.set_price("MES", 5000.0)
+
+        # Place a limit order (won't fill — no price match)
+        limit_intent = OrderIntent(
+            symbol="MES", side=OrderSide.BUY, quantity=1,
+            order_type=OrderType.LIMIT, limit_price=Decimal("4900.0"),
+            time_in_force=TimeInForce.DAY, client_order_id="limit_test",
+        )
+        await adapter.submit_order(limit_intent)
+
+        fm = FlattenManager(adapter, poll_interval_sec=0.01, timeout_sec=5.0)
+        result = await fm.flatten("MES", reason="TEST_CANCEL")
+
+        self.assertTrue(result.success)
+        self.assertEqual(result.orders_cancelled, 1)
+
+    async def test_flatten_short_position(self):
+        """FlattenManager closes a short position."""
+        adapter = SimExecutionAdapter(initial_cash=2000.0)
+        await adapter.connect()
+        adapter.set_price("MES", 5000.0)
+
+        # Open short
+        intent = make_intent(symbol="MES", side=OrderSide.SELL, qty=1)
+        await adapter.submit_order(intent)
+
+        fm = FlattenManager(adapter, poll_interval_sec=0.01, timeout_sec=5.0)
+        result = await fm.flatten("MES", reason="TEST_SHORT")
+
+        self.assertTrue(result.success)
+        self.assertEqual(result.initial_position, -1)
+        self.assertEqual(result.final_position, 0)
+
+
+# ─── SimAdapter Tests ─────────────────────────────────────────────────────────
+
+
+class TestSimAdapter(unittest.IsolatedAsyncioTestCase):
+
+    async def test_market_buy_fills_immediately(self):
+        adapter = SimExecutionAdapter(initial_cash=2000.0)
+        await adapter.connect()
+        adapter.set_price("MES", 5000.0)
+
+        ack = await adapter.submit_order(make_intent(side=OrderSide.BUY))
+        from antigravity_harness.execution.adapter_base import OrderStatus
+        self.assertEqual(ack.status, OrderStatus.FILLED)
+
+        pos = await adapter.get_position("MES")
+        self.assertEqual(pos.quantity, 1)
+
+    async def test_slippage_applied_to_buy(self):
+        """2-tick sim slippage fills BUY 2 ticks above mid."""
+        from antigravity_harness.instruments.mes import MES_TICK_SIZE
+        adapter = SimExecutionAdapter(sim_slippage_ticks=2)
+        await adapter.connect()
+        adapter.set_price("MES", 5000.0)
+
+        ack = await adapter.submit_order(make_intent(side=OrderSide.BUY))
+        fill = adapter.all_fills[-1]
+        expected = 5000.0 + 2 * MES_TICK_SIZE
+        self.assertAlmostEqual(float(fill.fill_price), expected)
+
+
+if __name__ == "__main__":
+    unittest.main()

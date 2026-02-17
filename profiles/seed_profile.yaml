@@ -1,0 +1,77 @@
+profile_schema_version: "1.0.1"
+profile_id: "founder_seed_v1"
+operator:
+  name: "Alec"
+  python_proficiency: "novice"
+
+system_intent:
+  long_term: true
+  prop_firm_path_enabled: false   # OPTIONAL BRANCH — do not assume
+
+capital:
+  starting_usd: 2000
+  monthly_adds_usd_range: [500, 1000]
+
+instrument_universe:
+  primary: "MES"
+  exchange: "CME_GLOBEX"
+  allowlist: ["MES"]
+
+session:
+  calendar: "CME_RTH"             # MUST be calendar-driven, not hardcoded hours
+  flatten_before_close_minutes: 5
+  no_overnight: true
+
+risk:
+  risk_cap_mode: "planned_plus_slippage_buffer"
+  max_planned_risk_usd: 40
+  max_position_size_contracts: 1
+  planned_stop_points_default: 7
+  slippage_buffer_ticks: 4
+  max_trades_per_day: 3
+  cooldown_after_stop_seconds: 900
+  daily_loss_cap_usd: 80
+  max_drawdown_cap_usd: 300
+
+volatility_filter:
+  atr_enabled: true
+  atr_timeframe: "1h"
+  atr_period: 14
+  atr_skip_threshold_points: 80
+
+news_blackout:
+  enabled: true
+  pre_event_minutes: 2
+  post_event_minutes: 2
+
+execution:
+  mode: "research"                # research | paper | micro_live
+  broker:
+    primary: "UNSET"              # IBKR | TRADOVATE | RITHMIC | CQG | OTHER
+    paper_supported_required: true
+  requires_server_side_brackets_for_live: true
+
+data:
+  canonical_bar_timestamp: "bar_close"  # bar_close | bar_open
+  record_replay_required: true
+
+llm:
+  live_inference_enabled: false
+  inference_tape_required: true
+
+rollover:
+  enabled: true
+  roll_days_before_expiry: 7
+  front_month_selection: "volume_open_interest"
+
+health:
+  ram_soft_limit_gb: 13
+  ram_hard_limit_gb: 15
+  gateway_auto_restart: true
+  latency_degraded_ms: 200
+
+permissions:
+  live_trading_enabled: false
+  broker_linking_enabled: false
+  instrument_expansion_enabled: false
+  news_trading_enabled: false

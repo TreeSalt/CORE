@@ -1,149 +1,261 @@
 """
-fill_tape.py — Append-Only Fill Ledger + Slippage Drift Telemetry
-=================================================================
-Immutable record of all execution fills with real-time slippage
-drift tracking. Designed for post-trade analysis and institutional
-audit trails.
-"""
+antigravity_harness/execution/fill_tape.py
+==========================================
+FillTape — deterministic record of every execution.
 
+Records fills with slippage_realized_ticks for every trade.
+Compares realized slippage against the buffer (4 ticks from seed_profile).
+Emits a profile flag artifact (does NOT auto-edit profile) if drift detected.
+
+Drift trigger: if realized slippage > buffer in > 20% of fills in a run,
+write a ProfileDriftFlag to evidence for operator review.
+
+Does NOT: modify seed_profile. Does NOT make trading decisions.
+"""
 from __future__ import annotations
 
-import statistics
-from dataclasses import dataclass
+import csv
+import hashlib
+import json
+import logging
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from decimal import Decimal
+from pathlib import Path
+from typing import List, Optional
 
 from antigravity_harness.execution.adapter_base import Fill, OrderSide
+from antigravity_harness.instruments.mes import (
+    MES_SLIPPAGE_BUFFER_TICKS,
+    MES_TICK_VALUE,
+)
+
+logger = logging.getLogger("FILL_TAPE")
+
+DRIFT_THRESHOLD_PCT: float = 0.20  # 20% of fills exceeding buffer triggers drift flag
+
+
+# ─── Enriched Fill Record ─────────────────────────────────────────────────────
 
 
 @dataclass
-class SlippageDriftSnapshot:
-    """Point-in-time slippage drift telemetry."""
-    timestamp: datetime
-    cumulative_slippage_bps: float
-    rolling_mean_bps: float
-    rolling_std_bps: float
-    sample_count: int
-    drift_alert: bool
+class FillRecord:
+    """
+    A fill with slippage analysis attached.
+    Written to the FillTape CSV and used for post-session analysis.
+    """
+    # Identity
+    broker_order_id: str
+    client_order_id: str
+    symbol: str
+    side: str                           # "BUY" or "SELL"
+    filled_qty: int
+    fill_price: float
+    fill_time_utc: str                  # ISO format
+
+    # Slippage analysis
+    expected_price: Optional[float]     # Mid price at order submission time
+    slippage_realized_ticks: Optional[int]
+    slippage_buffer_ticks: int          # From seed profile (4)
+    slippage_exceeded_buffer: bool
+
+    # Cost
+    commission_usd: float
+    slippage_cost_usd: float            # slippage_realized_ticks * tick_value
+
+    # Session context
+    session_trade_number: int           # 1st, 2nd, 3rd trade today
+
+
+# ─── FillTape ─────────────────────────────────────────────────────────────────
 
 
 class FillTape:
     """
-    Append-Only Fill Ledger — Sovereign Execution Record.
+    Append-only log of all fills for a trading session.
 
-    Features:
-      - Immutable append-only fill storage
-      - Real-time slippage drift monitoring
-      - Per-symbol and aggregate telemetry
-      - Drift alerting when slippage exceeds threshold
+    Usage:
+        tape = FillTape(output_dir=Path("reports/fills"), session_date="2026-02-17")
+        tape.record(fill, expected_price=mid_at_submission)
+        tape.close()   # writes CSV + manifest entry
 
-    The fill tape is the single source of truth for all executed trades.
-    It cannot be modified after a fill is recorded (append-only).
+    The tape file is deterministic: same fills produce same bytes.
+    SHA256 of the tape is recorded in EVIDENCE_MANIFEST.json.
     """
 
     def __init__(
         self,
-        drift_alert_threshold_bps: float = 50.0,
-        rolling_window: int = 20,
-    ):
-        self._fills: List[Fill] = []
-        self._drift_alert_threshold = drift_alert_threshold_bps
-        self._rolling_window = rolling_window
-        self._snapshots: List[SlippageDriftSnapshot] = []
+        output_dir: Path,
+        session_date: str,
+        slippage_buffer_ticks: int = MES_SLIPPAGE_BUFFER_TICKS,
+    ) -> None:
+        self.output_dir = output_dir
+        self.session_date = session_date
+        self.slippage_buffer_ticks = slippage_buffer_ticks
+        self._records: List[FillRecord] = []
+        self._trade_count = 0
 
-    @property
-    def fills(self) -> List[Fill]:
-        """Immutable view of all fills."""
-        return list(self._fills)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        self._tape_path = output_dir / f"fill_tape_{session_date}.csv"
 
-    @property
-    def fill_count(self) -> int:
-        return len(self._fills)
-
-    def record(self, fill: Fill) -> Optional[SlippageDriftSnapshot]:
+    def record(
+        self,
+        fill: Fill,
+        expected_price: Optional[float] = None,
+    ) -> FillRecord:
         """
-        Record a fill to the tape. Returns a drift snapshot if
-        the slippage drift exceeds the alert threshold.
+        Record a fill with slippage analysis.
 
-        This is the ONLY way to add fills — no mutation, no deletion.
+        Args:
+            fill: The confirmed fill from the broker.
+            expected_price: The mid price when the order was submitted.
+                            Used to compute realized slippage.
+                            Pass None if unknown (slippage_realized_ticks will be None).
         """
-        self._fills.append(fill)
-        snapshot = self._compute_drift_snapshot(fill.timestamp)
-        self._snapshots.append(snapshot)
+        self._trade_count += 1
 
-        if snapshot.drift_alert:
-            return snapshot
-        return None
+        # Compute realized slippage in ticks
+        slippage_ticks: Optional[int] = None
+        slippage_cost_usd: float = 0.0
 
-    def _compute_drift_snapshot(self, timestamp: datetime) -> SlippageDriftSnapshot:
-        """Compute current slippage drift telemetry."""
-        all_slippage = [f.slippage_bps for f in self._fills]
-        cumulative = sum(all_slippage)
+        if expected_price is not None:
+            fill_px = float(fill.fill_price)
+            if fill.side == OrderSide.BUY:
+                slippage_pts = fill_px - expected_price   # positive = worse for buyer
+            else:
+                slippage_pts = expected_price - fill_px   # positive = worse for seller
 
-        # Rolling window
-        window = all_slippage[-self._rolling_window:]
-        rolling_mean = statistics.mean(window) if window else 0.0
-        rolling_std = statistics.stdev(window) if len(window) >= 2 else 0.0
+            from antigravity_harness.instruments.mes import MES_TICK_SIZE
+            slippage_ticks = round(slippage_pts / MES_TICK_SIZE)
+            slippage_cost_usd = max(0, slippage_ticks) * MES_TICK_VALUE * fill.filled_qty
 
-        drift_alert = abs(rolling_mean) > self._drift_alert_threshold
-
-        return SlippageDriftSnapshot(
-            timestamp=timestamp,
-            cumulative_slippage_bps=round(cumulative, 4),
-            rolling_mean_bps=round(rolling_mean, 4),
-            rolling_std_bps=round(rolling_std, 4),
-            sample_count=len(self._fills),
-            drift_alert=drift_alert,
+        exceeded = (
+            slippage_ticks is not None
+            and slippage_ticks > self.slippage_buffer_ticks
         )
 
-    def get_fills_by_symbol(self, symbol: str) -> List[Fill]:
-        """Get all fills for a specific symbol."""
-        return [f for f in self._fills if f.symbol == symbol]
+        record = FillRecord(
+            broker_order_id=fill.broker_order_id,
+            client_order_id=fill.client_order_id,
+            symbol=fill.symbol,
+            side=fill.side.value,
+            filled_qty=fill.filled_qty,
+            fill_price=float(fill.fill_price),
+            fill_time_utc=fill.fill_time_utc.isoformat(),
+            expected_price=expected_price,
+            slippage_realized_ticks=slippage_ticks,
+            slippage_buffer_ticks=self.slippage_buffer_ticks,
+            slippage_exceeded_buffer=exceeded,
+            commission_usd=fill.commission_usd,
+            slippage_cost_usd=slippage_cost_usd,
+            session_trade_number=self._trade_count,
+        )
 
-    def get_fills_by_side(self, side: OrderSide) -> List[Fill]:
-        """Get all fills for a specific side."""
-        return [f for f in self._fills if f.side == side]
+        self._records.append(record)
 
-    def get_telemetry(self) -> Dict[str, Any]:
-        """Return aggregate telemetry summary."""
-        if not self._fills:
-            return {
-                "total_fills": 0,
-                "total_slippage_bps": 0.0,
-                "avg_slippage_bps": 0.0,
-                "max_slippage_bps": 0.0,
-                "min_slippage_bps": 0.0,
-                "drift_alerts": 0,
-                "symbols": [],
-            }
+        # Attach slippage back to the fill object for safety layer
+        fill.slippage_realized_ticks = slippage_ticks
 
-        all_slippage = [f.slippage_bps for f in self._fills]
-        symbols = list({f.symbol for f in self._fills})
+        logger.info(
+            f"FillTape #{self._trade_count}: {fill.symbol} {fill.side.value} "
+            f"@{float(fill.fill_price):.2f} slippage={slippage_ticks}tks "
+            f"{'⚠️ EXCEEDED BUFFER' if exceeded else '✅'}"
+        )
 
-        return {
-            "total_fills": len(self._fills),
-            "total_slippage_bps": round(sum(all_slippage), 4),
-            "avg_slippage_bps": round(statistics.mean(all_slippage), 4),
-            "max_slippage_bps": round(max(all_slippage), 4),
-            "min_slippage_bps": round(min(all_slippage), 4),
-            "drift_alerts": sum(1 for s in self._snapshots if s.drift_alert),
-            "symbols": symbols,
+        return record
+
+    def close(self) -> Path:
+        """
+        Write CSV tape and check for slippage drift.
+        Returns path to the written tape file.
+        """
+        if not self._records:
+            logger.info("FillTape: no fills this session.")
+            return self._tape_path
+
+        # Write deterministic CSV (fixed column order)
+        fieldnames = list(FillRecord.__dataclass_fields__.keys())
+        with open(self._tape_path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for r in self._records:
+                writer.writerow(asdict(r))
+
+        # Check for drift
+        self._check_slippage_drift()
+
+        tape_hash = hashlib.sha256(self._tape_path.read_bytes()).hexdigest()
+        logger.info(f"FillTape closed: {self._tape_path} sha256={tape_hash[:16]}…")
+        return self._tape_path
+
+    def _check_slippage_drift(self) -> None:
+        """
+        If realized slippage exceeds buffer in > 20% of fills:
+        emit ProfileDriftFlag artifact for operator review.
+
+        Does NOT modify seed_profile. Does NOT pause trading.
+        """
+        fills_with_known_slippage = [
+            r for r in self._records if r.slippage_realized_ticks is not None
+        ]
+        if not fills_with_known_slippage:
+            return
+
+        exceeded_count = sum(1 for r in fills_with_known_slippage if r.slippage_exceeded_buffer)
+        drift_pct = exceeded_count / len(fills_with_known_slippage)
+
+        if drift_pct > DRIFT_THRESHOLD_PCT:
+            self._emit_drift_flag(drift_pct, exceeded_count, len(fills_with_known_slippage))
+
+    def _emit_drift_flag(
+        self,
+        drift_pct: float,
+        exceeded_count: int,
+        total_count: int,
+    ) -> None:
+        """
+        Write a ProfileDriftFlag JSON artifact. Operator must review and
+        explicitly update the slippage buffer in seed_profile if warranted.
+        """
+        flag = {
+            "flag_type": "SLIPPAGE_DRIFT",
+            "session_date": self.session_date,
+            "drift_pct": round(drift_pct, 4),
+            "fills_exceeding_buffer": exceeded_count,
+            "fills_with_known_slippage": total_count,
+            "drift_threshold_pct": DRIFT_THRESHOLD_PCT,
+            "slippage_buffer_ticks_current": self.slippage_buffer_ticks,
+            "action_required": (
+                "Realized slippage exceeded the profile buffer in "
+                f"{drift_pct:.1%} of fills. Review fill_tape CSV and consider "
+                "updating seed_profile slippage_buffer_ticks. "
+                "DO NOT auto-update — operator must confirm."
+            ),
         }
+        flag_path = self.output_dir / f"profile_drift_flag_{self.session_date}.json"
+        flag_path.write_text(json.dumps(flag, indent=2))
+        logger.warning(
+            f"⚠️ SLIPPAGE DRIFT FLAG emitted: {drift_pct:.1%} of fills exceeded "
+            f"{self.slippage_buffer_ticks}-tick buffer. See {flag_path}"
+        )
 
-    def get_per_symbol_telemetry(self) -> Dict[str, Dict[str, Any]]:
-        """Return per-symbol slippage breakdown."""
-        result: Dict[str, Dict[str, Any]] = {}
-        symbols = {f.symbol for f in self._fills}
+    @property
+    def records(self) -> List[FillRecord]:
+        """Read-only access to all recorded fills this session."""
+        return list(self._records)
 
-        for sym in symbols:
-            sym_fills = self.get_fills_by_symbol(sym)
-            slippages = [f.slippage_bps for f in sym_fills]
-            result[sym] = {
-                "fill_count": len(sym_fills),
-                "avg_slippage_bps": round(statistics.mean(slippages), 4),
-                "total_slippage_bps": round(sum(slippages), 4),
-                "total_qty": round(sum(f.qty for f in sym_fills), 6),
-                "total_commission": round(sum(f.commission for f in sym_fills), 4),
-            }
-
-        return result
+    def summary(self) -> dict:
+        """Return a summary dict for evidence manifest."""
+        filled = [r for r in self._records if r.slippage_realized_ticks is not None]
+        mean_slip = (
+            sum(r.slippage_realized_ticks for r in filled) / len(filled)
+            if filled else None
+        )
+        return {
+            "session_date": self.session_date,
+            "total_fills": len(self._records),
+            "fills_with_slippage_data": len(filled),
+            "mean_slippage_ticks": round(mean_slip, 2) if mean_slip is not None else None,
+            "fills_exceeding_buffer": sum(1 for r in filled if r.slippage_exceeded_buffer),
+            "drift_threshold_pct": DRIFT_THRESHOLD_PCT,
+        }

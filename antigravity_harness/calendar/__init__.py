@@ -1,15 +1,10 @@
 """
-antigravity_harness.calendar — Trading Calendar Adapters
-=========================================================
-Calendar-aware trading session management for institutional
-execution. Provides cutoff times, session windows, and
-flatten triggers.
+antigravity_harness.calendar — Trading Calendars
+================================================
+Implements institutional trading session logic.
 """
-
-from antigravity_harness.calendar.cme_calendar import (
-    CalendarAdapter,
-    CMERTHCalendar,
-)
+from antigravity_harness.execution.adapter_base import CalendarAdapter
+from antigravity_harness.calendar.cme_calendar import CMERTHCalendar
 
 __all__ = [
     "CalendarAdapter",
