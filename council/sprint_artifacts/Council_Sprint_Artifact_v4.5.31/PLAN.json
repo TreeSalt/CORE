@@ -1,6 +1,6 @@
 {
-    "artifact_name": "Council_Patch_v4.5.30",
-    "target_version": "4.5.30",
+    "artifact_name": "Council_Patch_v4.5.31",
+    "target_version": "4.5.31",
     "completed_at_utc": null,
     "status": "IN_PROGRESS",
     "epics": [
@@ -18,7 +18,7 @@
                     "commands_run": [
                         "make build"
                     ],
-                    "evidence": "Version bumped to 4.5.30",
+                    "evidence": "Version bumped to 4.5.31",
                     "notes": "Removed ALLOW_VERSION_BUMP constraint."
                 }
             ]
