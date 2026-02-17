@@ -19,7 +19,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime, time, timedelta, timezone
 
-
 # ===========================================================
 # Eastern Time helper (handles EST/EDT automatically)
 # ===========================================================

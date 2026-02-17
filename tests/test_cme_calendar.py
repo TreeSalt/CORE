@@ -14,14 +14,14 @@ Key test cases:
 All times are passed as UTC and converted internally.
 """
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
-from datetime import datetime, timezone, timedelta
 
 from antigravity_harness.calendar.cme_calendar import (
-    CMERTHCalendar,
     CalendarAdapter,
+    CMERTHCalendar,
     _to_et,
-    _ET_STANDARD,
 )
 
 

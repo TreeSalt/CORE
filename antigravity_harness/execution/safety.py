@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Deque, Dict, Optional, Set
 
 from antigravity_harness.execution.adapter_base import (
@@ -119,10 +119,7 @@ class ExecutionSafety:
     def _check_position_limit(self, order: Order) -> bool:
         """Check if resulting position would exceed max size."""
         current = self._adapter.get_position(order.symbol)
-        if order.side == OrderSide.BUY:
-            projected = current + order.qty
-        else:
-            projected = current - order.qty
+        projected = current + order.qty if order.side == OrderSide.BUY else current - order.qty
 
         return abs(projected) <= self._config.max_position_size
 
@@ -186,10 +183,9 @@ class ExecutionSafety:
             )
 
         # Gate 4: Notional limit
-        if reference_price is not None:
-            if not self._check_notional_limit(order, reference_price):
-                self.telemetry.orders_blocked_notional += 1
-                raise ExecutionError(
+        if reference_price is not None and not self._check_notional_limit(order, reference_price):
+            self.telemetry.orders_blocked_notional += 1
+            raise ExecutionError(
                     f"Notional limit exceeded for {order.symbol} "
                     f"(max: {self._config.max_notional_value})",
                     order=order,
@@ -200,7 +196,7 @@ class ExecutionSafety:
         if not self._check_calendar_cutoff(order):
             self.telemetry.orders_blocked_calendar += 1
             raise ExecutionError(
-                f"Calendar cutoff — no new positions after trading cutoff",
+                "Calendar cutoff — no new positions after trading cutoff",
                 order=order,
                 reason="CALENDAR_CUTOFF",
             )

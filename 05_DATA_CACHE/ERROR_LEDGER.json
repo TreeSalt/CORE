@@ -273,7 +273,19 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.23",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-17T12:44:16Z",
+            "category": "HYGIENE",
+            "gate": "RUNTIME",
+            "message": "12 lint errors detected in MES execution stack (I001, F401, SIM, PLW)",
+            "resolution": null
         }
     ],
-    "vaccines": {}
+    "vaccines": {
+        "LINT_HYGIENE": {
+            "learned_at": "2026-02-17T12:44:16Z",
+            "resolution": "Strict Ruff enforcement; automated --fix in forge pipeline"
+        }
+    }
 }

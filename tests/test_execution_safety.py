@@ -8,9 +8,10 @@ Tests for:
   4. SimAdapter basic execution
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
+
+import pytest
 
 from antigravity_harness.execution.adapter_base import (
     ExecutionAdapter,
@@ -18,13 +19,11 @@ from antigravity_harness.execution.adapter_base import (
     Fill,
     Order,
     OrderSide,
-    OrderType,
 )
 from antigravity_harness.execution.fill_tape import FillTape
 from antigravity_harness.execution.flatten_manager import FlattenManager
 from antigravity_harness.execution.safety import ExecutionSafety, SafetyConfig
 from antigravity_harness.execution.sim_adapter import SimAdapter
-
 
 # ===========================================================
 # Fixtures
@@ -305,7 +304,7 @@ class TestFlattenManager:
         flatten_events = []
         fm = FlattenManager(
             sim, calendar=mock_cal,
-            on_flatten=lambda e: flatten_events.append(e),
+            on_flatten=flatten_events.append,
         )
 
         now = datetime(2026, 1, 15, 20, 46, tzinfo=timezone.utc)
