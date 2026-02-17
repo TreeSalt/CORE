@@ -204,7 +204,7 @@ def main():
     verify_certificate(zf, ledger_data, version)
 
     # Sidecar check
-    sidecar_name = f"DROP_PACKET_SHA256_v{version}.txt"
+    sidecar_name = f"DROP_WITNESS_INNER_SHA256_v{version}.txt"
     if sidecar_name in names:
         ok(f"Internal sidecar present: {sidecar_name}")
     else:

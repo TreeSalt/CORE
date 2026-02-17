@@ -138,7 +138,7 @@ def main() -> int:  # noqa: PLR0915, PLR0912
         if not args.drop_packet_sha and ver:
             try:
                 with zipfile.ZipFile(args.drop, 'r') as z:
-                    sidecar_name = f"DROP_PACKET_SHA256_v{ver}.txt"
+                    sidecar_name = f"DROP_WITNESS_INNER_SHA256_v{ver}.txt"
                     if sidecar_name in z.namelist():
                         print(f"🔍 Discovered internal sidecar: {sidecar_name}")
                         # We don't have a file path, but we can load the content.

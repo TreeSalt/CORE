@@ -540,7 +540,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             _write_to_zip(zf, repo_root / "SOVEREIGN_REPORT.md", "SOVEREIGN_REPORT.md")
         
         # Inject Internal Witness Sidecar
-        zinfo_s = zipfile.ZipInfo(f"DROP_PACKET_SHA256_v{version}.txt", date_time=(2020, 1, 1, 0, 0, 0))
+        zinfo_s = zipfile.ZipInfo(f"DROP_WITNESS_INNER_SHA256_v{version}.txt", date_time=(2020, 1, 1, 0, 0, 0))
         zinfo_s.compress_type = zipfile.ZIP_DEFLATED
         zf.writestr(zinfo_s, sidecar_internal_txt)
 
