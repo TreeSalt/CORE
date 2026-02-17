@@ -21,6 +21,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# ANSI Colors for Institutional Output
+RED = "\033[31m"
+GREEN = "\033[32m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
 
 @dataclass
 class GateResult:
