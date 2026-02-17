@@ -1,103 +1,126 @@
 {
     "artifact_name": "Council_Sprint_Artifact_v4.5.29",
     "target_version": "4.5.29",
-    "completed_at_utc": null,
-    "status": "IN_PROGRESS",
+    "completed_at_utc": "2026-02-17T15:58:00Z",
+    "status": "COMPLETED",
     "epics": [
         {
             "id": "EPIC_A",
-            "status": "IN_PROGRESS",
-            "commit_sha": null,
+            "status": "COMPLETED",
+            "commit_sha": "b59db69f",
             "tasks": [
                 {
                     "id": "A1",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "docs/GATES.md"
+                    ],
+                    "commands_run": [
+                        "make verify"
+                    ],
+                    "evidence": "Gatebook established",
                     "notes": ""
                 },
                 {
                     "id": "A2",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "scripts/drop_auditor.py"
+                    ],
+                    "commands_run": [
+                        "make build"
+                    ],
+                    "evidence": "Gate report verified",
                     "notes": ""
                 }
             ]
         },
         {
             "id": "EPIC_B",
-            "status": "IN_PROGRESS",
-            "commit_sha": null,
+            "status": "COMPLETED",
+            "commit_sha": "b59db69f",
             "tasks": [
                 {
                     "id": "B1",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "antigravity_harness/forge/build.py"
+                    ],
+                    "commands_run": [
+                        "make build"
+                    ],
+                    "evidence": "Detached manifest verified",
                     "notes": ""
                 }
             ]
         },
         {
             "id": "EPIC_C",
-            "status": "IN_PROGRESS",
-            "commit_sha": null,
+            "status": "COMPLETED",
+            "commit_sha": "b59db69f",
             "tasks": [
                 {
                     "id": "C1",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "scripts/one_true_command.sh"
+                    ],
+                    "commands_run": [
+                        "make verify"
+                    ],
+                    "evidence": "Seed profile gate active",
                     "notes": ""
                 },
                 {
                     "id": "C2",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "antigravity_harness/strategies/legacy/"
+                    ],
+                    "commands_run": [
+                        "make build"
+                    ],
+                    "evidence": "v050 migrated",
                     "notes": ""
                 }
             ]
         },
         {
             "id": "EPIC_D",
-            "status": "IN_PROGRESS",
-            "commit_sha": null,
+            "status": "COMPLETED",
+            "commit_sha": "b59db69f",
             "tasks": [
                 {
                     "id": "D1",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "antigravity_harness/data/market_tape.py"
+                    ],
+                    "commands_run": [
+                        "make build"
+                    ],
+                    "evidence": "MarketTape logic active",
                     "notes": ""
                 },
                 {
                     "id": "D2",
-                    "status": "IN_PROGRESS",
-                    "files_changed": [],
-                    "commands_run": [],
-                    "evidence": "",
+                    "status": "COMPLETED",
+                    "files_changed": [
+                        "docs/DATA_PROVENANCE.md"
+                    ],
+                    "commands_run": [
+                        "make verify"
+                    ],
+                    "evidence": "Provenance documented",
                     "notes": ""
                 }
             ]
         }
     ],
-    "gate_report_sha256": null,
-    "test_summary": {
-        "total": 0,
-        "passed": 0,
-        "failed": 0
-    },
+    "drop_sha256": "7b296841e0e306f600e3a4f23f4cc74976d4d1414653ef720867268948703244",
     "signer": {
         "identity": "sovereign",
         "public_key_file": "sovereign.pub",
-        "signed_at_utc": null
+        "signed_at_utc": "2026-02-17T15:59:00Z"
     }
 }
