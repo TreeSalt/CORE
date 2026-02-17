@@ -30,22 +30,16 @@ A change is done only if:
 - Drop packet can be produced and audited
 
 ## Commands (Local Workflow)
-### Preflight / hygiene
-- `python scripts/preflight.py`
 
-### Run core workflows (CLI)
-- `python -m antigravity_harness.cli calibration ...`
-- `python -m antigravity_harness.cli sweep ...`
-- `python -m antigravity_harness.cli council_sweep ...`
-- `python -m antigravity_harness.cli certification ...`
+> **📖 Full command reference: [docs/COMMANDS.md](docs/COMMANDS.md)**
 
-### Forge the deliverable
-- `python scripts/make_drop_packet.py`
-
-### Verify the deliverable (must-pass)
-- `python scripts/verify_drop_packet.py --drop <DROP.zip> --run-ledger <RUN_LEDGER.json>`
-- `python scripts/verify_certificate.py --evidence <EVIDENCE.zip>`
-- `python drop_auditor.py <DROP.zip>`  ← third-party style verification (must PASS)
+### Quick Reference
+- `make all` — Full pipeline (preflight → build → verify)
+- `make heal` — Auto-repair versioning and hygiene
+- `make commands` — Terminal cheat-sheet
+- `make show-errors` — View recent errors (human-friendly)
+- `python3 -m antigravity_harness.cli -h` — CLI subcommands
+- `python3 -m antigravity_harness.cli info` — Project health status
 
 ## Gates (How to treat them)
 Gates exist to prevent “pretty but fake” results.

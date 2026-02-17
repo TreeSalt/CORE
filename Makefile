@@ -10,7 +10,7 @@ LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
 DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
 ONE_TRUE := scripts/one_true_command.sh
 
-.PHONY: help install lint format type-check test test-hardening preflight clean forge build all heal
+.PHONY: help install lint format type-check test test-hardening preflight clean forge build all heal commands
 help:
 	@echo ""
 	@echo "🐉 TRADER_OPS — Antigravity Harness (v$(VERSION))"
@@ -55,11 +55,57 @@ help:
 	@echo "    make gorgon           Gorgon verifier hijack"
 	@echo "    make shadow-verify    Shadow runner (full chaos + verify)"
 	@echo ""
+	@echo "  🩺 ERROR LOG"
+	@echo "    make show-errors      Show recent errors (human-friendly)"
+	@echo ""
 	@echo "  🧹 MAINTENANCE"
 	@echo "    make clean            Clean repo artifacts and caches"
 	@echo "    make clean-zombies    Kill orphaned simulation processes"
 	@echo "    make help             Show this help menu"
+	@echo "    make commands         Full command cheat-sheet"
 	@echo ""
+	@echo "  📖 Full guide: docs/COMMANDS.md"
+	@echo ""
+
+commands:
+	@echo ""
+	@echo "┌─────────────────────────────────────────────────────────────────────┐"
+	@echo "│  🐉 TRADER_OPS COMMAND CONSOLE — v$(VERSION)                        │"
+	@echo "├─────────────────────────────────────────────────────────────────────┤"
+	@echo "│                                                                     │"
+	@echo "│  🚀 DAILY WORKFLOW (just do these)                                  │"
+	@echo "│    make install ····· Install deps          (first time / update)    │"
+	@echo "│    make heal ········ Auto-repair everything (version, hygiene)      │"
+	@echo "│    make all ········· Full pipeline          (the one command)       │"
+	@echo "│    make release ····· Council delivery       (clean → build → seal)  │"
+	@echo "│                                                                     │"
+	@echo "│  🔍 QUALITY                 📦 BUILD                                │"
+	@echo "│    make lint              make build  (→ dist/)                      │"
+	@echo "│    make format            make forge  (evidence)                     │"
+	@echo "│    make type-check                                                  │"
+	@echo "│    make test              🛡️  VERIFY                                │"
+	@echo "│    make test-hardening    make verify (Sovereign Audit)              │"
+	@echo "│    make preflight         make audit  (Council audit)               │"
+	@echo "│                           make hashes (SHA-256 check)               │"
+	@echo "│                                                                     │"
+	@echo "│  🐒 CHAOS                  🧹 MAINTENANCE                           │"
+	@echo "│    make chaos (all)       make clean                                │"
+	@echo "│    make hydra             make clean-zombies                        │"
+	@echo "│    make basilisk          make show-errors                          │"
+	@echo "│    make echo / chimera                                              │"
+	@echo "│    make kraken / mimic    🔬 CLI MODULE                              │"
+	@echo "│    make legion / gorgon   python3 -m antigravity_harness.cli -h     │"
+	@echo "│    make shadow-verify     python3 -m antigravity_harness.cli info   │"
+	@echo "│                                                                     │"
+	@echo "├─────────────────────────────────────────────────────────────────────┤"
+	@echo "│  📖 Full guide with examples: docs/COMMANDS.md                      │"
+	@echo "│  🩺 Recent errors: make show-errors                                 │"
+	@echo "│  💡 Any command -h for details                                      │"
+	@echo "└─────────────────────────────────────────────────────────────────────┘"
+	@echo ""
+
+show-errors:
+	@$(PYTHON) -B scripts/archivist.py --show
 
 install:
 	$(PIP) install -r requirements.txt

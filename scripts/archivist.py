@@ -84,15 +84,85 @@ def learn_from_failure(error_code, solution):
         json.dump(data, f, indent=4)
     print(f"[ARCHIVIST] Learned new vaccine for: {error_code}")
 
+def show_ledger(last_n=20):
+    """Pretty-print recent events from the Error Ledger in a human-friendly table."""
+    init_ledger()
+    with open(LEDGER_PATH, "r") as f:
+        data = json.load(f)
+
+    events = data.get("events", [])
+    vaccines = data.get("vaccines", {})
+
+    if not events:
+        print("\n  🩺 ERROR LEDGER — No events recorded yet.")
+        print("     System is clean. Nothing to report.\n")
+        return
+
+    # Show only last N
+    display = events[-last_n:]
+
+    # Colors for categories
+    cat_colors = {
+        "INFRA": "\033[96m",     # Cyan
+        "METADATA": "\033[95m",  # Magenta
+        "LOGIC": "\033[93m",     # Yellow
+        "HYGIENE": "\033[92m",   # Green
+        "IDENTITY": "\033[91m",  # Red
+    }
+    reset = "\033[0m"
+    bold = "\033[1m"
+    dim = "\033[2m"
+
+    print(f"\n{bold}  🩺 ERROR LEDGER — Last {len(display)} of {len(events)} events{reset}")
+    print(f"  {'─' * 88}")
+    print(f"  {bold}{'TIMESTAMP':<22} {'CATEGORY':<12} {'GATE':<12} {'MESSAGE':<42}{reset}")
+    print(f"  {'─' * 88}")
+
+    for ev in display:
+        ts = ev.get("timestamp_utc", "?")[:19].replace("T", " ")
+        cat = ev.get("category", "?")
+        gate = ev.get("gate", "?")
+        msg = ev.get("message", "")
+        res = ev.get("resolution")
+
+        color = cat_colors.get(cat, "")
+        # Truncate long messages for table display
+        msg_display = (msg[:40] + "..") if len(msg) > 42 else msg
+
+        print(f"  {dim}{ts}{reset} {color}{cat:<12}{reset} {gate:<12} {msg_display}")
+        if res:
+            print(f"  {' ' * 22} {dim}↳ Fix: {res}{reset}")
+
+    print(f"  {'─' * 88}")
+
+    # Vaccine summary
+    if vaccines:
+        print(f"\n{bold}  💉 VACCINES LEARNED: {len(vaccines)}{reset}")
+        for code, info in vaccines.items():
+            learned = info.get("learned_at", "?")[:10]
+            sol = info.get("resolution", "?")
+            print(f"     • {code}: {sol} {dim}({learned}){reset}")
+        print()
+    else:
+        print(f"\n  {dim}No vaccines recorded yet.{reset}\n")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="TRADER_OPS Error Archivist")
+    parser = argparse.ArgumentParser(
+        description="TRADER_OPS Error Archivist — Centralized Error Intelligence",
+        epilog="Full guide: docs/COMMANDS.md"
+    )
     parser.add_argument("--log", nargs=3, metavar=('CAT', 'MSG', 'GATE'), help="Log a new error")
     parser.add_argument("--learn", nargs=2, metavar=('CODE', 'SOL'), help="Learn a new resolution")
     parser.add_argument("--verify-ledger", action="store_true", help="Verify ledger integrity")
-    
+    parser.add_argument("--show", action="store_true", help="Show recent errors (human-friendly table)")
+    parser.add_argument("--last", type=int, default=20, help="Number of recent events to show (default: 20)")
+
     args = parser.parse_args()
-    
-    if args.log:
+
+    if args.show:
+        show_ledger(args.last)
+    elif args.log:
         log_event(args.log[0], args.log[1], args.log[2])
     elif args.learn:
         learn_from_failure(args.learn[0], args.learn[1])
@@ -108,7 +178,7 @@ def main():
             sys.exit(1)
     else:
         init_ledger()
-        print("[INFO] Error Archivist standby.")
+        print("[INFO] Error Archivist standby. Use --show to view errors, --help for all options.")
 
 if __name__ == "__main__":
     main()
