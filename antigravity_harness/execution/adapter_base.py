@@ -13,11 +13,9 @@ The interfaces never import the engine. Dependency flows one way.
 
 Does NOT: contain broker logic, live calls, or strategy code.
 """
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence

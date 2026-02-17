@@ -23,9 +23,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from antigravity_harness.execution.adapter_base import Fill, OrderSide
-from antigravity_harness.instruments.mes import MES_TICK_SIZE, MES_TICK_VALUE
 from antigravity_harness.instruments.mes import (
     MES_SLIPPAGE_BUFFER_TICKS,
+    MES_TICK_SIZE,
     MES_TICK_VALUE,
 )
 

@@ -34,7 +34,6 @@ from antigravity_harness.execution.adapter_base import (
     Position,
 )
 from antigravity_harness.instruments.mes import (
-    MES_TICK_VALUE,
     MES_POINT_VALUE,
     MES_TICK_SIZE,
 )
@@ -109,10 +108,7 @@ class SimExecutionAdapter(ExecutionAdapter):
         qty = self._positions.get(symbol, 0)
         avg_cost = self._avg_costs.get(symbol, 0.0)
         current = self._current_prices.get(symbol, avg_cost)
-        if qty == 0:
-            unrealized = 0.0
-        else:
-            unrealized = (current - avg_cost) * MES_POINT_VALUE * qty
+        unrealized = 0.0 if qty == 0 else (current - avg_cost) * MES_POINT_VALUE * qty
         return Position(
             symbol=symbol,
             quantity=qty,
