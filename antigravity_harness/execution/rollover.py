@@ -18,7 +18,6 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Optional
 
-
 # MES quarterly expiry month codes
 QUARTERLY_MONTHS = {
     3: "H",   # March

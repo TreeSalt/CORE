@@ -16,21 +16,18 @@ Does NOT: contain strategy logic, broker calls, or profile mutation.
 """
 from __future__ import annotations
 
-import asyncio
+import contextlib
 import logging
 from dataclasses import dataclass, field
-from datetime import date, datetime, timezone
-from decimal import Decimal
+from datetime import date, datetime
 from typing import Optional
 
 from antigravity_harness.execution.adapter_base import (
     CalendarAdapter,
-    ExecutionAdapter,
     Fill,
     OrderIntent,
     OrderSide,
     OrderType,
-    Position,
 )
 from antigravity_harness.instruments.mes import (
     MES_DAILY_ATR_NO_TRADE,
@@ -173,7 +170,7 @@ class ExecutionSafety:
     # ── Gate 1: Daily Loss Cap ─────────────────────────────────────────────────
 
     def _check_daily_loss(self) -> None:
-        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd:
+        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd and not self.state.pause_trading:
             self.state.pause_trading = True
             self.state.pause_reason = (
                 f"Daily loss cap hit: ${self.state.total_pnl_usd:.2f} <= "
@@ -287,27 +284,22 @@ class ExecutionSafety:
         self.state.fills_today.append(fill)
 
         # Check if daily cap is now hit
-        try:
+        with contextlib.suppress(DailyLossCapReached):
             self._check_daily_loss()
-        except DailyLossCapReached:
-            pass  # Already logged and state.pause_trading set in _check_daily_loss
 
     def record_realized_pnl(self, pnl_usd: float) -> None:
         """Call when a position is closed to record realized P&L."""
         self.state.realized_pnl_usd += pnl_usd
-        try:
+        with contextlib.suppress(DailyLossCapReached):
             self._check_daily_loss()
-        except DailyLossCapReached:
-            pass
 
     def update_unrealized(self, unrealized_pnl_usd: float) -> None:
         """Update unrealized P&L (call on every bar tick)."""
         self.state.unrealized_pnl_usd = unrealized_pnl_usd
-        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd:
-            if not self.state.pause_trading:
-                self.state.pause_trading = True
-                self.state.pause_reason = (
-                    f"Daily loss cap hit on unrealized: "
-                    f"${self.state.total_pnl_usd:.2f}"
-                )
-                logger.critical(f"🛑 {self.state.pause_reason}")
+        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd and not self.state.pause_trading:
+            self.state.pause_trading = True
+            self.state.pause_reason = (
+                f"Daily loss cap hit on unrealized: "
+                f"${self.state.total_pnl_usd:.2f}"
+            )
+            logger.critical(f"🛑 {self.state.pause_reason}")

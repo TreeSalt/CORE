@@ -19,12 +19,11 @@ import hashlib
 import json
 import logging
 from dataclasses import asdict, dataclass
-from datetime import datetime
-from decimal import Decimal
 from pathlib import Path
 from typing import List, Optional
 
 from antigravity_harness.execution.adapter_base import Fill, OrderSide
+from antigravity_harness.instruments.mes import MES_TICK_SIZE, MES_TICK_VALUE
 from antigravity_harness.instruments.mes import (
     MES_SLIPPAGE_BUFFER_TICKS,
     MES_TICK_VALUE,
@@ -120,12 +119,7 @@ class FillTape:
 
         if expected_price is not None:
             fill_px = float(fill.fill_price)
-            if fill.side == OrderSide.BUY:
-                slippage_pts = fill_px - expected_price   # positive = worse for buyer
-            else:
-                slippage_pts = expected_price - fill_px   # positive = worse for seller
-
-            from antigravity_harness.instruments.mes import MES_TICK_SIZE
+            slippage_pts = fill_px - expected_price if fill.side == OrderSide.BUY else expected_price - fill_px
             slippage_ticks = round(slippage_pts / MES_TICK_SIZE)
             slippage_cost_usd = max(0, slippage_ticks) * MES_TICK_VALUE * fill.filled_qty
 

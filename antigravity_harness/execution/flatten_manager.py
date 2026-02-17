@@ -33,7 +33,6 @@ from antigravity_harness.execution.adapter_base import (
     OrderIntent,
     OrderSide,
     OrderType,
-    Position,
     TimeInForce,
 )
 
@@ -144,7 +143,7 @@ class FlattenManager:
             logger.info(f"FLATTEN {symbol}: close order submitted broker_id={ack.broker_order_id}")
 
             # ── Step 3: Poll until flat or timeout ────────────────────────────
-            flat = await self._wait_for_flat(symbol, initial_qty)
+            await self._wait_for_flat(symbol, initial_qty)
 
             # ── Step 4: Cancel all remaining open orders ──────────────────────
             orders_cancelled = await self._cancel_all_orders(symbol)
@@ -155,11 +154,10 @@ class FlattenManager:
             final_qty = final_pos.quantity
 
             # ── Step 6: Double-fill race detection ────────────────────────────
-            if final_qty != 0:
-                # Check if this is an accidental reversal (double-fill)
-                # Reversal: we were long, close filled, then another fill came in
-                # and now we are short (or vice versa)
-                if (initial_qty > 0 and final_qty < 0) or (initial_qty < 0 and final_qty > 0):
+            if final_qty != 0 and (
+            (initial_qty > 0 and final_qty < 0)
+            or (initial_qty < 0 and final_qty > 0)
+        ):
                     reversal_detected = True
                     logger.critical(
                         f"🚨 FLATTEN {symbol}: DOUBLE-FILL RACE DETECTED. "

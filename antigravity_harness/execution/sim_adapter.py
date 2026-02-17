@@ -17,10 +17,10 @@ Does NOT: call any broker API. Does NOT import ib_insync, rithmic, or tradovate.
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,
@@ -33,7 +33,11 @@ from antigravity_harness.execution.adapter_base import (
     OrderType,
     Position,
 )
-from antigravity_harness.instruments.mes import MES_TICK_VALUE
+from antigravity_harness.instruments.mes import (
+    MES_TICK_VALUE,
+    MES_POINT_VALUE,
+    MES_TICK_SIZE,
+)
 
 
 @dataclass
@@ -66,13 +70,13 @@ class SimExecutionAdapter(ExecutionAdapter):
         self._commission_per_rt = commission_per_rt
         self._sim_slippage_ticks = sim_slippage_ticks
         self._paper = paper
-        self._positions: Dict[str, int] = {}        # symbol → qty
-        self._avg_costs: Dict[str, float] = {}      # symbol → avg cost
-        self._open_orders: Dict[str, _SimOrder] = {}
+        self._positions: dict[str, int] = {}        # symbol → qty
+        self._avg_costs: dict[str, float] = {}      # symbol → avg cost
+        self._open_orders: dict[str, _SimOrder] = {}
         self._fills: List[Fill] = []
         self._realized_pnl: float = 0.0
         self._connected = False
-        self._current_prices: Dict[str, float] = {}  # set externally for unrealized P&L
+        self._current_prices: dict[str, float] = {}  # set externally for unrealized P&L
 
     @property
     def capabilities(self) -> AdapterCapabilities:
@@ -108,7 +112,6 @@ class SimExecutionAdapter(ExecutionAdapter):
         if qty == 0:
             unrealized = 0.0
         else:
-            from antigravity_harness.instruments.mes import MES_POINT_VALUE
             unrealized = (current - avg_cost) * MES_POINT_VALUE * qty
         return Position(
             symbol=symbol,
@@ -159,12 +162,8 @@ class SimExecutionAdapter(ExecutionAdapter):
         base_price = self._current_prices.get(symbol, 5000.0)
 
         # Apply synthetic slippage
-        from antigravity_harness.instruments.mes import MES_TICK_SIZE
         slip_pts = self._sim_slippage_ticks * MES_TICK_SIZE
-        if intent.side == OrderSide.BUY:
-            fill_price = base_price + slip_pts
-        else:
-            fill_price = base_price - slip_pts
+        fill_price = base_price + slip_pts if intent.side == OrderSide.BUY else base_price - slip_pts
 
         commission = self._commission_per_rt * intent.quantity
         now = datetime.now(tz=timezone.utc)
@@ -192,7 +191,6 @@ class SimExecutionAdapter(ExecutionAdapter):
 
         # Update average cost (simplified — full FIFO accounting out of scope here)
         if new_qty == 0:
-            from antigravity_harness.instruments.mes import MES_POINT_VALUE
             realized = (fill_price - self._avg_costs.get(symbol, fill_price)) * MES_POINT_VALUE * abs(qty_delta)
             if prev_qty < 0:
                 realized = -realized
@@ -201,9 +199,9 @@ class SimExecutionAdapter(ExecutionAdapter):
         elif prev_qty == 0:
             self._avg_costs[symbol] = fill_price
         else:
-            prev_cost = self._avg_costs.get(symbol, fill_price)
+            _cost = self._avg_costs.get(symbol, fill_price)
             self._avg_costs[symbol] = (
-                (prev_cost * abs(prev_qty) + fill_price * intent.quantity)
+                (_cost * abs(prev_qty) + fill_price * intent.quantity)
                 / abs(new_qty)
             )
 

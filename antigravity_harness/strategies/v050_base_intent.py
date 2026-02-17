@@ -26,7 +26,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from decimal import Decimal
 from typing import Optional
 
 import pandas as pd
@@ -39,11 +38,8 @@ from antigravity_harness.execution.adapter_base import (
 )
 from antigravity_harness.instruments.mes import (
     MES_CONTRACT_SYMBOL,
-    MES_POINT_VALUE,
-    MES_STOP_POINTS,
     MESRiskParams,
 )
-
 
 # ─── Intent-Only Strategy Contract ───────────────────────────────────────────
 

@@ -12,15 +12,19 @@ No network calls. No broker dependencies.
 """
 from __future__ import annotations
 
-import asyncio
-import sys
 import os
+import sys
 import unittest
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from typing import Optional
 
 # Add patch path for import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import contextlib
+import tempfile
+from pathlib import Path
 
 from antigravity_harness.execution.adapter_base import (
     CalendarAdapter,
@@ -29,7 +33,7 @@ from antigravity_harness.execution.adapter_base import (
     OrderType,
     TimeInForce,
 )
-from antigravity_harness.execution.fill_tape import FillTape, DRIFT_THRESHOLD_PCT
+from antigravity_harness.execution.fill_tape import FillTape
 from antigravity_harness.execution.flatten_manager import FlattenManager
 from antigravity_harness.execution.rollover import (
     RolloverError,
@@ -44,24 +48,13 @@ from antigravity_harness.execution.safety import (
     DailyLossCapReached,
     ExecutionSafety,
     ExecutionSafetyConfig,
-    RiskLimitViolation,
     SessionBoundaryViolation,
 )
 from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
 from antigravity_harness.instruments.mes import (
-    MES_DAILY_LOSS_CAP_USD,
-    MES_DAILY_ATR_NO_TRADE,
-    MES_MAX_CONTRACTS_PHASE1,
     MES_MAX_PLANNED_RISK_USD,
-    MES_POINT_VALUE,
-    MES_SLIPPAGE_BUFFER_TICKS,
-    MES_STOP_POINTS,
     MESRiskParams,
 )
-
-import tempfile
-from pathlib import Path
-
 
 # ─── Test Calendar ─────────────────────────────────────────────────────────────
 
@@ -132,9 +125,7 @@ def after_cutoff_time() -> datetime:
 class TestMESConstants(unittest.TestCase):
     def test_risk_math_resolved(self):
         """Verify the frozen risk math: stop $35 + buffer $5 = $40."""
-        from antigravity_harness.instruments.mes import (
-            MES_STOP_RISK_USD, MES_SLIPPAGE_BUFFER_USD, MES_MAX_PLANNED_RISK_USD
-        )
+        from antigravity_harness.instruments.mes import MES_SLIPPAGE_BUFFER_USD, MES_STOP_RISK_USD
         self.assertAlmostEqual(MES_STOP_RISK_USD, 35.00)
         self.assertAlmostEqual(MES_SLIPPAGE_BUFFER_USD, 5.00)
         self.assertAlmostEqual(MES_MAX_PLANNED_RISK_USD, 40.00)
@@ -204,10 +195,8 @@ class TestExecutionSafetyGates(unittest.TestCase):
     def test_pause_persists_after_recovery(self):
         """Once paused, system stays paused even if P&L recovers."""
         self.safety.state.realized_pnl_usd = -80.00
-        try:
+        with contextlib.suppress(DailyLossCapReached):
             self._ok_check()
-        except DailyLossCapReached:
-            pass
         # Now pretend P&L "recovered"
         self.safety.state.realized_pnl_usd = -10.00
         with self.assertRaises(DailyLossCapReached):
@@ -388,10 +377,10 @@ class TestFillTape(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
             # 3 fills with >4 ticks slippage + 2 normal = 60% — above 20% threshold
-            for i in range(3):
+            for _i in range(3):
                 fill = self._make_fill(OrderSide.BUY, fill_price=5001.50)  # 6 ticks
                 tape.record(fill, expected_price=5000.00)
-            for i in range(2):
+            for _i in range(2):
                 fill = self._make_fill(OrderSide.BUY, fill_price=5000.25)  # 1 tick
                 tape.record(fill, expected_price=5000.00)
             tape.close()
@@ -405,7 +394,7 @@ class TestFillTape(unittest.TestCase):
             # 1 excess + 9 normal = 10% — below 20% threshold
             fill_bad = self._make_fill(OrderSide.BUY, fill_price=5001.50)
             tape.record(fill_bad, expected_price=5000.00)
-            for i in range(9):
+            for _i in range(9):
                 fill_ok = self._make_fill(OrderSide.BUY, fill_price=5000.00)
                 tape.record(fill_ok, expected_price=5000.00)
             tape.close()
@@ -560,7 +549,7 @@ class TestSimAdapter(unittest.IsolatedAsyncioTestCase):
         await adapter.connect()
         adapter.set_price("MES", 5000.0)
 
-        ack = await adapter.submit_order(make_intent(side=OrderSide.BUY))
+        await adapter.submit_order(make_intent(side=OrderSide.BUY))
         fill = adapter.all_fills[-1]
         expected = 5000.0 + 2 * MES_TICK_SIZE
         self.assertAlmostEqual(float(fill.fill_price), expected)

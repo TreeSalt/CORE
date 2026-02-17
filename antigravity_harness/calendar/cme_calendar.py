@@ -15,15 +15,14 @@ Note: CME equity futures trade nearly 24h on Globex, but TRADER_OPS operates RTH
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import zoneinfo
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Optional
-import zoneinfo
 
 from antigravity_harness.execution.adapter_base import CalendarAdapter
 from antigravity_harness.instruments.mes import (
-    MES_SESSION_OPEN_ET,
     MES_SESSION_CLOSE_ET,
+    MES_SESSION_OPEN_ET,
 )
 
 TZ_ET = zoneinfo.ZoneInfo("America/New_York")

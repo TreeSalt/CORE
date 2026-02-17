@@ -17,11 +17,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence
-
 
 # ─── Value Types ──────────────────────────────────────────────────────────────
 
@@ -326,7 +325,6 @@ class CalendarAdapter(ABC):
         close = self.session_close_utc(d)
         if close is None:
             return None
-        from datetime import timedelta
         return close - timedelta(minutes=10)
 
     def flatten_by_utc(self, d: date) -> Optional[datetime]:
@@ -337,7 +335,6 @@ class CalendarAdapter(ABC):
         close = self.session_close_utc(d)
         if close is None:
             return None
-        from datetime import timedelta
         return close - timedelta(minutes=5)
 
 
