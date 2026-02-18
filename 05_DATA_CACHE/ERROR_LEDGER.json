@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-02-16T23:46:33Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/BTC-USD_4h_20260215_fdb34373.csv",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-02-16T23:46:33Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/ETH-USD_1d_20260215_c2032108.csv",
             "resolution": "Git Checkout"
         },
@@ -696,6 +689,13 @@
         },
         {
             "timestamp_utc": "2026-02-18T01:12:53Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:12:54Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.54",
