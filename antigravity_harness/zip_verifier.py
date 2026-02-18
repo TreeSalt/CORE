@@ -137,7 +137,7 @@ class ZipVerifier:
             clean_manifest["file_sha256"] = dict(clean_manifest["file_sha256"])
             clean_manifest["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
 
-        canonical_bytes = json.dumps(clean_manifest, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+        canonical_bytes = json.dumps(clean_manifest, sort_keys=True, separators=(",", ":")).encode(
             "utf-8"
         )
         return hashlib.sha256(canonical_bytes).hexdigest()
