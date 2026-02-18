@@ -55,13 +55,17 @@ class MarketTape:
             # Try index 0 if it looks like a date
             df.index = pd.to_datetime(df.index, utc=True)
 
-        # Enforce required columns
-        required = {"open", "high", "low", "close", "volume"}
-        missing = required - set(df.columns)
+        # Enforce required columns and Title Case for consistency with load_ohlc
+        required_lower = {"open", "high", "low", "close", "volume"}
+        missing = required_lower - set(df.columns)
         if missing:
             raise ValueError(f"MarketTape missing required columns: {missing}")
 
-        return cls(df[list(required)])
+        # Map to Title Case
+        df = df[list(required_lower)].copy()
+        df.columns = [c.title() for c in df.columns]
+
+        return cls(df)
 
     @property
     def data_hash(self) -> str:
