@@ -188,18 +188,10 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         bindings = cert.get("bindings", {})
                         # payload_manifest_sha256 binding
                         if "MANIFEST.json" in namelist:
-                            # [STRICT BINDING] Instead of re-serializing, we extract the RAW bytes of the manifest from the CODE zip
-                            # to ensure bit-perfect equivalence with what the forge signed.
-                            code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
-                            m_hash = "N/A"
-                            if code_zips:
-                                code_data = zf.read(code_zips[0])
-                                with zipfile.ZipFile(io.BytesIO(code_data)) as czf:
-                                    # NOTE: The forge names it PAYLOAD_MANIFEST.json inside the code zip
-                                    m_path = "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
-                                    if m_path in czf.namelist():
-                                        m_bytes = czf.read(m_path)
-                                        m_hash = hashlib.sha256(m_bytes).hexdigest()
+                            # [STRICT BINDING] We hash the RAW bytes of the root MANIFEST.json
+                            # which the forge ensures is bit-perfect to the payload manifest it signed.
+                            m_bytes = zf.read("MANIFEST.json")
+                            m_hash = hashlib.sha256(m_bytes).hexdigest()
                             
                             expected_hash = bindings.get("payload_manifest_sha256")
                             print(f"🔍 DEBUG: Expected Bind Hash: {expected_hash[:12] if expected_hash else 'NONE'}")
