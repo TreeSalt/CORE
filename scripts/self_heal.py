@@ -56,6 +56,7 @@ def check_version_sync(fix=False):
         REPO_ROOT / "docs/ready_to_drop/COUNCIL_CANON.yaml",
         REPO_ROOT / "README.md",
         REPO_ROOT / "docs/AGENT_ONBOARDING.md",
+        REPO_ROOT / "setup.py",
     ]
 
     if fix:
@@ -83,6 +84,14 @@ def check_version_sync(fix=False):
         content = readme_path.read_text()
         if f"v{current_version}" not in content:
             print_status("README.md is out of date.", "WARN")
+            version_synced = False
+            
+    # Verify setup.py
+    setup_path = manifests[3]
+    if setup_path.exists():
+        content = setup_path.read_text()
+        if f'version="{current_version}"' not in content:
+            print_status("setup.py is out of date.", "WARN")
             version_synced = False
 
     if not version_synced:
@@ -199,6 +208,7 @@ def git_surgeon(fix=False):
         "scripts/archivist.py",  # Memory
         "05_DATA_CACHE/ERROR_LEDGER.json", # Memory
         "Makefile",  # Infra
+        "setup.py",  # Packaging
     ]
 
     to_add = []
