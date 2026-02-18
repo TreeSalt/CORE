@@ -9,6 +9,7 @@ import pandas as pd
 from antigravity_harness.compliance import ComplianceOfficer
 from antigravity_harness.config import EngineConfig, StrategyParams
 from antigravity_harness.correlation import CorrelationGuard
+from antigravity_harness.execution.fill_tape import FillTape
 from antigravity_harness.optimization import Optimizer
 from antigravity_harness.portfolio import PortfolioAccount
 from antigravity_harness.portfolio_policies import PolicyConfig, apply_concentration_caps
@@ -16,7 +17,6 @@ from antigravity_harness.portfolio_router import PortfolioRouter
 from antigravity_harness.portfolio_safety_overlay import SafetyConfig, SafetyOverlay, SafetyState
 from antigravity_harness.strategies.base import Strategy
 from antigravity_harness.wal import WriteAheadLog
-from antigravity_harness.execution.fill_tape import FillTape
 
 
 def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915

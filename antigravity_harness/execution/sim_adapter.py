@@ -16,6 +16,7 @@ Does NOT: call any broker API. Does NOT import ib_insync, rithmic, or tradovate.
 """
 from __future__ import annotations
 
+import asyncio
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -33,11 +34,11 @@ from antigravity_harness.execution.adapter_base import (
     OrderType,
     Position,
 )
+from antigravity_harness.execution.fill_tape import FillTape
 from antigravity_harness.instruments.mes import (
     MES_POINT_VALUE,
     MES_TICK_SIZE,
 )
-from antigravity_harness.execution.fill_tape import FillTape
 
 
 @dataclass
@@ -157,7 +158,6 @@ class SimExecutionAdapter(ExecutionAdapter):
         # Market orders fill immediately (after optional delay)
         if intent.order_type == OrderType.MARKET:
             if self._sim_delay_ms > 0:
-                import asyncio
                 await asyncio.sleep(self._sim_delay_ms / 1000.0)
             
             fill = await self._fill_market_order(order)
