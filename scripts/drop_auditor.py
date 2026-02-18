@@ -17,7 +17,7 @@ import sys
 import tempfile
 import zipfile
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
@@ -47,7 +47,7 @@ class GateAccumulator:
     def emit_json(self, path: Path):
         data = {
             "version": self.version,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "summary": {
                 "total": len(self.results),
                 "passed": sum(1 for r in self.results if r.status == "PASS"),
