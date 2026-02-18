@@ -270,7 +270,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
              
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
-            "--symbols", "MES", "--prices-csv", "data/mes_5m_synthetic.csv", "--outdir", "reports/forge/synthetic_smoke"
+            "--symbols", "MES", "--prices-csv", "data/mes_5m_synthetic.csv", 
+            "--start", "2026-01-01", "--end", "2026-12-31",
+            "--outdir", "reports/forge/synthetic_smoke"
         ], cwd=repo_root, env=env)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"SMOKE TEST FAILURE: Cannot package evidence if smoke test fails. {e}") from e
