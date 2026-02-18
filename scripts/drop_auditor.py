@@ -188,11 +188,15 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         bindings = cert.get("bindings", {})
                         # payload_manifest_sha256 binding
                         if "MANIFEST.json" in namelist:
-                            m_hash = hashlib.sha256(zf.read("MANIFEST.json")).hexdigest()
+                            # [STRICT BINDING] Re-serialize with exact same separators as forge
+                            m_data = json.loads(zf.read("MANIFEST.json"))
+                            m_json = json.dumps(m_data, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+                            m_hash = hashlib.sha256(m_json.encode("utf-8")).hexdigest()
+                            
                             if bindings.get("payload_manifest_sha256") == m_hash:
                                 ok("Certificate binds correctly to Payload Manifest", acc, "INT-003", "No Circular Hash")
                             else:
-                                fail("Certificate manifest binding mismatch", acc, "INT-003", "No Circular Hash")
+                                fail(f"Certificate manifest binding mismatch: Expected {bindings.get('payload_manifest_sha256')[:8]}, got {m_hash[:8]}", acc, "INT-003", "No Circular Hash")
                         
                         # Data hash
                         d_hash = bindings.get("data_hash")
