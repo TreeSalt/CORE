@@ -15,6 +15,7 @@ from antigravity_harness.portfolio_router import PortfolioRouter
 from antigravity_harness.portfolio_safety_overlay import SafetyConfig, SafetyOverlay, SafetyState
 from antigravity_harness.strategies.base import Strategy
 from antigravity_harness.wal import WriteAheadLog
+from antigravity_harness.execution.fill_tape import FillTape
 
 
 def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
@@ -61,11 +62,20 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     Path("state").mkdir(exist_ok=True, parents=True)
     wal = WriteAheadLog(Path("state/wal.db"))
 
+    # Phase 9D: Forensic FillTape
+    tape: Optional[FillTape] = None
+    if os.environ.get("METADATA_RELEASE_MODE") == "1":
+        out_dir = Path(os.getcwd()) / "reports/fills"
+        # Use simple date for portfolio session
+        session_date = dates[-1].strftime("%Y-%m-%d") if not dates.empty else "unknown"
+        tape = FillTape(output_dir=out_dir, session_date=session_date)
+
     portfolio = PortfolioAccount(
         initial_cash=initial_cash,
         allow_fractional=engine_config.allow_fractional_shares,
         compliance=compliance,
         wal=wal,
+        fill_tape=tape,
     )
     for sym in clean_data:
         portfolio.add_asset(
@@ -238,6 +248,11 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
                 "actual_gross_exposure": round(max(0, actual_exposure), 4),
             }
         )
+
+    # Close FillTape
+    if tape:
+        tape_path = tape.close()
+        print(f"📊 Portfolio Forensic FillTape Saved: {tape_path.name}")
 
     # Convert to DataFrame
     equity_curve_df = pd.DataFrame(equity_history)

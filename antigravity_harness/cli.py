@@ -848,7 +848,7 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     pb.add_argument("--reentry_off", type=float, default=-0.20, help="DD recovery to exit RISK_OFF")
     pb.add_argument("--reentry_reduce", type=float, default=-0.10, help="DD recovery to exit RISK_REDUCE")
     pb.add_argument("--max_weight_per_asset", type=float, default=0.50, help="Max weight per asset")
-    pb.add_argument("--min_positions", type=int, default=2, help="Min distinct positions")
+    pb.add_argument("--min_positions", type=int, default=1, help="Min distinct positions")
     pb.add_argument("--enable_shock_overlay", action="store_true", help="Enable shock trigger")
     pb.add_argument("--shock_ret_thresh", type=float, default=-0.12, help="1-bar crash return threshold")
     pb.add_argument("--shock_vol_ratio", type=float, default=2.0, help="Vol spike ratio for shock")

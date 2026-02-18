@@ -52,8 +52,11 @@ class FillRecord:
     fill_price: float
     fill_time_utc: str                  # ISO format
 
-    # Slippage analysis
+    # Slippage analysis (Forensic Drift)
     expected_price: Optional[float]     # Mid price at order submission time
+    actual_price: float                 # fill_price (for explicit comparison)
+    drift_pts: Optional[float]          # Actual - Expected (signed)
+    drift_bps: Optional[float]          # Drift as Basis Points of Expected
     slippage_realized_ticks: Optional[int]
     slippage_buffer_ticks: int          # From seed profile (4)
     slippage_exceeded_buffer: bool
@@ -113,15 +116,21 @@ class FillTape:
         """
         self._trade_count += 1
 
-        # Compute realized slippage in ticks
+        # Compute realized slippage and drift
         slippage_ticks: Optional[int] = None
         slippage_cost_usd: float = 0.0
+        drift_pts: Optional[float] = None
+        drift_bps: Optional[float] = None
 
         if expected_price is not None:
             fill_px = float(fill.fill_price)
-            slippage_pts = fill_px - expected_price if fill.side == OrderSide.BUY else expected_price - fill_px
-            slippage_ticks = round(slippage_pts / MES_TICK_SIZE)
-            slippage_cost_usd = max(0, slippage_ticks) * MES_TICK_VALUE * fill.filled_qty
+            # Drift is (Actual - Expected). Positive drift on BUY is BAD.
+            drift_pts = fill_px - expected_price if fill.side == OrderSide.BUY else expected_price - fill_px
+            drift_bps = (drift_pts / expected_price) * 10000 if expected_price > 0 else 0.0
+            
+            # Slippage in ticks
+            slippage_ticks = round(drift_pts / MES_TICK_SIZE) if drift_pts is not None else None
+            slippage_cost_usd = max(0, slippage_ticks or 0) * MES_TICK_VALUE * fill.filled_qty
 
         exceeded = (
             slippage_ticks is not None
@@ -137,6 +146,9 @@ class FillTape:
             fill_price=float(fill.fill_price),
             fill_time_utc=fill.fill_time_utc.isoformat(),
             expected_price=expected_price,
+            actual_price=float(fill.fill_price),
+            drift_pts=drift_pts,
+            drift_bps=drift_bps,
             slippage_realized_ticks=slippage_ticks,
             slippage_buffer_ticks=self.slippage_buffer_ticks,
             slippage_exceeded_buffer=exceeded,

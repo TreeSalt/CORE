@@ -33,8 +33,9 @@ def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
         err = (proc.stderr or proc.stdout or "").strip()
         raise RuntimeError(f"Signature verify failed (openssl): {err}")
 
-FAIL = "FAIL"
+PASS = "PASS"
 WARN = "WARN"
+FAIL = "FAIL"
 
 @dataclass
 class Issue:
@@ -203,6 +204,10 @@ def main() -> int:  # noqa: PLR0915, PLR0912
 
         if "METADATA.txt" not in names:
             issues.append(Issue(FAIL, "METADATA_MISSING", "METADATA.txt missing from drop"))
+        inner_ledger_name = inner_ledger_candidates[0] if inner_ledger_candidates else None
+
+        if "METADATA.txt" not in names:
+            issues.append(Issue(FAIL, "METADATA_MISSING", "METADATA.txt missing from drop"))
 
         # --- Inspect CODE
         code_sha = version = manifest_sha = ""
@@ -261,6 +266,31 @@ def main() -> int:  # noqa: PLR0915, PLR0912
             e_bytes = drop_zf.read(evidence_name)
             with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
                 e_names = set(ez.namelist())
+                
+                # --- P0 FIX: Data Provenance Loop (Institutional Gold) ---
+                # Verify that the dataset shipped in evidence matches the Manifest Hash
+                data_path = "data/mes_5m_synthetic.csv"
+                if data_path in e_names:
+                    data_bytes = ez.read(data_path)
+                    actual_hash = hashlib.sha256(data_bytes).hexdigest()
+                    
+                    # Bind against manifest if available
+                    if "file_sha256" in pm_obj and data_path in pm_obj["file_sha256"]:
+                        expected_hash = pm_obj["file_sha256"][data_path]
+                        if actual_hash == expected_hash:
+                            issues.append(Issue(PASS, "DATA_PROVENANCE_LOOP", f"Hash match for {data_path}"))
+                        else:
+                            issues.append(Issue(FAIL, "DATA_PROVENANCE_FAIL", 
+                                               f"TAMPER_DETECTED: Shipped {data_path} hash {actual_hash[:8]} != Manifest {expected_hash[:8]}"))
+                    else:
+                        issues.append(Issue(WARN, "PROVENANCE_GAP", f"Data {data_path} present but missing from PAYLOAD_MANIFEST.json"))
+                else:
+                    msg = f"Canonical dataset {data_path} missing from evidence zip."
+                    if args.strict:
+                        issues.append(Issue(FAIL, "DATA_PROVENANCE_MISSING", f"STRICT_FAIL: {msg}"))
+                    else:
+                        issues.append(Issue(WARN, "DATA_PROVENANCE_GAP", msg))
+
                 # Stricter audit of evidence suite
                 # Canonical smoke roots (support both; strict requires exactly one canonical root)
                 roots = [

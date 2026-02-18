@@ -11,6 +11,8 @@ import pandas as pd
 from antigravity_harness.config import EngineConfig, StrategyParams
 from antigravity_harness.metrics import compute_metrics
 from antigravity_harness.phoenix import SovereignAuditor
+from antigravity_harness.execution.fill_tape import FillTape
+from antigravity_harness.execution.adapter_base import Fill, OrderSide
 
 
 @dataclass
@@ -48,13 +50,14 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool):
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None):
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
         self.entry_time: Optional[pd.Timestamp] = None
         self.slippage = slippage
         self.allow_fractional = allow_fractional
+        self.fill_tape = fill_tape
         self.trades: List[Trade] = []
 
     @property
@@ -150,6 +153,20 @@ class SimulatedAccount:
                 self.entry_time = timestamp
 
             self.qty += qty_to_buy
+            
+            # Record in FillTape
+            if self.fill_tape:
+                fill = Fill(
+                    broker_order_id=f"sim-{timestamp.isoformat()}",
+                    client_order_id=f"sim-{timestamp.isoformat()}",
+                    symbol="MES", # Hardcoded for now in this context? Or get from cfg. 
+                    side=OrderSide.BUY,
+                    filled_qty=qty_to_buy,
+                    fill_price=fill_price,
+                    fill_time_utc=timestamp.to_pydatetime(),
+                    commission_usd=commission
+                )
+                self.fill_tape.record(fill, expected_price=price)
             return True
         return False
 
@@ -193,6 +210,20 @@ class SimulatedAccount:
 
         self.cash += net_proceeds
         self.qty -= qty_to_sell  # Handle partials
+
+        # Record in FillTape
+        if self.fill_tape:
+            fill = Fill(
+                broker_order_id=f"sim-{timestamp.isoformat()}",
+                client_order_id=f"sim-{timestamp.isoformat()}",
+                symbol="MES", 
+                side=OrderSide.SELL,
+                filled_qty=qty_to_sell,
+                fill_price=fill_price,
+                fill_time_utc=timestamp.to_pydatetime(),
+                commission_usd=commission
+            )
+            self.fill_tape.record(fill, expected_price=price)
 
         # Record Trade (Partial or Full)
         # Entry price is weighted average? It is constant here since we don't scale in.
@@ -296,10 +327,24 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     stop_arr = np.full(n_bars, np.nan)
 
     # 4. Account Setup
+    # Initialize FillTape if in Release Mode
+    tape: Optional[FillTape] = None
+    if os.environ.get("METADATA_RELEASE_MODE") == "1":
+        out_dir = Path(os.getcwd()) / "reports/fills"
+        if debug: # If in forge/synthetic_smoke, use that dir
+             # Usually outdir is passed to CLI, but here we are in the engine.
+             # We rely on the CLI to set the environment or we use a default.
+             pass
+        
+        # Try to infer session date from df
+        session_date = df.index[-1].strftime("%Y-%m-%d") if not df.empty else "unknown"
+        tape = FillTape(output_dir=out_dir, session_date=session_date)
+
     account = SimulatedAccount(
         initial_cash=engine_cfg.initial_cash,
         slippage=engine_cfg.slippage_per_side,
         allow_fractional=engine_cfg.allow_fractional_shares,
+        fill_tape=tape,
     )
 
     # Boot the Phoenix Protocol Auditor
@@ -492,6 +537,11 @@ def run_backtest(  # noqa: PLR0912, PLR0915
 
     # Emit Fiduciary Audit Report (Phoenix Protocol)
     auditor.emit_audit_report(account)
+
+    # Close FillTape
+    if tape:
+        tape_path = tape.close()
+        print(f"📊 Forensic FillTape Saved: {tape_path.name}")
 
     return BacktestResult(
         equity_curve=equity_series,

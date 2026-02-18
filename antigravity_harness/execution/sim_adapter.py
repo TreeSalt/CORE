@@ -37,6 +37,7 @@ from antigravity_harness.instruments.mes import (
     MES_POINT_VALUE,
     MES_TICK_SIZE,
 )
+from antigravity_harness.execution.fill_tape import FillTape
 
 
 @dataclass
@@ -63,11 +64,15 @@ class SimExecutionAdapter(ExecutionAdapter):
         initial_cash: float = 2000.0,
         commission_per_rt: float = 0.85,
         sim_slippage_ticks: int = 0,
+        sim_delay_ms: int = 0,
+        fill_tape: Optional[FillTape] = None,
         paper: bool = True,
     ) -> None:
         self._cash = initial_cash
         self._commission_per_rt = commission_per_rt
         self._sim_slippage_ticks = sim_slippage_ticks
+        self._sim_delay_ms = sim_delay_ms
+        self._fill_tape = fill_tape
         self._paper = paper
         self._positions: dict[str, int] = {}        # symbol → qty
         self._avg_costs: dict[str, float] = {}      # symbol → avg cost
@@ -146,9 +151,20 @@ class SimExecutionAdapter(ExecutionAdapter):
         order = _SimOrder(ack=ack, intent=intent)
         self._open_orders[broker_id] = order
 
-        # Market orders fill immediately
+        # Capture expected price at submission time (mid price)
+        expected_price = self._current_prices.get(intent.symbol)
+
+        # Market orders fill immediately (after optional delay)
         if intent.order_type == OrderType.MARKET:
-            await self._fill_market_order(order)
+            if self._sim_delay_ms > 0:
+                import asyncio
+                await asyncio.sleep(self._sim_delay_ms / 1000.0)
+            
+            fill = await self._fill_market_order(order)
+            
+            # Record in FillTape if available
+            if self._fill_tape:
+                self._fill_tape.record(fill, expected_price=expected_price)
 
         return ack
 

@@ -408,7 +408,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 3. Create EVIDENCE Zip
     print(f"📦 Forging EVIDENCE Artifact: {evidence_zip.name}")
-    _create_zip(evidence_zip, repo_root, includes=["reports", "logs", "SOVEREIGN_REPORT.md", "FINAL_AUDIT_REPORT.md"])
+    # P0 FIX: Include the market data source in evidence for bit-perfect verification
+    evidence_includes = ["reports", "logs", "SOVEREIGN_REPORT.md", "FINAL_AUDIT_REPORT.md"]
+    if (repo_root / "data" / "mes_5m_synthetic.csv").exists():
+        evidence_includes.append("data/mes_5m_synthetic.csv")
+    
+    _create_zip(evidence_zip, repo_root, includes=evidence_includes)
 
     # 4. FIDUCIARY SEAL (Certificate Generation)
     # ------------------------------------------

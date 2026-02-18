@@ -47,7 +47,7 @@ news_blackout:
 execution:
   mode: "research"                # research | paper | micro_live
   broker:
-    primary: "UNSET"              # IBKR | TRADOVATE | RITHMIC | CQG | OTHER
+    primary: "IBKR"              # IBKR | TRADOVATE | RITHMIC | CQG | OTHER
     paper_supported_required: true
   requires_server_side_brackets_for_live: true
 

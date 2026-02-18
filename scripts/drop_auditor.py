@@ -187,6 +187,45 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
             else:
                 fail("MANIFEST.json missing from drop", acc, "FID-003", "Manifest Integrity")
 
+            # --- P0 FIX: Auto-Seek Identity (Sovereign UX) ---
+            if not pub_key_path.exists(): # Check if it still doesn't exist after initial check
+                print("🔍 Searching for Sovereign Identity inside drop...")
+                pub_key_bytes = None
+                try:
+                    # 1. Look in root
+                    if "sovereign.pub" in namelist:
+                        pub_key_bytes = zf.read("sovereign.pub")
+                        print("  [+] Found identity in drop root.")
+                    else:
+                        # 2. Look in evidence zip
+                        evidence_names = [n for n in namelist if "TRADER_OPS_EVIDENCE" in n and n.endswith(".zip")]
+                        if evidence_names:
+                            e_bytes = zf.read(evidence_names[0])
+                            with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
+                                if "sovereign.pub" in ez.namelist():
+                                    pub_key_bytes = ez.read("sovereign.pub")
+                                    print(f"  [+] Found identity in {evidence_names[0]}.")
+                                else:
+                                    fail("Sovereign Identity (sovereign.pub) missing from drop and evidence.", acc, "FID-005", "Identity Verification")
+                                    return False
+                        else:
+                            fail("Sovereign Identity (sovereign.pub) missing and no evidence found to search.", acc, "FID-005", "Identity Verification")
+                            return False
+                
+                    if pub_key_bytes:
+                        # Write to a temporary file for OpenSSL compatibility
+                        temp_key = Path(tempfile.gettempdir()) / "sovereign_extracted.pub"
+                        temp_key.write_bytes(pub_key_bytes)
+                        pub_key_path = temp_key
+                        ok(f"Sovereign identity auto-detected: {pub_key_path.name}", acc, "FID-001", "Sovereign Identity")
+                    else:
+                        fail("Sovereign Identity (sovereign.pub) could not be auto-detected.", acc, "FID-005", "Identity Verification")
+                        return False
+                except Exception as e:
+                    fail(f"Identity Auto-Seek Failed: {e}", acc, "FID-001", "Identity Verification")
+                    return False
+
+
             # B. CERTIFICATE binding (RECURSIVE SEARCH)
             evidence_zips = [n for n in namelist if "TRADER_OPS_EVIDENCE" in n and n.endswith(".zip")]
             cert_found = False

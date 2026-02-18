@@ -9,6 +9,7 @@ import pandas as pd
 import antigravity_harness.wal as write_ahead_log
 from antigravity_harness.compliance import ComplianceOfficer
 from antigravity_harness.engine import SimulatedAccount
+from antigravity_harness.execution.fill_tape import FillTape
 
 
 @dataclass
@@ -30,8 +31,10 @@ class PortfolioAccount:
         allow_fractional: bool = True,
         compliance: Optional[ComplianceOfficer] = None,
         wal: Optional[write_ahead_log.WriteAheadLog] = None,
+        fill_tape: Optional[FillTape] = None,
     ):
         self.global_cash = float(initial_cash)
+        self.fill_tape = fill_tape
         self.accounts: Dict[str, SimulatedAccount] = {}  # symbol -> Account
         self.allow_fractional = allow_fractional
         self.compliance = compliance
@@ -60,6 +63,7 @@ class PortfolioAccount:
             initial_cash=0.0,
             slippage=slippage,
             allow_fractional=self.allow_fractional,
+            fill_tape=self.fill_tape,
         )
         # Patch friction configs which usually come from EngineConfig
         # But SimulatedAccount doesn't store them, they are passed to buy/sell.
