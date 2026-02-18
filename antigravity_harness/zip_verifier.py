@@ -127,19 +127,10 @@ class ZipVerifier:
         self.pass_gate("Taxonomy Integrity Verified")
 
     def _get_canonical_manifest_sha(self, manifest: Dict[str, Any]) -> str:
-        """Helper: Calculate the canonical hash of the manifest content."""
-        clean_manifest = manifest.copy()
-        if "payload_manifest_sha256" in clean_manifest:
-            del clean_manifest["payload_manifest_sha256"]
-
-        # Paradox seal: exclude the Canon itself from the manifest fingerprint
-        if "file_sha256" in clean_manifest and isinstance(clean_manifest["file_sha256"], dict):
-            clean_manifest["file_sha256"] = dict(clean_manifest["file_sha256"])
-            clean_manifest["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
-
-        canonical_bytes = json.dumps(clean_manifest, sort_keys=True, separators=(",", ":")).encode(
-            "utf-8"
-        )
+        """Helper: Calculate the canonical hash of the manifest content.
+        Must match the forge's compact serialization.
+        """
+        canonical_bytes = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
         return hashlib.sha256(canonical_bytes).hexdigest()
 
     def gate_manifest_correlation(self):  # noqa: PLR0912, PLR0915
