@@ -118,6 +118,11 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
     print(f"\n🦅 AUDITING DROP: {drop_path.name}")
     print("=" * 60)
 
+    # [VERSION WITNESS] Extract version from filename (Canonical Source)
+    import re
+    m = re.search(r"_v([\d\.]+)\.zip", drop_path.name)
+    ARCHIVE_VERSION = m.group(1) if m else "UNKNOWN"
+
     if not drop_path.exists():
         fail(f"Drop packet missing: {drop_path}", acc, "FID-003", "Manifest Integrity")
         return False
