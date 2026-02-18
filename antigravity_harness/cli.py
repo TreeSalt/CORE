@@ -20,7 +20,7 @@ from antigravity_harness.certification import run_certification
 from antigravity_harness.config import DataConfig, EngineConfig, GateThresholds, StrategyParams, load_yaml, save_yaml
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.council import run_council_sweep
-from antigravity_harness.data import load_ohlc, MarketTape
+from antigravity_harness.data import MarketTape, load_ohlc
 from antigravity_harness.emit import unique_signals
 from antigravity_harness.engine import run_backtest
 from antigravity_harness.gates import evaluate_gates
