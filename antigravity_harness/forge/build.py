@@ -346,9 +346,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print(f"⚖️  Canon Fingerprint Synchronized: {final_canon_hash[:8]}")
     
     # Final sorted manifest for bit-perfect CODE zip (Pass 2)
-    manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    final_manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    final_manifest_sha = hashlib.sha256(final_manifest_bytes).hexdigest()
+    print(f"⚖️  FINAL Manifest Stabilized: {final_manifest_sha[:12]}")
+    
     tmp_manifest_path = build_tmp / "PAYLOAD_MANIFEST.json"
-    tmp_manifest_path.write_bytes(manifest_bytes)
+    tmp_manifest_path.write_bytes(final_manifest_bytes)
 
     code_zip_includes = includes
     
@@ -362,7 +365,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         zinfo_m = zipfile.ZipInfo("docs/ready_to_drop/PAYLOAD_MANIFEST.json", date_time=(2020, 1, 1, 0, 0, 0))
         zinfo_m.compress_type = zipfile.ZIP_DEFLATED
         zinfo_m.external_attr = 0o644 << 16
-        zf.writestr(zinfo_m, manifest_bytes)
+        zf.writestr(zinfo_m, final_manifest_bytes)
         
         # 2. Pinned Canon
         zinfo_c = zipfile.ZipInfo("docs/ready_to_drop/COUNCIL_CANON.yaml", date_time=(2020, 1, 1, 0, 0, 0))
@@ -419,7 +422,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "bindings": {
             "code_sha256": real_code_hash,
             "data_hash": data_hash,
-            "manifest_sha256": manifest_sha,
+            "manifest_sha256": final_manifest_sha,
             "evidence_manifest_sha256": ev_manifest_sha
         },
         "gates": {
@@ -486,7 +489,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             "evidence": {"filename": evidence_zip_name, "sha256": evidence_hash},
         },
         "sovereign_binding": {
-            "payload_manifest_sha256": manifest_sha, 
+            "manifest_sha256": final_manifest_sha, 
             "builder_id": "Institutional-Gold-Node",
             "git_commit": git_info["sha"],
             "git_dirty": git_info["dirty"],
