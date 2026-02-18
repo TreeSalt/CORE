@@ -63,21 +63,6 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     Path("state").mkdir(exist_ok=True, parents=True)
     wal = WriteAheadLog(Path("state/wal.db"))
 
-    # Phase 9D: Forensic FillTape
-    tape: Optional[FillTape] = None
-    if os.environ.get("METADATA_RELEASE_MODE") == "1":
-        out_dir = Path(os.getcwd()) / "reports/fills"
-        # Use simple date for portfolio session
-        session_date = dates[-1].strftime("%Y-%m-%d") if not dates.empty else "unknown"
-        tape = FillTape(output_dir=out_dir, session_date=session_date)
-
-    portfolio = PortfolioAccount(
-        initial_cash=initial_cash,
-        allow_fractional=engine_config.allow_fractional_shares,
-        compliance=compliance,
-        wal=wal,
-        fill_tape=tape,
-    )
     for sym in clean_data:
         portfolio.add_asset(
             sym,
@@ -102,6 +87,31 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     volume_df_shifted = volume_df.shift(1).fillna(0.0)
 
     dates = combined_index
+
+    # Phase 9D: Forensic FillTape
+    tape: Optional[FillTape] = None
+    if os.environ.get("METADATA_RELEASE_MODE") == "1":
+        out_dir = Path(os.getcwd()) / "reports/fills"
+        # Use simple date for portfolio session
+        session_date = dates[-1].strftime("%Y-%m-%d") if not dates.empty else "unknown"
+        tape = FillTape(output_dir=out_dir, session_date=session_date)
+
+    portfolio = PortfolioAccount(
+        initial_cash=initial_cash,
+        allow_fractional=engine_config.allow_fractional_shares,
+        compliance=compliance,
+        wal=wal,
+        fill_tape=tape,
+    )
+    # Re-apply assets to the new portfolio (which now has the tape)
+    for sym in clean_data:
+        portfolio.add_asset(
+            sym,
+            slippage=engine_config.slippage_per_side,
+            comm_bps=engine_config.commission_rate_frac,
+            comm_fixed=engine_config.commission_fixed,
+            volume_limit_pct=engine_config.volume_limit_pct,
+        )
     regime_log = []
     equity_history = []
 
