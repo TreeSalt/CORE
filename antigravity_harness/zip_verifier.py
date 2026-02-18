@@ -168,7 +168,10 @@ class ZipVerifier:
 
                 # 5d. Basilisk Gaze (Provenance Verification)
                 actual_manifest_sha = self._get_canonical_manifest_sha(self.code_manifest)
-                expected_manifest_sha = self.ledger["sovereign_binding"]["payload_manifest_sha256"]
+                # Standardized key is manifest_sha256, legacy was payload_manifest_sha256
+                bind = self.ledger.get("sovereign_binding", {})
+                expected_manifest_sha = bind.get("manifest_sha256") or bind.get("payload_manifest_sha256", "MISSING")
+                
                 if actual_manifest_sha != expected_manifest_sha:
                     self.fail(
                         "PROVENANCE DESYNC: Manifest content does not match Ledger binding (The Basilisk was caught)."
