@@ -195,18 +195,20 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                             if code_zips:
                                 code_data = zf.read(code_zips[0])
                                 with zipfile.ZipFile(io.BytesIO(code_data)) as czf:
+                                    # NOTE: The forge names it PAYLOAD_MANIFEST.json inside the code zip
                                     m_path = "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
                                     if m_path in czf.namelist():
                                         m_bytes = czf.read(m_path)
                                         m_hash = hashlib.sha256(m_bytes).hexdigest()
                             
-                            print(f"🔍 DEBUG: Expected Bind Hash: {bindings.get('payload_manifest_sha256')[:12]}")
+                            expected_hash = bindings.get("payload_manifest_sha256")
+                            print(f"🔍 DEBUG: Expected Bind Hash: {expected_hash[:12] if expected_hash else 'NONE'}")
                             print(f"🔍 DEBUG: Re-Calculated Hash: {m_hash[:12]}")
 
-                            if bindings.get("payload_manifest_sha256") == m_hash:
+                            if expected_hash == m_hash:
                                 ok("Certificate binds correctly to Payload Manifest", acc, "INT-003", "No Circular Hash")
                             else:
-                                fail(f"Certificate manifest binding mismatch: Expected {bindings.get('payload_manifest_sha256')[:8]}, got {m_hash[:8]}", acc, "INT-003", "No Circular Hash")
+                                fail(f"Certificate manifest binding mismatch: Expected {expected_hash[:8] if expected_hash else 'NONE'}, got {m_hash[:8]}", acc, "INT-003", "No Circular Hash")
                         
                         # Data hash
                         d_hash = bindings.get("data_hash")
