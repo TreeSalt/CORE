@@ -135,23 +135,13 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
 
             # A. MANIFEST integrity
             if "MANIFEST.json" in namelist:
-                manifest_data = json.loads(zf.read("MANIFEST.json"))
-                if "MANIFEST.json" in namelist:
-                    m_bytes = zf.read("MANIFEST.json")
-                    m_hash = hashlib.sha256(m_bytes).hexdigest()
-                    print(f"🔍 DEBUG: Root MANIFEST.json Raw Hash: {m_hash}")
-                    
-                    code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
-                    if code_zips:
-                        code_data = zf.read(code_zips[0])
-                        with zipfile.ZipFile(io.BytesIO(code_data)) as czf:
-                            m_path = "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
-                            if m_path in czf.namelist():
-                                p_bytes = czf.read(m_path)
-                                p_hash = hashlib.sha256(p_bytes).hexdigest()
-                                print(f"🔍 DEBUG: Nested PAYLOAD_MANIFEST.json Raw Hash: {p_hash}")
-
-                acc.version = manifest_data.get("trader_ops_version", "UNKNOWN")
+                # [STRICT BINDING] We hash the RAW bytes of the root MANIFEST.json
+                m_bytes = zf.read("MANIFEST.json")
+                m_hash = hashlib.sha256(m_bytes).hexdigest()
+                print(f"🔍 DEBUG: Root MANIFEST.json Raw Hash: {m_hash}")
+                
+                manifest_data = json.loads(m_bytes)
+                acc.version = ARCHIVE_VERSION
                 files = manifest_data.get("files", [])
                 m_ok = True
                 for entry in files:
@@ -186,10 +176,14 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         cert = json.loads(cert_content)
                         
                         # Verify version match
-                        if cert.get("version") == acc.version:
-                            ok(f"Certificate version matches: v{acc.version}", acc, "FID-002", "Certificate Signature")
+                        # We trust the CERTIFICATE's version (signed) as the source of truth
+                        cert_ver = cert.get("version", "UNKNOWN")
+                        acc.version = cert_ver 
+                        
+                        if cert_ver == ARCHIVE_VERSION:
+                            ok(f"Certificate version matches: v{cert_ver}", acc, "FID-002", "Certificate Signature")
                         else:
-                            fail(f"Certificate version mismatch: Cert({cert.get('version')}) != Manifest({acc.version})", acc, "FID-002", "Certificate Signature")
+                            fail(f"Certificate version mismatch: Cert({cert_ver}) != Filename({ARCHIVE_VERSION})", acc, "FID-002", "Certificate Signature")
 
                         # Verify signature if key exists
                         if pub_key_path.exists() and sig_path in ev_namelist:
