@@ -230,6 +230,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             authorized = [
                 "antigravity_harness/__init__.py", 
                 "README.md", 
+                "setup.py",
                 "docs/ready_to_drop/COUNCIL_CANON.yaml",
                 "docs/AGENT_ONBOARDING.md",
                 "docs/ARCHITECTURE_MAP.md",
