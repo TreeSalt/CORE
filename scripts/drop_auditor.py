@@ -136,6 +136,21 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
             # A. MANIFEST integrity
             if "MANIFEST.json" in namelist:
                 manifest_data = json.loads(zf.read("MANIFEST.json"))
+                if "MANIFEST.json" in namelist:
+                    m_bytes = zf.read("MANIFEST.json")
+                    m_hash = hashlib.sha256(m_bytes).hexdigest()
+                    print(f"🔍 DEBUG: Root MANIFEST.json Raw Hash: {m_hash}")
+                    
+                    code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
+                    if code_zips:
+                        code_data = zf.read(code_zips[0])
+                        with zipfile.ZipFile(io.BytesIO(code_data)) as czf:
+                            m_path = "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
+                            if m_path in czf.namelist():
+                                p_bytes = czf.read(m_path)
+                                p_hash = hashlib.sha256(p_bytes).hexdigest()
+                                print(f"🔍 DEBUG: Nested PAYLOAD_MANIFEST.json Raw Hash: {p_hash}")
+
                 acc.version = manifest_data.get("trader_ops_version", "UNKNOWN")
                 files = manifest_data.get("files", [])
                 m_ok = True

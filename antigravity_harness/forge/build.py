@@ -315,6 +315,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # [STRICT BINDING] We use separators=(",", ":") for compact JSON hash stability.
     manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
     manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
+    print(f"🔍 DEBUG: FORGE Bound Manifest SHA: {manifest_sha}")
 
     # 2.1 BIND CANON TO MANIFEST (The Truth Seal)
     print(f"⚖️  Binding Council Canon to Manifest: {manifest_sha[:8]}...")
