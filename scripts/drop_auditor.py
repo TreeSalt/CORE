@@ -10,8 +10,10 @@ import argparse
 import hashlib
 import io
 import json
+import os
 import subprocess
 import sys
+import tempfile
 import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -82,9 +84,6 @@ def verify_signature(content: bytes, sig_bytes: bytes, pub_path: Path) -> Option
     if not pub_path.exists():
         return None
     try:
-        import tempfile
-        import os
-
         with tempfile.NamedTemporaryFile(delete=False) as f_in, \
              tempfile.NamedTemporaryFile(delete=False) as f_sig:
             f_in.write(content)
