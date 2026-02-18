@@ -9,4 +9,4 @@ __all__ = [
     "calibration",
     "reporting",
 ]
-__version__ = "4.5.53"
+__version__ = "4.5.54"
