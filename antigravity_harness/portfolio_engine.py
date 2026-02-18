@@ -63,14 +63,6 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     Path("state").mkdir(exist_ok=True, parents=True)
     wal = WriteAheadLog(Path("state/wal.db"))
 
-    for sym in clean_data:
-        portfolio.add_asset(
-            sym,
-            slippage=engine_config.slippage_per_side,
-            comm_bps=engine_config.commission_rate_frac,
-            comm_fixed=engine_config.commission_fixed,
-            volume_limit_pct=engine_config.volume_limit_pct,
-        )
 
     # 3. Initialize Strategies
     strategies = {}
