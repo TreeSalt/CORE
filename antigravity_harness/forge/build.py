@@ -543,9 +543,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             {"path": evidence_zip_name, "sha256": evidence_hash, "type": "evidence"},
         ],
     }
-    manifest_json_bytes = json.dumps(drop_manifest, indent=2, sort_keys=True).encode("utf-8")
+    # [STRICT BINDING] The root MANIFEST.json must be bit-perfect with the stabilized final manifest 
+    # to allow the public auditor to verify the certificate binding.
+    manifest_json_bytes = final_manifest_bytes
     drop_manifest_hash = hashlib.sha256(manifest_json_bytes).hexdigest()
-    print(f"📋 Detached MANIFEST.json forged: {drop_manifest_hash[:8]}...")
+    print(f"📋 Detached MANIFEST.json secured: {drop_manifest_hash[:12]}...")
 
     with zipfile.ZipFile(drop_zip, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.write(code_zip, code_zip_name)
