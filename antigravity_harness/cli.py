@@ -1139,25 +1139,43 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
         data_map = {}
 
         if args.prices_csv:
-            # Offline: load close matrix from CSV
+            # Offline: load from CSV
             print(f"  Loading data from CSV: {args.prices_csv}")
-            close_df = pd.read_csv(args.prices_csv, index_col=0, parse_dates=True)
-            for sym in symbols:
-                if sym not in close_df.columns:
-                    print(f"  [!] Symbol {sym} not found in CSV columns: {list(close_df.columns)}")
-                    continue
-                prices = close_df[sym].dropna()
-                df = pd.DataFrame(
-                    {
-                        "Open": prices,
-                        "High": prices * 1.005,
-                        "Low": prices * 0.995,
-                        "Close": prices,
-                        "Volume": 10000,
-                    },
-                    index=prices.index,
-                )
-                data_map[sym] = df
+            p = Path(args.prices_csv)
+            
+            # Phase 10: MarketTape Support
+            # If it's a single symbol and looks like a tape (contains timestamp_utc), use MarketTape loader
+            try:
+                # Peak at header
+                with open(p, "r") as f:
+                    header = f.readline().lower()
+                
+                if "timestamp_utc" in header and len(symbols) == 1:
+                    print(f"  ⚡ Tape Mode: Loading {symbols[0]} via MarketTape")
+                    tape = MarketTape.from_csv(p)
+                    data_map[symbols[0]] = tape.df
+                else:
+                    # Legacy matrix loader
+                    close_df = pd.read_csv(p, index_col=0, parse_dates=True)
+                    for sym in symbols:
+                        if sym not in close_df.columns:
+                            print(f"  [!] Symbol {sym} not found in CSV columns: {list(close_df.columns)}")
+                            continue
+                        prices = close_df[sym].dropna()
+                        df = pd.DataFrame(
+                            {
+                                "Open": prices,
+                                "High": prices * 1.005,
+                                "Low": prices * 0.995,
+                                "Close": prices,
+                                "Volume": 10000,
+                            },
+                            index=prices.index,
+                        )
+                        data_map[sym] = df
+            except Exception as e:
+                print(f"  [!] Failed to load CSV {p}: {e}")
+                return
         elif args.fetch:
             print("  Loading data... (Network: ON)")
             for sym in symbols:

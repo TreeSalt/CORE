@@ -65,6 +65,15 @@ def _sync_project_metadata(repo_root: Path, new_version: str) -> None:
             path.write_text(new_content)
             print(f"🧬 Synced Bridge: {path.name} -> v{new_version}")
 
+    # 4. Sync setup.py
+    setup_path = repo_root / "setup.py"
+    if setup_path.exists():
+        content = setup_path.read_text()
+        new_content = re.sub(r'(version=")\d+\.\d+\.\d+(")', f"\\g<1>{new_version}\\g<2>", content)
+        if new_content != content:
+            setup_path.write_text(new_content)
+            print(f"📦 setup.py Synced: v{new_version}")
+
     # 3. Sync Council Canon
     canon_path = repo_root / "docs/ready_to_drop/COUNCIL_CANON.yaml"
     if canon_path.exists():
@@ -260,7 +269,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
              
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
-            "--symbols", "MOCK", "--synthetic", "--outdir", "reports/forge/synthetic_smoke"
+            "--symbols", "MES", "--prices-csv", "data/mes_5m_synthetic.csv", "--outdir", "reports/forge/synthetic_smoke"
         ], cwd=repo_root, env=env)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"SMOKE TEST FAILURE: Cannot package evidence if smoke test fails. {e}") from e
@@ -302,9 +311,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "scripts",
         "tests",
         "profiles",
+        "data",
         "requirements.txt",
         "setup.py",
         "README.md",
+        "Makefile",
         "docs",  # Includes all Sovereign Books
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
