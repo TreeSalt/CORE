@@ -98,7 +98,7 @@ class FillTape:
         self._trade_count = 0
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        self._tape_path = output_dir / f"fill_tape_{session_date}.csv"
+        self._tape_path = output_dir / "fill_tape.csv"
 
     def record(
         self,

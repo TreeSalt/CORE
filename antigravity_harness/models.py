@@ -134,3 +134,4 @@ class SimulationContext(BaseModel):
     override_df: Optional[pd.DataFrame] = None
     intelligence: Dict[str, Any] = Field(default_factory=dict)
     debug: bool = False
+    out_dir: Optional[Path] = None

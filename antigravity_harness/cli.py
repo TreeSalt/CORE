@@ -168,6 +168,7 @@ def cmd_validate(args: argparse.Namespace) -> None:  # noqa: PLR0915
         gate_profile=args.gate_profile,
         interval=args.interval,
         debug=args.debug,
+        out_dir=Path(out_dir),
     )
 
     # Save Report
@@ -1240,6 +1241,7 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
         router=router,
         safety_cfg=safety_cfg,
         policy_cfg=policy_cfg,
+        out_dir=Path(out_dir),
     )
 
     # 4. Save Artifacts

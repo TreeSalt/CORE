@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -36,7 +37,9 @@ class EvidenceForge:
 
         print(f"   Command: {' '.join(cmd)}")
         try:
-            subprocess.run(cmd, check=True)
+            env = os.environ.copy()
+            env["METADATA_RELEASE_MODE"] = "1"
+            subprocess.run(cmd, check=True, env=env)
         except subprocess.CalledProcessError as e:
             print(f"❌ FAIL: Simulation crashed. {e}")
             sys.exit(1)
@@ -78,3 +81,23 @@ class EvidenceForge:
             sys.exit(1)
 
         print(f"   ✅ RUN_METADATA.json verified (Physics: {ppy})")
+
+        # 2.3 Forensic FillTape
+        tape_path = self.out_dir / "fill_tape.csv"
+        if not tape_path.exists():
+            print("❌ FAIL: fill_tape.csv missing (Execution Fidelity P2 violation)")
+            sys.exit(1)
+
+        tape = pd.read_csv(tape_path)
+        if tape.empty:
+            print("❌ FAIL: fill_tape.csv is empty")
+            sys.exit(1)
+
+        # Basic Check: ensure drift columns exist
+        drift_cols = ["drift_pts", "drift_bps", "slippage_realized_ticks"]
+        missing_cols = [c for c in drift_cols if c not in tape.columns]
+        if missing_cols:
+            print(f"❌ FAIL: fill_tape.csv missing drift columns: {missing_cols}")
+            sys.exit(1)
+
+        print(f"   ✅ fill_tape.csv verified ({len(tape)} fills, drift tracking active)")

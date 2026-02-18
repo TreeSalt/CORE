@@ -260,6 +260,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     params: StrategyParams,
     engine_cfg: EngineConfig,
     debug: bool = False,
+    out_dir: Optional[Path] = None,
 ) -> BacktestResult:
     """
     Fortress Protocol v2.1.0 - Optimized Physics Engine
@@ -330,11 +331,8 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # Initialize FillTape if in Release Mode
     tape: Optional[FillTape] = None
     if os.environ.get("METADATA_RELEASE_MODE") == "1":
-        out_dir = Path(os.getcwd()) / "reports/fills"
-        if debug: # If in forge/synthetic_smoke, use that dir
-             # Usually outdir is passed to CLI, but here we are in the engine.
-             # We rely on the CLI to set the environment or we use a default.
-             pass
+        if out_dir is None:
+            out_dir = Path(os.getcwd()) / "reports/fills"
         
         # Try to infer session date from df
         session_date = df.index[-1].strftime("%Y-%m-%d") if not df.empty else "unknown"

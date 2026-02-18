@@ -31,6 +31,7 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     router: Optional[PortfolioRouter] = None,
     safety_cfg: Optional[SafetyConfig] = None,
     policy_cfg: Optional[PolicyConfig] = None,
+    out_dir: Optional[Path] = None,
 ) -> tuple[PortfolioAccount, List[Dict[str, Any]], pd.DataFrame]:
     """
     Execute a multi-asset backtest with portfolio-level rebalancing.
@@ -83,7 +84,8 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     # Phase 9D: Forensic FillTape
     tape: Optional[FillTape] = None
     if os.environ.get("METADATA_RELEASE_MODE") == "1":
-        out_dir = Path(os.getcwd()) / "reports/fills"
+        if out_dir is None:
+            out_dir = Path(os.getcwd()) / "reports/fills"
         # Use simple date for portfolio session
         session_date = dates[-1].strftime("%Y-%m-%d") if not dates.empty else "unknown"
         tape = FillTape(output_dir=out_dir, session_date=session_date)

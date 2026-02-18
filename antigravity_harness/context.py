@@ -34,9 +34,14 @@ class SimulationContextBuilder:
         self._override_df: Optional[pd.DataFrame] = None
         self._intelligence: Dict[str, Any] = {}
         self._debug: bool = False
+        self._out_dir: Optional[Path] = None
 
     def with_debug(self, enabled: bool) -> SimulationContextBuilder:
         self._debug = enabled
+        return self
+
+    def with_out_dir(self, out_dir: Optional[Path]) -> SimulationContextBuilder:
+        self._out_dir = out_dir
         return self
 
     def with_strategy(self, name: str, instance: Any) -> SimulationContextBuilder:
@@ -132,4 +137,5 @@ class SimulationContextBuilder:
             override_df=self._override_df,
             intelligence=self._intelligence,
             debug=self._debug,
+            out_dir=self._out_dir,
         )
