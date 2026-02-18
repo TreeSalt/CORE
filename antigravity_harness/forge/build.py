@@ -309,13 +309,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
     manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
-    payload_manifest: Dict[str, Any] = {"version": version, "file_sha256": manifest_data}
-
     # Canonical Manifest Hash for Ledger and Canon Binding
     # [STRICT BINDING] We use separators=(",", ":") for compact JSON hash stability.
-    manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
-        "utf-8"
-    )
+    manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
     manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
 
     # 2.1 BIND CANON TO MANIFEST (The Truth Seal)
@@ -350,7 +346,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print(f"⚖️  Canon Fingerprint Synchronized: {final_canon_hash[:8]}")
     
     # Final sorted manifest for bit-perfect CODE zip (Pass 2)
-    manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
     tmp_manifest_path = build_tmp / "PAYLOAD_MANIFEST.json"
     tmp_manifest_path.write_bytes(manifest_bytes)
 

@@ -190,9 +190,12 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         if "MANIFEST.json" in namelist:
                             # [STRICT BINDING] Re-serialize with exact same separators as forge
                             m_data = json.loads(zf.read("MANIFEST.json"))
-                            m_json = json.dumps(m_data, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+                            m_json = json.dumps(m_data, sort_keys=True, separators=(",", ":"))
                             m_hash = hashlib.sha256(m_json.encode("utf-8")).hexdigest()
                             
+                            print(f"🔍 DEBUG: Expected Bind Hash: {bindings.get('payload_manifest_sha256')[:12]}")
+                            print(f"🔍 DEBUG: Re-Calculated Hash: {m_hash[:12]}")
+
                             if bindings.get("payload_manifest_sha256") == m_hash:
                                 ok("Certificate binds correctly to Payload Manifest", acc, "INT-003", "No Circular Hash")
                             else:
