@@ -534,15 +534,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # The manifest hashes both code and evidence zips AFTER they are finalized.
     # The cert does NOT hash the evidence zip (breaking circularity).
     # The manifest lives in the READY zip outer envelope alongside (not inside) the payload zips.
-    drop_manifest = {
-        "manifest_schema_version": "1.0.0",
-        "generated_at_utc": _get_timestamp(),
-        "trader_ops_version": version,
-        "files": [
-            {"path": code_zip_name, "sha256": code_hash, "type": "code"},
-            {"path": evidence_zip_name, "sha256": evidence_hash, "type": "evidence"},
-        ],
-    }
     # [STRICT BINDING] The root MANIFEST.json must be bit-perfect with the stabilized final manifest 
     # to allow the public auditor to verify the certificate binding.
     manifest_json_bytes = final_manifest_bytes
