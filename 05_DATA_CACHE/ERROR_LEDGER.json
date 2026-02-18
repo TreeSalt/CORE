@@ -2,41 +2,6 @@
     "system_start_utc": "2026-02-16T23:45:49Z",
     "events": [
         {
-            "timestamp_utc": "2026-02-17T16:01:21Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.29",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-17T16:02:01Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.29",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-17T16:03:13Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.29",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-17T16:04:23Z",
-            "category": "METADATA",
-            "gate": "RUNTIME",
-            "message": "Circular hash dependency in build chain (Epic B)",
-            "resolution": null
-        },
-        {
-            "timestamp_utc": "2026-02-17T16:04:23Z",
-            "category": "INFRA",
-            "gate": "RUNTIME",
-            "message": "ImportError: load_ohlc from antigravity_harness.data",
-            "resolution": null
-        },
-        {
             "timestamp_utc": "2026-02-17T16:04:23Z",
             "category": "HYGIENE",
             "gate": "RUNTIME",
@@ -696,6 +661,41 @@
         },
         {
             "timestamp_utc": "2026-02-18T01:13:48Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:13:52Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:13:54Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:14:02Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:14:21Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:14:29Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.54",
