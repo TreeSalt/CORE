@@ -1158,22 +1158,28 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
                 else:
                     # Legacy matrix loader
                     close_df = pd.read_csv(p, index_col=0, parse_dates=True)
-                    for sym in symbols:
-                        if sym not in close_df.columns:
-                            print(f"  [!] Symbol {sym} not found in CSV columns: {list(close_df.columns)}")
-                            continue
-                        prices = close_df[sym].dropna()
-                        df = pd.DataFrame(
-                            {
-                                "Open": prices,
-                                "High": prices * 1.005,
-                                "Low": prices * 0.995,
-                                "Close": prices,
-                                "Volume": 10000,
-                            },
-                            index=prices.index,
-                        )
-                        data_map[sym] = df
+                    
+                    # Phase 10: OHLCV Fallback
+                    if len(symbols) == 1 and all(c in close_df.columns for c in ["Open", "High", "Low", "Close"]):
+                        print(f"  ⚡ OHLCV Mode: Loading {symbols[0]} via OHLCV matrix")
+                        data_map[symbols[0]] = close_df
+                    else:
+                        for sym in symbols:
+                            if sym not in close_df.columns:
+                                print(f"  [!] Symbol {sym} not found in CSV columns: {list(close_df.columns)}")
+                                continue
+                            prices = close_df[sym].dropna()
+                            df = pd.DataFrame(
+                                {
+                                    "Open": prices,
+                                    "High": prices * 1.005,
+                                    "Low": prices * 0.995,
+                                    "Close": prices,
+                                    "Volume": 10000,
+                                },
+                                index=prices.index,
+                            )
+                            data_map[sym] = df
             except Exception as e:
                 print(f"  [!] Failed to load CSV {p}: {e}")
                 return
