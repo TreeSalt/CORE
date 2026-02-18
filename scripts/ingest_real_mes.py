@@ -2,12 +2,12 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Add repo root to path
-REPO_ROOT = Path(__file__).parent.parent
-sys.path.append(str(REPO_ROOT))
+# Fix import order for ruff
+from antigravity_harness.data import DataConfig, load_ohlc
 
-import pandas as pd
-from antigravity_harness.data import load_ohlc, DataConfig
+# REPO_ROOT used for path construction
+REPO_ROOT = Path(__file__).parent.parent
+
 
 def main():
     print("🦅 Sovereign Ingestion: Contacting Real World...")
@@ -44,7 +44,7 @@ def main():
         # Ensure we keep index (timestamps)
         df.to_csv(target_path)
         
-        print(f"✨ Ingestion successful. Filename preserved for pipeline compatibility.")
+        print("✨ Ingestion successful. Filename preserved for pipeline compatibility.")
         
     except Exception as e:
         print(f"⛔ FATAL: {e}")

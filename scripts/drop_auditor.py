@@ -114,12 +114,86 @@ def verify_signature(content: bytes, sig_bytes: bytes, pub_path: Path) -> Option
         return False
 
 
+def _scan_manifest(zf: zipfile.ZipFile, manifest_data: dict, inner_zf: Optional[zipfile.ZipFile], acc: GateAccumulator) -> bool:
+    """Scan all files listed in manifest against the zip contents."""
+    files = manifest_data.get("file_sha256", {})
+    m_ok = True
+    namelist = zf.namelist()
+    inner_namelist = inner_zf.namelist() if inner_zf else []
+
+    for p, expected in files.items():
+        actual = None
+        if p in namelist:
+            actual = hashlib.sha256(zf.read(p)).hexdigest()
+        elif inner_zf and p in inner_namelist:
+            actual = hashlib.sha256(inner_zf.read(p)).hexdigest()
+        
+        if actual is None:
+            if p.endswith(".zip") or "MANIFEST" in p or "LEDGER" in p:
+                fail(f"Critical manifest entry missing: {p}", acc, "FID-003", "Manifest Integrity")
+                m_ok = False
+            continue
+
+        if actual != expected:
+            fail(f"Hash mismatch for {p}", acc, "FID-003", "Manifest Integrity")
+            m_ok = False
+    return m_ok
+
+
+def _seek_identity_in_drop(zf: zipfile.ZipFile, acc: GateAccumulator) -> Optional[Path]:
+    """Search for sovereign.pub inside the drop or evidence zip."""
+    namelist = zf.namelist()
+    pub_key_bytes = None
+
+    try:
+        if "sovereign.pub" in namelist:
+            pub_key_bytes = zf.read("sovereign.pub")
+            print("  [+] Found identity in drop root.")
+        else:
+            evidence_names = [n for n in namelist if "TRADER_OPS_EVIDENCE" in n and n.endswith(".zip")]
+            if evidence_names:
+                e_bytes = zf.read(evidence_names[0])
+                with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
+                    if "sovereign.pub" in ez.namelist():
+                        pub_key_bytes = ez.read("sovereign.pub")
+                        print(f"  [+] Found identity in {evidence_names[0]}.")
+        
+        if pub_key_bytes:
+            temp_key = Path(tempfile.gettempdir()) / "sovereign_extracted.pub"
+            temp_key.write_bytes(pub_key_bytes)
+            return temp_key
+    except Exception as e:
+        warn(f"Identity Auto-Seek Encountered Error: {e}", acc, "FID-001", "Identity Verification")
+    
+    return None
+
+
+def _verify_bindings(cert: dict, zf: zipfile.ZipFile, acc: GateAccumulator):
+    """Verify certificate hash bindings to main manifest and data."""
+    bindings = cert.get("bindings", {})
+    namelist = zf.namelist()
+    
+    if "MANIFEST.json" in namelist:
+        m_bytes = zf.read("MANIFEST.json")
+        m_hash = hashlib.sha256(m_bytes).hexdigest()
+        expected_hash = bindings.get("manifest_sha256") or bindings.get("payload_manifest_sha256")
+        if expected_hash == m_hash:
+            ok("Certificate binds correctly to Manifest", acc, "INT-003", "No Circular Hash")
+        else:
+            fail(f"Certificate manifest binding mismatch: Expected {expected_hash[:8] if expected_hash else 'NONE'}, got {m_hash[:8]}", acc, "INT-003", "No Circular Hash")
+    
+    d_hash = bindings.get("data_hash")
+    if d_hash and d_hash != "N/A" and len(d_hash) == 64:  # noqa: PLR2004
+        ok(f"Data Provenance bound: {d_hash[:8]}", acc, "INT-005", "Data Hash Non-Empty")
+    else:
+        fail(f"Data hash invalid or empty: {d_hash}", acc, "INT-005", "Data Hash Non-Empty")
+
+
 def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, PLR0912
     acc = GateAccumulator()
     print(f"\n🦅 AUDITING DROP: {drop_path.name}")
     print("=" * 60)
 
-    # [VERSION WITNESS] Extract version from filename (Canonical Source)
     m = re.search(r"_v([\d\.]+)\.zip", drop_path.name)
     ARCHIVE_VERSION = m.group(1) if m else "UNKNOWN"
 
@@ -127,106 +201,47 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
         fail(f"Drop packet missing: {drop_path}", acc, "FID-003", "Manifest Integrity")
         return False
 
-    # 1. Identity Gate
     if pub_key_path.exists():
         ok(f"Sovereign identity found: {pub_key_path.name}", acc, "FID-001", "Sovereign Identity")
     else:
         warn("Public key missing. Signature verification skipped.", acc, "FID-001", "Sovereign Identity")
 
-    # 2. Extract and Scan
     try:
         with zipfile.ZipFile(drop_path, "r") as zf:
             namelist = zf.namelist()
 
-            # A. MANIFEST integrity
+            # 1. Manifest Phase
             if "MANIFEST.json" in namelist:
-                # [STRICT BINDING] We hash the RAW bytes of the root MANIFEST.json
                 m_bytes = zf.read("MANIFEST.json")
-                m_hash = hashlib.sha256(m_bytes).hexdigest()
-                print(f"🔍 DEBUG: Root MANIFEST.json Raw Hash: {m_hash}")
-                
                 manifest_data = json.loads(m_bytes)
                 acc.version = ARCHIVE_VERSION
-                files = manifest_data.get("file_sha256", {})
-                m_ok = True
                 
-                # Pre-scan inner code zip if it exists to allow deep verification
                 inner_zf = None
                 code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
                 if code_zips:
                     try:
-                        inner_data = zf.read(code_zips[0])
-                        inner_zf = zipfile.ZipFile(io.BytesIO(inner_data))
+                        inner_zf = zipfile.ZipFile(io.BytesIO(zf.read(code_zips[0])))
                     except Exception:
                         inner_zf = None
 
-                for p, expected in files.items():
-                    actual = None
-                    if p in namelist:
-                        actual = hashlib.sha256(zf.read(p)).hexdigest()
-                    elif inner_zf and p in inner_zf.namelist():
-                        actual = hashlib.sha256(inner_zf.read(p)).hexdigest()
-                    
-                    if actual is None:
-                        # Allow skipping optional repo files if they aren't in the inner zip
-                        # but critical artifacts (zips) must be present.
-                        if p.endswith(".zip") or "MANIFEST" in p or "LEDGER" in p:
-                            fail(f"Critical manifest entry missing: {p}", acc, "FID-003", "Manifest Integrity")
-                            m_ok = False
-                        continue
-
-                    if actual != expected:
-                        fail(f"Hash mismatch for {p}", acc, "FID-003", "Manifest Integrity")
-                        m_ok = False
-                
+                if _scan_manifest(zf, manifest_data, inner_zf, acc):
+                    ok(f"Manifest verified ({len(manifest_data.get('file_sha256', {}))} entries)", acc, "FID-003", "Manifest Integrity")
                 if inner_zf:
                     inner_zf.close()
-
-                if m_ok:
-                    ok(f"Manifest verified ({len(files)} entries, including deep scan)", acc, "FID-003", "Manifest Integrity")
             else:
                 fail("MANIFEST.json missing from drop", acc, "FID-003", "Manifest Integrity")
 
-            # --- P0 FIX: Auto-Seek Identity (Sovereign UX) ---
-            if not pub_key_path.exists(): # Check if it still doesn't exist after initial check
+            # 2. Identity Phase (Auto-Seek)
+            if not pub_key_path.exists():
                 print("🔍 Searching for Sovereign Identity inside drop...")
-                pub_key_bytes = None
-                try:
-                    # 1. Look in root
-                    if "sovereign.pub" in namelist:
-                        pub_key_bytes = zf.read("sovereign.pub")
-                        print("  [+] Found identity in drop root.")
-                    else:
-                        # 2. Look in evidence zip
-                        evidence_names = [n for n in namelist if "TRADER_OPS_EVIDENCE" in n and n.endswith(".zip")]
-                        if evidence_names:
-                            e_bytes = zf.read(evidence_names[0])
-                            with zipfile.ZipFile(io.BytesIO(e_bytes)) as ez:
-                                if "sovereign.pub" in ez.namelist():
-                                    pub_key_bytes = ez.read("sovereign.pub")
-                                    print(f"  [+] Found identity in {evidence_names[0]}.")
-                                else:
-                                    fail("Sovereign Identity (sovereign.pub) missing from drop and evidence.", acc, "FID-005", "Identity Verification")
-                                    return False
-                        else:
-                            fail("Sovereign Identity (sovereign.pub) missing and no evidence found to search.", acc, "FID-005", "Identity Verification")
-                            return False
-                
-                    if pub_key_bytes:
-                        # Write to a temporary file for OpenSSL compatibility
-                        temp_key = Path(tempfile.gettempdir()) / "sovereign_extracted.pub"
-                        temp_key.write_bytes(pub_key_bytes)
-                        pub_key_path = temp_key
-                        ok(f"Sovereign identity auto-detected: {pub_key_path.name}", acc, "FID-001", "Sovereign Identity")
-                    else:
-                        fail("Sovereign Identity (sovereign.pub) could not be auto-detected.", acc, "FID-005", "Identity Verification")
-                        return False
-                except Exception as e:
-                    fail(f"Identity Auto-Seek Failed: {e}", acc, "FID-001", "Identity Verification")
-                    return False
+                found_key = _seek_identity_in_drop(zf, acc)
+                if found_key:
+                    pub_key_path = found_key
+                    ok(f"Sovereign identity auto-detected: {pub_key_path.name}", acc, "FID-001", "Sovereign Identity")
+                else:
+                    fail("Sovereign Identity (sovereign.pub) missing.", acc, "FID-005", "Identity Verification")
 
-
-            # B. CERTIFICATE binding (RECURSIVE SEARCH)
+            # 3. Certificate Phase
             evidence_zips = [n for n in namelist if "TRADER_OPS_EVIDENCE" in n and n.endswith(".zip")]
             cert_found = False
             if evidence_zips:
@@ -240,9 +255,6 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         cert_found = True
                         cert_content = evzf.read(cert_path)
                         cert = json.loads(cert_content)
-                        
-                        # Verify version match
-                        # We trust the CERTIFICATE's version (signed) as the source of truth
                         cert_ver = cert.get("version", "UNKNOWN")
                         acc.version = cert_ver 
                         
@@ -251,65 +263,32 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         else:
                             fail(f"Certificate version mismatch: Cert({cert_ver}) != Filename({ARCHIVE_VERSION})", acc, "FID-002", "Certificate Signature")
 
-                        # Verify signature if key exists
                         if pub_key_path.exists() and sig_path in ev_namelist:
-                            sig_bytes = evzf.read(sig_path)
-                            if verify_signature(cert_content, sig_bytes, pub_key_path):
+                            if verify_signature(cert_content, evzf.read(sig_path), pub_key_path):
                                 ok("Sovereign Signature Verified (Ed25519)", acc, "FID-002", "Certificate Signature")
                             else:
                                 fail("Sovereign Signature INVALID", acc, "FID-002", "Certificate Signature")
                         
-                        # Verify bindings
-                        bindings = cert.get("bindings", {})
-                        # manifest_sha256 binding
-                        if "MANIFEST.json" in namelist:
-                            # [STRICT BINDING] We hash the RAW bytes of the root MANIFEST.json
-                            # which the forge ensures is bit-perfect to the payload manifest it signed.
-                            m_bytes = zf.read("MANIFEST.json")
-                            m_hash = hashlib.sha256(m_bytes).hexdigest()
-                            
-                            # Standardized key is manifest_sha256
-                            expected_hash = bindings.get("manifest_sha256") or bindings.get("payload_manifest_sha256")
-                            
-                            if expected_hash == m_hash:
-                                ok("Certificate binds correctly to Manifest", acc, "INT-003", "No Circular Hash")
-                            else:
-                                fail(f"Certificate manifest binding mismatch: Expected {expected_hash[:8] if expected_hash else 'NONE'}, got {m_hash[:8]}", acc, "INT-003", "No Circular Hash")
-                        
-                        # Data hash
-                        d_hash = bindings.get("data_hash")
-                        if d_hash and d_hash != "N/A" and len(d_hash) == 64:  # noqa: PLR2004
-                            ok(f"Data Provenance bound: {d_hash[:8]}", acc, "INT-005", "Data Hash Non-Empty")
-                        else:
-                            fail(f"Data hash invalid or empty: {d_hash}", acc, "INT-005", "Data Hash Non-Empty")
+                        _verify_bindings(cert, zf, acc)
             
             if not cert_found:
-                fail("CERTIFICATE.json missing (searched root and evidence zip)", acc, "FID-002", "Certificate Signature")
+                fail("CERTIFICATE.json missing", acc, "FID-002", "Certificate Signature")
 
-            # C. SEED PROFILE check (Fail-Closed)
-            code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
-            if not code_zips:
-                fail("CODE zip missing from drop", acc, "INT-004", "Seed Profile Present")
-            else:
-                code_data = zf.read(code_zips[0])
+            # 4. Seed Profile check
+            if code_zips:
                 try:
-                    with zipfile.ZipFile(io.BytesIO(code_data)) as czf:
-                        profile_matches = [n for n in czf.namelist() if "seed_profile.yaml" in n]
-                        if profile_matches:
-                            ok(f"Seed Profile verified: {profile_matches[0]}", acc, "INT-004", "Seed Profile Present")
+                    with zipfile.ZipFile(io.BytesIO(zf.read(code_zips[0]))) as czf:
+                        if any("seed_profile.yaml" in n for n in czf.namelist()):
+                            ok("Seed Profile verified", acc, "INT-004", "Seed Profile Present")
                         else:
-                            fail("profiles/seed_profile.yaml MISSING from CODE zip", acc, "INT-004", "Seed Profile Present")
+                            fail("profiles/seed_profile.yaml MISSING", acc, "INT-004", "Seed Profile Present")
                 except Exception as e:
                     fail(f"Failed to read CODE zip: {e}", acc, "INT-004", "Seed Profile Present")
 
     except zipfile.BadZipFile:
         fail("Corrupt drop packet", acc, "FID-003", "Manifest Integrity")
 
-    # 3. Emit Report
-    report_path = Path("dist/audit/gate_report.json")
-    acc.emit_json(report_path)
-
-    # Final logic: Non-zero exit if any FAIL
+    acc.emit_json(Path("dist/audit/gate_report.json"))
     has_fail = any(r.status == "FAIL" for r in acc.results)
     if has_fail:
         print(f"\n🛑 {RED}{BOLD}DROP REJECTED: One or more gates failed.{RESET}")
