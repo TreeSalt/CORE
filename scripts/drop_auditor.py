@@ -11,6 +11,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -119,7 +120,6 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
     print("=" * 60)
 
     # [VERSION WITNESS] Extract version from filename (Canonical Source)
-    import re
     m = re.search(r"_v([\d\.]+)\.zip", drop_path.name)
     ARCHIVE_VERSION = m.group(1) if m else "UNKNOWN"
 
