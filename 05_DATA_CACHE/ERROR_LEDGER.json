@@ -2,13 +2,6 @@
     "system_start_utc": "2026-02-16T23:45:49Z",
     "events": [
         {
-            "timestamp_utc": "2026-02-17T13:15:09Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.27",
-            "resolution": "Auto-Sync"
-        },
-        {
             "timestamp_utc": "2026-02-17T14:26:20Z",
             "category": "METADATA",
             "gate": "RECOVERY",
@@ -696,6 +689,13 @@
         },
         {
             "timestamp_utc": "2026-02-18T01:13:36Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:13:38Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.54",
