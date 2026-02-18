@@ -147,11 +147,9 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                 
                 manifest_data = json.loads(m_bytes)
                 acc.version = ARCHIVE_VERSION
-                files = manifest_data.get("files", [])
+                files = manifest_data.get("file_sha256", {})
                 m_ok = True
-                for entry in files:
-                    p = entry["path"]
-                    expected = entry["sha256"]
+                for p, expected in files.items():
                     if p not in namelist:
                         fail(f"Manifest entry missing from zip: {p}", acc, "FID-003", "Manifest Integrity")
                         m_ok = False
