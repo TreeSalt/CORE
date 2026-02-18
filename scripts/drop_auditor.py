@@ -82,13 +82,11 @@ def verify_signature(content: bytes, sig_bytes: bytes, pub_path: Path) -> Option
     if not pub_path.exists():
         return None
     try:
-        # Pkeyutl expects files, so we use temp files via process pipes for pure in-memory check
-        # But for robustness in varied environments, we write to temporary files.
         import tempfile
         import os
 
-        with tempfile.NamedTemporary_File(delete=False) as f_in, \
-             tempfile.NamedTemporary_File(delete=False) as f_sig:
+        with tempfile.NamedTemporaryFile(delete=False) as f_in, \
+             tempfile.NamedTemporaryFile(delete=False) as f_sig:
             f_in.write(content)
             f_sig.write(sig_bytes)
             f_in_name = f_in.name
@@ -105,8 +103,10 @@ def verify_signature(content: bytes, sig_bytes: bytes, pub_path: Path) -> Option
             )
             return True
         finally:
-            if os.path.exists(f_in_name): os.remove(f_in_name)
-            if os.path.exists(f_sig_name): os.remove(f_sig_name)
+            if os.path.exists(f_in_name):
+                os.remove(f_in_name)
+            if os.path.exists(f_sig_name):
+                os.remove(f_sig_name)
 
     except FileNotFoundError:
         return None
