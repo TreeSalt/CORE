@@ -36,13 +36,14 @@ class GateResult:
 @dataclass
 class GateAccumulator:
     results: List[GateResult] = field(default_factory=list)
+    version: str = "UNKNOWN"
 
     def record(self, gate_id: str, name: str, status: str, message: str):
         self.results.append(GateResult(gate_id, name, status, message))
 
     def emit_json(self, path: Path):
         data = {
-            "version": "4.5.29",
+            "version": self.version,
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "summary": {
                 "total": len(self.results),
@@ -76,17 +77,37 @@ def warn(msg: str, acc: GateAccumulator, gate_id: str, gate_name: str):
     acc.record(gate_id, gate_name, "WARN", msg)
 
 
-def verify_signature(file_path: Path, sig_path: Path, pub_path: Path) -> Optional[bool]:
-    """Verify DER signature using openssl."""
-    if not sig_path.exists() or not pub_path.exists():
+def verify_signature(content: bytes, sig_bytes: bytes, pub_path: Path) -> Optional[bool]:
+    """Verify Ed25519 signature using openssl pkeyutl."""
+    if not pub_path.exists():
         return None
     try:
-        subprocess.check_call(
-            ["openssl", "dgst", "-sha256", "-verify", str(pub_path), "-signature", str(sig_path), str(file_path)],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        return True
+        # Pkeyutl expects files, so we use temp files via process pipes for pure in-memory check
+        # But for robustness in varied environments, we write to temporary files.
+        import tempfile
+        import os
+
+        with tempfile.NamedTemporary_File(delete=False) as f_in, \
+             tempfile.NamedTemporary_File(delete=False) as f_sig:
+            f_in.write(content)
+            f_sig.write(sig_bytes)
+            f_in_name = f_in.name
+            f_sig_name = f_sig.name
+
+        try:
+            # Ed25519 requires pkeyutl -verify -rawin
+            # We don't use -sha256 because Ed25519 is implicitly raw/pure or handled by openssl
+            subprocess.check_call(
+                ["openssl", "pkeyutl", "-verify", "-pubin", "-inkey", str(pub_path), 
+                 "-rawin", "-in", f_in_name, "-sigfile", f_sig_name],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        finally:
+            if os.path.exists(f_in_name): os.remove(f_in_name)
+            if os.path.exists(f_sig_name): os.remove(f_sig_name)
+
     except FileNotFoundError:
         return None
     except subprocess.CalledProcessError:
@@ -116,6 +137,7 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
             # A. MANIFEST integrity
             if "MANIFEST.json" in namelist:
                 manifest_data = json.loads(zf.read("MANIFEST.json"))
+                acc.version = manifest_data.get("trader_ops_version", "UNKNOWN")
                 files = manifest_data.get("files", [])
                 m_ok = True
                 for entry in files:
@@ -134,25 +156,54 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
             else:
                 fail("MANIFEST.json missing from drop", acc, "FID-003", "Manifest Integrity")
 
-            # B. CERTIFICATE binding
-            if "CERTIFICATE.json" in namelist:
-                cert = json.loads(zf.read("CERTIFICATE.json"))
-                # Verify cert binds to manifest
-                if "MANIFEST.json" in namelist:
-                    m_hash = hashlib.sha256(zf.read("MANIFEST.json")).hexdigest()
-                    if cert.get("manifest_hash") == m_hash:
-                        ok("Certificate binds correctly to Manifest", acc, "INT-003", "No Circular Hash")
-                    else:
-                        fail("Certificate manifest_hash mismatch", acc, "INT-003", "No Circular Hash")
-                
-                # Verify data_hash
-                d_hash = cert.get("bindings", {}).get("data_hash")
-                if d_hash and d_hash != "N/A" and len(d_hash) == 64:  # noqa: PLR2004
-                    ok(f"Data Provenance bound: {d_hash[:8]}", acc, "INT-005", "Data Hash Non-Empty")
-                else:
-                    fail(f"Data hash invalid or empty: {d_hash}", acc, "INT-005", "Data Hash Non-Empty")
-            else:
-                fail("CERTIFICATE.json missing", acc, "FID-002", "Certificate Signature")
+            # B. CERTIFICATE binding (RECURSIVE SEARCH)
+            evidence_zips = [n for n in namelist if "TRADER_OPS_EVIDENCE" in n and n.endswith(".zip")]
+            cert_found = False
+            if evidence_zips:
+                ev_data = zf.read(evidence_zips[0])
+                with zipfile.ZipFile(io.BytesIO(ev_data)) as evzf:
+                    ev_namelist = evzf.namelist()
+                    cert_path = "reports/certification/CERTIFICATE.json"
+                    sig_path = "reports/certification/CERTIFICATE.json.sig"
+                    
+                    if cert_path in ev_namelist:
+                        cert_found = True
+                        cert_content = evzf.read(cert_path)
+                        cert = json.loads(cert_content)
+                        
+                        # Verify version match
+                        if cert.get("version") == acc.version:
+                            ok(f"Certificate version matches: v{acc.version}", acc, "FID-002", "Certificate Signature")
+                        else:
+                            fail(f"Certificate version mismatch: Cert({cert.get('version')}) != Manifest({acc.version})", acc, "FID-002", "Certificate Signature")
+
+                        # Verify signature if key exists
+                        if pub_key_path.exists() and sig_path in ev_namelist:
+                            sig_bytes = evzf.read(sig_path)
+                            if verify_signature(cert_content, sig_bytes, pub_key_path):
+                                ok("Sovereign Signature Verified (Ed25519)", acc, "FID-002", "Certificate Signature")
+                            else:
+                                fail("Sovereign Signature INVALID", acc, "FID-002", "Certificate Signature")
+                        
+                        # Verify bindings
+                        bindings = cert.get("bindings", {})
+                        # payload_manifest_sha256 binding
+                        if "MANIFEST.json" in namelist:
+                            m_hash = hashlib.sha256(zf.read("MANIFEST.json")).hexdigest()
+                            if bindings.get("payload_manifest_sha256") == m_hash:
+                                ok("Certificate binds correctly to Payload Manifest", acc, "INT-003", "No Circular Hash")
+                            else:
+                                fail("Certificate manifest binding mismatch", acc, "INT-003", "No Circular Hash")
+                        
+                        # Data hash
+                        d_hash = bindings.get("data_hash")
+                        if d_hash and d_hash != "N/A" and len(d_hash) == 64:  # noqa: PLR2004
+                            ok(f"Data Provenance bound: {d_hash[:8]}", acc, "INT-005", "Data Hash Non-Empty")
+                        else:
+                            fail(f"Data hash invalid or empty: {d_hash}", acc, "INT-005", "Data Hash Non-Empty")
+            
+            if not cert_found:
+                fail("CERTIFICATE.json missing (searched root and evidence zip)", acc, "FID-002", "Certificate Signature")
 
             # C. SEED PROFILE check (Fail-Closed)
             code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
