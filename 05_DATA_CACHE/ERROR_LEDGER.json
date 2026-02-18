@@ -630,6 +630,13 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.44",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T00:59:15Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.45",
+            "resolution": "Auto-Sync"
         }
     ],
     "vaccines": {
