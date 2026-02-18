@@ -272,6 +272,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
             "--symbols", "MES", "--prices-csv", "data/mes_5m_synthetic.csv", 
             "--start", "2026-01-01", "--end", "2026-12-31",
+            "--rebalance", "15min",
             "--outdir", "reports/forge/synthetic_smoke"
         ], cwd=repo_root, env=env)
     except subprocess.CalledProcessError as e:
