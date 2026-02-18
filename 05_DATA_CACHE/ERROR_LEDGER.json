@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-02-16T23:46:16Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/TEST_INTEGRITY_S.csv",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-02-16T23:46:16Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: 05_DATA_CACHE/snapshots/TEST_INTEGRITY_S_12345678.csv",
             "resolution": "Git Checkout"
         },
@@ -696,6 +689,13 @@
         },
         {
             "timestamp_utc": "2026-02-18T01:12:48Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.54",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-18T01:12:49Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.54",
