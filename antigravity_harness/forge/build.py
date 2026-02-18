@@ -309,6 +309,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
     manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
+    payload_manifest: Dict[str, Any] = {"version": version, "file_sha256": manifest_data}
+
     # Canonical Manifest Hash for Ledger and Canon Binding
     # [STRICT BINDING] We use separators=(",", ":") for compact JSON hash stability.
     manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
