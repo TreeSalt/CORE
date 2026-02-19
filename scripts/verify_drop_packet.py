@@ -402,6 +402,10 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                 elif f"{smoke_root}/{fname}" in e_names:
                                     found_data_path = f"{smoke_root}/{fname}"
                                     data_bytes = ez.read(found_data_path)
+                                # 3. Check if it is in data/ dir (Standard layout)
+                                elif f"data/{fname}" in e_names:
+                                    found_data_path = f"data/{fname}"
+                                    data_bytes = ez.read(found_data_path)
                                 
                                 if found_data_path:
                                     actual_sha = hashlib.sha256(data_bytes).hexdigest()
