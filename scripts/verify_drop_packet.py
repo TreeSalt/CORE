@@ -366,8 +366,8 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                         
                         # --- Phase P0: Strict Evidence Assertions ---
                         if args.strict:
-                            # Support both 'checksums' and 'evidence' keys
-                            ev_files = em.get("checksums", em.get("evidence", {}))
+                            # Support both 'files' (standard) and legacy keys
+                            ev_files = em.get("files", em.get("checksums", em.get("evidence", {})))
                             required = ["results.csv", "DATA_MANIFEST.json", "RUN_METADATA.json"]
                             for r in required:
                                 if r not in ev_files:
