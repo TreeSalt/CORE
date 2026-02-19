@@ -435,8 +435,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     if ev_manifest_path.exists():
         with open(ev_manifest_path, "r") as f:
             ev_man = json.load(f)
-            # Support both checksums and evidence keys if schema varies
-            ev_files = ev_man.get("checksums", ev_man.get("evidence", {}))
+            # Support both 'files' (standard) and legacy keys
+            ev_files = ev_man.get("files", ev_man.get("checksums", ev_man.get("evidence", {})))
             required = ["RUN_METADATA.json", "results.csv", "DATA_MANIFEST.json"]
             missing = [r for r in required if r not in ev_files]
             if not missing:
