@@ -16,6 +16,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+
 def canonicalize_content(text: str) -> bytes:
     """
     Canonicalization Rules (Institutional Standard):

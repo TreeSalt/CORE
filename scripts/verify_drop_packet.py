@@ -364,7 +364,6 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                             
                             # PROMPT_FINGERPRINT.json is only required for v4.5.73+
                             # We check the code version to determine this REQUIREMENT.
-                            is_v4_5_73_plus = False
                             try:
                                 # simplistic semver check: if version string contains 4.5.73 or higher logic
                                 # Better: parse version tuple
