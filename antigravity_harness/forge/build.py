@@ -249,6 +249,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 1.6 Data Anchor (Tier 1) - Must run BEFORE smoke test for evidence manifest completeness
     smoke_dir = repo_root / "reports/forge/synthetic_smoke"
+    smoke_dir.mkdir(parents=True, exist_ok=True)
     print("⚓ Casting Data Anchor...")
     data_hash = "N/A"
     try:
