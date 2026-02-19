@@ -176,11 +176,23 @@ def _verify_bindings(cert: dict, zf: zipfile.ZipFile, acc: GateAccumulator):
     if "MANIFEST.json" in namelist:
         m_bytes = zf.read("MANIFEST.json")
         m_hash = hashlib.sha256(m_bytes).hexdigest()
-        expected_hash = bindings.get("manifest_sha256") or bindings.get("payload_manifest_sha256")
-        if expected_hash == m_hash:
-            ok("Certificate binds correctly to Manifest", acc, "INT-003", "No Circular Hash")
+        
+        # Dual-Hash Schema (v4.5.72+)
+        final_hash = bindings.get("manifest_sha256")
+        payload_hash = bindings.get("payload_manifest_sha256")
+        
+        # Output both if present
+        if payload_hash:
+            print(f"  [+] payload_manifest_sha256 (Canon): {payload_hash[:12]}")
+        if final_hash:
+            print(f"  [+] manifest_sha256 (Final): {final_hash[:12]}")
+
+        if final_hash == m_hash:
+            ok("Certificate binds correctly to Final Manifest", acc, "INT-003", "Manifest Binding")
+        elif payload_hash == m_hash:
+            ok("Certificate binds correctly to Payload Manifest", acc, "INT-003", "Manifest Binding")
         else:
-            fail(f"Certificate manifest binding mismatch: Expected {expected_hash[:8] if expected_hash else 'NONE'}, got {m_hash[:8]}", acc, "INT-003", "No Circular Hash")
+            fail(f"Certificate manifest binding mismatch: Expected {final_hash[:8] if final_hash else 'NONE'}, got {m_hash[:8]}", acc, "INT-003", "Manifest Binding")
     
     d_hash = bindings.get("data_hash")
     if d_hash and d_hash != "N/A" and len(d_hash) == 64:  # noqa: PLR2004

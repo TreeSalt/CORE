@@ -247,12 +247,24 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             if unexpected:
                 raise RuntimeError(f"PURITY VIOLATION: Forge mutated UNEXPECTED tracked files: {unexpected}. Use commitment-first workflow.")
 
-    # 1.6 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
+    # 1.6 Data Anchor (Tier 1) - Must run BEFORE smoke test for evidence manifest completeness
+    print("⚓ Casting Data Anchor...")
+    data_hash = "N/A"
+    try:
+        subprocess.check_call([
+            sys.executable, "scripts/generate_data_manifest.py", 
+            "--out", str(smoke_dir / "DATA_MANIFEST.json")
+        ], cwd=repo_root)
+        
+        with open(smoke_dir / "DATA_MANIFEST.json") as f:
+            dm = json.load(f)
+            data_hash = dm.get("merkle_root_sha256", "N/A")
+            print(f"   Data Hash: {data_hash[:8]}")
+    except Exception as e:
+        print(f"⚠️  Data Anchor Failed: {e}")
+
+    # 1.6.1 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
-    smoke_dir = repo_root / "reports/forge/synthetic_smoke"
-    if smoke_dir.exists():
-        shutil.rmtree(smoke_dir)
-    smoke_dir.mkdir(parents=True, exist_ok=True)
     
     # Run the smoke test
     try:
@@ -277,22 +289,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         ], cwd=repo_root, env=env)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"SMOKE TEST FAILURE: Cannot package evidence if smoke test fails. {e}") from e
-
-    # 1.6.1 Data Anchor (Tier 1)
-    print("⚓ Casting Data Anchor...")
-    data_hash = "N/A"
-    try:
-        subprocess.check_call([
-            sys.executable, "scripts/generate_data_manifest.py", 
-            "--out", str(smoke_dir / "DATA_MANIFEST.json")
-        ], cwd=repo_root)
-        
-        with open(smoke_dir / "DATA_MANIFEST.json") as f:
-            dm = json.load(f)
-            data_hash = dm.get("merkle_root_sha256", "N/A")
-            print(f"   Data Hash: {data_hash[:8]}")
-    except Exception as e:
-        print(f"⚠️  Data Anchor Failed: {e}")
 
     # Verify evidence version matches
     metadata_path = smoke_dir / "RUN_METADATA.json"
@@ -329,11 +325,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # Canonical Manifest Hash for Ledger and Canon Binding
     # [STRICT BINDING] We use separators=(",", ":") for compact JSON hash stability.
     manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
-    print(f"⚖️  Binding Council Canon to Manifest: {manifest_sha[:12]}...")
+    payload_manifest_sha256 = hashlib.sha256(manifest_bytes).hexdigest()
+    print(f"⚖️  Binding Council Canon to Manifest: {payload_manifest_sha256[:12]}...")
     canon_txt = (repo_root / "docs/ready_to_drop/COUNCIL_CANON.yaml").read_text()
     # Update fingerprint
-    canon_txt = re.sub(r'fingerprint_sha256:\s*"[a-f0-9]*"', f'fingerprint_sha256: "{manifest_sha}"', canon_txt)
+    canon_txt = re.sub(r'fingerprint_sha256:\s*"[a-f0-9]*"', f'fingerprint_sha256: "{payload_manifest_sha256}"', canon_txt)
     # [STAGE 1 FIX: Determinism] Use fixed epoch for generated_at_utc
     fixed_utc = "2020-01-01T00:00:00Z"
     canon_txt = re.sub(r'generated_at_utc:\s*"[^"]*"', f'generated_at_utc: "{fixed_utc}"', canon_txt)
@@ -362,8 +358,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     # Final sorted manifest for bit-perfect CODE zip (Pass 2)
     final_manifest_bytes = json.dumps(payload_manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    final_manifest_sha = hashlib.sha256(final_manifest_bytes).hexdigest()
-    print(f"⚖️  FINAL Manifest Stabilized: {final_manifest_sha[:12]}")
+    manifest_sha256 = hashlib.sha256(final_manifest_bytes).hexdigest()
+    print(f"⚖️  FINAL Manifest Stabilized: {manifest_sha256[:12]}")
     
     tmp_manifest_path = build_tmp / "PAYLOAD_MANIFEST.json"
     tmp_manifest_path.write_bytes(final_manifest_bytes)
@@ -397,7 +393,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             with open(metadata_path, "r") as f:
                 metadata = json.load(f)
             metadata["code_hash"] = real_code_hash
-            metadata["manifest_hash"] = manifest_sha
+            metadata["manifest_hash"] = payload_manifest_sha256
             metadata["data_hash"] = data_hash
             with open(metadata_path, "w") as f:
                 json.dump(metadata, f, indent=2, sort_keys=True)
@@ -423,16 +419,41 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     ev_manifest_path = smoke_dir / "EVIDENCE_MANIFEST.json"
     ev_manifest_sha = hash_file(ev_manifest_path) if ev_manifest_path.exists() else "N/A"
 
-    # NOTE: evidence_sha256 was REMOVED from cert bindings in v4.5.29.
-    # The cert lived inside the evidence zip, making the hash circular.
-    # Integrity is now provided by the detached MANIFEST.json (see Step 5.5).
+    # --- Phase P0: Compute Real Gates ---
+    strict_mode = os.environ.get("STRICT_MODE", "1") == "1"
+    
+    # 1. Manifest Canon Binding
+    gate_canon = "FAIL"
+    if payload_manifest_sha256 in canon_txt:
+        gate_canon = "PASS"
+    
+    # 2. Evidence Suite Complete
+    gate_evidence = "FAIL"
+    ev_fail_reason = ""
+    if ev_manifest_path.exists():
+        with open(ev_manifest_path, "r") as f:
+            ev_man = json.load(f)
+            # Support both checksums and evidence keys if schema varies
+            ev_files = ev_man.get("checksums", ev_man.get("evidence", {}))
+            required = ["RUN_METADATA.json", "results.csv", "DATA_MANIFEST.json"]
+            missing = [r for r in required if r not in ev_files]
+            if not missing:
+                gate_evidence = "PASS"
+            else:
+                ev_fail_reason = f"Missing in manifest: {missing}"
+    else:
+        ev_fail_reason = "EVIDENCE_MANIFEST.json missing"
+
+    if strict_mode and (gate_canon != "PASS" or gate_evidence != "PASS"):
+        print(f"⛔ STRICT GATE FAILURE: canon={gate_canon}, evidence={gate_evidence} ({ev_fail_reason})")
+        raise RuntimeError("FAIL-CLOSED: Institutional security gates not satisfied in STRICT_MODE.")
 
     certificate = {
         "certificate_schema_version": "2.0.0",
         "scope": "fiduciary_strict_audit",
         "strict_profile_id": "FIDUCIARY_STRICT_V1",
         "verifier_version": "v1.1.0",
-        "strict_mode": (os.environ.get("STRICT_MODE", "1") == "1"),
+        "strict_mode": strict_mode,
         "trader_ops_version": version,
         "version": version,
         "artifact_version": version,
@@ -442,16 +463,19 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "bindings": {
             "code_sha256": real_code_hash,
             "data_hash": data_hash,
-            "manifest_sha256": final_manifest_sha,
+            "manifest_sha256": manifest_sha256,
+            "payload_manifest_sha256": payload_manifest_sha256,
             "evidence_manifest_sha256": ev_manifest_sha
         },
         "gates": {
             "timeline_sovereignty": "PASS",
-            "manifest_canon_binding": "PASS",
-            "evidence_suite_complete": "PASS",
-            "strict_mode_enforced": "PASS"
+            "manifest_canon_binding": gate_canon,
+            "evidence_suite_complete": gate_evidence,
+            "strict_mode_enforced": "PASS" if strict_mode else "WARN"
         }
     }
+    if ev_fail_reason:
+        certificate["gates"]["evidence_fail_reason"] = ev_fail_reason
 
     # Keys
     key_path = repo_root / "sovereign.key"
@@ -509,7 +533,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             "evidence": {"filename": evidence_zip_name, "sha256": evidence_hash},
         },
         "sovereign_binding": {
-            "manifest_sha256": final_manifest_sha, 
+            "manifest_sha256": manifest_sha256, 
+            "payload_manifest_sha256": payload_manifest_sha256,
             "builder_id": "Institutional-Gold-Node",
             "git_commit": git_info["sha"],
             "git_dirty": git_info["dirty"],

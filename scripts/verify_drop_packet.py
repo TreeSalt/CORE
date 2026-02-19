@@ -363,6 +363,17 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                         if em.get("environment", {}).get("git_commit") == "UNKNOWN":
                             issues.append(Issue(FAIL, "GIT_PROVENANCE_MISSING", "Evidence environment has UNKNOWN git commit"))
                         evidence_git_commit = em.get("environment", {}).get("git_commit")
+                        
+                        # --- Phase P0: Strict Evidence Assertions ---
+                        if args.strict:
+                            # Support both 'checksums' and 'evidence' keys
+                            ev_files = em.get("checksums", em.get("evidence", {}))
+                            required = ["results.csv", "DATA_MANIFEST.json", "RUN_METADATA.json"]
+                            for r in required:
+                                if r not in ev_files:
+                                    issues.append(Issue(FAIL, "EVIDENCE_INCOMPLETE", f"Strict: {r} missing from EVIDENCE_MANIFEST.json"))
+                                elif f"{smoke_root}/{r}" not in e_names:
+                                    issues.append(Issue(FAIL, "EVIDENCE_FILE_MISSING", f"Strict: {r} listed in manifest but missing from zip"))
                 
                 # Tier 1: Data Manifest
                 if smoke_root and f"{smoke_root}/DATA_MANIFEST.json" not in e_names:
@@ -385,8 +396,27 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                     issues.append(Issue(FAIL, "CERTIFICATE_MISSING", "Fiduciary Certificate missing from evidence"))
                 else:
                     cert_json = json.loads(ez.read(cert_path).decode("utf-8"))
-                    if args.strict and cert_json.get("strict_mode") is not True:
-                         issues.append(Issue(FAIL, "CERTIFICATE_NOT_STRICT", "Certificate strict_mode != true"))
+                    if args.strict:
+                        if cert_json.get("strict_mode") is not True:
+                            issues.append(Issue(FAIL, "CERTIFICATE_NOT_STRICT", "Certificate strict_mode != true"))
+                        
+                        # Dual-Hash Verification (v4.5.72+)
+                        c_payload = cert_json.get("bindings", {}).get("payload_manifest_sha256")
+                        c_manifest = cert_json.get("bindings", {}).get("manifest_sha256")
+                        
+                        if not c_payload:
+                            issues.append(Issue(FAIL, "CERT_MISSING_PAYLOAD_HASH", "Strict: payload_manifest_sha256 missing from certificate"))
+                        elif c_payload != manifest_sha:
+                            issues.append(Issue(FAIL, "CERT_PAYLOAD_HASH_MISMATCH", f"Cert Payload({c_payload[:8]}) != Actual Manifest({manifest_sha[:8]})"))
+                        
+                        if not c_manifest:
+                            issues.append(Issue(FAIL, "CERT_MISSING_MANIFEST_HASH", "Strict: manifest_sha256 missing from certificate"))
+                        # Final manifest hash verification ( Pass 2 )
+                        # The code_zip contains the PAYLOAD_MANIFEST.json which has the FINAL hash of COUNCIL_CANON.yaml.
+                        # We calculate it from pm_obj (Pass 2)
+                        final_calc_sha = canonical_manifest_sha(pm_obj)
+                        if c_manifest != final_calc_sha:
+                            issues.append(Issue(FAIL, "CERT_FINAL_HASH_MISMATCH", f"Cert Final({c_manifest[:8]}) != Calc Final({final_calc_sha[:8]})"))
                 
                 if sig_path not in e_names:
                      issues.append(Issue(FAIL, "SIGNATURE_MISSING", "Certificate Signature missing"))

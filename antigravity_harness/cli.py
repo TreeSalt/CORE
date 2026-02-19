@@ -1299,11 +1299,11 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
         extra={"periods_per_year": inferred_periods},
     )
 
-    # Phase 4.1: Evidence Manifest (Tier 1 Credibility)
-    _generate_evidence_manifest(out_dir, args)
-
-    # Phase 4.2: Tier-0 results.csv (one-row, machine-friendly summary)
+    # Phase 4.1: Tier-0 results.csv (one-row, machine-friendly summary)
     _emit_results_csv(out_dir)
+
+    # Phase 4.2: Evidence Manifest (Tier 1 Credibility)
+    _generate_evidence_manifest(out_dir, args)
 
     # Final Stats
     final_eq = curve["equity"].iloc[-1]
