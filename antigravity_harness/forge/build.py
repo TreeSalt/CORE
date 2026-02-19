@@ -304,7 +304,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 "--charter", "TRADER_OPS_PROMPT_CHARTER_v1.0"
             ], cwd=repo_root)
         except Exception as e:
-            raise RuntimeError(f"PROMPT BINDING FAILED: {e}")
+            raise RuntimeError(f"PROMPT BINDING FAILED: {e}") from e
     else:
         print(f"⚠️  Mission Prompt Missing at {prompt_file}. Strictly required for v4.5.73+.")
         if os.environ.get("STRICT_MODE") == "1":
