@@ -1,0 +1,57 @@
+[MISSION_ID]
+TRADER_OPS_MASTER_IDE_REQUEST_v4.5.73_IBKR_REALITY_CONTACT
+
+[CHARTER]
+TRADER_OPS_PROMPT_CHARTER_v1.0
+
+[PRIORITY]
+P0 - CRITICAL PATH (Fiduciary Obligation)
+
+[OBJECTIVE: REALITY CONTACT + TRUTH BINDING]
+You are tasked with forging **TRADER_OPS v4.5.73** (Codename: "Reality Contact").
+This request elevates the system from "Simulation-Grade" to "Institutional-Grade Verification" by introducing the **Fiduciary Trinity**:
+1.  **Prompt Fingerprinting (P0-B):** The mission prompt itself must be hashed and bound to the evidence.
+2.  **Leaf Hash Verification (P0-C):** The `DATA_MANIFEST.json` must be strictly verified against the shipped bytes.
+3.  **Reality Contact (P1):** Integration of real-world data (IBKR Paper) alongside synthetic smoke tests.
+
+[NON-NEGOTIABLE LAWS]
+1.  **Bit-Perfect Determinism:** The same input must produce the exact same hashes.
+2.  **Fail-Closed Security:** Any verification failure (hash mismatch, missing file, dirty git) must abort the process immediately.
+3.  **Audit-Ready:** All artificats must be traceable to this prompt and the git commit SHA.
+
+[TASKS]
+
+## Pre-Flight (P0-A)
+- [ ] Verify `dist/TRADER_OPS_READY_TO_DROP_v4.5.72.zip` exists and passes `scripts/verify_drop_packet.py --strict`.
+- [ ] Fix any outstanding lint/gate failures from v4.5.72.
+
+## Prompt Fingerprinting (P0-B)
+- [ ] Create `scripts/prompt_fingerprint.py`.
+    - Function: Canonicalize prompt (strip whitespace, ensure final newline), compute SHA256.
+    - Output: `PROMPT_FINGERPRINT.json` containing `{ "id": "...", "sha256": "...", "timestamp": "...", "charter": "..." }`.
+- [ ] Update `forge/build.py` to:
+    - Call `prompt_fingerprint.py` on THIS file.
+    - Include `PROMPT_FINGERPRINT.json` in `TRADER_OPS_EVIDENCE_v4.5.73.zip`.
+- [ ] Update `scripts/verify_drop_packet.py` to:
+    - REQUIRE `PROMPT_FINGERPRINT.json` in evidence (Strict Mode).
+    - WARN if missing (Legacy Mode).
+
+## Data Manifest Leaf Binding (P0-C)
+- [ ] Update `scripts/verify_drop_packet.py` to enforce `DATA_MANIFEST.json` validity.
+    - CURRENTLY: Checks Merkle Root only.
+    - NEW REQUIREMENT: Iterate through all files in `DATA_MANIFEST.json`, read the actual shipped bytes from the ZIP, re-hash, and compare.
+    - FAIL if any leaf hash does not match.
+
+## Reality Contact (P1)
+- [ ] Create `scripts/ibkr_ingest_mes_5m.py`.
+    - Connect to IBKR Paper Account (TWS/Gateway).
+    - Ingest 5-minute bars for MES (Micro E-mini S&P 500).
+    - Output: `data/ibkr/mes_5m_ibkr_rth.csv` and `data/ibkr/mes_5m_ibkr_rth.meta.json`.
+- [ ] Update `forge/build.py` to include `data/ibkr/` in the evidence package if present.
+- [ ] Ensure `DATA_MANIFEST.json` includes hashes for these new files.
+
+[ACCEPTANCE CRITERIA]
+1.  `make all` produces `TRADER_OPS_READY_TO_DROP_v4.5.73.zip`.
+2.  `scripts/verify_drop_packet.py --strict` PASSES on the new drop.
+3.  `PROMPT_FINGERPRINT.json` is present in the evidence zip.
+4.  `DATA_MANIFEST.json` binds to the actual shipped data bytes.

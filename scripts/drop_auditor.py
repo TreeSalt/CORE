@@ -271,20 +271,20 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
                         acc.version = cert_ver 
                         
                         if cert_ver == ARCHIVE_VERSION:
-                            ok(f"Certificate version matches: v{cert_ver}", acc, "FID-002", "Certificate Signature")
+                            ok(f"Certificate version matches: v{cert_ver}", acc, "FID-002A", "Certificate Version")
                         else:
-                            fail(f"Certificate version mismatch: Cert({cert_ver}) != Filename({ARCHIVE_VERSION})", acc, "FID-002", "Certificate Signature")
+                            fail(f"Certificate version mismatch: Cert({cert_ver}) != Filename({ARCHIVE_VERSION})", acc, "FID-002A", "Certificate Version")
 
                         if pub_key_path.exists() and sig_path in ev_namelist:
                             if verify_signature(cert_content, evzf.read(sig_path), pub_key_path):
-                                ok("Sovereign Signature Verified (Ed25519)", acc, "FID-002", "Certificate Signature")
+                                ok("Sovereign Signature Verified (Ed25519)", acc, "FID-002B", "Certificate Signature")
                             else:
-                                fail("Sovereign Signature INVALID", acc, "FID-002", "Certificate Signature")
+                                fail("Sovereign Signature INVALID", acc, "FID-002B", "Certificate Signature")
                         
                         _verify_bindings(cert, zf, acc)
             
             if not cert_found:
-                fail("CERTIFICATE.json missing", acc, "FID-002", "Certificate Signature")
+                fail("CERTIFICATE.json missing", acc, "FID-002C", "Certificate Presence")
 
             # 4. Seed Profile check
             if code_zips:

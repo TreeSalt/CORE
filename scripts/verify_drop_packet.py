@@ -142,16 +142,10 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                     sidecar_name = f"DROP_WITNESS_INNER_SHA256_v{ver}.txt"
                     if sidecar_name in z.namelist():
                         print(f"🔍 Discovered internal sidecar: {sidecar_name}")
-                        # We don't have a file path, but we can load the content.
-                        # For simplicity in this verifier's flow, we'll continue 
-                        # but we need to pass the content.
-                        # Let's adjust read_drop_packet_sha256_txt to support direct content or just inject here.
+                        # We just confirm existence and read it here as a witness check, 
+                        # but rely on external sidecar for the "envelope" verification mainly.
                         z.read(sidecar_name).decode("utf-8").strip()
-                        # Note: Internal sidecar might contain multi-hashes (nested).
-                        # But if it's the DROP sidecar, it should match the drop itself.
-                        # Actually, build.py writes the INNER hashes to the internal sidecar.
-                        # This means it's a witness, not the drop hash itself.
-                        pass # Internal sidecar is a witness; external is still primary for the zip itself.
+                        pass 
             except Exception:
                 pass
     
@@ -204,10 +198,6 @@ def main() -> int:  # noqa: PLR0915, PLR0912
 
         if "METADATA.txt" not in names:
             issues.append(Issue(FAIL, "METADATA_MISSING", "METADATA.txt missing from drop"))
-        inner_ledger_name = inner_ledger_candidates[0] if inner_ledger_candidates else None
-
-        if "METADATA.txt" not in names:
-            issues.append(Issue(FAIL, "METADATA_MISSING", "METADATA.txt missing from drop"))
 
         # --- Inspect CODE
         code_sha = version = manifest_sha = ""
@@ -216,32 +206,40 @@ def main() -> int:  # noqa: PLR0915, PLR0912
             code_sha = sha256_bytes(c_bytes)
             with zipfile.ZipFile(io.BytesIO(c_bytes)) as cz:
                 # Version
-                init_txt = cz.read("antigravity_harness/__init__.py").decode("utf-8")
-                version = parse_version_from_init(init_txt)
-                # Manifest
-                pm_raw = cz.read("docs/ready_to_drop/PAYLOAD_MANIFEST.json").decode("utf-8")
-                pm_obj = json.loads(pm_raw)
-                
-                # [STAGE 1 FIX: Paradox Resolve] Calculate fingerprint EXCLUDING the canon itself
-                # This allow the canon to bind the rest of the manifest without circularity.
-                # We save a copy to modify
-                pm_fingerprint_obj = pm_obj.copy()
-                if "file_sha256" in pm_fingerprint_obj:
-                    pm_fingerprint_obj["file_sha256"] = pm_fingerprint_obj["file_sha256"].copy()
-                    pm_fingerprint_obj["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
-                
-                manifest_sha = canonical_manifest_sha(pm_fingerprint_obj)
-                # Canon
-                canon_txt = cz.read("docs/ready_to_drop/COUNCIL_CANON.yaml").decode("utf-8")
-                c_ver, c_finger, c_pub_pinned, c_ts = parse_canon_fields(canon_txt)
-                if c_ver != version:
-                    issues.append(Issue(FAIL, "VERSION_MISMATCH", f"Code:{version} != Canon:{c_ver}"))
-                if c_finger != manifest_sha:
-                    issues.append(Issue(FAIL, "CANON_BNDING_FAIL", "Canon does not bind manifest hash"))
-                
-                # [CHAOS V236] Chronological Monotonicity Check (Canon Witness)
-                # (c_ts is used in the ledger comparison block)
+                if "antigravity_harness/__init__.py" in cz.namelist():
+                    init_txt = cz.read("antigravity_harness/__init__.py").decode("utf-8")
+                    version = parse_version_from_init(init_txt)
+                else:
+                    issues.append(Issue(FAIL, "VERSION_INIT_MISSING", "antigravity_harness/__init__.py missing"))
 
+                # Manifest
+                if "docs/ready_to_drop/PAYLOAD_MANIFEST.json" in cz.namelist():
+                    pm_raw = cz.read("docs/ready_to_drop/PAYLOAD_MANIFEST.json").decode("utf-8")
+                    pm_obj = json.loads(pm_raw)
+                    
+                    # [STAGE 1 FIX: Paradox Resolve] Calculate fingerprint EXCLUDING the canon itself
+                    pm_fingerprint_obj = pm_obj.copy()
+                    if "file_sha256" in pm_fingerprint_obj:
+                        pm_fingerprint_obj["file_sha256"] = pm_fingerprint_obj["file_sha256"].copy()
+                        pm_fingerprint_obj["file_sha256"].pop("docs/ready_to_drop/COUNCIL_CANON.yaml", None)
+                    
+                    manifest_sha = canonical_manifest_sha(pm_fingerprint_obj)
+                else:
+                    issues.append(Issue(FAIL, "PAYLOAD_MANIFEST_MISSING", "docs/ready_to_drop/PAYLOAD_MANIFEST.json missing"))
+                    pm_obj = {}
+
+                # Canon
+                if "docs/ready_to_drop/COUNCIL_CANON.yaml" in cz.namelist():
+                    canon_txt = cz.read("docs/ready_to_drop/COUNCIL_CANON.yaml").decode("utf-8")
+                    c_ver, c_finger, c_pub_pinned, c_ts = parse_canon_fields(canon_txt)
+                    if c_ver != version:
+                        issues.append(Issue(FAIL, "VERSION_MISMATCH", f"Code:{version} != Canon:{c_ver}"))
+                    if c_finger != manifest_sha:
+                        issues.append(Issue(FAIL, "CANON_BNDING_FAIL", "Canon does not bind manifest hash"))
+                else:
+                    issues.append(Issue(FAIL, "COUNCIL_CANON_MISSING", "docs/ready_to_drop/COUNCIL_CANON.yaml missing"))
+                    c_ver, c_finger, c_pub_pinned, c_ts = "", "", "", ""
+                
                 # 0.1 Anti-Mimic Gate (Institutional Gold)
                 code_zip_names = {n for n in cz.namelist() if not n.endswith("/")}
                 
@@ -292,7 +290,6 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                         issues.append(Issue(WARN, "DATA_PROVENANCE_GAP", msg))
 
                 # Stricter audit of evidence suite
-                # Canonical smoke roots (support both; strict requires exactly one canonical root)
                 roots = [
                     "reports/forge/smoke_test",
                     "reports/forge/synthetic_smoke",
@@ -304,13 +301,8 @@ def main() -> int:  # noqa: PLR0915, PLR0912
 
                 # --- HYDRA GUARD: Unicode Homoglyph Detection (Vector 80) - Evidence Zip ---
                 for name in e_names:
-                    # Check for non-ASCII characters that might mimic ASCII (basic check)
                     if any(ord(c) > 127 for c in name):
                         issues.append(Issue(FAIL, "HOMOGLYPH_DETECTED_EVIDENCE", f"Non-ASCII character in evidence filename '{name}'"))
-
-                # --- HYDRA GUARD: Omega Gate Self-Verification (Vector 100) ---
-                # Final safety: The verifier checks its own integrity if possible
-                # (Mocked for this stage, in reality it would compare against a signed manifest)
 
                 if not present_roots:
                     issues.append(Issue(FAIL, "SMOKE_ROOT_MISSING",
@@ -333,7 +325,7 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                     rm = json.loads(ez.read(rm_path).decode("utf-8", errors="replace"))
 
                     ev_ver = rm.get("trader_ops_version", "")
-                    # Strict: base semver must match; recommend exact match as policy
+                    # Strict: base semver must match
                     if version and base_semver(ev_ver) != base_semver(version):
                         issues.append(Issue(FAIL, "EVIDENCE_VERSION_DRIFT",
                                            f"evidence={ev_ver} (base={base_semver(ev_ver)}) != code={version} (base={base_semver(version)})"))
@@ -369,6 +361,19 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                             # Support both 'files' (standard) and legacy keys
                             ev_files = em.get("files", em.get("checksums", em.get("evidence", {})))
                             required = ["results.csv", "DATA_MANIFEST.json", "RUN_METADATA.json"]
+                            
+                            # PROMPT_FINGERPRINT.json is only required for v4.5.73+
+                            # We check the code version to determine this REQUIREMENT.
+                            is_v4_5_73_plus = False
+                            try:
+                                # simplistic semver check: if version string contains 4.5.73 or higher logic
+                                # Better: parse version tuple
+                                maj, min, patch = map(int, base_semver(version).split("."))
+                                if (maj, min, patch) >= (4, 5, 73):
+                                    required.append("PROMPT_FINGERPRINT.json")
+                            except Exception:
+                                pass # formatting error, default to not requiring it yet
+
                             for r in required:
                                 if r not in ev_files:
                                     issues.append(Issue(FAIL, "EVIDENCE_INCOMPLETE", f"Strict: {r} missing from EVIDENCE_MANIFEST.json"))
@@ -380,13 +385,37 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                     issues.append(Issue(FAIL, "DATA_MANIFEST_MISSING", "Tier 1: DATA_MANIFEST.json missing"))
                 else:
                     dm_path = f"{smoke_root}/DATA_MANIFEST.json"
+                    
                     if dm_path in e_names:
                         dm_txt = ez.read(dm_path).decode("utf-8")
                         dm = json.loads(dm_txt)
+                        
+                        # Check strict binding (P0-C)
+                        if args.strict:
+                            file_sha_map = dm.get("file_sha256", {})
+                            for fname, expected_sha in file_sha_map.items():
+                                found_data_path = None
+                                # 1. Check root of drop zip
+                                if fname in names:
+                                    found_data_path = fname
+                                    data_bytes = drop_zf.read(fname)
+                                # 2. Check if it was bundled in evidence
+                                elif f"{smoke_root}/{fname}" in e_names:
+                                    found_data_path = f"{smoke_root}/{fname}"
+                                    data_bytes = ez.read(found_data_path)
+                                
+                                if found_data_path:
+                                    actual_sha = hashlib.sha256(data_bytes).hexdigest()
+                                    if actual_sha != expected_sha:
+                                        issues.append(Issue(FAIL, "INT-006", f"DATA_LEAF_HASH_MISMATCH: {fname} shipped!=manifest"))
+                                else:
+                                    issues.append(Issue(FAIL, "INT-006", f"DATA_MISSING_FROM_DROP: {fname} listed in manifest but not found in drop"))
+
                         dm_root = dm.get("merkle_root_sha256")
                         if not dm_root:
                             issues.append(Issue(FAIL, "DATA_MANIFEST_INVALID", "Data Manifest missing merkle root"))
-                        evidence_data_hash = dm_root
+                        else:
+                            evidence_data_hash = dm_root
 
                 # Tier 2: Fiduciary Seal (Certificate)
                 cert_path = "reports/certification/CERTIFICATE.json"
@@ -411,9 +440,8 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                         
                         if not c_manifest:
                             issues.append(Issue(FAIL, "CERT_MISSING_MANIFEST_HASH", "Strict: manifest_sha256 missing from certificate"))
+                        
                         # Final manifest hash verification ( Pass 2 )
-                        # The code_zip contains the PAYLOAD_MANIFEST.json which has the FINAL hash of COUNCIL_CANON.yaml.
-                        # We calculate it from pm_obj (Pass 2)
                         final_calc_sha = canonical_manifest_sha(pm_obj)
                         if c_manifest != final_calc_sha:
                             issues.append(Issue(FAIL, "CERT_FINAL_HASH_MISMATCH", f"Cert Final({c_manifest[:8]}) != Calc Final({final_calc_sha[:8]})"))
@@ -476,13 +504,9 @@ def main() -> int:  # noqa: PLR0915, PLR0912
             if not stored_preimage:
                 issues.append(Issue(FAIL, "PREIMAGE_MISSING", "Inner Ledger missing drop_preimage_sha256"))
             else:
-                # Re-compute from the artifact block in the ledger itself
-                # This ensures the ledger's "artifacts" block wasn't tampered with relative to the binding
-                # And since we checked the artifact hashes against real files above, the chain is closed.
                 artifacts_block = il.get("artifacts", {})
                 # Ensure ready_to_drop is NOT present (it shouldn't be in inner, but just in case)
                 if "ready_to_drop" in artifacts_block:
-                     # Make a copy to strip it for calculation, though strict gate above fails if it exists
                      artifacts_block = artifacts_block.copy()
                      artifacts_block.pop("ready_to_drop")
                 

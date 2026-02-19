@@ -252,11 +252,33 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     smoke_dir.mkdir(parents=True, exist_ok=True)
     print("⚓ Casting Data Anchor...")
     data_hash = "N/A"
+    
+    # P1: Support IBKR Data + Synthetic
+    # We want to bind exactly what we ship.
+    # If IBKR data exists, include it.
+    manifest_files = []
+    data_root = repo_root / "data"
+    
+    # Check for files relative to data root
+    if (data_root / "mes_5m_synthetic.csv").exists():
+        manifest_files.append("mes_5m_synthetic.csv")
+    if (data_root / "ibkr" / "mes_5m_ibkr_rth.csv").exists():
+        manifest_files.append("ibkr/mes_5m_ibkr_rth.csv")
+    if (data_root / "ibkr" / "mes_5m_ibkr_rth.meta.json").exists():
+        manifest_files.append("ibkr/mes_5m_ibkr_rth.meta.json")
+
+    data_args = [
+        sys.executable, "scripts/generate_data_manifest.py", 
+        "--out", str(smoke_dir / "DATA_MANIFEST.json"),
+        "--root", str(data_root)
+    ]
+    
+    if manifest_files:
+        data_args.append("--files")
+        data_args.extend(manifest_files)
+
     try:
-        subprocess.check_call([
-            sys.executable, "scripts/generate_data_manifest.py", 
-            "--out", str(smoke_dir / "DATA_MANIFEST.json")
-        ], cwd=repo_root)
+        subprocess.check_call(data_args, cwd=repo_root)
         
         with open(smoke_dir / "DATA_MANIFEST.json") as f:
             dm = json.load(f)
@@ -268,6 +290,26 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # 1.6.1 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
     
+    # 1.6.2 Prompt Fingerprint (Tier 0 Binding)
+    # Define the mission prompt file
+    prompt_file = repo_root / "prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.5.73_IBKR_REALITY_CONTACT.txt"
+    if prompt_file.exists():
+        print("📜 Binding Mission Prompt...")
+        try:
+            subprocess.check_call([
+                sys.executable, "scripts/prompt_fingerprint.py",
+                str(prompt_file),
+                "--out-dir", str(smoke_dir),
+                "--id", "TRADER_OPS_MASTER_IDE_REQUEST_v4.5.73_IBKR_REALITY_CONTACT",
+                "--charter", "TRADER_OPS_PROMPT_CHARTER_v1.0"
+            ], cwd=repo_root)
+        except Exception as e:
+            raise RuntimeError(f"PROMPT BINDING FAILED: {e}")
+    else:
+        print(f"⚠️  Mission Prompt Missing at {prompt_file}. Strictly required for v4.5.73+.")
+        if os.environ.get("STRICT_MODE") == "1":
+            raise RuntimeError("FAIL-CLOSED: Prompt file missing in STRICT_MODE.")
+
     # Run the smoke test
     try:
         env = os.environ.copy()
@@ -408,8 +450,31 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print(f"📦 Forging EVIDENCE Artifact: {evidence_zip.name}")
     # P0 FIX: Include the market data source in evidence for bit-perfect verification
     evidence_includes = ["reports", "logs", "SOVEREIGN_REPORT.md", "FINAL_AUDIT_REPORT.md"]
+    
+    # P1: Include Data in Evidence (Exact Binding)
+    # We include exactly the files we hashed in the manifest.
+    # Note: validation requires them to be at exact paths relative to root or smoke root?
+    # verify_drop_packet.py checks: 
+    # 1. Root of drop zip (e.g. data/...)
+    # 2. Evidence zip (e.g. reports/forge/smoke_test/...)
+    
+    # We want to ship data in the EVIDENCE zip primarily for self-containment?
+    # Or rely on Repos data/ dir if we were shipping a full repo zip?
+    # The drop packet is: CODE.zip + EVIDENCE.zip.
+    # CODE.zip has code, not data.
+    # So data MUST be in EVIDENCE.zip for the verifier to find it if it's not a full repo drop.
+    # Wait, verify_drop_packet.py checks `drop_zf.namelist()` for "root of drop zip".
+    # But drop zip only contains CODE and EVIDENCE zips (and sidecars).
+    # So data must be INSIDE one of those.
+    # It usually goes into EVIDENCE zip.
+    
     if (repo_root / "data" / "mes_5m_synthetic.csv").exists():
         evidence_includes.append("data/mes_5m_synthetic.csv")
+        
+    if (repo_root / "data" / "ibkr" / "mes_5m_ibkr_rth.csv").exists():
+        evidence_includes.append("data/ibkr/mes_5m_ibkr_rth.csv")
+    if (repo_root / "data" / "ibkr" / "mes_5m_ibkr_rth.meta.json").exists():
+        evidence_includes.append("data/ibkr/mes_5m_ibkr_rth.meta.json")
     
     _create_zip(evidence_zip, repo_root, includes=evidence_includes)
 
@@ -437,7 +502,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             ev_man = json.load(f)
             # Support both 'files' (standard) and legacy keys
             ev_files = ev_man.get("files", ev_man.get("checksums", ev_man.get("evidence", {})))
-            required = ["RUN_METADATA.json", "results.csv", "DATA_MANIFEST.json"]
+            required = ["RUN_METADATA.json", "results.csv", "DATA_MANIFEST.json", "PROMPT_FINGERPRINT.json"]
             missing = [r for r in required if r not in ev_files]
             if not missing:
                 gate_evidence = "PASS"
