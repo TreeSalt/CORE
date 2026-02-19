@@ -14,14 +14,14 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from threading import Event
+from threading import Event, Thread
 
 # Optional dependency: ibapi
 try:
     from ibapi.client import EClient
-    from ibapi.wrapper import EWrapper
-    from ibapi.contract import Contract
     from ibapi.common import BarData
+    from ibapi.contract import Contract
+    from ibapi.wrapper import EWrapper
 except ImportError:
     print("❌ Missing dependency: ibapi. Install with 'pip install ibapi' (sdist) or similar.")
     sys.exit(1)
@@ -56,7 +56,6 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
     app.connect(host, port, client_id)
 
     # Start listener loop in a thread
-    from threading import Thread
     api_thread = Thread(target=app.run, daemon=True)
     api_thread.start()
 
