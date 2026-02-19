@@ -248,6 +248,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 raise RuntimeError(f"PURITY VIOLATION: Forge mutated UNEXPECTED tracked files: {unexpected}. Use commitment-first workflow.")
 
     # 1.6 Data Anchor (Tier 1) - Must run BEFORE smoke test for evidence manifest completeness
+    smoke_dir = repo_root / "reports/forge/synthetic_smoke"
     print("⚓ Casting Data Anchor...")
     data_hash = "N/A"
     try:
