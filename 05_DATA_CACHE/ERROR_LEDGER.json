@@ -2,20 +2,6 @@
     "system_start_utc": "2026-02-16T23:45:49Z",
     "events": [
         {
-            "timestamp_utc": "2026-02-18T01:15:31Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.54",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-18T01:16:10Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.55",
-            "resolution": "Auto-Sync"
-        },
-        {
             "timestamp_utc": "2026-02-18T01:16:19Z",
             "category": "METADATA",
             "gate": "RECOVERY",
@@ -699,6 +685,20 @@
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.112",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-20T06:08:00Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: docs/ready_to_drop/PAYLOAD_MANIFEST.json",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-20T06:08:00Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.114",
             "resolution": "Auto-Sync"
         }
     ],
