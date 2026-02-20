@@ -6,9 +6,12 @@ from antigravity_harness.config import StrategyParams
 from antigravity_harness.strategies import get_strategy
 
 
+from unittest.mock import patch
+
 class TestV080Dynamic(unittest.TestCase):
     def setUp(self):
-        self.strat = get_strategy("v080_volatility_guard_trend")
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            self.strat = get_strategy("v080_volatility_guard_trend")
         # create mock data
         self.dates = pd.date_range("2021-01-01", periods=100)
         self.df = pd.DataFrame(
