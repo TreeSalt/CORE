@@ -256,6 +256,12 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                 mimics = code_zip_names - manifest_files
                 if mimics:
                     issues.append(Issue(FAIL, "CODE_MIMIC_DETECTED", f"Unaccounted files in CODE zip: {list(mimics)}"))
+                    
+                # Cache contents for cross-artifact verification
+                code_prompt_map = {}
+                for name in code_zip_names:
+                    if name.startswith("prompts/missions/") and name.endswith(".txt"):
+                        code_prompt_map[name] = cz.read(name)
 
         # --- Inspect EVIDENCE
         evidence_git_commit = ""
@@ -386,10 +392,10 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                 p_id = pf.get("prompt_id")
                                 p_hash = pf.get("prompt_sha256")
                                 
-                                # Find the prompt text in the CODE zip
+                                # Find the prompt text in the CODE zip (Cashed earlier)
                                 prompt_path = f"prompts/missions/{p_id}.txt"
-                                if "cz" in locals() and prompt_path in cz.namelist():
-                                    actual_prompt_bytes = cz.read(prompt_path)
+                                if "code_prompt_map" in locals() and prompt_path in code_prompt_map:
+                                    actual_prompt_bytes = code_prompt_map[prompt_path]
                                     actual_p_hash = hashlib.sha256(actual_prompt_bytes).hexdigest()
                                     
                                     if actual_p_hash != p_hash:
