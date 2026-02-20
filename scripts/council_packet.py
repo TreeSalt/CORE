@@ -89,7 +89,7 @@ def main():
         f"- **Prompt SHA**: `{prompt.get('prompt_sha256', 'N/A')}`",
         "",
         "## Dataset Information",
-        f"- **Data Merkle Root**: `{data.get('dataset_sha256', 'N/A')}`",
+        f"- **Data Merkle Root**: `{data.get('merkle_root_sha256', 'N/A')}`",
         "- **Dataset Files**:",
     ])
     
