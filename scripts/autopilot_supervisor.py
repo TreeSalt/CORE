@@ -109,13 +109,10 @@ def verify_trust_root(pubkey_path: Path) -> None:
     if not pubkey_path.exists():
         fail(f"Trust Root Missing: {pubkey_path}")
     
-    # Optional: Hard-coded pin for extra paranoia if required by 'pinned expected value' in prompt.
-    # The prompt says: "sha256 mismatch against pinned expected value (strict trust root)."
-    # I will assert the file exists and is readable. 
-    # If there is a SPECIFIC hash we must allow, it should be constant.
-    # I'll compute it once I see the key, or I can enforce a known hash if I had it.
-    # For now, fails if missing.
-    pass
+    actual_hash = sha256_file(pubkey_path)
+    expected_hash = "e195d74e9f30420410e07d9802c782db31cf6db7d18d0bc062d2a3f305481b50"
+    if actual_hash != expected_hash:
+        fail(f"Trust Root TAMPERED: sha256 mismatch against pinned value.\nExpected: {expected_hash}\nActual: {actual_hash}")
 
 def verify_prompt_provenance(evidence_zip: Path) -> None:
     info("Verifying Prompt Provenance...")
@@ -139,33 +136,17 @@ def verify_prompt_provenance(evidence_zip: Path) -> None:
                 fail("Invalid fingerprint schema in evidence.")
             
             # Local resolution
-            # Convention: docs/prompts/<prompt_id>.txt (as per prompt example)
-            # OR checked against known locations.
-            # I will assume docs/prompts/ is the source of truth if it exists, 
-            # otherwise search.
+            # Convention: prompts/missions/<prompt_id>.txt
+            p_file = REPO_ROOT / "prompts" / "missions" / f"{p_id}.txt"
             
-            # NOTE: If prompts are in a skills registry or source_prompts, adjust here.
-            # The user provided prompt file logic: "docs/prompts/<prompt_id>.txt"
+            if not p_file.exists():
+                fail(f"Source prompt file not found at convention path: {p_file.relative_to(REPO_ROOT)}")
             
-            # Let's try to locate it.
-            candidates = list(REPO_ROOT.rglob(f"{p_id}.*")) 
-            # restrict to text files
-            candidates = [c for c in candidates if c.suffix in ['.txt', '.md']]
+            local_sha = sha256_file(p_file)
+            if local_sha != p_sha:
+                fail(f"Prompt content mismatch! Evidence claims {p_sha} for {p_id}, but local {p_file.name} differs.")
             
-            if not candidates:
-                fail(f"Source prompt file not found in repo for ID: {p_id}")
-            
-            # Check all candidates, if ANY match hash, we are good.
-            matched = False
-            for c in candidates:
-                local_sha = sha256_file(c)
-                if local_sha == p_sha:
-                    matched = True
-                    info(f"   ✅ Prompt Matched: {c.name}")
-                    break
-            
-            if not matched:
-                fail(f"Prompt content mismatch! Evidence claims {p_sha} for {p_id}, but local files differ.")
+            info(f"   ✅ Prompt Matched: {p_file.name}")
 
     except Exception as e:
         fail(f"Prompt Verification Failed: {e}")

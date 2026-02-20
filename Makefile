@@ -143,6 +143,7 @@ heal:
 	$(PYTHON) -B scripts/self_heal.py --fix
 
 clean:
+	find . -name "__pycache__" -type d -exec rm -rf {} +
 	$(PYTHON) -B scripts/clean_repo.py --clean --clean-generated
 
 forge:

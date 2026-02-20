@@ -387,6 +387,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "Makefile",
         "docs",  # Includes all Sovereign Books
         "prompts", # Mission records
+        "keys",    # Sovereign public key
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
     manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])

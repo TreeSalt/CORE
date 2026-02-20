@@ -156,8 +156,7 @@ class SovereignAuditor:
     def emit_audit_report(self, final_account: Any) -> Path:
         """
         Generate a signed AUDIT_REPORT.json containing the full forensic trail.
-        Includes final account state and all intercepted invariant violations.
-        Returns the path to the generated report.
+        Uses Ed25519 (The Phoenix Seal) for cryptographic intent binding.
         """
         report_path = self.repo_root / "reports/AUDIT_REPORT.json"
         
@@ -180,19 +179,22 @@ class SovereignAuditor:
             report_bytes = json.dumps(report, indent=2, sort_keys=True).encode("utf-8")
             report_path.write_bytes(report_bytes)
             
-            # Sign the report if sovereign key exists
-            key_path = self.repo_root / "sovereign.key"
-            if key_path.exists():
-                sig_path = report_path.with_suffix(".json.sig")
-                print(f"✍️  Signing Audit Report: {sig_path.name}")
-                subprocess.run([
-                    "openssl", "pkeyutl", "-sign", 
-                    "-inkey", str(key_path), 
-                    "-rawin", "-in", str(report_path), 
-                    "-out", str(sig_path)
-                ], check=True, capture_output=True)
+            # Sign the report if institutional seed exists
+            seed_path = self.repo_root / "sovereign.seed"
+            if seed_path.exists():
+                from nacl.signing import SigningKey
                 
-        except (OSError, subprocess.CalledProcessError) as e:
+                sig_path = report_path.with_suffix(".json.sig")
+                print(f"✍️  Signing Audit Report: {sig_path.name} (The Phoenix Seal)")
+                
+                seed = seed_path.read_bytes()
+                signing_key = SigningKey(seed)
+                signed_report = signing_key.sign(report_bytes)
+                
+                # We save just the signature
+                sig_path.write_bytes(signed_report.signature)
+                
+        except (OSError, ImportError) as e:
             # Audit failure must NOT crash the engine, but we log the failure to stderr
             print(f"⚠️  [AUDITOR] CRITICAL FAILURE: Could not emit or sign audit report: {e}", file=sys.stderr)
             
