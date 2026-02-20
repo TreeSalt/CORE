@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import psutil
 
+from antigravity_harness.accelerators import VectorCache
 from antigravity_harness.config import (
     DataConfig,
     EngineConfig,
@@ -18,7 +19,6 @@ from antigravity_harness.config import (
     load_yaml,
     save_yaml,
 )
-from antigravity_harness.accelerators import VectorCache
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.data import load_ohlc  # For Ray loading
 from antigravity_harness.engine import Trade
@@ -36,6 +36,7 @@ def _check_memory_usage(limit_gb: float = 2.0) -> None:
     rss_gb = process.memory_info().rss / (1024 * 1024 * 1024)
     if rss_gb > limit_gb:
         raise RuntimeError(f"RESOURCE EXHAUSTION: Memory usage ({rss_gb:.2f} GB) exceeds Hydra limit ({limit_gb} GB)")
+
 
 try:
     import ray  # type: ignore
@@ -438,7 +439,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                 gate_profile,
                 tf,
                 registry=registry,
-                vector_cache=None, # multiprocessing cannot share memory easily
+                vector_cache=None,  # multiprocessing cannot share memory easily
             )
             for s, tf, p in total_combinations
         )
@@ -479,7 +480,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
     for (s, tf, p), r in zip(total_combinations, raw_results, strict=False):
         # HYDRA GUARD: Resource Enforcement (Vector 29)
         _check_memory_usage(limit_gb=2.0)
-        
+
         idx = to_idx(s, tf, p)
         results[idx] = r
         tc = int(r.metrics.trade_count)
