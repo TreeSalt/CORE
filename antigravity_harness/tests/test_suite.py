@@ -263,6 +263,7 @@ class TestSuite(unittest.TestCase):
             gate_profile="equity_fortress",
             equity=False,
             debug=False,
+            forensics=None,
         )
 
         # Phase 10: Fix strategy registration
