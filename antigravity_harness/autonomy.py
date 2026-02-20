@@ -1,7 +1,7 @@
 import hashlib
 import os
 from datetime import timedelta
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 
