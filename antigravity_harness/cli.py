@@ -810,8 +810,11 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     uc.set_defaults(func=cmd_stage_candidate)
 
     # Certification Run (Task E)
+    cr = sub.add_parser("certify-run", help="Full Certification Bundle (Snapshot+WF+Calib+Manifest)")
+    cr.add_argument("--symbols", required=True)
+    cr.add_argument("--timeframes", required=True)
     cr.add_argument("--gate-profile", required=True)
-    cr.set_defaults(func=run_certification) # Wait, check if this is the right func name
+    cr.set_defaults(func=run_certification)
 
     # IBKR Paper Execution (Phase 10)
     ib = sub.add_parser("ibkr-paper", help="Fiduciary IBKR Paper Execution")
