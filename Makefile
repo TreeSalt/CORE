@@ -10,6 +10,10 @@ LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
 DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
 ONE_TRUE := scripts/one_true_command.sh
 
+# Fiduciary Dataset Enforcement
+TRADER_OPS_DATASET ?= synthetic
+export TRADER_OPS_DATASET
+
 .PHONY: help install lint format type-check test test-hardening preflight clean forge build all heal commands
 help:
 	@echo ""
