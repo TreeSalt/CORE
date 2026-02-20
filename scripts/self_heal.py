@@ -215,6 +215,17 @@ def git_surgeon(fix=False):
         "docs/COMMANDS.md", # Documentation
         "requirements-ibkr.txt", # Dependencies
         "prompts/missions/", # Mission Records
+        "scripts/strategy_governance.py", # Governance Tool
+        "scripts/verify_governance_gates.py", # Governance Verification
+        "antigravity_harness/strategies/STRATEGY_REGISTRY.json", # Registry
+        "antigravity_harness/strategies/registry.py", # Registry Logic
+        "antigravity_harness/strategies/__init__.py", # Strategy Exports
+        "antigravity_harness/strategies/", # Strategy Folders (Recursive matching via startswith)
+        # Deep recursion for moved strategies
+        "antigravity_harness/strategies/quarantine/", 
+        "antigravity_harness/strategies/lab/",
+        "antigravity_harness/strategies/certified/",
+        "antigravity_harness/cli.py", # CLI Governance Hooks
     ]
 
     to_add = []

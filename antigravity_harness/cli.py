@@ -97,6 +97,16 @@ def cmd_calibrate(args: argparse.Namespace) -> None:  # noqa: PLR0915
     # Unified Physics
     engine_cfg = EngineConfig(is_crypto=not args.equity)
 
+    # GOVERNANCE CHECK
+    ST = "live" if args.gate_profile == "crypto_profit" else "paper" # Infer mode from profile? Or args?
+    # Actually, calibrate/validate are "research" modes by default unless deploying?
+    # Let's assume Research for calibrate/validate, but Paper/Live for trade execution?
+    # For now, we enforce "research" checks on calibrate/validate?
+    # User said: "Runtime blocks paper/live unless certified"
+    # But calibrate is research.
+    # Let's default to 'research' for calibrate.
+    STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
+
     report = calibrate(
         grid_yaml=args.grid,
         output_dir=out_dir,
@@ -143,6 +153,9 @@ def cmd_validate(args: argparse.Namespace) -> None:  # noqa: PLR0915
     args.strategy = _sanitize_string(args.strategy)
     args.gate_profile = _sanitize_string(args.gate_profile)
 
+    # GOVERNANCE CHECK (Fail Fast)
+    STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
+
     # Use calibration._run_one to ensure Phase 6E gates_6e usage
 
     # Helper to clean boolean args
@@ -153,6 +166,9 @@ def cmd_validate(args: argparse.Namespace) -> None:  # noqa: PLR0915
 
     # Unified Physics: Engine Config with Asset Class
     engine_cfg = EngineConfig(is_crypto=not args.equity)
+    
+    # GOVERNANCE CHECK
+    STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
 
     res = _run_one(
         strategy_name=args.strategy,
@@ -254,6 +270,12 @@ def cmd_emit(args: argparse.Namespace) -> None:
     # For now, we support loading from --config (YAML) or default params.
     cfg = load_yaml(args.config) if args.config else StrategyParams().__dict__
 
+    # GOVERNANCE CHECK (Live Payload)
+    # Emit is typically for production signals. Enforce STRICT "live" check?
+    # Or rely on user context? 
+    # Let's enforce "live" tier requirements for emit-signals.
+    STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="live")
+
     json_out = unique_signals(
         strategy_name=args.strategy,
         symbol=args.symbol,
@@ -311,6 +333,9 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0912, PLR0915
 
     final_params = StrategyParams(**param_dict)
     print(f"⚙️ Params: {final_params}")
+
+    # GOVERNANCE CHECK (Fail Fast)
+    STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
 
     # 2. Run Gates (Simulation + Validation)
     start_date = "2020-01-01"  # Default wide range for spot check
@@ -608,6 +633,9 @@ def cmd_stage_candidate(args: argparse.Namespace) -> None:
     print(f"3. Calculating Lifetime Metrics (Strategy: {args.strategy})...")
     print(f"   Source: Snapshot {snap_hash[:8]} ({snap_path})")
     print(f"   Config: {args.config if args.config else 'DEFAULT'}")
+
+    # GOVERNANCE CHECK (Staging requires at least Lab?)
+    STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
 
     df_snap = load_snapshot(snap_path)
 

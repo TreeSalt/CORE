@@ -12,8 +12,39 @@ class StrategyRegistry:
     enabling Inversion of Control and quarantine rules.
     """
 
+import hashlib
+import json
+from pathlib import Path
+
+# Paths
+REGISTRY_FILE = Path(__file__).parent / "STRATEGY_REGISTRY.json"
+STRATEGY_ROOT = Path(__file__).parent
+
+TIER_MAP = {
+    "quarantine": 0,
+    "lab": 1,
+    "certified": 2
+}
+
+class StrategyRegistry:
+    """
+    The Cartographer of Alphas.
+    Explicitly manages the mapping of names to strategy classes,
+    enabling Inversion of Control and quarantine rules.
+    """
+
     def __init__(self):
         self._strategies: Dict[str, Type[Strategy]] = {}
+        self._registry_data = self._load_registry()
+
+    def _load_registry(self) -> Dict[str, Any]:
+        if not REGISTRY_FILE.exists():
+            return {"strategies": {}, "tier_policy": {}}
+        try:
+            with open(REGISTRY_FILE) as f:
+                return json.load(f)
+        except Exception as e:
+            raise RuntimeError(f"REGISTRY CORRUPTION: Could not load STRATEGY_REGISTRY.json: {e}")
 
     def register(self, name: str, strategy_cls: Type[Strategy]) -> None:
         """Register a strategy with a unique name."""
@@ -27,11 +58,6 @@ class StrategyRegistry:
                 f"REGISTRY COLLISION DETECTED: Strategy '{name}' class must be named '{expected_class}', "
                 f"but found '{strategy_cls.__name__}'. Sabotage suspected."
             )
-
-        if key in self._strategies:
-            # We allow overwriting for flexible unit testing, but
-            # in production this should be guarded if necessary.
-            pass
             
         # HYDRA GUARD: Exec Poison (Vector 87) & Thread Hijack (Vector 104) & Builtin Tamper (Vector 117)
         # Static analysis scan for forbidden dynamic execution and hijacking signatures
@@ -63,6 +89,8 @@ class StrategyRegistry:
 
     def instantiate(self, name: str) -> Strategy:
         """Retrieve and instantiate a strategy by name."""
+        # Runtime Governance Check
+        self.verify_strategy_allowed(name)
         return self.get_class(name)()
 
     @property
@@ -70,6 +98,61 @@ class StrategyRegistry:
         """List all registered strategy names."""
         return sorted(self._strategies.keys())
 
+    def verify_strategy_allowed(self, name: str, mode: str = "research") -> None:
+        """
+        GOVERNANCE GATE: Verifies strategy is registered, verified, and allowed in mode.
+        """
+        if name not in self._registry_data.get("strategies", {}):
+            raise RuntimeError(f"GOV-001 UNREGISTERED: Strategy '{name}' not found in STRATEGY_REGISTRY.json.")
+            
+        strat_meta = self._registry_data["strategies"][name]
+        tier = strat_meta.get("tier", "quarantine")
+        
+        # 1. Tier Enforcement
+        allowed_tiers = self._registry_data.get("tier_policy", {}).get(mode, [])
+        if tier not in allowed_tiers:
+             raise RuntimeError(f"GOV-003 TIER_BLOCKED: Strategy '{name}' ({tier}) not allowed in mode '{mode}'. Allowed: {allowed_tiers}")
 
-# Default singleton for backward compatibility, but IoC is preferred.
+        # 2. Hash Verification (If strict mode or explicit verification requested)
+        # We enforce Merkle Root verification for ALL modes to prevent tampering.
+        # This is "FAIL CLOSED".
+        expected_hash = strat_meta.get("merkle_root_sha256", "")
+        if not expected_hash or expected_hash == "PENDING_HASH":
+             raise RuntimeError(f"GOV-002 HASH_MISSING: Strategy '{name}' has no active hash in registry.")
+             
+        actual_hash = self.compute_strategy_hash(name)
+        if actual_hash != expected_hash:
+             raise RuntimeError(
+                 f"GOV-002 HASH_MISMATCH: Strategy '{name}' integrity check failed.\n"
+                 f"   Expected: {expected_hash}\n"
+                 f"   Actual:   {actual_hash}\n"
+                 f"   Tampering suspected."
+             )
+
+    def compute_strategy_hash(self, name: str) -> str:
+        """Computes Merkle root of the strategy artifacts."""
+        if name not in self._registry_data["strategies"]:
+            return ""
+            
+        tier = self._registry_data["strategies"][name]["tier"]
+        # Expected path: strategies/{tier}/{name}/
+        strategy_path = STRATEGY_ROOT / tier / name
+        
+        if not strategy_path.exists():
+            return "MISSING_ARTIFACT"
+            
+        # 1. List files recursively, sorted
+        files = sorted([f for f in strategy_path.rglob("*") if f.is_file() and "__pycache__" not in f.parts])
+        
+        hashes = []
+        for f in files:
+            # Relative path for stability
+            rel_path = f.relative_to(strategy_path).as_posix()
+            file_hash = hashlib.sha256(f.read_bytes()).hexdigest()
+            hashes.append(f"{rel_path}:{file_hash}")
+            
+        # Merkle Root
+        manifest_blob = "\n".join(hashes).encode("utf-8")
+        return hashlib.sha256(manifest_blob).hexdigest()
+
 STRATEGY_REGISTRY = StrategyRegistry()

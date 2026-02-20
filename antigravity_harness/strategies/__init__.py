@@ -3,15 +3,23 @@ from __future__ import annotations
 from typing import Dict, Type
 
 from antigravity_harness.strategies.base import Strategy
-from antigravity_harness.strategies.legacy.v050_trend_momentum import V050TrendMomentum
+
+# New paths - explicit imports for static analysis, but registry uses strings
+from antigravity_harness.strategies.quarantine.v050_trend_momentum.v050_trend_momentum import V050TrendMomentum
 from antigravity_harness.strategies.registry import STRATEGY_REGISTRY, StrategyRegistry
-from antigravity_harness.strategies.v032_simple import V032Simple
-from antigravity_harness.strategies.v040_alpha_prime import V040AlphaPrime
-from antigravity_harness.strategies.v060_bit_uni_core import V060BitUniCore
-from antigravity_harness.strategies.v070_donchian_breakout import V070DonchianBreakout
-from antigravity_harness.strategies.v080_volatility_guard_trend import V080VolatilityGuardTrend
-from antigravity_harness.strategies.v090_essence_follower import V090EssenceFollower
-from antigravity_harness.strategies.v100_consensual_momentum import V100ConsensualMomentum
+
+# Quarantine
+from antigravity_harness.strategies.quarantine.v032_simple.v032_simple import V032Simple
+
+# Certified
+from antigravity_harness.strategies.certified.v040_alpha_prime.v040_alpha_prime import V040AlphaPrime
+from antigravity_harness.strategies.certified.v080_volatility_guard_trend.v080_volatility_guard_trend import V080VolatilityGuardTrend
+
+# Lab
+from antigravity_harness.strategies.lab.v060_bit_uni_core.v060_bit_uni_core import V060BitUniCore
+from antigravity_harness.strategies.lab.v070_donchian_breakout.v070_donchian_breakout import V070DonchianBreakout
+from antigravity_harness.strategies.lab.v090_essence_follower.v090_essence_follower import V090EssenceFollower
+from antigravity_harness.strategies.lab.v100_consensual_momentum.v100_consensual_momentum import V100ConsensualMomentum
 
 __all__ = [
     "REGISTRY",
@@ -29,6 +37,7 @@ __all__ = [
 ]
 
 # Pillar 2: Registry Inversion of Control
+# Note: In a future iteration, we could auto-discover these from folder structure + JSON.
 STRATEGY_REGISTRY.register("v032_simple", V032Simple)
 STRATEGY_REGISTRY.register("v040_alpha_prime", V040AlphaPrime)
 STRATEGY_REGISTRY.register("v050_trend_momentum", V050TrendMomentum)
