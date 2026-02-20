@@ -1,0 +1,7 @@
+TRADER_OPS — MASTER IDE REQUEST
+Target: v4.5.148
+PROMPT_ID: TRADER_OPS_MASTER_IDE_REQUEST_v4.5.148_FIDUCIARY_EXECUTION_BRIDGE_PAPER_FIRST
+CHARTER_ID: TRADER_OPS_PROMPT_CHARTER_v1.0
+Mission: “Fiduciary Execution Bridge (IBKR) — Paper-First Sovereign Execution Adapter + Pre-Trade Invariants + Deterministic Forensics”
+Base: v4.5.147 must pass strict verification before edits.
+...

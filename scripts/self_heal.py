@@ -250,6 +250,8 @@ def git_surgeon(fix=False):
         "antigravity_harness/portfolio_router.py", # Performance Opt (v4.5.123)
         "antigravity_harness/regimes.py", # Performance Opt (v4.5.123)
         "tests/test_safety_integration.py", # Performance Opt (v4.5.123)
+        "antigravity_harness/execution/ibkr_adapter.py", # Fiduciary Bridge (v4.5.148)
+        "scripts/ibkr_paper_execute.py", # Fiduciary Bridge (v4.5.148)
     ]
 
     to_add = []
