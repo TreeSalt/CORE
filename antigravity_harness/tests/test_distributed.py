@@ -43,14 +43,16 @@ class TestDistributed(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
-                # Run with use_ray=True
-                calibrate(
-                    grid_yaml="dummy.yaml",
-                    output_dir=tmpdir,
-                    strategy_name="v032_simple",
-                    symbols=["BTC-USD"],
-                    use_ray=True,
-                )
+                # Mock Governance
+                with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+                    # Run with use_ray=True
+                    calibrate(
+                        grid_yaml="dummy.yaml",
+                        output_dir=tmpdir,
+                        strategy_name="v032_simple",
+                        symbols=["BTC-USD"],
+                        use_ray=True,
+                    )
 
                 # Check results
                 res_csv = os.path.join(tmpdir, "results.csv")
