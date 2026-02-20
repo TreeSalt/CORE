@@ -318,8 +318,9 @@ if errors > 0:
     sys.exit(1)
 print(f"OK: Working tree verified against PAYLOAD_MANIFEST.json ({len(mapping)} files)")
 PY
-    ok "Working tree manifest match"
-else:
+        ok "Working tree manifest match"
+    fi
+else
     warn "docs/ready_to_drop/PAYLOAD_MANIFEST.json missing; skipping working tree check"
 fi
 
