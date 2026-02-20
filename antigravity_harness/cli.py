@@ -98,13 +98,7 @@ def cmd_calibrate(args: argparse.Namespace) -> None:  # noqa: PLR0915
     engine_cfg = EngineConfig(is_crypto=not args.equity)
 
     # GOVERNANCE CHECK
-    ST = "live" if args.gate_profile == "crypto_profit" else "paper" # Infer mode from profile? Or args?
-    # Actually, calibrate/validate are "research" modes by default unless deploying?
-    # Let's assume Research for calibrate/validate, but Paper/Live for trade execution?
-    # For now, we enforce "research" checks on calibrate/validate?
-    # User said: "Runtime blocks paper/live unless certified"
-    # But calibrate is research.
-    # Let's default to 'research' for calibrate.
+    # Enforce research mode for calibrate/validate.
     STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
 
     report = calibrate(
