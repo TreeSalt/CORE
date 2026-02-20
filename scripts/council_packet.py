@@ -11,6 +11,7 @@ import sys
 import zipfile
 from pathlib import Path
 
+
 def fail(msg: str):
     print(f"❌ COUNCIL PACKET FATAL: {msg}")
     sys.exit(1)

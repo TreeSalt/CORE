@@ -9,16 +9,15 @@ FAIL-CLOSED policy: If any check fails, the process exits with a non-zero code.
 import argparse
 import hashlib
 import json
-import os
 import re
 import shlex
-import shutil
 import subprocess
 import sys
 import zipfile
-import yaml
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Tuple
+
+import yaml
 
 # --- PRE-IMPORT SETUP ---
 # Ensure script can run from repo root or scripts dir
@@ -186,11 +185,9 @@ def verify_data_integrity(evidence_zip: Path) -> None:
             # Prompt: "For each dataset entry in the manifest (leaf files), compute sha256 over the corresponding dataset bytes as shipped"
             
             entries = manifest.get("files", {})
-            if not entries:
-                # Could be a list
-                if isinstance(manifest, list):
-                    # handle list schema if applicable
-                    pass
+            if not entries and isinstance(manifest, list):
+                # handle list schema if applicable
+                pass
             
             # Standard schematic for DATA_MANIFEST usually: { "files": { "path": "sha256" ... }, ... } or list of objs.
             # I'll support the structure present in v4.5.133 build.
@@ -242,11 +239,7 @@ def verify_gate_report(dist_dir: Path, version: str) -> None:
     
     # Check for versioned one first
     candidates = list(dist_dir.glob(f"gate_report*v{version}*.json"))
-    if not candidates:
-        # Fallback to generic if that's the contract
-        report_path = dist_dir / "gate_report.json"
-    else:
-        report_path = candidates[0]
+    report_path = candidates[0] if candidates else dist_dir / "gate_report.json"
 
     if not report_path.exists():
         fail(f"Gate Report missing: {report_path}")
