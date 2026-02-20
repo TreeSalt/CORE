@@ -9,8 +9,6 @@ Verifies that the system correctly blocks:
 
 import os
 import subprocess
-import shutil
-import json
 from pathlib import Path
 
 # Paths
@@ -21,7 +19,7 @@ def run_cmd(args):
     """Run a CLI command and return (returncode, stdout, stderr)."""
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO_ROOT)
-    res = subprocess.run(args, capture_output=True, text=True, env=env)
+    res = subprocess.run(args, capture_output=True, text=True, env=env, check=False)
     return res.returncode, res.stdout, res.stderr
 
 def test_unregistered():
