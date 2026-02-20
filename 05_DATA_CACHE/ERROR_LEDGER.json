@@ -2,41 +2,6 @@
     "system_start_utc": "2026-02-16T23:45:49Z",
     "events": [
         {
-            "timestamp_utc": "2026-02-18T20:25:55Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.69",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-18T21:04:09Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.70",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-19T19:26:52Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.71",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-19T19:27:29Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.71",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-19T19:28:29Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.72",
-            "resolution": "Auto-Sync"
-        },
-        {
             "timestamp_utc": "2026-02-19T20:18:47Z",
             "category": "METADATA",
             "gate": "RECOVERY",
@@ -699,6 +664,41 @@
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.133",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-20T08:10:38Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist_corrupt/DROP_PACKET_SHA256_v4.5.137.txt",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-20T08:10:38Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist_corrupt/RUN_LEDGER_v4.5.137.json",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-20T08:10:38Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist_corrupt/RUN_LEDGER_v4.5.137.json.sig",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-20T08:10:38Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist_corrupt/TRADER_OPS_READY_TO_DROP_v4.5.137.zip.sha256",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-02-20T08:10:38Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.139",
             "resolution": "Auto-Sync"
         }
     ],
