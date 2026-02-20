@@ -73,3 +73,4 @@ The system is hardened against 225+ localized attack vectors, including:
 - **Baseline Testing**: `tests/test_baselines.py` ensures strategy returns never fluctuate between engine versions.
 - **Audit Verification**: `tests/test_engine_wal.py` ensures the modern auditor maintains legacy contract compliance.
 - **Build Purity**: `STRICT_MODE=1` in the forge prevents accidental leakage into the distributed core.
+- **Performance**: See [Performance Standards](PERFORMANCE_STANDARDS.md) for O(N) complexity mandates.

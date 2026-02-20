@@ -18,7 +18,7 @@ def to_md_table(df: pd.DataFrame) -> str:
     header = "| " + " | ".join(cols) + " |"
     sep = "| " + " | ".join(["---"] * len(cols)) + " |"
     rows = []
-    for _, r in df.iterrows():
+    for r in df.itertuples(index=False):
         rows.append("| " + " | ".join([str(x) for x in r]) + " |")
     return "\n".join([header, sep] + rows)
 

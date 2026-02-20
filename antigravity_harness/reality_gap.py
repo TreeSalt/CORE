@@ -70,55 +70,126 @@ def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # 
             tolerance=pd.Timedelta("1h"),
         )
 
-        for _idx, row in merged.iterrows():
-            if pd.isna(row["signal_ts"]):
-                unmatched_fills += 1
-                continue
+        if merged.empty:
+            continue
 
-            # Check qty
-            if not np.isclose(row["qty_x"], row["qty_y"], rtol=0.01):
-                unmatched_fills += 1
-                continue
-
-            matched_count += 1
-
-            fill_p = row["fill_price"]
-            exp_p = row["expected_price"]
-
-            # Slippage Calculation: (fill - expected) * side_sign / expected * 10000
-            # Side Sign: Buy -> +1 (higher price is + slippage), Sell -> -1 (lower price is + slippage)
-            sign = 1 if str(side).upper() == "BUY" else -1
-            slip_bps = (fill_p - exp_p) * sign / exp_p * 10000.0
-
-            latency = (row["fill_ts"] - row["signal_ts"]).total_seconds()
-
-            # Fee impact (Task 4: Fix model_fee matching)
-            # Checking both 'model_fee' and 'model_fee_y' (if merged renamed it)
-            f_fee = row.get("fee_x", 0.0)
-            if pd.isna(f_fee):
-                f_fee = 0.0
-
-            s_fee = 0.0
-            if "model_fee_y" in row:
-                s_fee = row["model_fee_y"]
-            elif "model_fee" in row:
-                s_fee = row["model_fee"]
-
-            if pd.isna(s_fee):
-                s_fee = 0.0
-            fee_imp = f_fee - s_fee
-
-            results.append(
-                {
-                    "symbol": sym,
-                    "side": side,
-                    "fill_ts": row["fill_ts"].isoformat(),
-                    "signal_ts": row["signal_ts"].isoformat(),
-                    "slippage_bps": float(slip_bps),
-                    "latency_sec": float(latency),
-                    "fee_impact": float(fee_imp),
-                }
-            )
+        # Vectorized Filters
+        # Remove unmatched signals
+        merged = merged.dropna(subset=["signal_ts"])
+        
+        # Check qty match (approx)
+        # using numpy isclose vectorized
+        qty_match = np.isclose(merged["qty_x"], merged["qty_y"], rtol=0.01)
+        
+        # Count unmatched
+        # Total rows before qty filter minus total rows after
+        # But we need to track unmatched_fills count globaly
+        # The original code incremented unmatched_fills for every row failure
+        
+        valid_merged = merged[qty_match].copy()
+        
+        # Unmatched count logic from original:
+        # iterate merged: if isna(signal_ts) -> unmatched. 
+        # But we dropped dropna. So before dropna, count how many were NA?
+        # merge_asof keeps left rows. if no match, signal_ts is NaN.
+        # So len(merged_original) - len(merged_dropna) is unmatched by timestamp?
+        # Actually in original code:
+        # if pd.isna(row["signal_ts"]): unmatched_fills += 1
+        # if not np.isclose: unmatched_fills += 1
+        
+        # Let's do it cleanly:
+        # 1. Total rows for this (sym, side)
+        # 2. Rows with NaN signal -> unmatched
+        # 3. Rows with valid signal but bad qty -> unmatched
+        # 4. Rows with valid signal AND good qty -> matched
+        
+        # Original merged (before dropna) is what we need to account for
+        # Wait, the code above `merged = pd.merge_asof(...)` returns all f_subset rows
+        
+        # Let's act on `merged` directly
+        
+        # 1. Identify NaN signals
+        nan_mask = merged["signal_ts"].isna()
+        n_nan = nan_mask.sum()
+        unmatched_fills += n_nan
+        
+        # 2. Identify Valid Signals but Bad Qty
+        # We only check qty on rows where signal is NOT NaN
+        # Fill NaN qty_y with -999 to ensure no match if needed, or just slice
+        
+        valid_sig_mask = ~nan_mask
+        if valid_sig_mask.sum() > 0:
+             # Vectorized isclose
+             # merged.loc[valid_sig_mask, "qty_x"]
+             q_x = merged.loc[valid_sig_mask, "qty_x"]
+             q_y = merged.loc[valid_sig_mask, "qty_y"]
+             
+             qty_mismatch_mask = ~np.isclose(q_x, q_y, rtol=0.01)
+             n_qty_mismatch = qty_mismatch_mask.sum()
+             unmatched_fills += n_qty_mismatch
+             
+             # 3. Matched = Valid Signal AND Good Qty
+             final_match_mask = valid_sig_mask & (~nan_mask) # redundant but clear
+             # Actually, we need indices where valid_sig is True AND qty_match is True
+             
+             # Let's construct a boolean mask for the whole df
+             # Default False
+             is_matched = pd.Series(False, index=merged.index)
+             
+             # Where valid sig, check qty
+             # We can do: is_matched[valid_sig_mask] = np.isclose(...)
+             is_matched.loc[valid_sig_mask] = np.isclose(q_x, q_y, rtol=0.01)
+             
+             matched_rows = merged[is_matched].copy()
+             matched_count += len(matched_rows)
+             
+             if not matched_rows.empty:
+                 # Vectorized Calcs
+                 # Slippage: (fill - exp) * sign / exp * 10000
+                 sign = 1 if str(side).upper() == "BUY" else -1
+                 
+                 fill_p = matched_rows["fill_price"]
+                 exp_p = matched_rows["expected_price"]
+                 
+                 slippage_bps = (fill_p - exp_p) * sign / exp_p * 10000.0
+                 
+                 # Latency
+                 latency = (matched_rows["fill_ts"] - matched_rows["signal_ts"]).dt.total_seconds()
+                 
+                 # Fee Impact
+                 # Handle fee_x / fee difference
+                 f_col = "fee_x" if "fee_x" in matched_rows.columns else "fee"
+                 if f_col in matched_rows.columns:
+                     f_fee = matched_rows[f_col].fillna(0.0)
+                 else:
+                     f_fee = pd.Series(0.0, index=matched_rows.index)
+                 
+                 # Logic for s_fee: try model_fee_y, then model_fee
+                 if "model_fee_y" in matched_rows.columns:
+                     s_fee = matched_rows["model_fee_y"]
+                 elif "model_fee" in matched_rows.columns:
+                     s_fee = matched_rows["model_fee"]
+                 else:
+                     s_fee = pd.Series(0.0, index=matched_rows.index)
+                 
+                 s_fee = s_fee.fillna(0.0)
+                 fee_imp = f_fee - s_fee
+                 
+                 # Construct Result DF
+                 batch_res = pd.DataFrame({
+                     "symbol": sym,
+                     "side": side,
+                     "fill_ts": matched_rows["fill_ts"].dt.isoformat(),
+                     "signal_ts": matched_rows["signal_ts"].dt.isoformat(),
+                     "slippage_bps": slippage_bps,
+                     "latency_sec": latency,
+                     "fee_impact": fee_imp
+                 })
+                 
+                 results.extend(batch_res.to_dict("records"))
+        else:
+            # All were NaN
+            pass
 
     # 4. Report Generation
     df_res = pd.DataFrame(results)
