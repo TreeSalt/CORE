@@ -7,13 +7,12 @@ Unified entrypoint for build auditing and paper execution safety.
 """
 
 import argparse
-import os
 import subprocess
 import sys
-import json
-import yaml
 from pathlib import Path
 from typing import List, Optional
+
+import yaml
 
 from antigravity_harness.strategies.registry import STRATEGY_REGISTRY
 
@@ -148,8 +147,8 @@ def cmd_run_paper(strategy: str, profile_path: Path, dist_dir: Path) -> None:
     print(f"\n{BOLD}{GREEN}>>> AUTOPILOT SAFETY SUPERVISOR: SYSTEM READY <<<{RESET}")
     print(f"Strategy: {strategy}")
     print(f"Profile:  {profile['profile_id']}")
-    print(f"Mode:     PAPER")
-    print(f"Status:   AUTHORIZED")
+    print("Mode:     PAPER")
+    print("Status:   AUTHORIZED")
 
 def main():
     parser = argparse.ArgumentParser(description="Autopilot Safety Supervisor")

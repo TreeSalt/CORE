@@ -6,6 +6,7 @@ Exit codes: 0 = PASS, 2 = FAIL.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -13,14 +14,13 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-import hashlib
 
 # sys.path hacking to allow importing antigravity_harness from repo root
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256 # noqa: E402
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
 
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
@@ -36,7 +36,7 @@ def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
         err = (proc.stderr or proc.stdout or "").strip()
         raise RuntimeError(f"Signature verify failed: {err}")
 
-def main():
+def main():  # noqa: PLR0912, PLR0915
     ap = argparse.ArgumentParser()
     ap.add_argument("--evidence", required=True, help="Path to TRADER_OPS_EVIDENCE_v*.zip")
     ap.add_argument("--trusted-pubkey", default="keys/sovereign.pub", help="Path to out-of-band trusted Sovereign public key")

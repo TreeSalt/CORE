@@ -26,7 +26,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256 # noqa: E402
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
 
 # ANSI Colors for Institutional Output
 RED = "\033[31m"
@@ -244,14 +244,13 @@ def _check_timeline_sovereignty(drop_path: Path, acc: GateAccumulator):
         actual_sha = hashlib.sha256(drop_path.read_bytes()).hexdigest()
         if sidecar_sha != actual_sha:
             fail(f"Sidecar hash mismatch: {sidecar_sha[:8]} != {actual_sha[:8]}", acc, "TIM-001", "Timeline Sovereignty")
+        # Filename binding (Anti-Bait)
+        elif not sidecar_name:
+             fail("Sidecar missing filename binding", acc, "TIM-001", "Timeline Sovereignty")
+        elif Path(sidecar_name).name != drop_path.name:
+             fail(f"Sidecar binding mismatch: {sidecar_name} != {drop_path.name}", acc, "TIM-001", "Timeline Sovereignty")
         else:
-             # Filename binding (Anti-Bait)
-             if not sidecar_name:
-                  fail("Sidecar missing filename binding", acc, "TIM-001", "Timeline Sovereignty")
-             elif Path(sidecar_name).name != drop_path.name:
-                  fail(f"Sidecar binding mismatch: {sidecar_name} != {drop_path.name}", acc, "TIM-001", "Timeline Sovereignty")
-             else:
-                  ok("Timeline sidecar verified and bound", acc, "TIM-001", "Timeline Sovereignty")
+             ok("Timeline sidecar verified and bound", acc, "TIM-001", "Timeline Sovereignty")
     except Exception as e:
         fail(f"Timeline verification error: {e}", acc, "TIM-001", "Timeline Sovereignty")
 

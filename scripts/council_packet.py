@@ -20,7 +20,7 @@ def sha256_file(path: Path) -> str:
         return "MISSING"
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def main():
+def main():  # noqa: PLR0912
     print("📋 Generating Council Brief...")
     
     # 1. Identify Version
