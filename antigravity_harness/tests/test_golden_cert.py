@@ -73,8 +73,10 @@ class TestGoldenCert(unittest.TestCase):
         mock_instance = mock_runner_cls.return_value
         mock_instance.run_simulation.return_value = self.dummy_result
 
-        # Run
-        run_certification(self.args)
+        # Mock Governance
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            # Run
+            run_certification(self.args)
 
         # Verify Manifest
         # We need to find the call to json.dump that saved the manifest
@@ -125,7 +127,8 @@ class TestGoldenCert(unittest.TestCase):
         mock_instance = mock_runner_cls.return_value
         mock_instance.run_simulation.return_value = self.dummy_result
 
-        run_certification(self.args)
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            run_certification(self.args)
 
         manifest_found = None
         for call in mock_json.call_args_list:
@@ -160,7 +163,8 @@ class TestGoldenCert(unittest.TestCase):
         mock_instance = mock_runner_cls.return_value
         mock_instance.run_simulation.return_value = self.dummy_result
 
-        run_certification(self.args)
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            run_certification(self.args)
 
         manifest_found = None
         for call in mock_json.call_args_list:
