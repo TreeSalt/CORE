@@ -33,6 +33,9 @@ class MockRouter:
 
         return {"MOCK": 0.95}, RegimeState(RegimeLabel.RANGE_LOW_VOL)
 
+    def preload(self, df):
+        pass
+
 
 class TestSafetyIntegration(unittest.TestCase):
     def test_safety_transitions(self):

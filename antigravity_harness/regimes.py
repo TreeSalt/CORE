@@ -83,9 +83,15 @@ def compute_regime_indicators(  # noqa: PLR0915
     mean_ret = rolling_basket.mean()
     std_ret = rolling_basket.std()
     
-    # Avoid div/0
-    trend_z = (mean_ret.abs() / std_ret.replace(0, np.nan)).fillna(0.0)
-    trend_z *= np.sqrt(cfg.window)  # Approximate sqrt(N) scaling
+    # Avoid div/0 and noise amplification
+    # Legacy: if std_ret > 1e-9 ...
+    trend_z = np.where(
+        std_ret > 1e-9,
+        (mean_ret.abs() / std_ret) * np.sqrt(cfg.window),
+        0.0
+    )
+    # Ensure Series alignment
+    trend_z = pd.Series(trend_z, index=close_df.index).fillna(0.0)
 
     # 2. Volatility Ratio
     long_window = cfg.window * 4
@@ -99,7 +105,14 @@ def compute_regime_indicators(  # noqa: PLR0915
     # Median Vol (over long window of the short-term vol)
     median_vol = rolling_vol.rolling(window=long_window, min_periods=short_vol_window).median()
     
-    vol_ratio = (rolling_vol / median_vol.replace(0, np.nan)).fillna(1.0)
+    # Avoid div/0 and noise
+    # Legacy: if median_vol > 1e-9 ...
+    vol_ratio = np.where(
+        median_vol > 1e-9,
+        rolling_vol / median_vol,
+        1.0
+    )
+    vol_ratio = pd.Series(vol_ratio, index=close_df.index).fillna(1.0)
 
     # 3. Panic Detection (Scale-Invariant Basket Drawdown)
     # Rolling Max of Cumulative Return Index
@@ -111,7 +124,13 @@ def compute_regime_indicators(  # noqa: PLR0915
     # 4. Dispersion Ratio (Cross-Sectional)
     cs_std = daily_returns.std(axis=1)
     rolling_cs_median = cs_std.rolling(window=long_window, min_periods=short_vol_window).median()
-    dispersion_ratio = (cs_std / rolling_cs_median.replace(0, np.nan)).fillna(1.0)
+    
+    dispersion_ratio = np.where(
+        rolling_cs_median > 1e-9,
+        cs_std / rolling_cs_median,
+        1.0
+    )
+    dispersion_ratio = pd.Series(dispersion_ratio, index=close_df.index).fillna(1.0)
     
     # 5. Trend Direction (Sign of mean return)
     # Use fillna(0) to handle NaN at start
