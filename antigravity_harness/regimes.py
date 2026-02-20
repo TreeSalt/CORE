@@ -73,9 +73,6 @@ def compute_regime_indicators(  # noqa: PLR0915
     daily_returns = close_df.pct_change(fill_method=None).fillna(0.0)
 
     # 1. Trend Metric (Scale Invariant Z-Score)
-    # Rolling Window of Daily Returns
-    rolling_window = daily_returns.rolling(window=cfg.window, min_periods=cfg.window)
-    
     # Basket Return (Equal Weight)
     basket_returns = daily_returns.mean(axis=1)
     rolling_basket = basket_returns.rolling(window=cfg.window, min_periods=cfg.window)
@@ -95,8 +92,6 @@ def compute_regime_indicators(  # noqa: PLR0915
 
     # 2. Volatility Ratio
     long_window = cfg.window * 4
-    # Long-term vol (rolling std of basket returns)
-    long_basket_rolling = basket_returns.rolling(window=long_window, min_periods=long_window)
     
     # Short-term vol
     short_vol_window = max(2, cfg.window // 2)

@@ -85,7 +85,7 @@ class PortfolioRouter:
              print(f"⚠️ Preload mismatch: {len(states)} states vs {len(close_df)} bars.")
              return
 
-        self.preloaded_regimes = dict(zip(close_df.index, states))
+        self.preloaded_regimes = dict(zip(close_df.index, states, strict=True))
         print("⚡ Preload complete.")
 
     def route(self, close_df: pd.DataFrame, asof: pd.Timestamp) -> tuple:  # noqa: PLR0912, PLR0915
