@@ -1456,3 +1456,17 @@ chore: commit version bump artifacts from partial build
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: archive v4.5.136 build artifacts (v4.5.137)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.137 forge.
+
+### Decision
+chore: archive v4.5.136 build artifacts
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
