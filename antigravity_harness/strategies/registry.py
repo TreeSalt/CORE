@@ -1,16 +1,8 @@
 from __future__ import annotations
 
-from typing import Dict, List, Type
+from typing import Any, Type
 
 from antigravity_harness.strategies.base import Strategy
-
-
-class StrategyRegistry:
-    """
-    The Cartographer of Alphas.
-    Explicitly manages the mapping of names to strategy classes,
-    enabling Inversion of Control and quarantine rules.
-    """
 
 import hashlib
 import json
@@ -34,19 +26,19 @@ class StrategyRegistry:
     """
 
     def __init__(self):
-        self._strategies: Dict[str, Type[Strategy]] = {}
+        self._strategies: dict[str, type[Strategy]] = {}
         self._registry_data = self._load_registry()
 
-    def _load_registry(self) -> Dict[str, Any]:
+    def _load_registry(self) -> dict[str, Any]:
         if not REGISTRY_FILE.exists():
             return {"strategies": {}, "tier_policy": {}}
         try:
             with open(REGISTRY_FILE) as f:
                 return json.load(f)
         except Exception as e:
-            raise RuntimeError(f"REGISTRY CORRUPTION: Could not load STRATEGY_REGISTRY.json: {e}")
+            raise RuntimeError(f"REGISTRY CORRUPTION: Could not load STRATEGY_REGISTRY.json: {e}") from e
 
-    def register(self, name: str, strategy_cls: Type[Strategy]) -> None:
+    def register(self, name: str, strategy_cls: type[Strategy]) -> None:
         """Register a strategy with a unique name."""
         key = name.strip().lower()
         
@@ -80,7 +72,7 @@ class StrategyRegistry:
             
         self._strategies[key] = strategy_cls
 
-    def get_class(self, name: str) -> Type[Strategy]:
+    def get_class(self, name: str) -> type[Strategy]:
         """Retrieve the strategy class by name."""
         key = name.strip().lower()
         if key not in self._strategies:
@@ -94,7 +86,7 @@ class StrategyRegistry:
         return self.get_class(name)()
 
     @property
-    def available_strategies(self) -> List[str]:
+    def available_strategies(self) -> list[str]:
         """List all registered strategy names."""
         return sorted(self._strategies.keys())
 
