@@ -74,6 +74,8 @@ def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # 
             continue
 
         # Vectorized Filters
+
+
         # Remove unmatched signals
         merged = merged.dropna(subset=["signal_ts"])
         
