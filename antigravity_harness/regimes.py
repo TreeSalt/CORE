@@ -131,16 +131,34 @@ def compute_regime_indicators(  # noqa: PLR0915
     # Use fillna(0) to handle NaN at start
     trend_dir = np.sign(mean_ret).fillna(0.0)
     
-    # 6. Correlation (Vanguard Effective / Generic)
-    # Since rolling correlation is expensive to vectorize fully without O(N^2) or complex strides,
-    # we will use the scalar fallback in the loop or a simplified proxy here.
-    # For speed, we will omit the expensive rolling correlation spike check in the vectorized pre-calc
-    # and handle it in the loop or assume 0 for now if it's not critical for the bottleneck.
-    # The original loop had a complex logic for this.
-    # Let's retain a placeholder or compute a simplified version if possible.
-    # For now, we'll leave it as a TODO or 0.0 to match performance goals.
-    # We can use the dispersion ratio as a proxy for correlation breakdown often.
+    # 6. Average Correlation (O(N) Complexity via Variance of Z-Sums)
+    # rho_avg = (Var(Sum(Z_i)) - N) / (N * (N-1))
+    roll_mean = daily_returns.rolling(window=cfg.window).mean()
+    roll_std = daily_returns.rolling(window=cfg.window).std()
     
+    # Standardize returns over the rolling window
+    # Avoid div/0 with fillna(0)
+    z_returns = ((daily_returns - roll_mean) / roll_std).fillna(0.0)
+    sum_z = z_returns.sum(axis=1)
+    
+    # Variance of the sum of Z-scores (mean is 0 by construction)
+    var_sum_z = (sum_z**2).rolling(window=cfg.window).mean()
+    num_assets = len(close_df.columns)
+    
+    if num_assets > 1:
+        avg_corr = (var_sum_z - num_assets) / (num_assets * (num_assets - 1))
+        avg_corr = avg_corr.clip(0.0, 1.0)
+    else:
+        avg_corr = pd.Series(0.0, index=close_df.index)
+    
+    # 7. Correlation Spike (Z-Score of avg_corr)
+    # We use a longer window (corr_lookback) for the baseline
+    corr_lookback = cfg.corr_lookback
+    roll_corr_mean = avg_corr.rolling(window=corr_lookback, min_periods=cfg.window).mean()
+    roll_corr_std = avg_corr.rolling(window=corr_lookback, min_periods=cfg.window).std()
+    
+    corr_z = ((avg_corr - roll_corr_mean) / roll_corr_std).fillna(0.0)
+
     # Combine into DataFrame
     metrics = pd.DataFrame({
         "trend_z": trend_z,
@@ -148,6 +166,8 @@ def compute_regime_indicators(  # noqa: PLR0915
         "drawdown": drawdown,
         "dispersion_ratio": dispersion_ratio,
         "trend_dir": trend_dir,
+        "avg_corr": avg_corr,
+        "corr_z": corr_z,
         "realized_vol_annual": rolling_vol * np.sqrt(252), # Approx annual vol
     }, index=close_df.index)
     
@@ -174,6 +194,8 @@ def infer_regimes_from_metrics(
     drawdown = metrics_df["drawdown"].values
     disp_ratio = metrics_df["dispersion_ratio"].values
     trend_dir = metrics_df["trend_dir"].values
+    avg_corr = metrics_df["avg_corr"].values
+    corr_z = metrics_df["corr_z"].values
     real_vol = metrics_df["realized_vol_annual"].values
     
     # Thresholds
@@ -230,6 +252,9 @@ def infer_regimes_from_metrics(
         if disp > 1.5: 
              flags.add(RegimeFlag.DISPERSION_HIGH)
         
+        if corr_z[i] > cfg.corr_z_threshold:
+             flags.add(RegimeFlag.CORR_SPIKE)
+
         # Construct State
         m = {
             "trend_z": dz,
@@ -238,7 +263,8 @@ def infer_regimes_from_metrics(
             "dispersion_ratio": disp,
             "trend_dir": td,
             "realized_vol_annual": rv,
-            "avg_corr": 0.0, # Placeholder until vectorized
+            "avg_corr": avg_corr[i],
+            "corr_z": corr_z[i],
         }
         
         states.append(RegimeState(label, flags, m))

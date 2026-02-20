@@ -12,6 +12,7 @@ from antigravity_harness.portfolio_policies import (
     PortfolioPolicy,
     apply_concentration_caps,
 )
+from antigravity_harness.correlation import CorrelationGuard
 from antigravity_harness.regimes import (
     RegimeConfig,
     RegimeFlag,
@@ -154,11 +155,26 @@ class PortfolioRouter:
             chosen_policy = self.cash_policy
             chosen_policy_name = "DefensiveCash"
 
-        # 3. Correlation Guard
+        # 3. Correlation Guard (Surgical Filter)
         if RegimeFlag.CORR_SPIKE in regime.flags and isinstance(
             chosen_policy, (CrossSectionMomentumPolicy, CrossSectionMeanReversionPolicy)
         ):
-            risk_scale *= 0.5
+            # Lookback window for correlation matrix
+            corr_window = self.regime_cfg.corr_lookback
+            # Get returns for all assets in the universe
+            returns_history = close_df.loc[:asof].pct_change(fill_method=None).iloc[-corr_window:]
+            
+            # Surgical Filtering: Drop high-volatility assets in correlated pairs
+            safe_assets = CorrelationGuard.filter(returns_history, threshold=0.85)
+            
+            # Trace dropped assets
+            dropped_assets = set(close_df.columns) - set(safe_assets)
+            regime.metrics["corr_dropped_count"] = len(dropped_assets)
+            if dropped_assets:
+                 regime.metrics["corr_dropped_list"] = ",".join(sorted(dropped_assets))
+        else:
+            safe_assets = set(close_df.columns)
+            regime.metrics["corr_dropped_count"] = 0
 
         # 4. Compute Weights
         raw_weights = chosen_policy.compute_target_weights(close_df, asof, self.policy_cfg)
@@ -167,8 +183,10 @@ class PortfolioRouter:
         # Enforce per-asset concentration caps from PolicyConfig
         raw_weights = apply_concentration_caps(raw_weights, self.policy_cfg)
 
-        # 5. Apply Risk Scaling
-        final_weights = {k: v * risk_scale for k, v in raw_weights.items()}
+        # 5. Apply Risk Scaling & Surgical Filter
+        final_weights = {
+            k: v * risk_scale for k, v in raw_weights.items() if k in safe_assets
+        }
 
         # 6. Vol Targeting (Phase 9F)
         vol_scalar = 1.0
