@@ -74,6 +74,11 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
 
     # 4. Event Loop
     close_prices_df = pd.DataFrame({s: df["Close"] for s, df in clean_data.items()})
+    
+    # Phase P2: Vectorized Preload
+    if router:
+        router.preload(close_prices_df)
+
     # Phase 10.5: Volume Physics
     volume_df = pd.DataFrame({s: df["Volume"] for s, df in clean_data.items()})
     # Shift volumes to enforce t-1 participation limits

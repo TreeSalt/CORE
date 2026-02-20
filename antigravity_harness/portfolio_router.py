@@ -12,7 +12,16 @@ from antigravity_harness.portfolio_policies import (
     PortfolioPolicy,
     apply_concentration_caps,
 )
-from antigravity_harness.regimes import RegimeConfig, RegimeFlag, RegimeLabel, RegimePersistence, detect_regime
+from antigravity_harness.regimes import (
+    RegimeConfig,
+    RegimeFlag,
+    RegimeLabel,
+    RegimePersistence,
+    RegimeState,
+    compute_regime_indicators,
+    detect_regime,
+    infer_regimes_from_metrics,
+)
 from antigravity_harness.utils import infer_periods_per_year
 
 
@@ -57,6 +66,27 @@ class PortfolioRouter:
         # Phase 9E: Regime Persistence & Schmitt State
         self.persistence = RegimePersistence(min_bars=3)
         self.last_raw_label: Optional[RegimeLabel] = None
+        
+        # Optimization: Preloaded Regimes
+        self.preloaded_regimes: Dict[pd.Timestamp, RegimeState] = {}
+
+    def preload(self, close_df: pd.DataFrame) -> None:
+        """
+        Pre-compute regime states for the entire history using vectorized operations.
+        This provides O(N) performance vs O(N^2) of iterative detection.
+        """
+        print(f"⚡ PortfolioRouter: Preloading regimes for {len(close_df)} bars...")
+        metrics = compute_regime_indicators(close_df, self.regime_cfg)
+        states = infer_regimes_from_metrics(metrics, self.regime_cfg)
+        
+        # Align states with timestamps
+        # infer_regimes_from_metrics returns a list of states corresponding to metrics rows
+        if len(states) != len(close_df):
+             print(f"⚠️ Preload mismatch: {len(states)} states vs {len(close_df)} bars.")
+             return
+
+        self.preloaded_regimes = dict(zip(close_df.index, states))
+        print("⚡ Preload complete.")
 
     def route(self, close_df: pd.DataFrame, asof: pd.Timestamp) -> tuple:  # noqa: PLR0912, PLR0915
         """
@@ -65,7 +95,13 @@ class PortfolioRouter:
         regime_state.metrics is enriched with chosen_policy, vol_scalar, realized_vol.
         """
         # 1. Detect Regime (Raw) with Schmitt Hysteresis
-        raw_regime = detect_regime(close_df, asof, self.regime_cfg, previous_label=self.last_raw_label)
+        # Fast Path: Check preload
+        if asof in self.preloaded_regimes:
+            raw_regime = self.preloaded_regimes[asof]
+        else:
+            # Slow Path: Legacy / Online
+            raw_regime = detect_regime(close_df, asof, self.regime_cfg, previous_label=self.last_raw_label)
+        
         self.last_raw_label = raw_regime.label
 
         # 1b. Apply Persistence (Time Hysteresis)
