@@ -86,7 +86,7 @@ def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # 
         # But we need to track unmatched_fills count globaly
         # The original code incremented unmatched_fills for every row failure
         
-        valid_merged = merged[qty_match].copy()
+
         
         # Unmatched count logic from original:
         # iterate merged: if isna(signal_ts) -> unmatched. 
@@ -128,8 +128,8 @@ def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # 
              n_qty_mismatch = qty_mismatch_mask.sum()
              unmatched_fills += n_qty_mismatch
              
+
              # 3. Matched = Valid Signal AND Good Qty
-             final_match_mask = valid_sig_mask & (~nan_mask) # redundant but clear
              # Actually, we need indices where valid_sig is True AND qty_match is True
              
              # Let's construct a boolean mask for the whole df
