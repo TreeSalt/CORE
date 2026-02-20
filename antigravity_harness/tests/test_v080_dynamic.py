@@ -1,12 +1,11 @@
 import unittest
+from unittest.mock import patch
 
 import pandas as pd
 
 from antigravity_harness.config import StrategyParams
 from antigravity_harness.strategies import get_strategy
 
-
-from unittest.mock import patch
 
 class TestV080Dynamic(unittest.TestCase):
     def setUp(self):
