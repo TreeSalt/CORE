@@ -60,8 +60,9 @@ class TestCliAlias(unittest.TestCase):
 
         # Execute (should not raise AttributeError)
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
-            with contextlib.suppress(SystemExit):
-                args.func(args)
+            with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+                with contextlib.suppress(SystemExit):
+                    args.func(args)
             output = fake_out.getvalue()
 
         # Assertions
@@ -107,7 +108,8 @@ class TestCliAlias(unittest.TestCase):
         args = self.parser.parse_args(cmd_args)
 
         with patch("sys.stdout", new=io.StringIO()), contextlib.suppress(SystemExit):
-            args.func(args)
+            with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+                args.func(args)
 
         # Assertions
         # 1. _run_one called exactly ONCE
