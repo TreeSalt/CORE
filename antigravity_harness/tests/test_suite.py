@@ -21,7 +21,7 @@ from antigravity_harness.gates import GateResult, _run_sim, _status_from_gate_re
 from antigravity_harness.models import MetricSet, SimulationResult
 from antigravity_harness.registry import load_registry, promote_to_staging
 from antigravity_harness.strategies import REGISTRY
-from antigravity_harness.strategies.v032_simple import V032Simple
+from antigravity_harness.strategies import V032Simple
 
 
 @dataclass
