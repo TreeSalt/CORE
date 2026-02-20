@@ -103,6 +103,7 @@ def walk_forward_validation(  # noqa: PLR0913
         engine_cfg = EngineConfig()
 
     # 2. Load Immutable Data
+    df = load_snapshot(snapshot_path)
 
     # 2. Check Coverage
     total_days = (df.index[-1] - df.index[0]).days
