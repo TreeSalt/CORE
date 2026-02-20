@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
+from antigravity_harness.accelerators.vector_cache import VectorCache
 from antigravity_harness.config import (
     DataConfig,
     EngineConfig,
@@ -14,7 +15,7 @@ from antigravity_harness.config import (
     StrategyParams,
 )
 from antigravity_harness.types import Money, Price, Quantity
-from antigravity_harness.accelerators.vector_cache import VectorCache
+
 
 class Trade(BaseModel):
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)

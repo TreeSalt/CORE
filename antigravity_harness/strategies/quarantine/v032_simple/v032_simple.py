@@ -4,10 +4,10 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 
+from antigravity_harness.accelerators.vector_cache import VectorCache
 from antigravity_harness.config import StrategyParams
 from antigravity_harness.indicators import atr, rsi, sma
 from antigravity_harness.strategies.base import Strategy
-from antigravity_harness.accelerators.vector_cache import VectorCache
 
 
 class V032Simple(Strategy):

@@ -5,8 +5,8 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 
-from antigravity_harness.config import StrategyParams
 from antigravity_harness.accelerators.vector_cache import VectorCache
+from antigravity_harness.config import StrategyParams
 
 
 class Strategy(ABC):

@@ -18,6 +18,7 @@ from antigravity_harness.config import (
     load_yaml,
     save_yaml,
 )
+from antigravity_harness.accelerators import VectorCache
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.data import load_ohlc  # For Ray loading
 from antigravity_harness.engine import Trade
@@ -334,8 +335,6 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
     use_ray: bool = False,
     registry: StrategyRegistry = STRATEGY_REGISTRY,
 ) -> Dict[str, Any]:
-    from antigravity_harness.accelerators.vector_cache import VectorCache
-    
     if symbols is None:
         symbols = ["SPY"]
     data_cfg = data_cfg or DataConfig(interval=interval)

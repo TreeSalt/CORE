@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 
+from antigravity_harness.accelerators.vector_cache import VectorCache
 from antigravity_harness.config import (
     DataConfig,
     EngineConfig,
@@ -13,8 +14,6 @@ from antigravity_harness.config import (
 )
 from antigravity_harness.models import SimulationContext
 from antigravity_harness.utils import infer_periods_per_year
-from antigravity_harness.accelerators.vector_cache import VectorCache
-
 
 
 class SimulationContextBuilder:
