@@ -37,6 +37,7 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
             "safety_rate",
             "final_leverage",
             "top_weights",
+            "final_weights_hash",
             "avg_corr",
             "corr_dropped_count",
             "safety_state",
