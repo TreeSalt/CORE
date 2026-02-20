@@ -139,20 +139,21 @@ class TestSuite(unittest.TestCase):
     @patch("antigravity_harness.runner.evaluate_gates")
     def test_validate_pipeline(self, mock_gates):
         mock_gates.return_value = []
-        _run_one(
-            "v032_simple",
-            self.params,
-            self.dcfg,
-            self.ecfg,
-            self.thresh,
-            False,
-            False,
-            "SPY",
-            "2020",
-            "2021",
-            "equity_fortress",
-            "1d",
-        )
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            _run_one(
+                "v032_simple",
+                self.params,
+                self.dcfg,
+                self.ecfg,
+                self.thresh,
+                False,
+                False,
+                "SPY",
+                "2020",
+                "2021",
+                "equity_fortress",
+                "1d",
+            )
         mock_gates.assert_called()
 
     def test_sharpe_gate(self) -> None:
@@ -179,12 +180,14 @@ class TestSuite(unittest.TestCase):
             )
 
             # Low Sharpe
-            res = evaluate_gates(ctx_base.with_gate_profile("equity_fortress").build())
+            with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+                res = evaluate_gates(ctx_base.with_gate_profile("equity_fortress").build())
             sharpe_gate = next(r for r in res if r.gate == "GATE_SHARPE")
             self.assertEqual(sharpe_gate.status, "FAIL")
 
             # Crypto allows low sharpe
-            res = evaluate_gates(ctx_base.with_gate_profile("crypto_profit").build())
+            with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+                res = evaluate_gates(ctx_base.with_gate_profile("crypto_profit").build())
             sharpe_gate = next(r for r in res if r.gate == "GATE_SHARPE")
             self.assertEqual(sharpe_gate.status, "PASS")
 
@@ -220,7 +223,8 @@ class TestSuite(unittest.TestCase):
             .with_override_df(override)
             .build()
         )
-        res = _run_sim(ctx)
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            res = _run_sim(ctx)
 
         # ASSERT
         self.assertEqual(len(res["trades"]), 1, "Should filter out train trade")
@@ -269,7 +273,8 @@ class TestSuite(unittest.TestCase):
 
         f = io.StringIO()
         with contextlib.redirect_stdout(f):
-            cmd_validate(args)
+            with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+                cmd_validate(args)
 
         out = f.getvalue()
         self.assertIn("[PASS] GATE_TEST: Reason", out)
