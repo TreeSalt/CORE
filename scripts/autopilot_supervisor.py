@@ -355,21 +355,12 @@ def do_run_paper(args: argparse.Namespace) -> None:
     strat_id = args.strategy
     info(f"Inspecting Strategy: {strat_id}")
     
-    if strat_id not in STRATEGY_REGISTRY._registry:
-        fail(f"Strategy {strat_id} NOT FOUND in Registry.")
-        
-    strat_record = STRATEGY_REGISTRY.get(strat_id)
-    # Tier Check (Assuming Tier 1/2 is safer, Lab is Tier 3)
-    # Prompt: "if 'certified' state exists, require certified for paper"
-    # Mapping might check 'status' or 'tier'. 
-    # Current codebase uses tiers: 1=Certified, 2=Candidate, 3=Lab, 4=Quarantine
-    
-    current_tier = getattr(strat_record, 'tier', 99)
-    if current_tier > 2: # Fail if Lab(3) or Quarantine(4)
-        fail(f"Strategy Tier {current_tier} NOT ALLOWED for Paper. (Require Tier 1 or 2)")
-        
-    if getattr(strat_record, 'is_quarantined', False):
-        fail("Strategy is QUARANTINED. Execution refused.")
+    try:
+        STRATEGY_REGISTRY.verify_strategy_allowed(strat_id, mode="paper")
+        info(f"✅ Governance Check Passed: {strat_id} allowed for PAPER.")
+    except Exception as e:
+        fail(f"Governance Failure: {e}")
+
 
     # 3. Profile Safety
     profile_path = Path(args.profile)
