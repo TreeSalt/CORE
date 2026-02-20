@@ -157,6 +157,7 @@ ONE_TRUE := scripts/one_true_command.sh
 .PHONY: audit audit-fast hashes zip-verify cert-verify show-dist
 
 audit:  ## The one word the Council should run
+	@mkdir -p "$(DIST)"
 	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
 	@bash "$(ONE_TRUE)" "$(DIST)"
 
@@ -199,6 +200,7 @@ council-brief:
 	$(PYTHON) scripts/council_packet.py
 
 verify:
+	@mkdir -p "$(DIST)"
 	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
 	@bash "$(ONE_TRUE)" "$(DIST)"
 	$(PYTHON) scripts/verify_run_ledger_signature.py --strict --trusted-pubkey keys/sovereign.pub --run-ledger "$(DIST)"/RUN_LEDGER_v$(VERSION).json

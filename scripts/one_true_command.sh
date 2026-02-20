@@ -116,7 +116,7 @@ PY
 
 bold "🧾 ONE TRUE COMMAND — Sovereign Audit (strict, fail-closed)"
 need_cmd python3
-[[ -d "$DIST_DIR" ]] || bad "Dist dir not found: $DIST_DIR"
+[[ -d "$DIST_DIR" ]] || { warn "Dist dir not found: $DIST_DIR; creating it now."; mkdir -p "$DIST_DIR"; }
 
 DROP_ZIP="$(pick_latest_drop)"
 [[ -n "$DROP_ZIP" ]] || bad "No drop zip found in $DIST_DIR (expected TRADER_OPS_READY_TO_DROP_v*.zip)"

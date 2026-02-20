@@ -181,6 +181,7 @@ class FillTape:
 
         # Write deterministic CSV (fixed column order)
         fieldnames = list(FillRecord.__dataclass_fields__.keys())
+        self._tape_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self._tape_path, "w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()

@@ -244,6 +244,8 @@ def git_surgeon(fix=False):
         "scripts/one_true_command.sh", # Fiduciary Update (v4.5.109)
         "scripts/verify_certificate.py", # Fiduciary Update (v4.5.109)
         "docs/ready_to_drop/PAYLOAD_MANIFEST.json", # Fiduciary Manifest (v4.5.115)
+        "antigravity_harness/execution/fill_tape.py", # Hardening Dir Persistence (v4.5.123)
+        "Makefile", # Dataset & Hardening (v4.5.123)
     ]
 
     to_add = []
