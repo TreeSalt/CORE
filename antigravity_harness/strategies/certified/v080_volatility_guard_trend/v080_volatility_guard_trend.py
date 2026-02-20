@@ -17,7 +17,8 @@ class V080VolatilityGuardTrend(Strategy):
     """
 
     def prepare_data(
-        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None
+        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None,
+        vector_cache: Optional[Any] = None
     ) -> pd.DataFrame:
 
         # Trend

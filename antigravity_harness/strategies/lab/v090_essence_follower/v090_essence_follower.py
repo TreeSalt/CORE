@@ -24,7 +24,8 @@ class V090EssenceFollower(Strategy):
     name = "v090_essence_follower"
 
     def prepare_data(
-        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None
+        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None,
+        vector_cache: Optional[Any] = None
     ) -> pd.DataFrame:
         out = df.copy()
 

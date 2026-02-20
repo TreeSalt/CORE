@@ -252,6 +252,11 @@ def git_surgeon(fix=False):
         "tests/test_safety_integration.py", # Performance Opt (v4.5.123)
         "antigravity_harness/execution/ibkr_adapter.py", # Fiduciary Bridge (v4.5.148)
         "scripts/ibkr_paper_execute.py", # Fiduciary Bridge (v4.5.148)
+        "antigravity_harness/accelerators/", # Item 2 Vectorized Scaling
+        "antigravity_harness/context.py", # Item 2 Vectorized Scaling
+        "antigravity_harness/models.py", # Item 2 Vectorized Scaling
+        "antigravity_harness/calibration.py", # Item 2 Vectorized Scaling
+        "antigravity_harness/gates.py", # Item 2 Vectorized Scaling
     ]
 
     to_add = []

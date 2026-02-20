@@ -23,7 +23,8 @@ class V100ConsensualMomentum(Strategy):
     name = "v100_consensual_momentum"
 
     def prepare_data(
-        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None
+        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None,
+        vector_cache: Optional[Any] = None
     ) -> pd.DataFrame:
         out = df.copy()
 

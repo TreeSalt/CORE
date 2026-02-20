@@ -29,7 +29,8 @@ class V060BitUniCore(Strategy):
     name = "v060_bit_uni_core"
 
     def prepare_data(
-        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None
+        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None,
+        vector_cache: Optional[Any] = None
     ) -> pd.DataFrame:
         out = df.copy()
 

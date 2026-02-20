@@ -13,6 +13,8 @@ from antigravity_harness.config import (
 )
 from antigravity_harness.models import SimulationContext
 from antigravity_harness.utils import infer_periods_per_year
+from antigravity_harness.accelerators.vector_cache import VectorCache
+
 
 
 class SimulationContextBuilder:
@@ -36,10 +38,16 @@ class SimulationContextBuilder:
         self._intelligence: Dict[str, Any] = {}
         self._debug: bool = False
         self._out_dir: Optional[Path] = None
+        self._vector_cache: Optional[VectorCache] = None
 
     def with_debug(self, enabled: bool) -> SimulationContextBuilder:
         self._debug = enabled
         return self
+
+    def with_vector_cache(self, cache: Optional[VectorCache]) -> SimulationContextBuilder:
+        self._vector_cache = cache
+        return self
+
 
     def with_out_dir(self, out_dir: Optional[Path]) -> SimulationContextBuilder:
         self._out_dir = out_dir
@@ -139,4 +147,5 @@ class SimulationContextBuilder:
             intelligence=self._intelligence,
             debug=self._debug,
             out_dir=self._out_dir,
+            vector_cache=self._vector_cache,
         )

@@ -14,7 +14,7 @@ from antigravity_harness.config import (
     StrategyParams,
 )
 from antigravity_harness.types import Money, Price, Quantity
-
+from antigravity_harness.accelerators.vector_cache import VectorCache
 
 class Trade(BaseModel):
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
@@ -136,3 +136,4 @@ class SimulationContext(BaseModel):
     intelligence: Dict[str, Any] = Field(default_factory=dict)
     debug: bool = False
     out_dir: Optional[Path] = None
+    vector_cache: Optional[VectorCache] = None

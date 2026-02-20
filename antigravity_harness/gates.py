@@ -60,7 +60,12 @@ def _run_sim(ctx: SimulationContext) -> Dict[str, Any]:  # noqa: PLR0915
     periods_year = engine_cfg.periods_per_year
     vol = _calc_annual_vol(df, periods=periods_year)
 
-    prepared = strategy.prepare_data(df, params, intelligence=ctx.intelligence)
+    prepared = strategy.prepare_data(
+        df, 
+        params, 
+        intelligence=ctx.intelligence, 
+        vector_cache=ctx.vector_cache
+    )
     res = run_backtest(df, prepared, params, engine_cfg, debug=ctx.debug, out_dir=ctx.out_dir)
     m = res.metrics.model_dump()
     m["annualized_vol"] = vol

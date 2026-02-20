@@ -191,6 +191,7 @@ def _run_one(  # noqa: PLR0913
     registry: StrategyRegistry = STRATEGY_REGISTRY,
     debug: bool = False,
     out_dir: Optional[Path] = None,
+    vector_cache: Optional[Any] = None,
 ) -> SimulationResult:
     runner = SovereignRunner(registry=registry)
     strat = registry.instantiate(strategy_name)
@@ -209,6 +210,7 @@ def _run_one(  # noqa: PLR0913
         .with_intelligence(EssenceLab(INTEL_DIR).get_consensus_signal(["MARKET_PULSE", "MARKET_ALPHA"]))
         .with_debug(debug)
         .with_out_dir(out_dir)
+        .with_vector_cache(vector_cache)
         .build()
     )
     return runner.run_simulation(ctx)
@@ -332,6 +334,8 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
     use_ray: bool = False,
     registry: StrategyRegistry = STRATEGY_REGISTRY,
 ) -> Dict[str, Any]:
+    from antigravity_harness.accelerators.vector_cache import VectorCache
+    
     if symbols is None:
         symbols = ["SPY"]
     data_cfg = data_cfg or DataConfig(interval=interval)
@@ -399,6 +403,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
             # Phase 9F: Robust Fallback for unsupported platforms (e.g. Python 3.14)
             # Force serial execution to avoid process/semaphore leakage in joblib
             print("Ray: Not installed. Forcing serial execution to prevent resource leakage...")
+            shared_cache = VectorCache()
             raw_results = [
                 _run_one(
                     strategy_name,
@@ -414,6 +419,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                     gate_profile,
                     tf,
                     registry=registry,
+                    vector_cache=shared_cache,
                 )
                 for s, tf, p in total_combinations
             ]
@@ -433,10 +439,12 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                 gate_profile,
                 tf,
                 registry=registry,
+                vector_cache=None, # multiprocessing cannot share memory easily
             )
             for s, tf, p in total_combinations
         )
     else:
+        shared_cache = VectorCache()
         raw_results = [
             _run_one(
                 strategy_name,
@@ -452,6 +460,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                 gate_profile,
                 tf,
                 registry=registry,
+                vector_cache=shared_cache,
             )
             for s, tf, p in total_combinations
         ]

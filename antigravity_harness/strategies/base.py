@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 from antigravity_harness.config import StrategyParams
+from antigravity_harness.accelerators.vector_cache import VectorCache
 
 
 class Strategy(ABC):
@@ -22,7 +23,11 @@ class Strategy(ABC):
 
     @abstractmethod
     def prepare_data(
-        self, df: pd.DataFrame, params: StrategyParams, intelligence: Optional[Dict[str, Any]] = None
+        self, 
+        df: pd.DataFrame, 
+        params: StrategyParams, 
+        intelligence: Optional[Dict[str, Any]] = None,
+        vector_cache: Optional[VectorCache] = None
     ) -> pd.DataFrame:
         raise NotImplementedError
 
