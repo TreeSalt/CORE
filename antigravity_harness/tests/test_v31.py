@@ -117,11 +117,14 @@ class TestV31(unittest.TestCase):
 
             # Run
             # We need to mock os.makedirs and json.dump to avoid real FS writes
+            # Run
+            # We need to mock os.makedirs and json.dump to avoid real FS writes
             with (
                 patch("os.makedirs"),
                 patch("builtins.open", unittest.mock.mock_open()),
                 patch("json.dump"),
                 patch("pandas.DataFrame.to_csv"),
+                patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"),
             ):
                 run_certification(args)
 
@@ -155,17 +158,20 @@ class TestV31(unittest.TestCase):
 
         # Run WF with small windows
         # Train 1 day, Test 1 day
-        walk_forward_validation(
-            "BTC",
-            "4h",
-            "dummy_path",
-            "test_prof",
-            "v032_simple",
-            StrategyParams(),
-            train_days=1,
-            test_days=1,
-            step_days=1,
-        )
+        # Run WF with small windows
+        # Train 1 day, Test 1 day
+        with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
+            walk_forward_validation(
+                "BTC",
+                "4h",
+                "dummy_path",
+                "test_prof",
+                "v032_simple",
+                StrategyParams(),
+                train_days=1,
+                test_days=1,
+                step_days=1,
+            )
 
         # Check assertions
         self.assertTrue(mock_instance.run_simulation.called)

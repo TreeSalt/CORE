@@ -226,6 +226,7 @@ def git_surgeon(fix=False):
         "antigravity_harness/strategies/lab/",
         "antigravity_harness/strategies/certified/",
         "antigravity_harness/cli.py", # CLI Governance Hooks
+        "antigravity_harness/tests/test_v31.py", # Test Updates for Governance
     ]
 
     to_add = []
