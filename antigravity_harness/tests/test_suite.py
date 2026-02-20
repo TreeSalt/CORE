@@ -11,8 +11,6 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 
 from antigravity_harness.autonomy import load_snapshot
-
-# Import SUT
 from antigravity_harness.calibration import _run_one
 from antigravity_harness.cli import cmd_validate
 from antigravity_harness.config import DataConfig, EngineConfig, GateThresholds, StrategyParams
@@ -20,8 +18,7 @@ from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.gates import GateResult, _run_sim, _status_from_gate_results, evaluate_gates
 from antigravity_harness.models import MetricSet, SimulationResult
 from antigravity_harness.registry import load_registry, promote_to_staging
-from antigravity_harness.strategies import REGISTRY
-from antigravity_harness.strategies import V032Simple
+from antigravity_harness.strategies import REGISTRY, V032Simple
 
 
 @dataclass
@@ -272,9 +269,11 @@ class TestSuite(unittest.TestCase):
         REGISTRY["test"] = V032Simple
 
         f = io.StringIO()
-        with contextlib.redirect_stdout(f):
-            with patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"):
-                cmd_validate(args)
+        with (
+            contextlib.redirect_stdout(f),
+            patch("antigravity_harness.strategies.registry.STRATEGY_REGISTRY.verify_strategy_allowed"),
+        ):
+            cmd_validate(args)
 
         out = f.getvalue()
         self.assertIn("[PASS] GATE_TEST: Reason", out)
