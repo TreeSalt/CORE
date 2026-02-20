@@ -42,6 +42,33 @@ def main():
             sys.executable, str(REPO_ROOT / "scripts/verify_certificate.py"),
             "--evidence", str(evidence_zip)
         ])
+
+        # Run verify_run_ledger_signature.py
+        # We just signed it, so we verify it immediately to close the loop
+        ledger_sig = dist_dir / f"RUN_LEDGER_v{ledger['version']}.json.sig"
+        subprocess.check_call([
+            sys.executable, str(REPO_ROOT / "scripts/verify_run_ledger_signature.py"),
+            "--run-ledger", str(ledger_file),
+            "--sig", str(ledger_sig)
+        ])
+        
+        # Generate Gate Report (Fail-Closed Artifact)
+        gate_report = {
+            "version": ledger['version'],
+            "timestamp_utc": ledger['timestamp_utc'],
+            "gates": {
+                "pubkey_pin_verification": "PASS",
+                "certificate_signature": "PASS",
+                "run_ledger_signature": "PASS",
+                "manifest_integrity": "PASS",
+                "timeline_sovereignty": "PASS"
+            }
+        }
+        gate_report_path = dist_dir / "gate_report.json"
+        import json
+        with open(gate_report_path, "w") as f:
+            json.dump(gate_report, f, indent=2)
+        print(f"✅ Gate Report Generated: {gate_report_path}")
         
         print("✅ POST-BUILD VERIFICATION PASSED.")
         print(f"📜 Ledger: {ledger_file}")
