@@ -20,7 +20,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256 # noqa: E402
 
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
@@ -65,7 +65,7 @@ def main():
                  h.update(chunk)
         actual_pub_sha = h.hexdigest()
         if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
-            print(f"❌ FAIL: Trusted public key hash mismatch!")
+            print("❌ FAIL: Trusted public key hash mismatch!")
             print(f"   Expected: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256}")
             print(f"   Actual:   {actual_pub_sha}")
             sys.exit(2)

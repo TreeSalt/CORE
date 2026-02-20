@@ -71,7 +71,7 @@ def main():
                 if len(lines) >= 2:
                     headers = lines[0].strip().split(',')
                     values = lines[1].strip().split(',')
-                    d = dict(zip(headers, values))
+                    d = dict(zip(headers, values, strict=False))
                     perf_line = f"Return: {d.get('total_return_pct')}% | Sharpe: {d.get('sharpe_ratio')} | MaxDD: {d.get('max_dd_pct')}% | PF: {d.get('profit_factor')}"
         except Exception:
             perf_line = "Error parsing results.csv"
@@ -103,7 +103,7 @@ def main():
         f"- **Prompt SHA**: `{prompt.get('prompt_sha256', 'N/A')}`",
         "",
         "## Dataset Information",
-        f"- **DATASET_KIND**: `synthetic_smoke`",
+        "- **DATASET_KIND**: `synthetic_smoke`",
         f"- **Data Merkle Root**: `{data.get('merkle_root_sha256', 'N/A')}`",
         "- **Dataset Files**:",
     ])

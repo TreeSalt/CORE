@@ -8,10 +8,8 @@ Validates the Ed25519 signature of the outer RUN_LEDGER.json.
 
 import argparse
 import hashlib
-import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 # sys.path hacking to allow importing antigravity_harness from repo root
@@ -19,7 +17,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256 # noqa: E402
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
     """Verify Ed25519 signature using OpenSSL."""
@@ -68,7 +66,7 @@ def main():
     # 1. Pubkey Pin Verification
     actual_pub_sha = sha256_file(pub_path)
     if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
-        print(f"❌ FAIL: Trusted public key hash mismatch!")
+        print("❌ FAIL: Trusted public key hash mismatch!")
         print(f"   Expected: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256}")
         print(f"   Actual:   {actual_pub_sha}")
         sys.exit(2)

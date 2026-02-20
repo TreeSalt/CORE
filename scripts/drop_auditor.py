@@ -26,7 +26,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256 # noqa: E402
 
 # ANSI Colors for Institutional Output
 RED = "\033[31m"
@@ -275,7 +275,8 @@ def audit_drop(drop_path: Path, pub_key_path: Path, strict: bool = False) -> boo
         actual_pub_sha = h.hexdigest()
         if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
             fail(f"Sovereign identity hash mismatch! Expected {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]}, got {actual_pub_sha[:8]}", acc, "FID-001", "Sovereign Identity")
-            if strict: return False
+            if strict:
+                return False
         else:
             ok(f"Sovereign identity verified (Pinned: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]})", acc, "FID-001", "Sovereign Identity")
     elif strict:
