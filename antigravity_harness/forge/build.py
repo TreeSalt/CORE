@@ -315,7 +315,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
     
     # 1.6.2 Prompt Fingerprint (Tier 0 Binding)
-    prompt_id = "TRADER_OPS_MASTER_IDE_REQUEST_v4.5.141_AUTOPILOT_SAFETY_SUPERVISOR_V2"
+    prompt_id = "TRADER_OPS_MASTER_IDE_REQUEST_v4.5.142_AUTOPILOT_SAFETY_SUPERVISOR_V2"
     prompt_file = _resolve_prompt_path(repo_root, prompt_id)
     
     if prompt_file and prompt_file.exists():
