@@ -95,11 +95,14 @@ def walk_forward_validation(  # noqa: PLR0913
     test_days: int = 90,
     step_days: int = 30,
     registry: StrategyRegistry = STRATEGY_REGISTRY,
-    engine_cfg: EngineConfig = EngineConfig(),
+    engine_cfg: Optional[EngineConfig] = None,
 ) -> Dict[str, Any]:
 
-    # 1. Load Immutable Data
-    df = load_snapshot(snapshot_path)
+    # 1. Setup Configuration
+    if engine_cfg is None:
+        engine_cfg = EngineConfig()
+
+    # 2. Load Immutable Data
 
     # 2. Check Coverage
     total_days = (df.index[-1] - df.index[0]).days
