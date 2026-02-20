@@ -10,7 +10,6 @@ import json
 import shutil
 import sys
 from pathlib import Path
-from typing import Any
 
 # Paths
 REPO_ROOT = Path(__file__).parent.parent
