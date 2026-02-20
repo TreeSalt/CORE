@@ -12,15 +12,6 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-# Deferred imports for ib_insync to avoid event loop errors in static analysis
-IB = None
-Order = None
-Trade = None
-Contract = None
-MarketOrder = None
-LimitOrder = None
-StopOrder = None
-
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,
     ExecutionAdapter,
@@ -30,6 +21,15 @@ from antigravity_harness.execution.adapter_base import (
     OrderType,
     Position,
 )
+
+# Deferred imports for ib_insync to avoid event loop errors in static analysis
+IB = None
+Order = None
+Trade = None
+Contract = None
+MarketOrder = None
+LimitOrder = None
+StopOrder = None
 
 
 class IBKRAdapter(ExecutionAdapter):
@@ -118,7 +118,7 @@ class IBKRAdapter(ExecutionAdapter):
         trades = self._ib.openTrades()
         res = []
         for t in trades:
-            if symbol and (t.contract.localSymbol != symbol and t.contract.symbol != symbol):
+            if symbol and symbol not in {t.contract.localSymbol, t.contract.symbol}:
                 continue
             res.append(self._map_trade_to_ack(t))
         return res
