@@ -198,12 +198,6 @@ def infer_regimes_from_metrics(
     corr_z = metrics_df["corr_z"].values
     real_vol = metrics_df["realized_vol_annual"].values
     
-    # Thresholds
-    t_entry = cfg.trend_th_entry
-    t_exit = cfg.trend_th_exit
-    v_entry = cfg.vol_th_entry
-    v_exit = cfg.vol_th_exit
-    
     for i in range(n):
         # Warmup Guard
         if i < cfg.window:
