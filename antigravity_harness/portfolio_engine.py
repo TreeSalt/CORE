@@ -182,6 +182,7 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
                     "vol_ratio": regime_state.metrics.get("vol_ratio", 0),
                     "drawdown": regime_state.metrics.get("drawdown", 0),
                     "avg_corr": regime_state.metrics.get("avg_corr", 0),
+                    "corr_dropped_count": regime_state.metrics.get("corr_dropped_count", 0),
                     "dispersion_ratio": regime_state.metrics.get("dispersion_ratio", 0),
                     "flags": ",".join(regime_state.flags),
                     "chosen_policy": regime_state.metrics.get("chosen_policy", ""),

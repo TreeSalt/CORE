@@ -258,6 +258,7 @@ def git_surgeon(fix=False):
         "antigravity_harness/calibration.py", # Item 2 Vectorized Scaling
         "antigravity_harness/gates.py", # Item 2 Vectorized Scaling
         "scripts/verify_signatures.py", # Item 3 Sovereign Auditor V2
+        "antigravity_harness/portfolio_regime_report.py", # Item 4 Multi-Asset Regime Alpha
     ]
 
     to_add = []
