@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Type
-
-from antigravity_harness.strategies.base import Strategy
-
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
+
+from antigravity_harness.strategies.base import Strategy
 
 # Paths
 REGISTRY_FILE = Path(__file__).parent / "STRATEGY_REGISTRY.json"
