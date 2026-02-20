@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from antigravity_harness.strategies.base import Strategy
 from antigravity_harness.strategies.certified.v040_alpha_prime.v040_alpha_prime import V040AlphaPrime
-from antigravity_harness.strategies.certified.v080_volatility_guard_trend.v080_volatility_guard_trend import V080VolatilityGuardTrend
+from antigravity_harness.strategies.certified.v080_volatility_guard_trend.v080_volatility_guard_trend import (
+    V080VolatilityGuardTrend,
+)
 from antigravity_harness.strategies.lab.v060_bit_uni_core.v060_bit_uni_core import V060BitUniCore
 from antigravity_harness.strategies.lab.v070_donchian_breakout.v070_donchian_breakout import V070DonchianBreakout
 from antigravity_harness.strategies.lab.v090_essence_follower.v090_essence_follower import V090EssenceFollower
