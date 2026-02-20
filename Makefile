@@ -191,13 +191,13 @@ STRATEGY ?= v080_volatility_guard_trend
 PROFILE ?= profiles/seed_profile.yaml
 
 autopilot-verify:
-	$(PYTHON) scripts/autopilot_supervisor.py verify --dist $(DIST)
+	$(PYTHON) scripts/autopilot_supervisor.py verify --dist $(DIST) --trusted-pubkey keys/sovereign.pub
 
 autopilot-paper:
-	$(PYTHON) scripts/autopilot_supervisor.py run-paper --strategy $(STRATEGY) --profile $(PROFILE) --dist $(DIST)
+	$(PYTHON) scripts/autopilot_supervisor.py run-paper --strategy $(STRATEGY) --profile $(PROFILE) --dist $(DIST) --trusted-pubkey keys/sovereign.pub
 
 council-brief:
-	$(PYTHON) scripts/council_packet.py
+	$(PYTHON) scripts/council_packet.py emit --dist $(DIST)
 
 verify:
 	@mkdir -p "$(DIST)"

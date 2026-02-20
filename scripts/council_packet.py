@@ -1,128 +1,182 @@
 #!/usr/bin/env python3
 """
-scripts/council_packet.py
-=========================
-v4.5.109 - Council Packet Summary Generator.
-Aggregates metadata into a deterministic COUNCIL_BRIEF.md.
+COUNCIL PACKET GENERATOR
+Deterministic Evidence Brief from Zip
 """
-
+import argparse
 import hashlib
 import json
+import re
+import sys
+import zipfile
 from pathlib import Path
 
-# Paths
-REPO_ROOT = Path(__file__).parent.parent.resolve()
-DIST_DIR = REPO_ROOT / "dist"
-SMOKE_REPORT_DIR = REPO_ROOT / "reports" / "forge" / "synthetic_smoke"
+def fail(msg: str):
+    print(f"❌ COUNCIL PACKET FATAL: {msg}")
+    sys.exit(1)
+
+def find_newest_version(dist_dir: Path):
+    candidates = list(dist_dir.glob("TRADER_OPS_READY_TO_DROP_v*.zip"))
+    if not candidates:
+        fail(f"No drop packets found in {dist_dir}")
+    
+    # Sort by version via regex (vX.Y.Z)
+    pattern = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
+    
+    def parsable_version(p: Path):
+        m = pattern.search(str(p))
+        if m:
+            return tuple(map(int, m.groups()))
+        return (0, 0, 0)
+
+    # Sort descending
+    candidates.sort(key=parsable_version, reverse=True)
+    best = candidates[0]
+    
+    m = pattern.search(str(best))
+    if not m:
+        fail(f"Could not parse version from {best}")
+    
+    version_str = f"{m.group(1)}.{m.group(2)}.{m.group(3)}"
+    return version_str, best
 
 def sha256_file(path: Path) -> str:
-    if not path.exists():
-        return "MISSING"
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
 
-def main():  # noqa: PLR0912
-    print("📋 Generating Council Brief...")
+def emit_brief(dist_dir: Path):
+    version, drop_zip = find_newest_version(dist_dir)
+    print(f"Generating Council Brief for v{version}...")
     
-    # 1. Identify Version
-    # We look at antigravity_harness/__init__.py for source version
-    init_path = REPO_ROOT / "antigravity_harness" / "__init__.py"
-    version = "4.5.82" # Default fallback
-    if init_path.exists():
-        for line in init_path.read_text().splitlines():
-            if "__version__" in line:
-                version = line.split('"')[1]
-                break
+    evidence_zip = dist_dir / f"TRADER_OPS_EVIDENCE_v{version}.zip"
+    code_zip = dist_dir / f"TRADER_OPS_CODE_v{version}.zip"
+    run_ledger = dist_dir / f"RUN_LEDGER_v{version}.json"
+    
+    if not evidence_zip.exists():
+        fail(f"Evidence Zip missing: {evidence_zip}")
 
-    brief_path = DIST_DIR / f"COUNCIL_BRIEF_v{version}.md"
-    
-    # 2. Gather Artifact SHAs
-    zips = {
-        "READY_TO_DROP": DIST_DIR / f"TRADER_OPS_READY_TO_DROP_v{version}.zip",
-        "EVIDENCE": DIST_DIR / f"TRADER_OPS_EVIDENCE_v{version}.zip",
-        "CODE_ONLY": DIST_DIR / f"TRADER_OPS_CODE_v{version}.zip"
+    # Compute artifact SHAs
+    shas = {
+        "drop": sha256_file(drop_zip),
+        "code": sha256_file(code_zip) if code_zip.exists() else "MISSING",
+        "evidence": sha256_file(evidence_zip),
+        "ledger": sha256_file(run_ledger) if run_ledger.exists() else "MISSING",
     }
     
-    # 3. Load Smoke Test Metadata
-    manifest_path = SMOKE_REPORT_DIR / "EVIDENCE_MANIFEST.json"
-    prompt_path = SMOKE_REPORT_DIR / "PROMPT_FINGERPRINT.json"
-    data_path = SMOKE_REPORT_DIR / "DATA_MANIFEST.json"
-    results_path = SMOKE_REPORT_DIR / "results.csv"
+    # Extract Data from Evidence Zip
+    prompt_info = {}
+    data_manifest = {}
+    gate_report = {}
     
-    manifest = {}
-    if manifest_path.exists():
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-
-    prompt = {}
-    if prompt_path.exists():
-        with open(prompt_path) as f:
-            prompt = json.load(f)
-
-    data = {}
-    if data_path.exists():
-        with open(data_path) as f:
-            data = json.load(f)
-
-    perf_line = "N/A"
-    if results_path.exists():
+    with zipfile.ZipFile(evidence_zip, "r") as z:
+        # Prompt Fingerprint
         try:
-            with open(results_path, 'r') as f:
-                lines = f.readlines()
-                if len(lines) >= 2:
-                    headers = lines[0].strip().split(',')
-                    values = lines[1].strip().split(',')
-                    d = dict(zip(headers, values, strict=False))
-                    perf_line = f"Return: {d.get('total_return_pct')}% | Sharpe: {d.get('sharpe_ratio')} | MaxDD: {d.get('max_dd_pct')}% | PF: {d.get('profit_factor')}"
-        except Exception:
-            perf_line = "Error parsing results.csv"
+            # Look for PROMPT_FINGERPRINT.json
+            targets = [f for f in z.namelist() if f.endswith("PROMPT_FINGERPRINT.json")]
+            if targets:
+                with z.open(targets[0]) as f:
+                    prompt_info = json.load(f)
+        except Exception as e:
+            print(f"Warning: Failed to read Prompt Fingerprint: {e}")
 
-    # 4. Compose Markdown
-    lines = [
-        f"# Council Brief - v{version}",
-        f"Generated: {Path('/tmp/now').read_text().strip() if Path('/tmp/now').exists() else '2026-02-19'}",
-        "",
-        "## Artifact Integrity (SHAs)",
-    ]
+        # Data Manifest
+        try:
+            targets = [f for f in z.namelist() if f.endswith("DATA_MANIFEST.json")]
+            if targets:
+                with z.open(targets[0]) as f:
+                    data_manifest = json.load(f)
+        except Exception as e:
+            print(f"Warning: Failed to read Data Manifest: {e}")
+
+    # Gate Report (usually in dist or maybe inside evidence too?)
+    # Supervisors usually write gate_report.json to dist during build.
+    # We'll check dist first.
+    gate_path = dist_dir / "gate_report.json"
+    if gate_path.exists():
+        try:
+            with open(gate_path, "r") as f:
+                gate_report = json.load(f)
+        except:
+            pass
+            
+    # Markdown Content
+    md = []
+    md.append(f"# Council Brief: v{version}")
+    md.append(f"**Drop Packet SHA256**: `{shas['drop']}`")
+    md.append(f"**Code SHA256**: `{shas['code']}`")
+    md.append(f"**Evidence SHA256**: `{shas['evidence']}`")
+    md.append(f"**Ledger SHA256**: `{shas['ledger']}`")
+    md.append("")
     
-    for label, fpath in zips.items():
-        if fpath.exists():
-            sha = sha256_file(fpath)
-            lines.append(f"- **{label}**: `{sha}`")
-        else:
-            lines.append(f"- **{label}**: *Not Found*")
+    md.append("## 🛡️ Gate Report Summary")
+    if gate_report:
+        # Pass/Fail + gates
+        # Assuming simple structure
+        gates = gate_report.get("gates", {})
+        md.append("| Gate | Status |")
+        md.append("|---|---|")
+        for k, v in gates.items():
+            status = "✅ PASS" if v else "❌ FAIL" # Simplification
+            # If v is a dict with 'status' or just boolean
+            if isinstance(v, dict) and "status" in v:
+                status = v["status"]
+            elif v is True: status = "✅ PASS"
+            elif v is False: status = "❌ FAIL"
+            
+            md.append(f"| {k} | {status} |")
+    else:
+        md.append("_Gate Report Not Found_")
+    md.append("")
 
-    lines.extend([
-        "",
-        "## Gate Report Summary",
-        f"- **Env**: {manifest.get('environment', {}).get('platform', 'N/A')}",
-        f"- **Git Commit**: `{manifest.get('environment', {}).get('git_commit', 'N/A')}`",
-        "",
-        "## Prompt Provenance",
-        f"- **Prompt ID**: `{prompt.get('prompt_id', 'N/A')}`",
-        f"- **Charter ID**: `{prompt.get('charter_id', 'N/A')}`",
-        f"- **Prompt SHA**: `{prompt.get('prompt_sha256', 'N/A')}`",
-        "",
-        "## Dataset Information",
-        "- **DATASET_KIND**: `synthetic_smoke`",
-        f"- **Data Merkle Root**: `{data.get('merkle_root_sha256', 'N/A')}`",
-        "- **Dataset Files**:",
-    ])
-    
-    for f in data.get("files", {}):
-        lines.append(f"  - `{f}`")
+    md.append("## 🧠 Prompt Provenance")
+    if prompt_info:
+        md.append(f"- **ID**: `{prompt_info.get('prompt_id', 'N/A')}`")
+        md.append(f"- **SHA256**: `{prompt_info.get('prompt_sha256', 'N/A')}`")
+    else:
+        md.append("_Prompt Info Not Found in Evidence_")
+    md.append("")
 
-    lines.extend([
-        "",
-        "## Fiduciary Disclaimers",
-        "- **Synthetic Data**: This is synthetic / fixture data; dates may extend beyond current time and must not be interpreted as real future market observations.",
-        "- **Performance Summary**: " + perf_line,
-        "- **Smoke Disclaimer**: Smoke/forensics baseline; not an alpha claim."
-    ])
-
-    with open(brief_path, "w") as f:
-        f.write("\n".join(lines) + "\n")
+    md.append("## 💾 Data Manifest")
+    if data_manifest:
+        # data_hash + file list
+        md.append(f"- **Data Hash**: `{data_manifest.get('data_hash', 'N/A')}`")
+        files = data_manifest.get("files", {})
+        if not files and "entries" in data_manifest:
+             files = data_manifest["entries"]
+             
+        md.append("**Files**:")
+        if isinstance(files, dict):
+            for fpath, fhash in files.items():
+                md.append(f"- `{fpath}`: `{fhash}`")
+        elif isinstance(files, list):
+            for f in files:
+                md.append(f"- `{f}`")
+    else:
+        md.append("_Data Manifest Not Found in Evidence_")
         
-    print(f"✅ Council Brief Emitted: {brief_path}")
+    # Write to dist
+    out_path = dist_dir / f"COUNCIL_BRIEF_v{version}.md"
+    with open(out_path, "w") as f:
+        f.write("\n".join(md))
+        
+    print(f"✅ Council Brief Generated: {out_path}")
+    print("\n-- SUMMARY HEAD --")
+    print("\n".join(md[:15])) # Print head for verification
+
+def main():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    
+    p_emit = subparsers.add_parser("emit")
+    p_emit.add_argument("--dist", default="dist")
+    
+    args = parser.parse_args()
+    
+    if args.command == "emit":
+        emit_brief(Path(args.dist))
 
 if __name__ == "__main__":
     main()
