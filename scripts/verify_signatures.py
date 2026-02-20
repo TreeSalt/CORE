@@ -14,6 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def verify_signature(pub_path: Path, msg_path: Path, sig_path: Path) -> bool:
     """Verifies an Ed25519 signature using OpenSSL."""
     if not pub_path.exists():
@@ -27,12 +28,19 @@ def verify_signature(pub_path: Path, msg_path: Path, sig_path: Path) -> bool:
         return False
 
     cmd = [
-        "openssl", "pkeyutl", "-verify", "-rawin",
-        "-pubin", "-inkey", str(pub_path),
-        "-in", str(msg_path),
-        "-sigfile", str(sig_path)
+        "openssl",
+        "pkeyutl",
+        "-verify",
+        "-rawin",
+        "-pubin",
+        "-inkey",
+        str(pub_path),
+        "-in",
+        str(msg_path),
+        "-sigfile",
+        str(sig_path),
     ]
-    
+
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if result.returncode == 0:
@@ -46,18 +54,20 @@ def verify_signature(pub_path: Path, msg_path: Path, sig_path: Path) -> bool:
         print(f"⛔ Error executing openssl: {e}")
         return False
 
+
 def main():
     parser = argparse.ArgumentParser(description="Verify Ed25519 signatures")
     parser.add_argument("--msg", type=Path, required=True, help="Path to the original file")
     parser.add_argument("--sig", type=Path, required=True, help="Path to the .sig file")
     parser.add_argument("--pub", type=Path, required=True, help="Path to the public key (PEM format)")
-    
+
     args = parser.parse_args()
-    
+
     if verify_signature(args.pub, args.msg, args.sig):
         sys.exit(0)
     else:
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
