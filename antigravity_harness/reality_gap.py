@@ -19,7 +19,7 @@ def validate_schema(df: pd.DataFrame, required: List[str], name: str) -> None:
         raise SchemaError(msg)
 
 
-def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # noqa: PLR0915
+def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # noqa: PLR0915, PLR0912
     """
     Compare expected execution (signals) vs real fills.
     """
@@ -77,9 +77,6 @@ def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # 
         # Remove unmatched signals
         merged = merged.dropna(subset=["signal_ts"])
         
-        # Check qty match (approx)
-        # using numpy isclose vectorized
-        qty_match = np.isclose(merged["qty_x"], merged["qty_y"], rtol=0.01)
         
         # Count unmatched
         # Total rows before qty filter minus total rows after
