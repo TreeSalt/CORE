@@ -210,66 +210,61 @@ def infer_regimes_from_metrics(
             states.append(RegimeState(RegimeLabel.UNKNOWN, {"status": "warmup"}))
             continue
             
-        dz = trend_z[i]
-        vr = vol_ratio[i]
-        dd = drawdown[i]
-        disp = disp_ratio[i]
-        td = trend_dir[i]
-        rv = real_vol[i]
-        
-        flags = set()
-        label = RegimeLabel.RANGE_LOW_VOL
-        
-        # Panic Override
-        if (dd < cfg.panic_drawdown and vr > cfg.panic_vol_spike) or (dd < cfg.panic_drawdown_extreme):
-            label = RegimeLabel.PANIC
-            flags.add(RegimeFlag.PANIC)
-            was_trending = False
-            was_high_vol = True 
-        else:
-            # Schmitt Trigger Logic
-            
-            # Trend
-            th_trend = t_exit if was_trending else t_entry
-            is_trending = dz > th_trend
-            was_trending = is_trending
-            
-            # Volatility
-            th_vol = v_exit if was_high_vol else v_entry
-            is_high_vol = vr > th_vol
-            was_high_vol = is_high_vol
-            
-            if is_trending and is_high_vol:
-                label = RegimeLabel.TREND_HIGH_VOL
-            elif is_trending and not is_high_vol:
-                label = RegimeLabel.TREND_LOW_VOL
-            elif not is_trending and is_high_vol:
-                label = RegimeLabel.RANGE_HIGH_VOL
-            else:
-                label = RegimeLabel.RANGE_LOW_VOL
-
-        # Enrich Flags
-        if disp > 1.5: 
-             flags.add(RegimeFlag.DISPERSION_HIGH)
-        
-        if corr_z[i] > cfg.corr_z_threshold:
-             flags.add(RegimeFlag.CORR_SPIKE)
-
-        # Construct State
-        m = {
-            "trend_z": dz,
-            "vol_ratio": vr,
-            "drawdown": dd,
-            "dispersion_ratio": disp,
-            "trend_dir": td,
-            "realized_vol_annual": rv,
-            "avg_corr": avg_corr[i],
-            "corr_z": corr_z[i],
-        }
+        label, flags, m, was_trending, was_high_vol = _infer_single_regime(
+            trend_z[i], vol_ratio[i], drawdown[i], disp_ratio[i], 
+            trend_dir[i], real_vol[i], avg_corr[i], corr_z[i],
+            was_trending, was_high_vol, cfg 
+        )
         
         states.append(RegimeState(label, flags, m))
 
     return states
+
+
+def _infer_single_regime(
+    dz: float, vr: float, dd: float, disp: float, td: float, rv: float, 
+    avg_corr: float, corr_z: float, was_trending: bool, was_high_vol: bool,
+    cfg: RegimeConfig
+) -> tuple:
+    """Helper to infer regime for a single bar (logic extraction for complexity)."""
+    flags = set()
+    label = RegimeLabel.RANGE_LOW_VOL
+    
+    # Panic Override
+    if (dd < cfg.panic_drawdown and vr > cfg.panic_vol_spike) or (dd < cfg.panic_drawdown_extreme):
+        label = RegimeLabel.PANIC
+        flags.add(RegimeFlag.PANIC)
+        is_trending = False
+        is_high_vol = True 
+    else:
+        # Schmitt Trigger Logic
+        th_trend = cfg.trend_th_exit if was_trending else cfg.trend_th_entry
+        is_trending = dz > th_trend
+        
+        th_vol = cfg.vol_th_exit if was_high_vol else cfg.vol_th_entry
+        is_high_vol = vr > th_vol
+        
+        if is_trending and is_high_vol:
+            label = RegimeLabel.TREND_HIGH_VOL
+        elif is_trending and not is_high_vol:
+            label = RegimeLabel.TREND_LOW_VOL
+        elif not is_trending and is_high_vol:
+            label = RegimeLabel.RANGE_HIGH_VOL
+        else:
+            label = RegimeLabel.RANGE_LOW_VOL
+
+    # Enrich Flags
+    if disp > 1.5: 
+         flags.add(RegimeFlag.DISPERSION_HIGH)
+    if corr_z > cfg.corr_z_threshold:
+         flags.add(RegimeFlag.CORR_SPIKE)
+
+    m = {
+        "trend_z": dz, "vol_ratio": vr, "drawdown": dd,
+        "dispersion_ratio": disp, "trend_dir": td, "realized_vol_annual": rv,
+        "avg_corr": avg_corr, "corr_z": corr_z,
+    }
+    return label, flags, m, is_trending, is_high_vol
 
 
 def detect_regime(  # noqa: PLR0912, PLR0915

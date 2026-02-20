@@ -3,6 +3,7 @@ from typing import Dict, Optional
 import numpy as np
 import pandas as pd
 
+from antigravity_harness.correlation import CorrelationGuard
 from antigravity_harness.portfolio_policies import (
     CrossSectionMeanReversionPolicy,
     CrossSectionMomentumPolicy,
@@ -12,7 +13,6 @@ from antigravity_harness.portfolio_policies import (
     PortfolioPolicy,
     apply_concentration_caps,
 )
-from antigravity_harness.correlation import CorrelationGuard
 from antigravity_harness.regimes import (
     RegimeConfig,
     RegimeFlag,
@@ -67,7 +67,7 @@ class PortfolioRouter:
         # Phase 9E: Regime Persistence & Schmitt State
         self.persistence = RegimePersistence(min_bars=3)
         self.last_raw_label: Optional[RegimeLabel] = None
-        
+
         # Optimization: Preloaded Regimes
         self.preloaded_regimes: Dict[pd.Timestamp, RegimeState] = {}
 
@@ -79,12 +79,12 @@ class PortfolioRouter:
         print(f"⚡ PortfolioRouter: Preloading regimes for {len(close_df)} bars...")
         metrics = compute_regime_indicators(close_df, self.regime_cfg)
         states = infer_regimes_from_metrics(metrics, self.regime_cfg)
-        
+
         # Align states with timestamps
         # infer_regimes_from_metrics returns a list of states corresponding to metrics rows
         if len(states) != len(close_df):
-             print(f"⚠️ Preload mismatch: {len(states)} states vs {len(close_df)} bars.")
-             return
+            print(f"⚠️ Preload mismatch: {len(states)} states vs {len(close_df)} bars.")
+            return
 
         self.preloaded_regimes = dict(zip(close_df.index, states, strict=True))
         print("⚡ Preload complete.")
@@ -102,7 +102,7 @@ class PortfolioRouter:
         else:
             # Slow Path: Legacy / Online
             raw_regime = detect_regime(close_df, asof, self.regime_cfg, previous_label=self.last_raw_label)
-        
+
         self.last_raw_label = raw_regime.label
 
         # 1b. Apply Persistence (Time Hysteresis)
@@ -163,15 +163,15 @@ class PortfolioRouter:
             corr_window = self.regime_cfg.corr_lookback
             # Get returns for all assets in the universe
             returns_history = close_df.loc[:asof].pct_change(fill_method=None).iloc[-corr_window:]
-            
+
             # Surgical Filtering: Drop high-volatility assets in correlated pairs
             safe_assets = CorrelationGuard.filter(returns_history, threshold=0.85)
-            
+
             # Trace dropped assets
             dropped_assets = set(close_df.columns) - set(safe_assets)
             regime.metrics["corr_dropped_count"] = len(dropped_assets)
             if dropped_assets:
-                 regime.metrics["corr_dropped_list"] = ",".join(sorted(dropped_assets))
+                regime.metrics["corr_dropped_list"] = ",".join(sorted(dropped_assets))
         else:
             safe_assets = set(close_df.columns)
             regime.metrics["corr_dropped_count"] = 0
@@ -184,9 +184,7 @@ class PortfolioRouter:
         raw_weights = apply_concentration_caps(raw_weights, self.policy_cfg)
 
         # 5. Apply Risk Scaling & Surgical Filter
-        final_weights = {
-            k: v * risk_scale for k, v in raw_weights.items() if k in safe_assets
-        }
+        final_weights = {k: v * risk_scale for k, v in raw_weights.items() if k in safe_assets}
 
         # 6. Vol Targeting (Phase 9F)
         vol_scalar = 1.0
