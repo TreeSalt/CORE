@@ -143,6 +143,17 @@ def get_git_info(repo_root: Path) -> Dict[str, Any]:
         raise RuntimeError("CRITICAL FAILURE: Git metadata unavailable. Must run from a git repo.") from None
 
 
+def _resolve_prompt_path(repo_root: Path, prompt_id: str) -> Path:
+    """Deterministic Resolver for Mission Prompts."""
+    # 1. Environment Override (Highest Priority)
+    env_path = os.environ.get("TRADER_OPS_PROMPT_PATH")
+    if env_path:
+        return Path(env_path)
+    
+    # 2. Institutional Default
+    return repo_root / "prompts/missions" / f"{prompt_id}.txt"
+
+
 def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noqa: PLR0915, PLR0912
     """
     Orchestrate the creation of the TRADER_OPS drop packet.
@@ -255,32 +266,40 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     smoke_dir = repo_root / "reports/forge/synthetic_smoke"
     smoke_dir.mkdir(parents=True, exist_ok=True)
     print("⚓ Casting Data Anchor...")
-    data_hash = "N/A"
     
-    # P1: Support IBKR Data + Synthetic
-    # We want to bind exactly what we ship.
-    # If IBKR data exists, include it.
-    manifest_files = []
+    # [P1-B FIX] Explicit Dataset Selection (Institutional Gold)
+    dataset_mode = os.environ.get("TRADER_OPS_DATASET")
+    if dataset_mode not in ["ibkr", "synthetic"]:
+        print("❌ FAIL-CLOSED: TRADER_OPS_DATASET must be set to 'ibkr' or 'synthetic' in STRICT_MODE.")
+        raise RuntimeError("STRICT POLICY VIOLATION: Undefined dataset mode. Export TRADER_OPS_DATASET=ibkr|synthetic.")
+    
+    print(f"📊 Dataset Mode: {dataset_mode.upper()}")
+    
     data_root = repo_root / "data"
+    manifest_files = []
     
-    # Check for files relative to data root
-    if (data_root / "mes_5m_synthetic.csv").exists():
-        manifest_files.append("mes_5m_synthetic.csv")
-    if (data_root / "ibkr" / "mes_5m_ibkr_rth.csv").exists():
-        manifest_files.append("ibkr/mes_5m_ibkr_rth.csv")
-    if (data_root / "ibkr" / "mes_5m_ibkr_rth.meta.json").exists():
-        manifest_files.append("ibkr/mes_5m_ibkr_rth.meta.json")
+    if dataset_mode == "ibkr":
+        csv_target = "ibkr/mes_5m_ibkr_rth.csv"
+        meta_target = "ibkr/mes_5m_ibkr_rth.meta.json"
+        if not (data_root / csv_target).exists():
+             raise RuntimeError(f"CRITICAL FAILURE: IBKR mode selected but {csv_target} missing.")
+        manifest_files = [csv_target, meta_target]
+    else:
+        # Synthetic mode
+        csv_target = "mes_5m_synthetic.csv"
+        if not (data_root / csv_target).exists():
+             raise RuntimeError(f"CRITICAL FAILURE: Synthetic mode selected but {csv_target} missing.")
+        manifest_files = [csv_target]
 
     data_args = [
         sys.executable, "scripts/generate_data_manifest.py", 
         "--out", str(smoke_dir / "DATA_MANIFEST.json"),
-        "--root", str(data_root)
+        "--root", str(data_root),
+        "--files"
     ]
-    
-    if manifest_files:
-        data_args.append("--files")
-        data_args.extend(manifest_files)
+    data_args.extend(manifest_files)
 
+    data_hash = "N/A"
     try:
         subprocess.check_call(data_args, cwd=repo_root)
         
@@ -290,27 +309,29 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             print(f"   Data Hash: {data_hash[:8]}")
     except Exception as e:
         print(f"⚠️  Data Anchor Failed: {e}")
+        raise RuntimeError(f"DATA ANCHOR FAILURE: {e}") from e
 
     # 1.6.1 FORCED EVIDENCE REGENERATION (Institutional Gold Gate)
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
     
     # 1.6.2 Prompt Fingerprint (Tier 0 Binding)
-    # Define the mission prompt file
-    prompt_file = repo_root / "prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.5.73_IBKR_REALITY_CONTACT.txt"
-    if prompt_file.exists():
-        print("📜 Binding Mission Prompt...")
+    prompt_id = "TRADER_OPS_MASTER_IDE_REQUEST_v4.5.80_IBKR_REALITY_CONTACT"
+    prompt_file = _resolve_prompt_path(repo_root, prompt_id)
+    
+    if prompt_file and prompt_file.exists():
+        print(f"📜 Binding Mission Prompt: {prompt_id}...")
         try:
             subprocess.check_call([
                 sys.executable, "scripts/prompt_fingerprint.py",
                 str(prompt_file),
                 "--out-dir", str(smoke_dir),
-                "--id", "TRADER_OPS_MASTER_IDE_REQUEST_v4.5.73_IBKR_REALITY_CONTACT",
+                "--id", prompt_id,
                 "--charter", "TRADER_OPS_PROMPT_CHARTER_v1.0"
             ], cwd=repo_root)
         except Exception as e:
             raise RuntimeError(f"PROMPT BINDING FAILED: {e}") from e
     else:
-        print(f"⚠️  Mission Prompt Missing at {prompt_file}. Strictly required for v4.5.73+.")
+        print(f"⚠️  Mission Prompt Missing for {prompt_id}. Strictly required for v4.5.73+.")
         if os.environ.get("STRICT_MODE") == "1":
             raise RuntimeError("FAIL-CLOSED: Prompt file missing in STRICT_MODE.")
 
@@ -330,8 +351,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
              
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
-            "--symbols", "MES", "--prices-csv", "data/mes_5m_synthetic.csv", 
-            "--start", "2026-01-01", "--end", "2026-12-31",
+            "--symbols", "MES", "--prices-csv", f"data/{csv_target}", 
+            "--start", "2024-01-01", "--end", "2026-12-31",
             "--rebalance", "15min",
             "--outdir", "reports/forge/synthetic_smoke"
         ], cwd=repo_root, env=env)
@@ -365,6 +386,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "README.md",
         "Makefile",
         "docs",  # Includes all Sovereign Books
+        "prompts", # Mission records
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
     manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
@@ -456,29 +478,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     evidence_includes = ["reports", "logs", "SOVEREIGN_REPORT.md", "FINAL_AUDIT_REPORT.md"]
     
     # P1: Include Data in Evidence (Exact Binding)
-    # We include exactly the files we hashed in the manifest.
-    # Note: validation requires them to be at exact paths relative to root or smoke root?
-    # verify_drop_packet.py checks: 
-    # 1. Root of drop zip (e.g. data/...)
-    # 2. Evidence zip (e.g. reports/forge/smoke_test/...)
-    
-    # We want to ship data in the EVIDENCE zip primarily for self-containment?
-    # Or rely on Repos data/ dir if we were shipping a full repo zip?
-    # The drop packet is: CODE.zip + EVIDENCE.zip.
-    # CODE.zip has code, not data.
-    # So data MUST be in EVIDENCE.zip for the verifier to find it if it's not a full repo drop.
-    # Wait, verify_drop_packet.py checks `drop_zf.namelist()` for "root of drop zip".
-    # But drop zip only contains CODE and EVIDENCE zips (and sidecars).
-    # So data must be INSIDE one of those.
-    # It usually goes into EVIDENCE zip.
-    
-    if (repo_root / "data" / "mes_5m_synthetic.csv").exists():
-        evidence_includes.append("data/mes_5m_synthetic.csv")
-        
-    if (repo_root / "data" / "ibkr" / "mes_5m_ibkr_rth.csv").exists():
-        evidence_includes.append("data/ibkr/mes_5m_ibkr_rth.csv")
-    if (repo_root / "data" / "ibkr" / "mes_5m_ibkr_rth.meta.json").exists():
-        evidence_includes.append("data/ibkr/mes_5m_ibkr_rth.meta.json")
+    for m_file in manifest_files:
+        evidence_includes.append(f"data/{m_file}")
     
     _create_zip(evidence_zip, repo_root, includes=evidence_includes)
 

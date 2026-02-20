@@ -210,13 +210,18 @@ def git_surgeon(fix=False):
         "Makefile",  # Infra
         "setup.py",  # Packaging
         "antigravity_harness/forge/build.py", # Forge logic
+        "scripts/ibkr_ingest_mes_5m.py", # IBKR
+        "scripts/verify_drop_packet.py", # Verification
+        "docs/COMMANDS.md", # Documentation
+        "requirements-ibkr.txt", # Dependencies
+        "prompts/missions/", # Mission Records
     ]
 
     to_add = []
     forbidden = []
     for line in lines:
         path = line[2:].strip().strip('"')
-        if any(path.endswith(a) for a in authorized):
+        if any(path.endswith(a) for a in authorized) or any(path.startswith(a) for a in authorized):
             to_add.append(path)
         else:
             forbidden.append(path)

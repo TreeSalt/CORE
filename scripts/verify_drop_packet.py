@@ -378,6 +378,28 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                     issues.append(Issue(FAIL, "EVIDENCE_INCOMPLETE", f"Strict: {r} missing from EVIDENCE_MANIFEST.json"))
                                 elif f"{smoke_root}/{r}" not in e_names:
                                     issues.append(Issue(FAIL, "EVIDENCE_FILE_MISSING", f"Strict: {r} listed in manifest but missing from zip"))
+                            
+                            # --- NEW: Prompt Content Verification (Institutional Gold) ---
+                            if "PROMPT_FINGERPRINT.json" in required and f"{smoke_root}/PROMPT_FINGERPRINT.json" in e_names:
+                                pf_raw = ez.read(f"{smoke_root}/PROMPT_FINGERPRINT.json").decode("utf-8")
+                                pf = json.loads(pf_raw)
+                                p_id = pf.get("prompt_id")
+                                p_hash = pf.get("prompt_sha256")
+                                
+                                # Find the prompt text in the CODE zip
+                                prompt_path = f"prompts/missions/{p_id}.txt"
+                                if "cz" in locals() and prompt_path in cz.namelist():
+                                    actual_prompt_bytes = cz.read(prompt_path)
+                                    actual_p_hash = hashlib.sha256(actual_prompt_bytes).hexdigest()
+                                    
+                                    if actual_p_hash != p_hash:
+                                        issues.append(Issue(FAIL, "PROMPT_HASH_MISMATCH", 
+                                                           f"Prompt artifact hash mismatch: actual={actual_p_hash[:8]} != fingerprint={p_hash[:8]}"))
+                                    else:
+                                        print(f"✅ Prompt Fingerprint Verified: {p_id}")
+                                else:
+                                    issues.append(Issue(FAIL, "PROMPT_TEXT_MISSING", 
+                                                       f"Mission prompt text '{prompt_path}' missing from CODE zip. Shipped code must contain mission prompt."))
                 
                 # Tier 1: Data Manifest
                 if smoke_root and f"{smoke_root}/DATA_MANIFEST.json" not in e_names:

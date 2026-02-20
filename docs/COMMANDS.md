@@ -6,6 +6,10 @@ This document serves as the single source of truth for all system commands withi
 ## 🚀 Quick Start
 Run `make help` for a dynamic cheat-sheet of available targets.
 
+### Optional: IBKR Connectivity
+If using real-time data ingestion:
+- `pip install -r requirements-ibkr.txt`
+
 ## 🩺 Error Management
 The system uses **The Archivist** to track, classify, and learn from failures.
 
