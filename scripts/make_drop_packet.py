@@ -4,6 +4,7 @@ Sovereign Connector for TRADER_OPS Build System.
 Delegates all logic to antigravity_harness.forge.
 """
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -65,7 +66,6 @@ def main():
             }
         }
         gate_report_path = dist_dir / "gate_report.json"
-        import json
         with open(gate_report_path, "w") as f:
             json.dump(gate_report, f, indent=2)
         print(f"✅ Gate Report Generated: {gate_report_path}")
