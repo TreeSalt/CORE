@@ -12,28 +12,11 @@ from antigravity_harness.config import EngineConfig, StrategyParams
 from antigravity_harness.execution.adapter_base import Fill, OrderSide
 from antigravity_harness.execution.fill_tape import FillTape
 from antigravity_harness.metrics import compute_metrics
+from antigravity_harness.models import BacktestResult, MetricSet, Trade
 from antigravity_harness.phoenix import SovereignAuditor
 
 
-@dataclass
-class Trade:
-    entry_time: pd.Timestamp
-    exit_time: pd.Timestamp
-    entry_price: float
-    exit_price: float
-    qty: float
-    pnl_abs: float
-    pnl_pct: float
-    exit_reason: str
-
-
-@dataclass
-class BacktestResult:
-    equity_curve: pd.Series
-    trades: List[Trade]
-    metrics: Dict[str, Any]
-    config: Dict[str, Any]
-    trace: pd.DataFrame = field(default_factory=pd.DataFrame)
+# Removed local dataclasses in favor of antigravity_harness.models
 
 
 def _apply_slippage(price: float, side: str, slippage: float) -> float:
@@ -237,11 +220,11 @@ class SimulatedAccount:
             Trade(
                 entry_time=cast(pd.Timestamp, self.entry_time),
                 exit_time=timestamp,
-                entry_price=self.entry_price,
-                exit_price=fill_price,
-                qty=qty_to_sell,
-                pnl_abs=pnl_abs,
-                pnl_pct=pnl_pct,
+                entry_price=float(self.entry_price),
+                exit_price=float(fill_price),
+                qty=float(qty_to_sell),
+                pnl_abs=float(pnl_abs),
+                pnl_pct=float(pnl_pct),
                 exit_reason=reason if self.qty <= 0 else f"{reason}_partial",
             )
         )
@@ -286,9 +269,13 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     valid_mask = sig[required].notna().all(axis=1)
     if not valid_mask.any():
         equity = pd.Series(engine_cfg.initial_cash, index=df.index, dtype=float)
-        metrics = compute_metrics(equity, [], periods_per_year=engine_cfg.periods_per_year)
+        m_dict = compute_metrics(equity, [], periods_per_year=engine_cfg.periods_per_year)
+        metrics = MetricSet(**m_dict)
         return BacktestResult(
-            equity, [], metrics, config={"engine": engine_cfg.model_dump(), "params": params.model_dump()}
+            equity_curve=equity,
+            trades=[],
+            metrics=metrics,
+            config={"engine": engine_cfg.model_dump(), "params": params.model_dump()},
         )
 
     first_valid_idx = int(np.argmax(valid_mask.values))
@@ -504,8 +491,8 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     # Cleanup
     # Cleanup - Fix FutureWarning: Explicit cast to avoid downcasting warning
     equity_series = pd.Series(equity_arr, index=timestamps).ffill().fillna(float(engine_cfg.initial_cash)).astype(float)
-    metrics = compute_metrics(equity_series, account.trades, periods_per_year=engine_cfg.periods_per_year)
-
+    m_dict = compute_metrics(equity_series, account.trades, periods_per_year=engine_cfg.periods_per_year)
+    
     # 7. Trace Production
     trace = pd.DataFrame(
         {
@@ -529,9 +516,10 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     if "confirmed_regime" in sig.columns:
         trace["confirmed_regime"] = sig["confirmed_regime"].values
 
-    # Raw Signal Counts (from original arrays)
-    metrics["raw_entry_signals"] = int(np.sum(entry_raw))
-    metrics["raw_exit_signals"] = int(np.sum(exit_raw))
+    # Pass all metrics to constructor
+    m_dict["raw_entry_signals"] = int(np.sum(entry_raw))
+    m_dict["raw_exit_signals"] = int(np.sum(exit_raw))
+    metrics = MetricSet(**m_dict)
 
     # Emit Fiduciary Audit Report (Phoenix Protocol)
     auditor.emit_audit_report(account)

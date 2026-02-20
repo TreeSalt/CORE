@@ -137,6 +137,12 @@ def run_certification(args: argparse.Namespace) -> str:  # noqa: PLR0912, PLR091
             "values": safe_json_value({k: v for k, v in params.__dict__.items() if not k.startswith("_")}),
         }
 
+        # Unified Physics: Engine Config
+        engine_cfg = EngineConfig()
+        forensics_arg = getattr(args, "forensics", None)
+        if forensics_arg:
+            engine_cfg.inject_forensics(forensics_arg)
+
         # 2. Snapshot Step
         print("\n[Phase 1] IMMUTABLE SNAPSHOTS")
         snapshot_map = {}  # (symbol, timeframe) -> path
@@ -211,6 +217,7 @@ def run_certification(args: argparse.Namespace) -> str:  # noqa: PLR0912, PLR091
                         train_days=args.train_days,
                         test_days=args.test_days,
                         step_days=args.step_days,
+                        engine_cfg=engine_cfg,
                     )
 
                     summary = {
@@ -262,7 +269,7 @@ def run_certification(args: argparse.Namespace) -> str:  # noqa: PLR0912, PLR091
                         .with_strategy(strat_arg, strat)
                         .with_params(params)
                         .with_data_cfg(DataConfig(interval=tf))
-                        .with_engine_cfg(EngineConfig())
+                        .with_engine_cfg(engine_cfg)
                         .with_thresholds(GateThresholds())
                         .with_symbol(sym)
                         .with_window(start_str, end_str)

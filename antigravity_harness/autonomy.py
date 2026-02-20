@@ -95,6 +95,7 @@ def walk_forward_validation(  # noqa: PLR0913
     test_days: int = 90,
     step_days: int = 30,
     registry: StrategyRegistry = STRATEGY_REGISTRY,
+    engine_cfg: EngineConfig = EngineConfig(),
 ) -> Dict[str, Any]:
 
     # 1. Load Immutable Data
@@ -137,7 +138,7 @@ def walk_forward_validation(  # noqa: PLR0913
                 .with_strategy(strategy_name, strat)
                 .with_params(params)
                 .with_data_cfg(DataConfig(interval=timeframe))
-                .with_engine_cfg(EngineConfig())
+                .with_engine_cfg(engine_cfg)
                 .with_thresholds(GateThresholds())
                 .with_symbol(symbol)
                 .with_window(ts_str, te_str)

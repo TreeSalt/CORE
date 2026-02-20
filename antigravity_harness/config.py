@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import pathlib
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -24,6 +24,7 @@ class EngineConfig(BaseModel):
     periods_per_year: int = 365  # Phase 10: Dynamic annualization (365=daily crypto, 252=daily equity, 2190=4H crypto)
     is_crypto: bool = True  # Phase 10.3: Asset Class Awareness (True=365, False=252)
     interval: str = "1d"  # Phase 10.4: Time Physics (e.g. "4h", "15m")
+    forensic_backfill: Optional[str] = None  # Phase 11: Real-world latency/slippage ingestion
 
     # Artifact 4: The Unit Correction (The Friction)
     commission_rate_frac: float = Field(
@@ -74,6 +75,35 @@ class EngineConfig(BaseModel):
             raise ValueError("initial_cash must be > 0")
         if self.correlation_threshold < 0 or self.correlation_threshold > 1:
             raise ValueError("correlation_threshold must be between 0 and 1")
+        return self
+
+    def inject_forensics(self, report_path: str) -> EngineConfig:
+        """
+        Phase 11: Ingests real-world metrics from a reality_gap_report.json.
+        Overrides slippage_bps based on median forensic evidence.
+        """
+        import json  # noqa: PLC0415
+        p = pathlib.Path(report_path)
+        if not p.exists():
+            print(f"⚠️ Forensic Warning: {report_path} not found. Skipping backfill.")
+            return self
+
+        try:
+            with open(p, "r") as f:
+                data = json.load(f)
+            
+            stats = data.get("stats", {})
+            median_slippage = stats.get("slippage_bps_median")
+            
+            if median_slippage is not None:
+                print(f"🛡️  Forensic injection: Overriding slippage_bps with {median_slippage:.2f} (Source: {p.name})")
+                # pydantic frozen=True requires object.__setattr__
+                object.__setattr__(self, "slippage_bps", float(median_slippage))
+                # Also set forensic_backfill path for metadata
+                object.__setattr__(self, "forensic_backfill", str(p.resolve()))
+        except Exception as e:
+            print(f"❌ Forensic Error: Could not ingest {report_path}: {e}")
+        
         return self
 
 

@@ -96,6 +96,8 @@ def cmd_calibrate(args: argparse.Namespace) -> None:  # noqa: PLR0915
 
     # Unified Physics
     engine_cfg = EngineConfig(is_crypto=not args.equity)
+    if args.forensics:
+        engine_cfg.inject_forensics(args.forensics)
 
     # GOVERNANCE CHECK
     # Enforce research mode for calibrate/validate.
@@ -160,6 +162,8 @@ def cmd_validate(args: argparse.Namespace) -> None:  # noqa: PLR0915
 
     # Unified Physics: Engine Config with Asset Class
     engine_cfg = EngineConfig(is_crypto=not args.equity)
+    if args.forensics:
+        engine_cfg.inject_forensics(args.forensics)
     
     # GOVERNANCE CHECK
     STRATEGY_REGISTRY.verify_strategy_allowed(args.strategy, mode="research")
@@ -339,13 +343,17 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0912, PLR0915
     dcfg = DataConfig(interval=args.interval)
     load_ohlc(args.symbol, start_date, args.end, dcfg)
 
+    engine_cfg = EngineConfig()
+    if args.forensics:
+        engine_cfg.inject_forensics(args.forensics)
+
     strat = get_strategy(args.strategy)
     ctx = (
         SimulationContextBuilder()
         .with_strategy(args.strategy, strat)
         .with_params(final_params)
         .with_data_cfg(dcfg)
-        .with_engine_cfg(EngineConfig())
+        .with_engine_cfg(engine_cfg)
         .with_thresholds(GateThresholds())
         .with_symbol(args.symbol)
         .with_window(start_date, args.end)
@@ -408,7 +416,7 @@ def cmd_spotcheck(args: argparse.Namespace) -> None:  # noqa: PLR0912, PLR0915
 
     df = load_ohlc(args.symbol, start_date, args.end, dcfg)
     prepared = strat.prepare_data(df, final_params)
-    backtest_res = run_backtest(df, prepared, final_params, EngineConfig(), debug=args.debug)
+    backtest_res = run_backtest(df, prepared, final_params, engine_cfg, debug=args.debug)
     equity = backtest_res.equity_curve
 
     equity.to_csv(f"{out_dir}/equity.csv")
@@ -465,12 +473,15 @@ def cmd_eval_fixed(args: argparse.Namespace) -> None:
             for tf in timeframes:
                 print(f"  Eval: {s} {tf} | {params}")
                 data_cfg = DataConfig(interval=tf)
+                engine_cfg = EngineConfig()
+                if args.forensics:
+                    engine_cfg.inject_forensics(args.forensics)
 
                 r = _run_one(
                     strategy_name=args.strategy,
                     params=params,
                     data_cfg=data_cfg,
-                    engine_cfg=EngineConfig(),
+                    engine_cfg=engine_cfg,
                     thresholds=GateThresholds(),
                     include_ablation=False,
                     include_time_split=False,
@@ -715,6 +726,7 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     )
     c.add_argument("--timeframes", default=None, help="Comma-separated timeframes (overrides grid)")
     c.add_argument("--equity", action="store_true", help="Use Equity (252 days) physics")
+    c.add_argument("--forensics", help="Path to reality_gap_report.json for backfill")
     c.set_defaults(func=cmd_calibrate)
 
     v = sub.add_parser("validate", help="Run full gate validation on one config")
@@ -736,6 +748,7 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     v.add_argument("--end", default="2024-12-31")
     v.add_argument("--interval", default="1d")
     v.add_argument("--equity", action="store_true", help="Use Equity (252 days) physics")
+    v.add_argument("--forensics", help="Path to reality_gap_report.json for backfill")
     v.set_defaults(func=cmd_validate)
 
     ef = sub.add_parser("eval_fixed", help="Run fixed configs on multiple assets")
@@ -747,6 +760,7 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     ef.add_argument("--output", required=True)
     ef.add_argument("--start", default="2020-01-01")
     ef.add_argument("--end", default="2025-01-01")
+    ef.add_argument("--forensics", help="Path to reality_gap_report.json for backfill")
     ef.set_defaults(func=cmd_eval_fixed)
 
     i = sub.add_parser("info", help="Display project health and registry status")
@@ -773,6 +787,7 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     s.add_argument("--end", default="2025-01-01")
     s.add_argument("--output-dir", help="Directory to save tear sheet and csvs")
     s.add_argument("--gate-profile", default="equity_fortress")
+    s.add_argument("--forensics", help="Path to reality_gap_report.json for backfill")
     s.set_defaults(func=cmd_spotcheck)
 
     # Phase 6F Commands
@@ -814,6 +829,7 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     cr.add_argument("--symbols", required=True)
     cr.add_argument("--timeframes", required=True)
     cr.add_argument("--gate-profile", required=True)
+    cr.add_argument("--forensics", help="Path to reality_gap_report.json for backfill")
     cr.set_defaults(func=run_certification)
 
     # IBKR Paper Execution (Phase 10)
