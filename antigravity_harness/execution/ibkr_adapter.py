@@ -23,13 +23,13 @@ from antigravity_harness.execution.adapter_base import (
 )
 
 # Deferred imports for ib_insync to avoid event loop errors in static analysis
-IB = None
-Order = None
-Trade = None
-Contract = None
-MarketOrder = None
-LimitOrder = None
-StopOrder = None
+IB: Any = None
+Order: Any = None
+Trade: Any = None
+Contract: Any = None
+MarketOrder: Any = None
+LimitOrder: Any = None
+StopOrder: Any = None
 
 
 class IBKRAdapter(ExecutionAdapter):
