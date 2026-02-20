@@ -303,10 +303,23 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     try:
         subprocess.check_call(data_args, cwd=repo_root)
         
-        with open(smoke_dir / "DATA_MANIFEST.json") as f:
+        dm_path = smoke_dir / "DATA_MANIFEST.json"
+        with open(dm_path) as f:
             dm = json.load(f)
             data_hash = dm.get("merkle_root_sha256", "N/A")
             print(f"   Data Hash: {data_hash[:8]}")
+        
+        # [ITEM 3] Sign Data Manifest
+        dm_sig_path = smoke_dir / "DATA_MANIFEST.json.sig"
+        key_path = repo_root / "sovereign.key"
+        if key_path.exists():
+            print(f"✍️  Signing Data Manifest: {dm_sig_path.name}")
+            subprocess.run([
+                "openssl", "pkeyutl", "-sign", 
+                "-inkey", str(key_path), 
+                "-rawin", "-in", str(dm_path), 
+                "-out", str(dm_sig_path)
+            ], check=True)
     except Exception as e:
         print(f"⚠️  Data Anchor Failed: {e}")
         raise RuntimeError(f"DATA ANCHOR FAILURE: {e}") from e
@@ -328,6 +341,19 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 "--id", prompt_id,
                 "--charter", "TRADER_OPS_PROMPT_CHARTER_v1.0"
             ], cwd=repo_root)
+
+            # [ITEM 3] Sign Prompt Fingerprint
+            pf_path = smoke_dir / "PROMPT_FINGERPRINT.json"
+            pf_sig_path = smoke_dir / "PROMPT_FINGERPRINT.json.sig"
+            key_path = repo_root / "sovereign.key"
+            if key_path.exists() and pf_path.exists():
+                print(f"✍️  Signing Prompt Fingerprint: {pf_sig_path.name}")
+                subprocess.run([
+                    "openssl", "pkeyutl", "-sign", 
+                    "-inkey", str(key_path), 
+                    "-rawin", "-in", str(pf_path), 
+                    "-out", str(pf_sig_path)
+                ], check=True)
         except Exception as e:
             raise RuntimeError(f"PROMPT BINDING FAILED: {e}") from e
     else:
@@ -482,6 +508,17 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     for m_file in manifest_files:
         evidence_includes.append(f"data/{m_file}")
     
+    # [ITEM 3] Include Signatures in Evidence
+    for sig_file in ["DATA_MANIFEST.json.sig", "PROMPT_FINGERPRINT.json.sig"]:
+        sig_p = smoke_dir / sig_file
+        if sig_p.exists():
+            # We want them to appear in the same directory as the JSONs in the zip
+            # but _create_zip uses relative paths from repo_root if we are not careful.
+            # Actually _create_zip handles paths relative to repo_root.
+            # smoke_dir is usually reports/forge/synthetic_smoke
+            rel_sig = sig_p.relative_to(repo_root).as_posix()
+            evidence_includes.append(rel_sig)
+
     _create_zip(evidence_zip, repo_root, includes=evidence_includes)
 
     # 4. FIDUCIARY SEAL (Certificate Generation)

@@ -429,6 +429,31 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                                            f"Prompt artifact hash mismatch: actual={actual_p_hash[:8]} != fingerprint={p_hash[:8]}"))
                                     else:
                                         print(f"✅ Prompt Fingerprint Verified: {p_id}")
+                                        
+                                        # [ITEM 3] Verify Prompt Fingerprint Signature
+                                        pf_sig_path = f"{smoke_root}/PROMPT_FINGERPRINT.json.sig"
+                                        if pf_sig_path in e_names:
+                                            try:
+                                                with tempfile.TemporaryDirectory() as td_pf:
+                                                    p_tmp = Path(td_pf)
+                                                    p_pub = p_tmp / "sovereign.pub"
+                                                    p_msg = p_tmp / "PROMPT_FINGERPRINT.json"
+                                                    p_sig = p_tmp / "PROMPT_FINGERPRINT.json.sig"
+                                                    
+                                                    if trusted_pub_path.exists():
+                                                        p_pub.write_bytes(trusted_pub_path.read_bytes())
+                                                    elif "reports/certification/sovereign.pub" in e_names:
+                                                        p_pub.write_bytes(ez.read("reports/certification/sovereign.pub"))
+                                                    
+                                                    if p_pub.exists():
+                                                        p_msg.write_bytes(ez.read(f"{smoke_root}/PROMPT_FINGERPRINT.json"))
+                                                        p_sig.write_bytes(ez.read(pf_sig_path))
+                                                        _openssl_verify_ed25519(p_pub, p_msg, p_sig)
+                                                        print(f"✅ Prompt Fingerprint Signature Verified: {pf_sig_path}")
+                                            except Exception as e:
+                                                issues.append(Issue(FAIL, "PROMPT_SIG_INVALID", str(e)))
+                                        elif args.strict:
+                                            issues.append(Issue(FAIL, "PROMPT_SIG_MISSING", "Strict: PROMPT_FINGERPRINT.json.sig missing"))
                                 else:
                                     issues.append(Issue(FAIL, "PROMPT_TEXT_MISSING", 
                                                        f"Mission prompt text '{prompt_path}' missing from CODE zip. Shipped code must contain mission prompt."))
@@ -473,6 +498,31 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                             issues.append(Issue(FAIL, "DATA_MANIFEST_INVALID", "Data Manifest missing merkle root"))
                         else:
                             evidence_data_hash = dm_root
+                            
+                            # [ITEM 3] Verify Data Manifest Signature
+                            dm_sig_path = f"{smoke_root}/DATA_MANIFEST.json.sig"
+                            if dm_sig_path in e_names:
+                                try:
+                                    with tempfile.TemporaryDirectory() as td_dm:
+                                        d_tmp = Path(td_dm)
+                                        p_pub = d_tmp / "sovereign.pub"
+                                        p_msg = d_tmp / "DATA_MANIFEST.json"
+                                        p_sig = d_tmp / "DATA_MANIFEST.json.sig"
+                                        
+                                        if trusted_pub_path.exists():
+                                            p_pub.write_bytes(trusted_pub_path.read_bytes())
+                                        elif "reports/certification/sovereign.pub" in e_names:
+                                            p_pub.write_bytes(ez.read("reports/certification/sovereign.pub"))
+                                        
+                                        if p_pub.exists():
+                                            p_msg.write_bytes(ez.read(f"{smoke_root}/DATA_MANIFEST.json"))
+                                            p_sig.write_bytes(ez.read(dm_sig_path))
+                                            _openssl_verify_ed25519(p_pub, p_msg, p_sig)
+                                            print(f"✅ Data Manifest Signature Verified: {dm_sig_path}")
+                                except Exception as e:
+                                    issues.append(Issue(FAIL, "DATA_MANIFEST_SIG_INVALID", str(e)))
+                            elif args.strict:
+                                issues.append(Issue(FAIL, "DATA_MANIFEST_SIG_MISSING", "Strict: DATA_MANIFEST.json.sig missing"))
 
                 # Tier 2: Fiduciary Seal (Certificate)
                 cert_path = "reports/certification/CERTIFICATE.json"
