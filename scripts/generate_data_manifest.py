@@ -21,13 +21,9 @@ except ImportError:
     MarketTape = None
 
 def hash_file_or_tape(path: Path) -> str:
-    """Compute hash of file, using MarketTape logic for CSVs if possible."""
-    if path.suffix.lower() == ".csv" and MarketTape:
-        try:
-            return MarketTape.from_csv(path).data_hash
-        except Exception as e:
-            print(f"⚠️  MarketTape failed for {path.name} (falling back to raw hash): {e}")
-    
+    """Compute raw SHA256 hash of file (Strict Manifest Binding)."""
+    # Previously used MarketTape semantic hash, but that breaks verify_drop_packet.py
+    # which assumes raw file hash. For drop verification, bit-perfect file match is required.
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
