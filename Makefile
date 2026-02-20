@@ -36,7 +36,10 @@ help:
 	@echo ""
 	@echo "  🛡️  VERIFICATION"
 	@echo "    make verify           Full Sovereign Audit (fail-closed)"
+	@echo "    make autopilot-verify Audit latest build artifacts (unified)"
+	@echo "    make autopilot-paper  Run strategy in paper mode (guarded)"
 	@echo "    make audit            One True Command (Council audit)"
+	@echo "    make council-brief    Generate council packet summary"
 	@echo "    make audit-fast       Quick hash + verify"
 	@echo "    make hashes           Show SHA-256 hashes of dist artifacts"
 	@echo "    make zip-verify       Run zip integrity verifier"
@@ -82,11 +85,12 @@ commands:
 	@echo "│  🔍 QUALITY                 📦 BUILD                                │"
 	@echo "│    make lint              make build  (→ dist/)                      │"
 	@echo "│    make format            make forge  (evidence)                     │"
-	@echo "│    make type-check                                                  │"
-	@echo "│    make test              🛡️  VERIFY                                │"
-	@echo "│    make test-hardening    make verify (Sovereign Audit)              │"
-	@echo "│    make preflight         make audit  (Council audit)               │"
-	@echo "│                           make hashes (SHA-256 check)               │"
+	@echo "│    make type-check        make council-brief                         │"
+	@echo "│    make test                                                         │"
+	@echo "│    make test-hardening    🛡️  VERIFY                                │"
+	@echo "│    make preflight         make autopilot-verify (Unified)            │"
+	@echo "│                           make autopilot-paper (Guarded)             │"
+	@echo "│                           make verify (Sovereign Audit)              │"
 	@echo "│                                                                     │"
 	@echo "│  🐒 CHAOS                  🧹 MAINTENANCE                           │"
 	@echo "│    make chaos (all)       make clean                                │"
@@ -176,6 +180,19 @@ audit-fast: hashes verify
 show-dist:
 	@echo "DIST=$(DIST)"
 	@ls -lah "$(DIST)" || true
+
+# Autopilot & Safety Targets
+STRATEGY ?= v080_volatility_guard_trend
+PROFILE ?= profiles/seed_profile.yaml
+
+autopilot-verify:
+	$(PYTHON) scripts/autopilot_supervisor.py verify --dist $(DIST)
+
+autopilot-paper:
+	$(PYTHON) scripts/autopilot_supervisor.py run-paper --strategy $(STRATEGY) --profile $(PROFILE) --dist $(DIST)
+
+council-brief:
+	$(PYTHON) scripts/council_packet.py
 
 verify:
 	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)

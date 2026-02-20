@@ -235,6 +235,8 @@ def git_surgeon(fix=False):
         "antigravity_harness/tests/test_cli_alias.py", # Test Updates for Governance
         "tests/test_portfolio_router.py", # Test Updates for Governance
         "tests/test_portfolio_safety.py", # Test Updates for Governance
+        "scripts/autopilot_supervisor.py", # Autopilot Supervisor (v4.5.82)
+        "scripts/council_packet.py",       # Council Packet Generator (v4.5.82)
     ]
 
     to_add = []
