@@ -5,13 +5,12 @@ Sovereign Execution Adapter for Interactive Brokers (Paper Only).
 Implements strict ORDER_INTENT binding and deterministic forensics.
 """
 
+import hashlib
 import json
 import os
-import hashlib
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
-import asyncio
 
 # Deferred imports for ib_insync to avoid event loop errors in static analysis
 IB = None
@@ -23,16 +22,15 @@ LimitOrder = None
 StopOrder = None
 
 from antigravity_harness.execution.adapter_base import (
-    ExecutionAdapter,
     AdapterCapabilities,
-    OrderIntent,
+    ExecutionAdapter,
     OrderAck,
-    Fill,
-    Position,
+    OrderIntent,
     OrderStatus,
-    OrderSide,
     OrderType,
+    Position,
 )
+
 
 class IBKRAdapter(ExecutionAdapter):
     """
@@ -67,10 +65,16 @@ class IBKRAdapter(ExecutionAdapter):
         """Connect to IB. Fail closed if IBKR library missing or live mode attempted incorrectly."""
         global IB, Order, Trade, Contract, MarketOrder, LimitOrder, StopOrder
         try:
-            from ib_insync import IB as _IB, Order as _Order, Trade as _Trade, Contract as _Contract, MarketOrder as _MarketOrder, LimitOrder as _LimitOrder, StopOrder as _StopOrder
+            from ib_insync import IB as _IB  # noqa: PLC0415
+            from ib_insync import Contract as _Contract  # noqa: PLC0415
+            from ib_insync import LimitOrder as _LimitOrder  # noqa: PLC0415
+            from ib_insync import MarketOrder as _MarketOrder  # noqa: PLC0415
+            from ib_insync import Order as _Order  # noqa: PLC0415
+            from ib_insync import StopOrder as _StopOrder  # noqa: PLC0415
+            from ib_insync import Trade as _Trade  # noqa: PLC0415
             IB, Order, Trade, Contract, MarketOrder, LimitOrder, StopOrder = _IB, _Order, _Trade, _Contract, _MarketOrder, _LimitOrder, _StopOrder
-        except ImportError:
-            raise RuntimeError("IBKR FATAL: ib_insync library not installed or failed to import.")
+        except ImportError as e:
+            raise RuntimeError("IBKR FATAL: ib_insync library not installed or failed to import.") from e
             
         if not self._is_paper:
             # UNCONDITIONAL REFUSAL OF LIVE TRADING IN THIS ADAPTER VERSION
@@ -80,7 +84,7 @@ class IBKRAdapter(ExecutionAdapter):
             self._ib = IB()
             await self._ib.connectAsync(self._host, self._port, clientId=self._client_id)
         except Exception as e:
-            raise RuntimeError(f"IBKR CONNECTION FAILED: {e}")
+            raise RuntimeError(f"IBKR CONNECTION FAILED: {e}") from e
 
     async def disconnect(self) -> None:
         if self._ib and self._ib.isConnected():
@@ -94,7 +98,8 @@ class IBKRAdapter(ExecutionAdapter):
         return Position(symbol, 0, Decimal("0"), 0.0, 0.0)
 
     async def get_all_positions(self) -> List[Position]:
-        if not self._ib: return []
+        if not self._ib:
+            return []
         ib_pos = self._ib.positions()
         res = []
         for p in ib_pos:
@@ -108,7 +113,8 @@ class IBKRAdapter(ExecutionAdapter):
         return res
 
     async def get_open_orders(self, symbol: Optional[str] = None) -> List[OrderAck]:
-        if not self._ib: return []
+        if not self._ib:
+            return []
         trades = self._ib.openTrades()
         res = []
         for t in trades:
@@ -120,10 +126,14 @@ class IBKRAdapter(ExecutionAdapter):
     def _map_trade_to_ack(self, trade: Any) -> OrderAck:
         ib_status = trade.orderStatus.status
         status = OrderStatus.PENDING
-        if ib_status == "Submitted": status = OrderStatus.SUBMITTED
-        elif ib_status == "Filled": status = OrderStatus.FILLED
-        elif ib_status == "Cancelled": status = OrderStatus.CANCELLED
-        elif ib_status == "Inactive": status = OrderStatus.REJECTED
+        if ib_status == "Submitted":
+            status = OrderStatus.SUBMITTED
+        elif ib_status == "Filled":
+            status = OrderStatus.FILLED
+        elif ib_status == "Cancelled":
+            status = OrderStatus.CANCELLED
+        elif ib_status == "Inactive":
+            status = OrderStatus.REJECTED
         
         return OrderAck(
             broker_order_id=str(trade.order.orderId),
@@ -134,7 +144,8 @@ class IBKRAdapter(ExecutionAdapter):
         )
 
     async def submit_order(self, intent: OrderIntent) -> OrderAck:
-        if not self._ib: raise RuntimeError("Broker not connected.")
+        if not self._ib:
+            raise RuntimeError("Broker not connected.")
         
         # 1. Cryptographic Binding
         intent_envelope = {
@@ -189,7 +200,8 @@ class IBKRAdapter(ExecutionAdapter):
         return Contract(symbol=symbol, secType="STK", exchange="SMART", currency="USD")
 
     async def cancel_order(self, broker_order_id: str) -> bool:
-        if not self._ib: return False
+        if not self._ib:
+            return False
         for trade in self._ib.openTrades():
             if str(trade.order.orderId) == broker_order_id:
                 self._ib.cancelOrder(trade.order)
@@ -197,7 +209,8 @@ class IBKRAdapter(ExecutionAdapter):
         return False
 
     async def get_account_cash(self) -> float:
-        if not self._ib: return 0.0
+        if not self._ib:
+            return 0.0
         tags = [t for t in self._ib.accountSummary() if t.tag == "AvailableFunds"]
         if tags:
             return float(tags[0].value)
@@ -210,7 +223,8 @@ class IBKRAdapter(ExecutionAdapter):
         self._audit_file = path
 
     def _log_audit_event(self, event: Dict[str, Any]):
-        if not self._audit_file: return
+        if not self._audit_file:
+            return
         os.makedirs(os.path.dirname(self._audit_file), exist_ok=True)
         with open(self._audit_file, "a") as f:
             f.write(json.dumps(event) + "\n")

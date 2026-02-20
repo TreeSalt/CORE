@@ -13,15 +13,17 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+
 import yaml
 
 # Ensure repo root is in path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from antigravity_harness.execution.ibkr_adapter import IBKRAdapter
-from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
-from scripts.autopilot_supervisor import do_verify
+from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType  # noqa: E402
+from antigravity_harness.execution.ibkr_adapter import IBKRAdapter  # noqa: E402
+from scripts.autopilot_supervisor import do_verify  # noqa: E402
+
 
 def fail(msg: str):
     print(f"❌ EXECUTION FATAL: {msg}")
@@ -39,8 +41,8 @@ async def run_paper_execution(args):
     info("Starting Autopilot Verification Gate...")
     try:
         do_verify(dist_dir, pubkey)
-    except SystemExit:
-        fail("Autopilot Verification FAIL. Execution aborted.")
+    except SystemExit as e:
+        fail(f"Autopilot Verification FAIL. Execution aborted. {e}")
     except Exception as e:
         fail(f"Verification Error: {e}")
         
@@ -68,7 +70,7 @@ async def run_paper_execution(args):
 
     # 4. Initialize Adapter
     adapter = IBKRAdapter(is_paper=True)
-    adapter.set_audit_path(dist_dir / "audit" / f"execution_events_v4.5.148.jsonl")
+    adapter.set_audit_path(dist_dir / "audit" / "execution_events_v4.5.148.jsonl")
     
     info(f"Connecting to IBKR Paper (Strategy: {args.strategy})...")
     try:
@@ -85,7 +87,7 @@ async def run_paper_execution(args):
         info(f"Generated OrderIntent: {intent.symbol} {intent.side.value} {intent.quantity}")
         
         # Create deterministic audit artifacts
-        audit_file = dist_dir / "audit" / f"execution_events_v4.5.148.jsonl"
+        audit_file = dist_dir / "audit" / "execution_events_v4.5.148.jsonl"
         os.makedirs(audit_file.parent, exist_ok=True)
         
         event = {
@@ -98,7 +100,7 @@ async def run_paper_execution(args):
             f.write(json.dumps(event) + "\n")
             
         # Reality Gap Summary
-        gap_file = dist_dir / "audit" / f"reality_gap_v4.5.148.json"
+        gap_file = dist_dir / "audit" / "reality_gap_v4.5.148.json"
         with open(gap_file, "w") as f:
             json.dump({
                 "median_slippage_bps": 0.0,
