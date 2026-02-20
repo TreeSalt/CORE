@@ -67,7 +67,7 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     # 0. Self-Healing (Proactive Restoration)
     if args.heal:
         print(f"{BOLD}🩹 INITIATING SELF-HEALING...{RESET}")
-        if not run_cmd("python3 -B scripts/self_heal.py --fix", root):
+        if not run_cmd("python3 -B scripts/self_heal.py --fix --bump", root):
             print("   ❌ FAIL: Self-healing could not resolve all issues.")
             sys.exit(1)
 

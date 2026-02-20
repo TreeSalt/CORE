@@ -191,7 +191,8 @@ clean-zombies:
 release: clean build verify
 	@echo "🔥 Institutional Gold Certification Secured: v$$(ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip | head -n 1 | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/')"
 
-all: preflight release
+all: preflight
+	$(MAKE) release SKIP_VERSION_BUMP=1
 
 chaos:
 	@echo "🐒 Chaos Monkey vs The Dragon..."

@@ -23,7 +23,7 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 sys.path.append(str(REPO_ROOT))
 
 # ANTIGRAVITY HARNESS: Fortress Protocol
-from antigravity_harness.forge.build import _sync_project_metadata, read_version  # noqa: E402
+from antigravity_harness.forge.build import _sync_project_metadata, bump_version, read_version  # noqa: E402
 from antigravity_harness.paths import (  # noqa: E402
     CERT_DIR,
     DATA_DIR,
@@ -209,6 +209,7 @@ def git_surgeon(fix=False):
         "05_DATA_CACHE/ERROR_LEDGER.json", # Memory
         "Makefile",  # Infra
         "setup.py",  # Packaging
+        "antigravity_harness/forge/build.py", # Forge logic
     ]
 
     to_add = []
@@ -243,12 +244,18 @@ def git_surgeon(fix=False):
 def main():
     parser = argparse.ArgumentParser(description="TRADER_OPS Repo Doctor")
     parser.add_argument("--fix", action="store_true", help="Apply repairs automatically")
+    parser.add_argument("--bump", action="store_true", help="Increment version number (Patch bump)")
     args = parser.parse_args()
 
     print(f"\n{BOLD}🛡️  REPO DOCTOR: TRADER_OPS Self-Healing Protocol{RESET}")
     print("=" * 60)
 
     success = True
+
+    # 0. Version Bump (Optional, controlled by preflight)
+    if args.bump and args.fix:
+        print_status("Initiating Institutional Version Bump...")
+        bump_version(REPO_ROOT / "antigravity_harness/__init__.py")
 
     # 1. Environment
     if not check_environment(args.fix):

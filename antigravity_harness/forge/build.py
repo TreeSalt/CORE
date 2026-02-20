@@ -175,7 +175,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         print("🛡️  STRICT_MODE auto-enabled for Release.")
 
     # 0.1 Dynamic Version (Automated Bump & Sync)
-    version = bump_version(repo_root / "antigravity_harness/__init__.py")
+    if os.environ.get("SKIP_VERSION_BUMP") == "1":
+        version = read_version(repo_root / "antigravity_harness/__init__.py")
+        print(f"⏩ Skipping Version Bump (Pre-bumped: v{version})")
+    else:
+        version = bump_version(repo_root / "antigravity_harness/__init__.py")
     
     # [COGNITIVE BRIDGE] Natural metadata & documentation sync
     _sync_project_metadata(repo_root, version)
