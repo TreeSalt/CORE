@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -367,7 +368,6 @@ def do_run_paper(args: argparse.Namespace) -> None:
     if not profile_path.exists():
         fail(f"Profile missing: {profile_path}")
         
-    import yaml
     with open(profile_path, "r") as f:
         prof = yaml.safe_load(f)
         
@@ -394,7 +394,7 @@ def do_run_paper(args: argparse.Namespace) -> None:
         # Assuming CLI supports these or profile handles it
     ]
     info(f"Handing off to Engine: {' '.join(cmd)}")
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, check=False)
     
     if result.returncode != 0:
         fail("Paper Run Process Failed.")
