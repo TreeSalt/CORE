@@ -233,6 +233,8 @@ def git_surgeon(fix=False):
         "antigravity_harness/tests/test_suite.py", # Test Updates for Governance
         "antigravity_harness/tests/test_portfolio_engine.py", # Test Updates for Governance
         "antigravity_harness/tests/test_cli_alias.py", # Test Updates for Governance
+        "tests/test_portfolio_router.py", # Test Updates for Governance
+        "tests/test_portfolio_safety.py", # Test Updates for Governance
     ]
 
     to_add = []

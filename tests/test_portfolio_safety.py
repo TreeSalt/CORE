@@ -223,7 +223,7 @@ class TestDeterministicWithOverlay(unittest.TestCase):
         from antigravity_harness.config import EngineConfig, StrategyParams
         from antigravity_harness.portfolio_engine import run_portfolio_backtest_verbose
         from antigravity_harness.portfolio_router import PortfolioRouter
-        from antigravity_harness.strategies.v032_simple import V032Simple
+        from antigravity_harness.strategies import V032Simple
 
         data_map = self._build_synthetic_ohlc(seed)
         router = PortfolioRouter()
