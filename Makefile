@@ -167,9 +167,9 @@ zip-verify:
 	@test -f scripts/zip_verifier.py || (echo "Missing scripts/zip_verifier.py" && exit 1)
 	@$(PYTHON) scripts/zip_verifier.py
 
-cert-verify:
+cert_verify:
 	@if [ -f scripts/verify_certificate.py ]; then \
-		$(PYTHON) scripts/verify_certificate.py; \
+		$(PYTHON) scripts/verify_certificate.py --strict --evidence "$(DIST)"/TRADER_OPS_EVIDENCE_v$(VERSION).zip --trusted-pubkey keys/sovereign.pub; \
 	else \
 		echo "No scripts/verify_certificate.py present — skipping."; \
 	fi
@@ -197,8 +197,9 @@ council-brief:
 verify:
 	@test -f "$(ONE_TRUE)" || (echo "Missing $(ONE_TRUE). Create it first." && exit 1)
 	@bash "$(ONE_TRUE)" "$(DIST)"
+	$(PYTHON) scripts/verify_run_ledger_signature.py --strict --trusted-pubkey keys/sovereign.pub --run-ledger "$(DIST)"/RUN_LEDGER_v$(VERSION).json
 	$(PYTHON) scripts/check_dependency_cycles.py
-	@echo "🛡️  Fiduciary Verified: $(shell date)"
+	@echo "🛡️  Fiduciary Verified (Strict): $(shell date)"
 
 clean-zombies:
 	@echo "🧹 Cleaning Orphaned Simulations..."

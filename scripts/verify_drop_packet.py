@@ -19,6 +19,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# sys.path hacking to allow importing antigravity_harness from repo root
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+if str(REPO_ROOT) not in sys.path:
+    sys.path.append(str(REPO_ROOT))
+
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256
+
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
     """Verify Ed25519 signature using OpenSSL (no extra Python deps)."""
@@ -108,10 +115,29 @@ def main() -> int:  # noqa: PLR0915, PLR0912
     ap.add_argument("--run-ledger", default=None, help="Path to outer RUN_LEDGER_vX.Y.Z.json")
     ap.add_argument("--drop-packet-sha", default=None, help="Path to legacy DROP_PACKET_SHA256.txt")
     ap.add_argument("--strict", action="store_true", help="Enable strict semantic gates")
+    ap.add_argument("--trusted-pubkey", default="keys/sovereign.pub", help="Path to out-of-band trusted Sovereign public key")
     args = ap.parse_args()
 
     issues: List[Issue] = []
     print(f"🛡️  Verifying Drop: {args.drop}")
+
+    # --- 0. Trust Root Verification (P0-C)
+    trusted_pub_path = Path(args.trusted_pubkey)
+    if not trusted_pub_path.exists():
+        if args.strict:
+            print(f"❌ FAIL: Trusted public key missing at {args.trusted_pubkey}")
+            return 2
+        else:
+            print(f"⚠️  WARN: Trusted public key missing at {args.trusted_pubkey}. Falling back to artifact-provided key.")
+    else:
+        # Verify hash pinning
+        actual_pub_sha = sha256_file(str(trusted_pub_path))
+        if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
+            print(f"❌ FAIL: Trusted public key hash mismatch!")
+            print(f"   Expected: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256}")
+            print(f"   Actual:   {actual_pub_sha}")
+            return 2
+        print(f"✅ Trusted Public Key Verified (Pinned: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]})")
 
     # --- Load drop zip
     drop_sha = sha256_file(args.drop)
@@ -501,7 +527,12 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                             p_pub = temp_dir / "sovereign.pub"
                             p_msg = temp_dir / "CERTIFICATE.json"
                             p_sig = temp_dir / "CERTIFICATE.json.sig"
-                            p_pub.write_bytes(ez.read(pub_path))
+                            
+                            if trusted_pub_path.exists():
+                                p_pub.write_bytes(trusted_pub_path.read_bytes())
+                            else:
+                                p_pub.write_bytes(zf.read(pub_path))
+                                
                             p_msg.write_bytes(ez.read(cert_path))
                             p_sig.write_bytes(ez.read(sig_path))
                             _openssl_verify_ed25519(p_pub, p_msg, p_sig)

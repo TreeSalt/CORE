@@ -2,7 +2,7 @@
 """
 scripts/council_packet.py
 =========================
-v4.5.82 - Council Packet Summary Generator.
+v4.5.109 - Council Packet Summary Generator.
 Aggregates metadata into a deterministic COUNCIL_BRIEF.md.
 """
 
@@ -46,6 +46,7 @@ def main():
     manifest_path = SMOKE_REPORT_DIR / "EVIDENCE_MANIFEST.json"
     prompt_path = SMOKE_REPORT_DIR / "PROMPT_FINGERPRINT.json"
     data_path = SMOKE_REPORT_DIR / "DATA_MANIFEST.json"
+    results_path = SMOKE_REPORT_DIR / "results.csv"
     
     manifest = {}
     if manifest_path.exists():
@@ -61,6 +62,19 @@ def main():
     if data_path.exists():
         with open(data_path) as f:
             data = json.load(f)
+
+    perf_line = "N/A"
+    if results_path.exists():
+        try:
+            with open(results_path, 'r') as f:
+                lines = f.readlines()
+                if len(lines) >= 2:
+                    headers = lines[0].strip().split(',')
+                    values = lines[1].strip().split(',')
+                    d = dict(zip(headers, values))
+                    perf_line = f"Return: {d.get('total_return_pct')}% | Sharpe: {d.get('sharpe_ratio')} | MaxDD: {d.get('max_dd_pct')}% | PF: {d.get('profit_factor')}"
+        except Exception:
+            perf_line = "Error parsing results.csv"
 
     # 4. Compose Markdown
     lines = [
@@ -89,12 +103,21 @@ def main():
         f"- **Prompt SHA**: `{prompt.get('prompt_sha256', 'N/A')}`",
         "",
         "## Dataset Information",
+        f"- **DATASET_KIND**: `synthetic_smoke`",
         f"- **Data Merkle Root**: `{data.get('merkle_root_sha256', 'N/A')}`",
         "- **Dataset Files**:",
     ])
     
     for f in data.get("files", {}):
         lines.append(f"  - `{f}`")
+
+    lines.extend([
+        "",
+        "## Fiduciary Disclaimers",
+        "- **Synthetic Data**: This is synthetic / fixture data; dates may extend beyond current time and must not be interpreted as real future market observations.",
+        "- **Performance Summary**: " + perf_line,
+        "- **Smoke Disclaimer**: Smoke/forensics baseline; not an alpha claim."
+    ])
 
     with open(brief_path, "w") as f:
         f.write("\n".join(lines) + "\n")

@@ -237,6 +237,12 @@ def git_surgeon(fix=False):
         "tests/test_portfolio_safety.py", # Test Updates for Governance
         "scripts/autopilot_supervisor.py", # Autopilot Supervisor (v4.5.82)
         "scripts/council_packet.py",       # Council Packet Generator (v4.5.82)
+        "antigravity_harness/trust_root.py", # Trust Root (v4.5.109)
+        "scripts/verify_run_ledger_signature.py", # Ledger Verify (v4.5.109)
+        "keys/", # Sovereign Pubkey Dir (v4.5.109)
+        "scripts/drop_auditor.py", # Fiduciary Update (v4.5.109)
+        "scripts/one_true_command.sh", # Fiduciary Update (v4.5.109)
+        "scripts/verify_certificate.py", # Fiduciary Update (v4.5.109)
     ]
 
     to_add = []

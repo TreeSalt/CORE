@@ -21,6 +21,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
+# sys.path hacking to allow importing antigravity_harness from repo root
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+if str(REPO_ROOT) not in sys.path:
+    sys.path.append(str(REPO_ROOT))
+
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256
+
 # ANSI Colors for Institutional Output
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -201,7 +208,55 @@ def _verify_bindings(cert: dict, zf: zipfile.ZipFile, acc: GateAccumulator):
         fail(f"Data hash invalid or empty: {d_hash}", acc, "INT-005", "Data Hash Non-Empty")
 
 
-def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, PLR0912
+def _check_timeline_sovereignty(drop_path: Path, acc: GateAccumulator):
+    """Verify sidecar filename binding to prevent timeline bait-and-switch."""
+    drop_dir = drop_path.parent
+    m = re.search(r"v(\d+\.\d+\.\d+)", drop_path.name)
+    ver = m.group(1) if m else None
+    
+    sidecar = None
+    if ver:
+        c1 = drop_dir / f"DROP_PACKET_SHA256_v{ver}.txt"
+        if c1.exists():
+            sidecar = c1
+            
+    if not sidecar:
+        sidecar = drop_dir / (drop_path.name + ".sha256")
+        if not sidecar.exists():
+             sidecar = drop_dir / "DROP_PACKET_SHA256.txt"
+             if not sidecar.exists():
+                 sidecar = None
+
+    if not sidecar:
+        fail("No timeline sidecar found (DROP_PACKET_SHA256_v*.txt).", acc, "TIM-001", "Timeline Sovereignty")
+        return
+
+    try:
+        raw = sidecar.read_text().strip().split()
+        if not raw:
+             fail("Sidecar is empty", acc, "TIM-001", "Timeline Sovereignty")
+             return
+             
+        sidecar_sha = raw[0].lower()
+        sidecar_name = raw[1] if len(raw) >= 2 else None
+        
+        # Hash match
+        actual_sha = hashlib.sha256(drop_path.read_bytes()).hexdigest()
+        if sidecar_sha != actual_sha:
+            fail(f"Sidecar hash mismatch: {sidecar_sha[:8]} != {actual_sha[:8]}", acc, "TIM-001", "Timeline Sovereignty")
+        else:
+             # Filename binding (Anti-Bait)
+             if not sidecar_name:
+                  fail("Sidecar missing filename binding", acc, "TIM-001", "Timeline Sovereignty")
+             elif Path(sidecar_name).name != drop_path.name:
+                  fail(f"Sidecar binding mismatch: {sidecar_name} != {drop_path.name}", acc, "TIM-001", "Timeline Sovereignty")
+             else:
+                  ok("Timeline sidecar verified and bound", acc, "TIM-001", "Timeline Sovereignty")
+    except Exception as e:
+        fail(f"Timeline verification error: {e}", acc, "TIM-001", "Timeline Sovereignty")
+
+
+def audit_drop(drop_path: Path, pub_key_path: Path, strict: bool = False) -> bool:  # noqa: PLR0915, PLR0912
     acc = GateAccumulator()
     print(f"\n🦅 AUDITING DROP: {drop_path.name}")
     print("=" * 60)
@@ -214,9 +269,23 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
         return False
 
     if pub_key_path.exists():
-        ok(f"Sovereign identity found: {pub_key_path.name}", acc, "FID-001", "Sovereign Identity")
+        # Verifying pubkey pin (P0-C)
+        h = hashlib.sha256()
+        h.update(pub_key_path.read_bytes())
+        actual_pub_sha = h.hexdigest()
+        if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
+            fail(f"Sovereign identity hash mismatch! Expected {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]}, got {actual_pub_sha[:8]}", acc, "FID-001", "Sovereign Identity")
+            if strict: return False
+        else:
+            ok(f"Sovereign identity verified (Pinned: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]})", acc, "FID-001", "Sovereign Identity")
+    elif strict:
+        fail("Sovereign identity missing in strict mode.", acc, "FID-001", "Sovereign Identity")
+        return False
     else:
         warn("Public key missing. Signature verification skipped.", acc, "FID-001", "Sovereign Identity")
+
+    if strict:
+        _check_timeline_sovereignty(drop_path, acc)
 
     try:
         with zipfile.ZipFile(drop_path, "r") as zf:
@@ -313,10 +382,15 @@ def audit_drop(drop_path: Path, pub_key_path: Path) -> bool:  # noqa: PLR0915, P
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("drop_packet", type=Path)
-    parser.add_argument("--pubkey", type=Path, default=Path("sovereign.pub"))
+    parser.add_argument("--pubkey", "--trusted-pubkey", dest="pubkey", type=Path, default=Path("keys/sovereign.pub"))
+    parser.add_argument("--strict", action="store_true", help="Enable strict fiduciary audit")
     args = parser.parse_args()
 
-    success = audit_drop(args.drop_packet, args.pubkey)
+    # Fallback to local sovereign.pub if keys/sovereign.pub missing and not in keys/ already
+    if not args.pubkey.exists() and Path("sovereign.pub").exists():
+        args.pubkey = Path("sovereign.pub")
+
+    success = audit_drop(args.drop_packet, args.pubkey, args.strict)
     sys.exit(0 if success else 1)
 
 

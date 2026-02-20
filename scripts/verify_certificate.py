@@ -13,6 +13,14 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
+import hashlib
+
+# sys.path hacking to allow importing antigravity_harness from repo root
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+if str(REPO_ROOT) not in sys.path:
+    sys.path.append(str(REPO_ROOT))
+
+from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256
 
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
@@ -31,6 +39,8 @@ def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--evidence", required=True, help="Path to TRADER_OPS_EVIDENCE_v*.zip")
+    ap.add_argument("--trusted-pubkey", default="keys/sovereign.pub", help="Path to out-of-band trusted Sovereign public key")
+    ap.add_argument("--strict", action="store_true", help="Enable strict fiduciary check")
     args = ap.parse_args()
 
     print(f"📜 Verifying Certificate in: {args.evidence}")
@@ -38,6 +48,28 @@ def main():
     if not os.path.exists(args.evidence):
         print(f"❌ FAIL: Evidence zip not found: {args.evidence}")
         sys.exit(2)
+
+    # --- Trust Root Verification (P0-C)
+    trusted_pub_path = Path(args.trusted_pubkey)
+    if not trusted_pub_path.exists():
+        if args.strict:
+            print(f"❌ FAIL: Trusted public key missing at {args.trusted_pubkey}")
+            sys.exit(2)
+        else:
+            print(f"⚠️  WARN: Trusted public key missing at {args.trusted_pubkey}. Falling back to artifact key.")
+    else:
+        # Verify hash pinning
+        h = hashlib.sha256()
+        with open(trusted_pub_path, "rb") as f:
+             for chunk in iter(lambda: f.read(4096), b""):
+                 h.update(chunk)
+        actual_pub_sha = h.hexdigest()
+        if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
+            print(f"❌ FAIL: Trusted public key hash mismatch!")
+            print(f"   Expected: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256}")
+            print(f"   Actual:   {actual_pub_sha}")
+            sys.exit(2)
+        print(f"✅ Trusted Public Key Verified (Pinned: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]})")
 
     try:
         with zipfile.ZipFile(args.evidence, 'r') as zf:
@@ -60,7 +92,11 @@ def main():
 
                 p_cert.write_bytes(zf.read(cert_path))
                 p_sig.write_bytes(zf.read(sig_path))
-                p_pub.write_bytes(zf.read(pub_path))
+                
+                if trusted_pub_path.exists():
+                    p_pub.write_bytes(trusted_pub_path.read_bytes())
+                else:
+                    p_pub.write_bytes(zf.read(pub_path))
 
                 # Coherence Check: strict_mode must be true
                 cert_data = json.loads(p_cert.read_text())

@@ -1,3 +1,2 @@
-# Optional IBKR Dependency Lane
-# Required for scripts/ibkr_ingest_mes_5m.py
-ib-insync>=0.9.86
+# Optional dependencies for IBKR Ingestion
+ib_insync

@@ -75,18 +75,24 @@ def cmd_verify(dist_dir: Path) -> bool:
     
     # 1. Run Drop Auditor (Institutional Scan)
     log_info("Running Drop Auditor...")
-    pub_key = REPO_ROOT / "sovereign.pub"
-    if run_cmd(["python3", "scripts/drop_auditor.py", "--drop", str(drop_zip), "--pub", str(pub_key)]) != 0:
+    trusted_pub = REPO_ROOT / "keys" / "sovereign.pub"
+    if run_cmd(["python3", "scripts/drop_auditor.py", "--strict", "--trusted-pubkey", str(trusted_pub), str(drop_zip)]) != 0:
         log_error("Drop Auditor failed.")
         return False
     
     # 2. Run Verify Drop Packet (Fiduciary Gate)
     log_info("Running Verify Drop Packet...")
-    if run_cmd(["python3", "scripts/verify_drop_packet.py", "--strict", "--drop", str(drop_zip), "--run-ledger", str(ledger_path)]) != 0:
+    if run_cmd(["python3", "scripts/verify_drop_packet.py", "--strict", "--trusted-pubkey", str(trusted_pub), "--drop", str(drop_zip), "--run-ledger", str(ledger_path)]) != 0:
         log_error("Fiduciary Gate failed.")
         return False
+
+    # 3. Run Verify Run Ledger Signature (P0-D)
+    log_info("Running Run Ledger Signature Verifier...")
+    if run_cmd(["python3", "scripts/verify_run_ledger_signature.py", "--strict", "--trusted-pubkey", str(trusted_pub), "--run-ledger", str(ledger_path)]) != 0:
+        log_error("Run Ledger Signature Verification failed.")
+        return False
     
-    log_success("Artifact Integrity & Fiduciary Chain Verified.")
+    log_success("Artifact Integrity & Fiduciary Chain Verified (Strict).")
     return True
 
 def cmd_run_paper(strategy: str, profile_path: Path, dist_dir: Path) -> None:

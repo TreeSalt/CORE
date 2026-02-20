@@ -236,25 +236,73 @@ with zipfile.ZipFile(drop, 'r') as z:
         print("WARN: No MANIFEST.json (pre-v4.5.29 build)")
         raise SystemExit(0)
     manifest = json.loads(z.read('MANIFEST.json'))
-    for entry in manifest.get('files', []):
-        path = entry['path']
-        expected = entry['sha256']
+    # Supporting both "files" (list) and "file_sha256" (dict)
+    entries = manifest.get('files', [])
+    if isinstance(entries, dict): # Should not happen in MANIFEST.json but being safe
+         mapping = entries
+    elif not entries and 'file_sha256' in manifest:
+         mapping = manifest['file_sha256']
+    else:
+         mapping = {e['path']: e['sha256'] for e in entries}
+
+    for path, expected in mapping.items():
         if path not in names:
             raise SystemExit(f"FAIL: MANIFEST references missing file: {path}")
         actual = hashlib.sha256(z.read(path)).hexdigest()
         if actual != expected:
             raise SystemExit(f"FAIL: MANIFEST hash mismatch for {path}")
-    print(f"OK: MANIFEST.json verified ({len(manifest.get('files',[]))} files)")
+    print(f"OK: MANIFEST.json verified ({len(mapping)} files)")
 PY
 ok "MANIFEST.json integrity chain verified"
 
+bold "3.7) Working Tree Payload Manifest Verification"
+if [[ -f "docs/ready_to_drop/PAYLOAD_MANIFEST.json" ]]; then
+    python3 - <<'PY'
+import hashlib, json, os, sys
+manifest_path = "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
+with open(manifest_path, 'r') as f:
+    manifest = json.load(f)
+
+mapping = manifest.get('file_sha256', {})
+if not mapping:
+    raise SystemExit("FAIL: PAYLOAD_MANIFEST.json missing 'file_sha256' mapping")
+
+errors = 0
+for path, expected in mapping.items():
+    if not os.path.exists(path):
+        print(f"❌ FAIL: File missing in working tree: {path}")
+        errors += 1
+        continue
+    
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            h.update(chunk)
+    actual = h.hexdigest()
+    
+    if actual != expected:
+        print(f"❌ FAIL: Hash mismatch for {path}")
+        print(f"   Expected: {expected}")
+        print(f"   Actual:   {actual}")
+        errors += 1
+
+if errors > 0:
+    sys.exit(1)
+print(f"OK: Working tree verified against PAYLOAD_MANIFEST.json ({len(mapping)} files)")
+PY
+    ok "Working tree manifest match"
+else:
+    warn "docs/ready_to_drop/PAYLOAD_MANIFEST.json missing; skipping working tree check"
+fi
+
 
 bold "4) Self-audit scripts (strict)"
+TRUSTED_PUB="keys/sovereign.pub"
 if [[ -f "scripts/verify_drop_packet.py" ]]; then
   if [[ -n "$SIDECAR" ]]; then
-    python3 scripts/verify_drop_packet.py --drop "$DROP_ZIP" --run-ledger "$LEDGER" --strict --drop-packet-sha "$SIDECAR"
+    python3 scripts/verify_drop_packet.py --drop "$DROP_ZIP" --run-ledger "$LEDGER" --strict --drop-packet-sha "$SIDECAR" --trusted-pubkey "$TRUSTED_PUB"
   else
-    python3 scripts/verify_drop_packet.py --drop "$DROP_ZIP" --run-ledger "$LEDGER" --strict
+    python3 scripts/verify_drop_packet.py --drop "$DROP_ZIP" --run-ledger "$LEDGER" --strict --trusted-pubkey "$TRUSTED_PUB"
   fi
   ok "verify_drop_packet.py (strict) PASS"
 else
@@ -271,10 +319,18 @@ fi
 
 bold "6) Certificate verification"
 if [[ -f "scripts/verify_certificate.py" ]]; then
-  python3 scripts/verify_certificate.py --evidence "$EVID_ZIP"
+  python3 scripts/verify_certificate.py --evidence "$EVID_ZIP" --strict --trusted-pubkey "$TRUSTED_PUB"
   ok "verify_certificate.py (fiduciary) PASS"
 else
   bad "scripts/verify_certificate.py not found; Fiduciary Chain incomplete."
+fi
+
+bold "7) Run Ledger Signature verification"
+if [[ -f "scripts/verify_run_ledger_signature.py" ]]; then
+  python3 scripts/verify_run_ledger_signature.py --run-ledger "$LEDGER" --strict --trusted-pubkey "$TRUSTED_PUB"
+  ok "verify_run_ledger_signature.py (fiduciary) PASS"
+else
+  bad "scripts/verify_run_ledger_signature.py not found; Fiduciary Chain incomplete."
 fi
 
 bold "✅ ONE TRUE COMMAND COMPLETE — ALL CHECKS PASSED"
