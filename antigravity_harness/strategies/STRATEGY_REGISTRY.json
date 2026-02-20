@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "tier_policy": {
+    "research": [
+      "quarantine",
+      "lab",
+      "certified"
+    ],
+    "paper": [
+      "lab",
+      "certified"
+    ],
+    "live": [
+      "certified"
+    ]
+  },
+  "strategies": {
+    "v032_simple": {
+      "tier": "quarantine",
+      "merkle_root_sha256": "3a542869cd4d15acce1421745764fcd04e3cc973edf6deb5e343ab9b4e84e85f"
+    },
+    "v050_trend_momentum": {
+      "tier": "quarantine",
+      "merkle_root_sha256": "83a7994d478af315a62d2dd5e81be7d792cdf306f07ac3fc8bece6ee117393fe"
+    },
+    "v060_bit_uni_core": {
+      "tier": "lab",
+      "merkle_root_sha256": "dbfe23be83e1dea899c3cc5349cc54a2a4d257e95ff1690d58a14c56191c1d29"
+    },
+    "v070_donchian_breakout": {
+      "tier": "lab",
+      "merkle_root_sha256": "7daa3a828cc773abd13399f9f4011b191f9e6c6fd86d8459e0339f6f58a9e428"
+    },
+    "v090_essence_follower": {
+      "tier": "lab",
+      "merkle_root_sha256": "ebee1c4a591357073ffe082a956192bcb26d8d46773d54f8eb91257afab72e90"
+    },
+    "v100_consensual_momentum": {
+      "tier": "lab",
+      "merkle_root_sha256": "79606e3660e492915a4b7f78fc06991432845206b693d1def6b50a64f00f65aa"
+    },
+    "v040_alpha_prime": {
+      "tier": "certified",
+      "merkle_root_sha256": "a8c770b0967eb646fef2848a06c24c18a0eb7c5de45cb17d23c2451bb8d9e89c"
+    },
+    "v080_volatility_guard_trend": {
+      "tier": "certified",
+      "merkle_root_sha256": "5ccd1a499d39a07e4645c59ef58e8fa1c418e71dac55f4e7cf4384ba2af1b718"
+    }
+  }
+}
