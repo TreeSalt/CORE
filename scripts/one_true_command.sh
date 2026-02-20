@@ -228,30 +228,51 @@ ok "seed_profile.yaml present in CODE zip"
 
 bold "3.6) Detached MANIFEST.json (integrity chain)"
 python3 - "$DROP_ZIP" <<'PY'
-import sys, zipfile, hashlib, json
-drop = sys.argv[1]
-with zipfile.ZipFile(drop, 'r') as z:
-    names = z.namelist()
-    if 'MANIFEST.json' not in names:
-        print("WARN: No MANIFEST.json (pre-v4.5.29 build)")
-        raise SystemExit(0)
-    manifest = json.loads(z.read('MANIFEST.json'))
-    # Supporting both "files" (list) and "file_sha256" (dict)
-    entries = manifest.get('files', [])
-    if isinstance(entries, dict): # Should not happen in MANIFEST.json but being safe
-         mapping = entries
-    elif not entries and 'file_sha256' in manifest:
-         mapping = manifest['file_sha256']
-    else:
-         mapping = {e['path']: e['sha256'] for e in entries}
+import sys, zipfile, hashlib, json, io
 
-    for path, expected in mapping.items():
-        if path not in names:
-            raise SystemExit(f"FAIL: MANIFEST references missing file: {path}")
-        actual = hashlib.sha256(z.read(path)).hexdigest()
-        if actual != expected:
-            raise SystemExit(f"FAIL: MANIFEST hash mismatch for {path}")
-    print(f"OK: MANIFEST.json verified ({len(mapping)} files)")
+drop_path = sys.argv[1]
+with zipfile.ZipFile(drop_path, 'r') as z_drop:
+    drop_names = z_drop.namelist()
+    if 'MANIFEST.json' not in drop_names:
+        print("WARN: No MANIFEST.json (pre-v4.5.29 build)")
+        sys.exit(0)
+    
+    # 1. Read Manifest
+    manifest = json.loads(z_drop.read('MANIFEST.json'))
+    
+    # 2. Find Code Zip
+    code_zips = [n for n in drop_names if 'TRADER_OPS_CODE' in n and n.endswith('.zip')]
+    if not code_zips:
+        raise SystemExit("FAIL: No TRADER_OPS_CODE zip found in drop packet")
+    code_zip_name = code_zips[0]
+    
+    # 3. Open Code Zip (Nested)
+    # We read into memory to treat as a file-like object
+    code_bytes = z_drop.read(code_zip_name)
+    with zipfile.ZipFile(io.BytesIO(code_bytes)) as z_code:
+        code_names = set(z_code.namelist())
+        
+        # 4. Parse mapping
+        entries = manifest.get('files', [])
+        if isinstance(entries, dict):
+             mapping = entries
+        elif not entries and 'file_sha256' in manifest:
+             mapping = manifest['file_sha256']
+        else:
+             mapping = {e['path']: e['sha256'] for e in entries}
+
+        # 5. Verify
+        print(f"Verifying {len(mapping)} files in {code_zip_name}...")
+        for path, expected in mapping.items():
+            if path not in code_names:
+                raise SystemExit(f"FAIL: MANIFEST references missing file: {path}")
+            
+            # Verify hash
+            actual = hashlib.sha256(z_code.read(path)).hexdigest()
+            if actual != expected:
+                raise SystemExit(f"FAIL: Hash mismatch for {path}")
+        
+    print(f"OK: MANIFEST.json verified against {code_zip_name}")
 PY
 ok "MANIFEST.json integrity chain verified"
 
