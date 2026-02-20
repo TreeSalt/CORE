@@ -179,8 +179,8 @@ def run_reality_gap(fills_path: str, signals_path: str, outdir: str) -> str:  # 
                  batch_res = pd.DataFrame({
                      "symbol": sym,
                      "side": side,
-                     "fill_ts": matched_rows["fill_ts"].dt.isoformat(),
-                     "signal_ts": matched_rows["signal_ts"].dt.isoformat(),
+                     "fill_ts": matched_rows["fill_ts"].dt.strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                     "signal_ts": matched_rows["signal_ts"].dt.strftime('%Y-%m-%dT%H:%M:%S.%f'),
                      "slippage_bps": slippage_bps,
                      "latency_sec": latency,
                      "fee_impact": fee_imp
