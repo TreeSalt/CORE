@@ -105,14 +105,21 @@ def build_gate_report_summary(dist_dir: Path):
         md.append(f"| {k} | {status} |")
     return md
 
-def build_data_manifest_summary(data_manifest: dict):
+def build_data_manifest_summary(data_manifest: dict, run_ledger: dict = None):
     """Forensic summary of the dataset used in simulation."""
-    if not data_manifest:
+    # Authoritative Data Hash from Ledger if available
+    data_hash = "N/A"
+    if run_ledger and "sovereign_binding" in run_ledger:
+        data_hash = run_ledger["sovereign_binding"].get("data_hash", "N/A")
+    elif data_manifest:
+        data_hash = data_manifest.get("data_hash", "N/A")
+
+    if not data_manifest and data_hash == "N/A":
         return ["_Data Manifest Not Found in Evidence_"]
 
-    md = [f"- **Data Hash**: `{data_manifest.get('data_hash', 'N/A')}`"]
-    files = data_manifest.get("files", {})
-    if not files and "entries" in data_manifest:
+    md = [f"- **Data Hash**: `{data_hash}`"]
+    files = data_manifest.get("files", {}) if data_manifest else {}
+    if not files and data_manifest and "entries" in data_manifest:
          files = data_manifest["entries"]
          
     md.append("**Files**:")
@@ -131,7 +138,7 @@ def emit_brief(dist_dir: Path):
     
     evidence_zip = dist_dir / f"TRADER_OPS_EVIDENCE_v{version}.zip"
     code_zip = dist_dir / f"TRADER_OPS_CODE_v{version}.zip"
-    run_ledger = dist_dir / f"RUN_LEDGER_v{version}.json"
+    run_ledger_path = dist_dir / f"RUN_LEDGER_v{version}.json"
     
     if not evidence_zip.exists():
         fail(f"Evidence Zip missing: {evidence_zip}")
@@ -140,9 +147,14 @@ def emit_brief(dist_dir: Path):
         "drop": sha256_file(drop_zip),
         "code": sha256_file(code_zip) if code_zip.exists() else "MISSING",
         "evidence": sha256_file(evidence_zip),
-        "ledger": sha256_file(run_ledger) if run_ledger.exists() else "MISSING",
+        "ledger": sha256_file(run_ledger_path) if run_ledger_path.exists() else "MISSING",
     }
     
+    run_ledger = None
+    if run_ledger_path.exists():
+        with open(run_ledger_path, "r") as f:
+            run_ledger = json.load(f)
+
     prompt_info, data_manifest = extract_evidence_data(evidence_zip)
     
     # Markdown Content Construction
@@ -163,11 +175,18 @@ def emit_brief(dist_dir: Path):
         md.append(f"- **ID**: `{prompt_info.get('prompt_id', 'N/A')}`")
         md.append(f"- **SHA256**: `{prompt_info.get('prompt_sha256', 'N/A')}`")
     else:
+        # Fallback to RUN_LEDGER if possible? Usually not in ledger.
         md.append("_Prompt Info Not Found in Evidence_")
     md.append("")
 
     md.append("## 💾 Data Manifest")
-    md.extend(build_data_manifest_summary(data_manifest))
+    md.extend(build_data_manifest_summary(data_manifest, run_ledger))
+    md.append("")
+
+    md.append("## 🚢 Execution Bridge Status")
+    md.append("- **Mode**: `PAPER-ONLY`")
+    md.append("- **Live Trading**: `UNCONDITIONALLY DISABLED` (Fiduciary Lock)")
+    md.append("- **Audit Log**: `dist/audit/execution_events_v*.jsonl`")
     md.append("")
         
     out_path = dist_dir / f"COUNCIL_BRIEF_v{version}.md"
@@ -176,7 +195,7 @@ def emit_brief(dist_dir: Path):
         
     print(f"✅ Council Brief Generated: {out_path}")
     print("\n-- SUMMARY HEAD --")
-    print("\n".join(md[:15]))
+    print("\n".join(md[:20]))
 
 def main():
     parser = argparse.ArgumentParser()

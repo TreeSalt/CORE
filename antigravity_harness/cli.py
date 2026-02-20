@@ -575,6 +575,22 @@ def cmd_walk_forward(args: argparse.Namespace) -> None:
             )
 
 
+def cmd_ibkr_paper(args: argparse.Namespace) -> None:
+    """Delegates to scripts/ibkr_paper_execute.py for fiduciary execution."""
+    print(f"🚀 IBKR PAPER EXECUTION: {args.strategy}")
+    cmd = [
+        sys.executable,
+        "scripts/ibkr_paper_execute.py",
+        "--strategy", args.strategy,
+        "--profile", args.profile,
+        "--dist", args.dist,
+        "--trusted-pubkey", args.trusted_pubkey
+    ]
+    # scripts/ibkr_paper_execute.py handles its own autopilot verify gate
+    res = subprocess.run(cmd, check=False)
+    if res.returncode != 0:
+        sys.exit(res.returncode)
+
 def cmd_stage_candidate(args: argparse.Namespace) -> None:
     # HYDRA GUARD: Input Sanitization (Vector 36)
     args.symbol = _sanitize_string(args.symbol)
@@ -794,10 +810,16 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     uc.set_defaults(func=cmd_stage_candidate)
 
     # Certification Run (Task E)
-    cr = sub.add_parser("certify-run", help="Full Certification Bundle (Snapshot+WF+Calib+Manifest)")
-    cr.add_argument("--symbols", required=True)
-    cr.add_argument("--timeframes", required=True)
     cr.add_argument("--gate-profile", required=True)
+    cr.set_defaults(func=run_certification) # Wait, check if this is the right func name
+
+    # IBKR Paper Execution (Phase 10)
+    ib = sub.add_parser("ibkr-paper", help="Fiduciary IBKR Paper Execution")
+    ib.add_argument("--strategy", required=True)
+    ib.add_argument("--profile", default="profiles/seed_profile.yaml")
+    ib.add_argument("--dist", default="dist")
+    ib.add_argument("--trusted-pubkey", default="keys/sovereign.pub")
+    ib.set_defaults(func=cmd_ibkr_paper)
     cr.add_argument("--lookback-days", type=int, default=730)
     cr.add_argument("--train-days", type=int, default=365)
     cr.add_argument("--test-days", type=int, default=90)

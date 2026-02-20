@@ -42,6 +42,7 @@ help:
 	@echo "    make verify           Full Sovereign Audit (fail-closed)"
 	@echo "    make autopilot-verify Audit latest build artifacts (unified)"
 	@echo "    make autopilot-paper  Run strategy in paper mode (guarded)"
+	@echo "    make ibkr-paper       Fiduciary IBKR Paper Execution"
 	@echo "    make audit            One True Command (Council audit)"
 	@echo "    make council-brief    Generate council packet summary"
 	@echo "    make audit-fast       Quick hash + verify"
@@ -198,6 +199,10 @@ autopilot-paper:
 
 council-brief:
 	$(PYTHON) scripts/council_packet.py emit --dist $(DIST)
+
+ibkr-paper:
+	@if [ -z "$(STRATEGY)" ]; then echo "❌ ERR: STRATEGY is required. USE: make ibkr-paper STRATEGY=<id>"; exit 1; fi
+	$(PYTHON) scripts/ibkr_paper_execute.py --strategy $(STRATEGY) --profile $(PROFILE) --dist $(DIST) --trusted-pubkey keys/sovereign.pub
 
 verify:
 	@mkdir -p "$(DIST)"
