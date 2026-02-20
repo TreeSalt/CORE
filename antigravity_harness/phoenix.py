@@ -1,11 +1,15 @@
 import hashlib
 import json
-import subprocess
 import sys
 import time
 import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+try:
+    from nacl.signing import SigningKey
+except ImportError:
+    SigningKey = None
 
 
 class FlightRecorder:
@@ -181,8 +185,7 @@ class SovereignAuditor:
             
             # Sign the report if institutional seed exists
             seed_path = self.repo_root / "sovereign.seed"
-            if seed_path.exists():
-                from nacl.signing import SigningKey
+            if seed_path.exists() and SigningKey is not None:
                 
                 sig_path = report_path.with_suffix(".json.sig")
                 print(f"✍️  Signing Audit Report: {sig_path.name} (The Phoenix Seal)")
