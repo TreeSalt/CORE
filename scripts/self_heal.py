@@ -243,6 +243,7 @@ def git_surgeon(fix=False):
         "scripts/drop_auditor.py", # Fiduciary Update (v4.5.109)
         "scripts/one_true_command.sh", # Fiduciary Update (v4.5.109)
         "scripts/verify_certificate.py", # Fiduciary Update (v4.5.109)
+        "docs/ready_to_drop/PAYLOAD_MANIFEST.json", # Fiduciary Manifest (v4.5.115)
     ]
 
     to_add = []

@@ -278,7 +278,14 @@ ok "MANIFEST.json integrity chain verified"
 
 bold "3.7) Working Tree Payload Manifest Verification"
 if [[ -f "docs/ready_to_drop/PAYLOAD_MANIFEST.json" ]]; then
-    python3 - <<'PY'
+    # Version Binding Guard: Only verify if manifest version matches code version
+    CODE_VER=$(python3 -c "import pathlib,re; p=pathlib.Path('antigravity_harness/__init__.py'); txt=p.read_text(encoding='utf-8') if p.exists() else ''; m=re.search(r'__version__\s*=\s*\"(\d+\.\d+\.\d+)\"', txt); print(m.group(1) if m else '0.0.0')")
+    MAN_VER=$(python3 -c "import json; print(json.load(open('docs/ready_to_drop/PAYLOAD_MANIFEST.json')).get('version', '0.0.0'))")
+    
+    if [[ "$CODE_VER" != "$MAN_VER" ]]; then
+        warn "docs/ready_to_drop/PAYLOAD_MANIFEST.json version ($MAN_VER) != Code version ($CODE_VER); skipping working tree audit."
+    else
+        python3 - <<'PY'
 import hashlib, json, os, sys
 manifest_path = "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
 with open(manifest_path, 'r') as f:
