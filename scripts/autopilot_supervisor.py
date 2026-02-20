@@ -364,24 +364,27 @@ def do_run_paper(args: argparse.Namespace) -> None:
     with open(profile_path, "r") as f:
         prof = yaml.safe_load(f)
         
+    # Valid keys are in 'permissions' and 'risk' blocks in standard seed_profile.yaml
     permissions = prof.get("permissions", {})
-    # Check both top-level and permissions block
+    risk = prof.get("risk", {})
+    
+    # Check both top-level and permissions block for live_trading_enabled
     live_enabled = permissions.get("live_trading_enabled", prof.get("live_trading_enabled"))
     
     if live_enabled is not False:
-        # Must be strictly False
+        # Must be strictly False for PAPER
         fail("Profile 'live_trading_enabled' MUST be False for paper run.")
         
-    # Check limits presence (look in 'session' block or top-level)
+    # Check limits presence (look in 'risk' block, 'session' block or top-level)
     session = prof.get("session", {})
-    daily_cap = session.get("daily_loss_cap_usd", prof.get("daily_loss_cap_usd"))
-    max_contracts = session.get("max_contracts", prof.get("max_contracts"))
+    daily_cap = risk.get("daily_loss_cap_usd", session.get("daily_loss_cap_usd", prof.get("daily_loss_cap_usd")))
+    # 'max_contracts' might be 'max_position_size_contracts' in some profiles
+    max_pos = risk.get("max_position_size_contracts", prof.get("max_contracts"))
 
     if daily_cap is None:
         fail("Missing 'daily_loss_cap_usd' in profile.")
-    if max_contracts is None:
-        # Check if the profile has a 'capital' or 'risk' block if not in session
-        pass
+    if max_pos is None:
+        fail("Missing 'max_contracts' (or 'max_position_size_contracts') in profile.")
         
     info("✅ Safety Checks Passed (Mode: PAPER).")
     
