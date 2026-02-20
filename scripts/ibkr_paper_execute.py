@@ -60,7 +60,7 @@ async def run_paper_execution(args):
         fail("FAIL CLOSED: live_trading_enabled must be strictly FALSE for this adapter.")
 
     # 3. Pre-Trade Invariants
-    max_contracts = risk.get("max_contracts", prof.get("max_contracts"))
+    max_contracts = risk.get("max_contracts", risk.get("max_position_size_contracts", prof.get("max_contracts", prof.get("max_position_size_contracts"))))
     daily_loss_cap = risk.get("daily_loss_cap_usd", prof.get("daily_loss_cap_usd"))
     
     if max_contracts is None or not isinstance(max_contracts, (int, float)):
