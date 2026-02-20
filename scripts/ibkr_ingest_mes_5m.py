@@ -9,7 +9,7 @@ Uses ib_insync for pagination-safe retrieval and strict gate enforcement.
 import argparse
 import json
 import sys
-from datetime import datetime, timezone, time as dt_time
+from datetime import datetime, time as dt_time, timezone
 from pathlib import Path
 
 # Optional dependency: ib_insync
