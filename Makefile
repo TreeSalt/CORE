@@ -116,6 +116,9 @@ commands:
 show-errors:
 	@$(PYTHON) -B scripts/archivist.py --show
 
+dashboard:
+	@$(PYTHON) -B antigravity_harness/dashboard.py --ledger v9e_stage/state/STRATEGY_LEDGER.json
+
 install:
 	$(PIP) install -r requirements.txt
 	$(PIP) install -e . --no-deps

@@ -8,7 +8,7 @@ Implements strict ORDER_INTENT binding and deterministic forensics.
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
@@ -20,6 +20,8 @@ from antigravity_harness.execution.adapter_base import (
     OrderStatus,
     OrderType,
     Position,
+    MarketDataAdapter,
+    Bar,
 )
 
 # Deferred imports for ib_insync to avoid event loop errors in static analysis
@@ -32,7 +34,7 @@ LimitOrder: Any = None
 StopOrder: Any = None
 
 
-class IBKRAdapter(ExecutionAdapter):
+class IBKRAdapter(ExecutionAdapter, MarketDataAdapter):
     """
     Interactive Brokers adapter with paper-only enforcement and fiduciary audit trail.
     """
@@ -237,3 +239,79 @@ class IBKRAdapter(ExecutionAdapter):
             "p95_latency_ms": 0.0,
             "sample_count": 0
         }
+
+    # ─── MarketDataAdapter Implementation ─────────────────────────────────────
+
+    async def get_historical_bars(
+        self,
+        symbol: str,
+        timeframe: str,
+        start_utc: datetime,
+        end_utc: datetime,
+        rth_only: bool = True,
+    ) -> List[Bar]:
+        if not self._ib:
+            raise RuntimeError("Broker not connected.")
+        
+        contract = self._get_contract(symbol)
+        duration = f"{(end_utc - start_utc).days + 1} D"
+        
+        # Map timeframe to IB duration string
+        # e.g. "1m" -> "1 min", "5m" -> "5 mins", "1h" -> "1 hour", "1d" -> "1 day"
+        ib_bar_size = self._map_timeframe_to_ib(timeframe)
+        
+        bars = await self._ib.reqHistoricalDataAsync(
+            contract,
+            endDateTime=end_utc,
+            durationStr=duration,
+            barSizeSetting=ib_bar_size,
+            whatToShow="MIDPOINT" if "FUT" in str(contract) else "TRADES",
+            useRTH=rth_only,
+            formatDate=1
+        )
+        
+        return [
+            Bar(
+                symbol=symbol,
+                timestamp_utc=b.date if isinstance(b.date, datetime) else datetime.combine(b.date, datetime.min.time()),
+                open=b.open,
+                high=b.high,
+                low=b.low,
+                close=b.close,
+                volume=int(b.volume),
+                timeframe=timeframe
+            )
+            for b in bars
+            if start_utc <= (b.date if isinstance(b.date, datetime) else datetime.combine(b.date, datetime.min.time())) <= end_utc
+        ]
+
+    async def get_latest_bar(self, symbol: str, timeframe: str) -> Bar:
+        # Request the most recent bar
+        end_utc = datetime.utcnow()
+        start_utc = end_utc - timedelta(days=1) # Catch at least one bar
+        bars = await self.get_historical_bars(symbol, timeframe, start_utc, end_utc)
+        if not bars:
+            raise RuntimeError(f"Could not fetch latest bar for {symbol}")
+        return bars[-1]
+
+    async def get_current_price(self, symbol: str) -> float:
+        if not self._ib:
+            raise RuntimeError("Broker not connected.")
+        contract = self._get_contract(symbol)
+        ticker = self._ib.reqTickers(contract)[0]
+        # Prefer last if available, else midpoint
+        if ticker.last and not ticker.last == 0:
+            return ticker.last
+        if ticker.marketPrice() and not ticker.marketPrice() == 0:
+            return ticker.marketPrice()
+        # Fallback to last bar close if market data fails
+        return (await self.get_latest_bar(symbol, "1m")).close
+
+    def _map_timeframe_to_ib(self, timeframe: str) -> str:
+        tf = timeframe.lower()
+        if tf == "1m": return "1 min"
+        if tf == "5m": return "5 mins"
+        if tf == "15m": return "15 mins"
+        if tf == "1h": return "1 hour"
+        if tf == "1d": return "1 day"
+        raise ValueError(f"Unsupported timeframe: {timeframe}")

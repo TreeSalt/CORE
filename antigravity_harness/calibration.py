@@ -21,6 +21,7 @@ from antigravity_harness.config import (
 )
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.data import load_ohlc  # For Ray loading
+from antigravity_harness.grid.manager import GridManager
 from antigravity_harness.engine import Trade
 from antigravity_harness.essence import EssenceLab
 from antigravity_harness.models import SimulationResult
@@ -334,6 +335,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
     gate_profile: str = "equity_fortress",
     timeframes_override: Optional[List[str]] = None,
     use_ray: bool = False,
+    use_grid: bool = True,
     registry: StrategyRegistry = STRATEGY_REGISTRY,
 ) -> Dict[str, Any]:
     if symbols is None:
@@ -401,28 +403,47 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
             )
         else:
             # Phase 9F: Robust Fallback for unsupported platforms (e.g. Python 3.14)
-            # Force serial execution to avoid process/semaphore leakage in joblib
-            print("Ray: Not installed. Forcing serial execution to prevent resource leakage...")
-            shared_cache = VectorCache()
-            raw_results = [
-                _run_one(
-                    strategy_name,
-                    p,
-                    data_cfg,
-                    engine_cfg,
-                    thresholds,
-                    include_ablation,
-                    include_time_split,
-                    s,
-                    start,
-                    end,
-                    gate_profile,
-                    tf,
-                    registry=registry,
-                    vector_cache=shared_cache,
-                )
-                for s, tf, p in total_combinations
-            ]
+            use_grid = True # Force grid if ray fails
+    
+    if use_grid and not use_ray:
+        mgr = GridManager(Path(output_dir) / "grid_state", n_jobs=n_jobs)
+        # Prepare tasks for GridManager
+        grid_tasks = [
+            (
+                strategy_name,
+                p,
+                data_cfg,
+                engine_cfg,
+                thresholds,
+                include_ablation,
+                include_time_split,
+                s,
+                start,
+                end,
+                gate_profile,
+                tf,
+                registry,
+                False, # debug
+                None, # out_dir
+                None, # vector_cache
+            )
+            for s, tf, p in total_combinations
+        ]
+        raw_results = mgr.execute_batch(_run_one, grid_tasks)
+    elif use_ray and ray is not None:
+        raw_results = _execute_ray_batch(
+            strategy_name,
+            params_list,
+            total_combinations,
+            data_cfg,
+            engine_cfg,
+            thresholds,
+            start,
+            end,
+            gate_profile,
+            symbols,
+            registry=registry,
+        )
     elif Parallel is not None and delayed is not None:
         raw_results = Parallel(n_jobs=n_jobs, prefer="processes")(
             delayed(_run_one)(

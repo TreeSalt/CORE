@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ctypes
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
@@ -31,7 +32,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30, use_alpha_decay: bool = False, decay_lookback_trades: int = 10, decay_threshold_win_rate: float = 0.4, decay_penalty_multiplier: float = 0.5, use_sentiment: bool = False, sentiment_threshold: float = 0.5, sentiment_sizing_multiplier: float = 1.25):  # noqa: PLR0913
+    def __init__(self, initial_cash: float, slippage: float = 0.0, allow_fractional: bool = True, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30, use_alpha_decay: bool = False, decay_lookback_trades: int = 10, decay_threshold_win_rate: float = 0.4, decay_penalty_multiplier: float = 0.5, use_sentiment: bool = False, sentiment_threshold: float = 0.5, sentiment_sizing_multiplier: float = 1.25, use_cpp_mirror: bool = False):  # noqa: PLR0913
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
@@ -63,6 +64,48 @@ class SimulatedAccount:
         
         self.trades: List[Trade] = []
 
+        # Item 21: C++ (C) Physics Mirror
+        self._c_account = None
+        if use_cpp_mirror or os.environ.get("TRADER_OPS_USE_CPP_MIRROR") == "1":
+            try:
+                lib_path = Path(__file__).parent / "physics" / "libphysics.so"
+                if lib_path.exists():
+                    self._lib = ctypes.CDLL(str(lib_path))
+                    
+                    # Setup Argument/Return Types
+                    self._lib.Account_new.argtypes = [ctypes.c_double, ctypes.c_double]
+                    self._lib.Account_new.restype = ctypes.c_void_p
+                    
+                    self._lib.Account_delete.argtypes = [ctypes.c_void_p]
+                    self._lib.Account_delete.restype = None
+                    
+                    self._lib.Account_buy.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double]
+                    self._lib.Account_buy.restype = ctypes.c_bool
+                    
+                    self._lib.Account_sell.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double]
+                    self._lib.Account_sell.restype = ctypes.c_bool
+                    
+                    self._lib.Account_get_cash.argtypes = [ctypes.c_void_p]
+                    self._lib.Account_get_cash.restype = ctypes.c_double
+                    
+                    self._lib.Account_get_qty.argtypes = [ctypes.c_void_p]
+                    self._lib.Account_get_qty.restype = ctypes.c_double
+                    
+                    self._lib.Account_get_entry_price.argtypes = [ctypes.c_void_p]
+                    self._lib.Account_get_entry_price.restype = ctypes.c_double
+                    
+                    self._c_account = self._lib.Account_new(float(initial_cash), float(slippage))
+            except Exception as e:
+                print(f"⚠️ Warning: Failed to load C Physics Mirror: {e}")
+
+    def __del__(self):
+        """Cleanup C memory."""
+        if hasattr(self, "_c_account") and self._c_account and hasattr(self, "_lib"):
+            try:
+                self._lib.Account_delete(self._c_account)
+            except:
+                pass
+
     @property
     def in_position(self) -> bool:
         return self.qty > 0
@@ -85,6 +128,7 @@ class SimulatedAccount:
         comm_bps: float = 0.0,
         comm_fixed: float = 0.0,
         current_sentiment: float = 0.0,
+        qty: float = 0.0,  # Explicit quantity to buy (0.0 = use risk/cash logic)
     ) -> bool:
         # Compatibility: comm_bps is legacy name; comm_frac is canonical (decimal fraction)
         if comm_frac == 0.0 and comm_bps != 0.0:
@@ -95,11 +139,13 @@ class SimulatedAccount:
             return False
 
         # Allocation Logic
-        # 1. Default: Full Equity (Legacy)
+        # 1. Default: Full Equity (Legacy) / Explicit Qty
         qty_to_buy = 0.0
 
+        if qty > 0.0:
+            qty_to_buy = float(qty)
         # 2. Risk-Based Sizing (Phase 6E+)
-        if risk_pct > 0.0 and not np.isnan(stop_price) and stop_price < fill_price:
+        elif risk_pct > 0.0 and not np.isnan(stop_price) and stop_price < fill_price:
             equity = self.total_value(fill_price)
             # Apply Sizing Multiplier (Autonomous Plateau Scaling)
             risk_amt = equity * risk_pct * self.sizing_multiplier
@@ -216,6 +262,16 @@ class SimulatedAccount:
                     commission_usd=commission
                 )
                 self.fill_tape.record(fill, expected_price=price)
+
+            # Item 21 Mirror Check
+            if self._c_account:
+                self._lib.Account_buy(self._c_account, float(price), float(qty_to_buy), float(commission))
+                c_cash = self._lib.Account_get_cash(self._c_account)
+                c_qty = self._lib.Account_get_qty(self._c_account)
+                # Bit-perfect assertion
+                assert abs(self.cash - c_cash) < 1e-9, f"Cash mismatch! Py:{self.cash} C:{c_cash}"
+                assert abs(self.qty - c_qty) < 1e-9, f"Qty mismatch! Py:{self.qty} C:{c_qty}"
+
             return True
         return False
 
@@ -273,6 +329,14 @@ class SimulatedAccount:
                 commission_usd=commission
             )
             self.fill_tape.record(fill, expected_price=price)
+
+        # Item 21 Mirror Check
+        if self._c_account:
+            self._lib.Account_sell(self._c_account, float(price), float(qty_to_sell), float(commission))
+            c_cash = self._lib.Account_get_cash(self._c_account)
+            c_qty = self._lib.Account_get_qty(self._c_account)
+            assert abs(self.cash - c_cash) < 1e-9, f"Cash mismatch on SELL! Py:{self.cash} C:{c_cash}"
+            assert abs(self.qty - c_qty) < 1e-9, f"Qty mismatch on SELL! Py:{self.qty} C:{c_qty}"
 
         # Record Trade (Partial or Full)
         # Entry price is weighted average? It is constant here since we don't scale in.

@@ -5,27 +5,6 @@
             "timestamp_utc": "2026-02-20T08:10:38Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist_corrupt/DROP_PACKET_SHA256_v4.5.137.txt",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-02-20T08:10:38Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist_corrupt/RUN_LEDGER_v4.5.137.json",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-02-20T08:10:38Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist_corrupt/RUN_LEDGER_v4.5.137.json.sig",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-02-20T08:10:38Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: dist_corrupt/TRADER_OPS_READY_TO_DROP_v4.5.137.zip.sha256",
             "resolution": "Git Checkout"
         },
@@ -696,6 +675,27 @@
         },
         {
             "timestamp_utc": "2026-02-21T04:59:13Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.260",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-21T07:05:05Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.260",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-21T07:12:55Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.260",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-21T07:14:05Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.260",

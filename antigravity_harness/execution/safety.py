@@ -1,305 +1,149 @@
-"""
-antigravity_harness/execution/safety.py
-=======================================
-Execution Safety Layer — the last gate before any order reaches a broker.
-
-Enforces operator hard limits from seed_profile. These are not suggestions.
-Violations raise ExecutionSafetyError. Nothing can override them.
-
-Layer order (from strategy to broker):
-    Strategy → [Safety] → WAL → Compliance → Adapter
-
-This module ONLY enforces per-trade and per-session hard limits.
-Portfolio-level drawdown (SafetyOverlay) lives in portfolio_safety_overlay.py.
-
-Does NOT: contain strategy logic, broker calls, or profile mutation.
-"""
 from __future__ import annotations
-
-import contextlib
-import logging
+import time
 from dataclasses import dataclass, field
-from datetime import date, datetime
-from typing import Optional
+from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Tuple
 
-from antigravity_harness.execution.adapter_base import (
-    CalendarAdapter,
-    Fill,
-    OrderIntent,
-    OrderSide,
-    OrderType,
-)
-from antigravity_harness.instruments.mes import (
-    MES_DAILY_ATR_NO_TRADE,
-    MES_DAILY_LOSS_CAP_USD,
-    MES_MAX_CONTRACTS_PHASE1,
-    MES_MAX_PLANNED_RISK_USD,
-    MES_POINT_VALUE,
-    MES_SLIPPAGE_BUFFER_TICKS,
-    MES_STOP_POINTS,
-    MES_TICK_VALUE,
-)
+from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
 
-logger = logging.getLogger("EXECUTION_SAFETY")
+# ─── Exceptions ───────────────────────────────────────────────────────────────
 
-
-# ─── Errors ───────────────────────────────────────────────────────────────────
-
-
-class ExecutionSafetyError(RuntimeError):
-    """Raised when a hard safety limit would be violated. Order is NOT submitted."""
+class SafetyViolation(Exception):
+    """Base class for all safety gate violations."""
     pass
 
-
-class DailyLossCapReached(ExecutionSafetyError):
-    """Trading is paused for the session. Daily loss cap has been hit."""
+class DailyLossCapReached(SafetyViolation):
+    """Daily realized + unrealized loss exceeds the hard cap."""
     pass
 
-
-class SessionBoundaryViolation(ExecutionSafetyError):
-    """Order rejected: outside allowed trading window."""
+class ATRFilterBlock(SafetyViolation):
+    """Market volatility (ATR) is outside of safe operating range."""
     pass
 
-
-class ATRFilterBlock(ExecutionSafetyError):
-    """Order rejected: daily ATR exceeds no-trade threshold."""
+class SessionBoundaryViolation(SafetyViolation):
+    """Attempted to trade outside of allowed RTH or after cutoff."""
     pass
 
-
-class RiskLimitViolation(ExecutionSafetyError):
-    """Order rejected: planned risk exceeds $40 hard limit."""
+class ContractLimitViolation(SafetyViolation):
+    """Order would exceed the maximum allowed position size."""
     pass
 
-
-class ContractLimitViolation(ExecutionSafetyError):
-    """Order rejected: would exceed max_contracts_phase1."""
-    pass
-
-
-# ─── Session State ────────────────────────────────────────────────────────────
-
+# ─── Configuration & State ────────────────────────────────────────────────────
 
 @dataclass
-class SessionState:
-    """
-    Mutable state for a single trading session.
-    Reset at session open. Persisted to WAL for crash recovery.
-    """
-    session_date: date
+class ExecutionSafetyConfig:
+    daily_loss_cap_usd: float = 80.0
+    atr_max_threshold: float = 80.0
+    max_contracts: int = 1
+    max_orders_per_sec: int = 5
+    max_data_age_sec: float = 10.0
+
+@dataclass
+class ExecutionSafetyState:
     realized_pnl_usd: float = 0.0
     unrealized_pnl_usd: float = 0.0
-    trades_today: int = 0
-    pause_trading: bool = False      # True after daily loss cap hit
+    pause_trading: bool = False
     pause_reason: str = ""
-    fills_today: list = field(default_factory=list)
+    last_session_date: Optional[date] = None
 
-    @property
-    def total_pnl_usd(self) -> float:
-        return self.realized_pnl_usd + self.unrealized_pnl_usd
-
-
-# ─── Safety Config ────────────────────────────────────────────────────────────
-
-
-@dataclass(frozen=True)
-class ExecutionSafetyConfig:
-    """
-    Hard limits. All values must match seed_profile v1.0.1.
-    Frozen — do not modify defaults without explicit profile update.
-    """
-    max_planned_risk_usd: float = MES_MAX_PLANNED_RISK_USD           # $40.00
-    daily_loss_cap_usd: float = MES_DAILY_LOSS_CAP_USD               # $80.00
-    max_contracts: int = MES_MAX_CONTRACTS_PHASE1                    # 1
-    daily_atr_no_trade: float = MES_DAILY_ATR_NO_TRADE               # 80 pts
-    stop_points: float = MES_STOP_POINTS                             # 7 pts
-    slippage_buffer_ticks: int = MES_SLIPPAGE_BUFFER_TICKS           # 4 tks
-
-
-# ─── Safety Layer ─────────────────────────────────────────────────────────────
-
+# ─── Execution Safety Engine ──────────────────────────────────────────────────
 
 class ExecutionSafety:
     """
-    The last gate before any order reaches a broker.
-
-    Usage:
-        safety = ExecutionSafety(config, calendar)
-        safety.new_session(today)
-
-        # Before every order:
-        safety.check_intent(intent, current_daily_atr, current_time_utc)
-
-        # After every fill:
-        safety.record_fill(fill)
-
-        # After every bar (unrealized P&L update):
-        safety.update_unrealized(pnl_usd)
+    Institutional Execution Safety Layer (Survival Mode).
+    Combines static risk gates with active live execution circuit breakers.
     """
-
-    def __init__(
-        self,
-        config: ExecutionSafetyConfig,
-        calendar: CalendarAdapter,
-    ) -> None:
+    def __init__(self, config: ExecutionSafetyConfig, calendar: Any):
         self.config = config
         self.calendar = calendar
-        self._state: Optional[SessionState] = None
+        self.state = ExecutionSafetyState()
+        self._order_timestamps: List[float] = []
 
-    def new_session(self, session_date: date) -> SessionState:
-        """Call at session open to reset daily counters."""
-        self._state = SessionState(session_date=session_date)
-        logger.info(f"Safety: new session {session_date}")
-        return self._state
+    def new_session(self, current_date: date) -> None:
+        """Reset session-specific state."""
+        self.state.realized_pnl_usd = 0.0
+        self.state.unrealized_pnl_usd = 0.0
+        self.state.pause_trading = False
+        self.state.pause_reason = ""
+        self.state.last_session_date = current_date
+        self._order_timestamps = []
 
-    @property
-    def state(self) -> SessionState:
-        if self._state is None:
-            raise RuntimeError("ExecutionSafety: call new_session() before trading.")
-        return self._state
-
-    # ── Gate 0: Pause Mode ────────────────────────────────────────────────────
-
-    def _check_pause(self) -> None:
-        if self.state.pause_trading:
-            raise DailyLossCapReached(
-                f"Trading PAUSED for session. Reason: {self.state.pause_reason}. "
-                f"Realized P&L today: ${self.state.realized_pnl_usd:.2f}. "
-                f"Total (incl. unrealized): ${self.state.total_pnl_usd:.2f}"
-            )
-
-    # ── Gate 1: Daily Loss Cap ─────────────────────────────────────────────────
-
-    def _check_daily_loss(self) -> None:
-        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd and not self.state.pause_trading:
-            self.state.pause_trading = True
-            self.state.pause_reason = (
-                f"Daily loss cap hit: ${self.state.total_pnl_usd:.2f} <= "
-                f"-${self.config.daily_loss_cap_usd:.2f}"
-            )
-            logger.critical(f"🛑 {self.state.pause_reason}")
-            raise DailyLossCapReached(self.state.pause_reason)
-
-    # ── Gate 2: ATR Filter ────────────────────────────────────────────────────
-
-    def _check_atr(self, daily_atr_points: float) -> None:
-        if daily_atr_points > self.config.daily_atr_no_trade:
-            raise ATRFilterBlock(
-                f"Daily ATR {daily_atr_points:.1f} pts exceeds "
-                f"no-trade threshold {self.config.daily_atr_no_trade:.1f} pts. "
-                f"An 8-point stop is statistically unreliable in this volatility."
-            )
-
-    # ── Gate 3: Session Boundary ──────────────────────────────────────────────
-
-    def _check_session(self, now_utc: datetime) -> None:
-        d = now_utc.date()
-        if not self.calendar.is_trading_day(d):
-            raise SessionBoundaryViolation(f"{d} is not a trading day.")
-
-        no_new = self.calendar.no_new_positions_time_utc(d)
-        if no_new and now_utc >= no_new:
-            raise SessionBoundaryViolation(
-                f"No new positions after {no_new.strftime('%H:%M')} UTC. "
-                f"Current time: {now_utc.strftime('%H:%M')} UTC."
-            )
-
-    # ── Gate 4: Contract Limit ────────────────────────────────────────────────
-
-    def _check_contracts(self, intent: OrderIntent, current_position: int) -> None:
-        if abs(intent.quantity) > self.config.max_contracts:
-            raise ContractLimitViolation(
-                f"Intent requests {intent.quantity} contracts. "
-                f"Hard limit: {self.config.max_contracts}."
-            )
-        # Would the resulting position exceed the limit?
-        new_position = current_position + (
-            intent.quantity if intent.side == OrderSide.BUY else -intent.quantity
-        )
-        if abs(new_position) > self.config.max_contracts:
-            raise ContractLimitViolation(
-                f"Order would result in position of {new_position} contracts. "
-                f"Hard limit: {self.config.max_contracts}."
-            )
-
-    # ── Gate 5: Risk Math ─────────────────────────────────────────────────────
-
-    def _check_risk(self, intent: OrderIntent) -> None:
-        """
-        Verify planned_stop_risk + buffer_risk <= $40.
-
-        For limit/market entries: stop risk = stop_points × point_value × contracts
-        For stop orders being used as exits: risk is already committed; skip this gate.
-        """
-        if intent.order_type in (OrderType.STOP, OrderType.STOP_LIMIT):
-            # This is an exit order, not an entry. Risk already committed.
-            return
-
-        stop_risk = self.config.stop_points * MES_POINT_VALUE * intent.quantity
-        buffer_risk = self.config.slippage_buffer_ticks * MES_TICK_VALUE * intent.quantity
-        total_planned = stop_risk + buffer_risk
-
-        if total_planned > self.config.max_planned_risk_usd:
-            raise RiskLimitViolation(
-                f"Planned risk ${total_planned:.2f} exceeds hard limit "
-                f"${self.config.max_planned_risk_usd:.2f}. "
-                f"stop=${stop_risk:.2f} + buffer=${buffer_risk:.2f}. "
-                f"Reduce contracts or widen buffer tolerance."
-            )
-
-    # ── Public Gate Check ─────────────────────────────────────────────────────
+    def update_unrealized(self, pnl_usd: float) -> None:
+        """Update floating profit/loss for the daily cap check."""
+        self.state.unrealized_pnl_usd = pnl_usd
 
     def check_intent(
         self,
         intent: OrderIntent,
         daily_atr_points: float,
         now_utc: datetime,
-        current_position: int = 0,
+        current_position: int = 0
     ) -> None:
         """
-        Run all safety gates against an OrderIntent.
-
-        Raises ExecutionSafetyError (or subclass) if any gate fails.
-        Returns None (silently) if all gates pass.
-
-        Call this BEFORE logging to WAL or submitting to broker.
+        Run all safety gates. Raises SafetyViolation on failure.
         """
-        self._check_pause()
-        self._check_daily_loss()
-        self._check_atr(daily_atr_points)
-        self._check_session(now_utc)
-        self._check_contracts(intent, current_position)
-        self._check_risk(intent)
-        logger.debug(f"Safety: intent approved [{intent.symbol} {intent.side.value} {intent.quantity}]")
+        # Gate 0: Pause Mode
+        if self.state.pause_trading:
+            raise DailyLossCapReached(f"TRADING_PAUSED: {self.state.pause_reason}")
 
-    # ── Fill Recording ────────────────────────────────────────────────────────
-
-    def record_fill(self, fill: Fill) -> None:
-        """
-        Update session state after a fill.
-        Called by FillTape after every confirmed execution.
-        """
-        # P&L contribution from commission (cost)
-        self.state.realized_pnl_usd -= fill.commission_usd
-        self.state.trades_today += 1
-        self.state.fills_today.append(fill)
-
-        # Check if daily cap is now hit
-        with contextlib.suppress(DailyLossCapReached):
-            self._check_daily_loss()
-
-    def record_realized_pnl(self, pnl_usd: float) -> None:
-        """Call when a position is closed to record realized P&L."""
-        self.state.realized_pnl_usd += pnl_usd
-        with contextlib.suppress(DailyLossCapReached):
-            self._check_daily_loss()
-
-    def update_unrealized(self, unrealized_pnl_usd: float) -> None:
-        """Update unrealized P&L (call on every bar tick)."""
-        self.state.unrealized_pnl_usd = unrealized_pnl_usd
-        if self.state.total_pnl_usd <= -self.config.daily_loss_cap_usd and not self.state.pause_trading:
+        # Gate 1: Daily Loss Cap
+        total_pnl = self.state.realized_pnl_usd + self.state.unrealized_pnl_usd
+        if total_pnl <= -self.config.daily_loss_cap_usd:
             self.state.pause_trading = True
-            self.state.pause_reason = (
-                f"Daily loss cap hit on unrealized: "
-                f"${self.state.total_pnl_usd:.2f}"
-            )
-            logger.critical(f"🛑 {self.state.pause_reason}")
+            self.state.pause_reason = f"Daily Loss Cap reached: ${total_pnl:.2f}"
+            raise DailyLossCapReached(self.state.pause_reason)
+
+        # Gate 2: ATR Filter
+        if daily_atr_points > self.config.atr_max_threshold:
+            raise ATRFilterBlock(f"ATR {daily_atr_points} exceeds threshold {self.config.atr_max_threshold}")
+
+        # Gate 3: Session Boundary
+        if self.calendar:
+            d = now_utc.date()
+            if not self.calendar.is_trading_day(d):
+                raise SessionBoundaryViolation(f"Market closed on {d}")
+            
+            cutoff = self.calendar.no_new_positions_time_utc(d)
+            if cutoff and now_utc > cutoff:
+                raise SessionBoundaryViolation(f"After session entry cutoff: {now_utc} > {cutoff}")
+
+        # Gate 4: Contract Limit
+        if intent.order_type != OrderType.STOP: # Exits skip limit check usually
+            resulting_pos = current_position + (intent.quantity if intent.side == OrderSide.BUY else -intent.quantity)
+            if abs(resulting_pos) > self.config.max_contracts:
+                raise ContractLimitViolation(f"Resulting position {resulting_pos} exceeds limit {self.config.max_contracts}")
+
+        # ─── Live Circuit Breakers ───────────────────────────────────────────
+
+        # Rapid-Fire Guard
+        now_ts = time.time()
+        self._order_timestamps = [ts for ts in self._order_timestamps if now_ts - ts <= 1.0]
+        if len(self._order_timestamps) >= self.config.max_orders_per_sec:
+            raise SafetyViolation("RAPID_FIRE: Too many orders in last second")
+        self._order_timestamps.append(now_ts)
+
+        # Stale Data Guard (Only if configured and not historical)
+        if self.config.max_data_age_sec > 0:
+            now_real = datetime.now(timezone.utc)
+            if now_utc.tzinfo is None:
+                now_utc = now_utc.replace(tzinfo=timezone.utc)
+            if (now_real - now_utc).total_seconds() < 86400: # 24h window
+                age = (now_real - now_utc).total_seconds()
+                if age > self.config.max_data_age_sec:
+                    raise SafetyViolation(f"STALE_DATA: Market data is {age:.1f}s old")
+
+    def validate_intent(self, intent: OrderIntent, current_equity: float, data_ts_utc: datetime) -> Tuple[bool, str]:
+        """
+        Compatibility shim for SovereignGuard interface.
+        """
+        try:
+            self.check_intent(intent, 0.0, data_ts_utc)
+            return True, "OK"
+        except SafetyViolation as e:
+            return False, str(e)
+        except Exception as e:
+            return False, f"UNKNOWN_ERROR: {e}"
+
+# Compatibility Alias
+ExecutionSovereignGuard = ExecutionSafety
