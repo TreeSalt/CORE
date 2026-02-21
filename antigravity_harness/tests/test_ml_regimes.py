@@ -1,13 +1,10 @@
 import unittest
-import pandas as pd
-import numpy as np
 
-from antigravity_harness.regimes import (
-    RegimeConfig,
-    compute_regime_indicators,
-    infer_regimes_from_metrics,
-    RegimeLabel
-)
+import numpy as np
+import pandas as pd
+
+from antigravity_harness.regimes import RegimeConfig, RegimeLabel, compute_regime_indicators, infer_regimes_from_metrics
+
 
 class TestMLRegimes(unittest.TestCase):
     def test_ml_clustering_end_to_end(self):

@@ -270,18 +270,18 @@ def _infer_single_regime(
     return label, flags, m, is_trending, is_high_vol
 
 
-def _infer_ml_regimes(
+def _infer_ml_regimes(  # noqa: PLR0912, PLR0915
     metrics_df: pd.DataFrame, cfg: RegimeConfig
 ) -> List[RegimeState]:
     """
     Perform expanding/rolling K-Means clustering to classify market regimes.
     Auto-maps K centroids to RegimeLabels (TREND, HIGH_VOL, PANIC, RANGE).
     """
-    import warnings
+    import warnings  # noqa: PLC0415
     # Local import to prevent slow initial module load for non-ML users
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        from sklearn.cluster import KMeans
+        from sklearn.cluster import KMeans  # noqa: PLC0415
 
     n = len(metrics_df)
     features = ["trend_z", "vol_ratio", "drawdown"]
