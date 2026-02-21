@@ -17,6 +17,17 @@ class LatencyModel(BaseModel):
     size_scaling_ms: float = 0.0  # Scale with order size vs bar volume
 
 
+class DarkPoolModel(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    enabled: bool = False
+    fail_prob: float = 0.2              # Prob of failing to find dark liquidity
+    improvement_prob: float = 0.5       # Prob of getting mid-point improvement on fill
+    improvement_bps: float = 1.0        # Magnitude of improvement
+    adverse_selection_prob: float = 0.1 # Prob of fill moving against us immediately
+    adverse_selection_bps: float = 2.0  # Magnitude of adverse slippage
+    info_leakage_bps: float = 0.5       # Leakage penalty if dark fill fails and goes to lit
+
+
 class EngineConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
     initial_cash: float = 10_000.0
@@ -33,6 +44,7 @@ class EngineConfig(BaseModel):
     interval: str = "1d"  # Phase 10.4: Time Physics (e.g. "4h", "15m")
     forensic_backfill: Optional[str] = None  # Phase 11: Real-world latency/slippage ingestion
     latency_model: LatencyModel = LatencyModel() # Item 14: Dynamic Execution Delay
+    dark_pool_model: DarkPoolModel = DarkPoolModel() # Item 15: Dark Pool Simulation
     
     # Item 11: Fiduciary Control
     fiduciary_enabled: bool = False

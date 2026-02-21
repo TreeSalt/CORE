@@ -23,7 +23,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Optional
 
-from antigravity_harness.config import LatencyModel
+import random
+from antigravity_harness.config import LatencyModel, DarkPoolModel
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,
     ExecutionAdapter,
@@ -67,6 +68,7 @@ class SimExecutionAdapter(ExecutionAdapter):
         commission_per_rt: float = 0.85,
         sim_slippage_ticks: int = 0,
         latency_model: Optional[LatencyModel] = None,
+        dark_pool_model: Optional[DarkPoolModel] = None,
         fill_tape: Optional[FillTape] = None,
         paper: bool = True,
     ) -> None:
@@ -74,6 +76,7 @@ class SimExecutionAdapter(ExecutionAdapter):
         self._commission_per_rt = commission_per_rt
         self._sim_slippage_ticks = sim_slippage_ticks
         self._latency_model = latency_model or LatencyModel()
+        self._dark_pool_model = dark_pool_model or DarkPoolModel()
         self._fill_tape = fill_tape
         self._paper = paper
         self._positions: dict[str, int] = {}        # symbol → qty
@@ -181,7 +184,34 @@ class SimExecutionAdapter(ExecutionAdapter):
 
         # Apply synthetic slippage
         slip_pts = self._sim_slippage_ticks * MES_TICK_SIZE
-        fill_price = base_price + slip_pts if intent.side == OrderSide.BUY else base_price - slip_pts
+        
+        # Item 15: Dark Pool Logic
+        dp = self._dark_pool_model
+        is_dark_fill = False
+        extra_slippage_bps = 0.0
+        
+        if dp.enabled:
+            # 1. Check for Dark Pool Fail (Leakage)
+            if random.random() < dp.fail_prob:
+                extra_slippage_bps = dp.info_leakage_bps
+                is_dark_fill = False
+            else:
+                is_dark_fill = True
+                # 2. Roll for Improvement vs Adverse Selection
+                roll = random.random()
+                if roll < dp.improvement_prob:
+                    # Price Improvement (Negative slippage)
+                    extra_slippage_bps = -dp.improvement_bps
+                elif roll < (dp.improvement_prob + dp.adverse_selection_prob):
+                    # Adverse Selection
+                    extra_slippage_bps = dp.adverse_selection_bps
+        
+        # Net Slippage Calculation
+        net_slippage_bps = (extra_slippage_bps / 10000.0)
+        fill_price = base_price * (1.0 + net_slippage_bps) if intent.side == OrderSide.BUY else base_price * (1.0 - net_slippage_bps)
+        
+        # Add tick-based slippage on top
+        fill_price = fill_price + slip_pts if intent.side == OrderSide.BUY else fill_price - slip_pts
 
         commission = self._commission_per_rt * intent.quantity
         now = datetime.now(tz=timezone.utc)
