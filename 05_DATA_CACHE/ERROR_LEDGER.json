@@ -3,13 +3,6 @@
     "events": [
         {
             "timestamp_utc": "2026-02-20T08:10:38Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist_corrupt/TRADER_OPS_READY_TO_DROP_v4.5.137.zip.sha256",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-02-20T08:10:38Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.139",
@@ -696,6 +689,13 @@
         },
         {
             "timestamp_utc": "2026-02-21T07:14:05Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.260",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-21T07:15:34Z",
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.260",

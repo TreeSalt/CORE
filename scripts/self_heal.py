@@ -136,12 +136,13 @@ AUTHORIZED_MUTATIONS = [
     "antigravity_harness/grid/", # Item 23 Grid / Item 25 Evolution
     "antigravity_harness/ledger.py", # Item 24 Ledger
     "antigravity_harness/dashboard.py", # Item 28 Dashboard
-    "v9e_stage/state/STRATEGY_LEDGER.json", # Ledger Data
+    "state/STRATEGY_LEDGER.json", # Ledger Data
     "antigravity_harness/execution/safety.py", # Item 27 Safety
     "antigravity_harness/tests/test_safety_breakers.py", # Item 27 Tests
     "antigravity_harness/phoenix.py", # Item 27 Integration
+    "reports/", # Item 28/29 Artifacts
 ]
-AUTHORIZED_MUTATIONS_HASH = "2d170f68b2b72b54e2c71f4e238451d25c56a28ab200bf8cf0dfd8c3ae4d40f9"
+AUTHORIZED_MUTATIONS_HASH = "cc7ab5a03f628216aea4a8aab747035b7694604cde5b1cdcaf0b9d5d4d71239e"
 
 
 def print_status(msg, status="INFO"):
