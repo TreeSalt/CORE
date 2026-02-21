@@ -10,6 +10,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from antigravity_harness.paths import DATA_DIR
 
 
+class LatencyModel(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    base_ms: float = 0.0          # Fixed infra/network delay
+    vol_scaling_ms: float = 0.0   # Scale with market volatility (multiplier)
+    size_scaling_ms: float = 0.0  # Scale with order size vs bar volume
+
+
 class EngineConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
     initial_cash: float = 10_000.0
@@ -25,6 +32,7 @@ class EngineConfig(BaseModel):
     is_crypto: bool = True  # Phase 10.3: Asset Class Awareness (True=365, False=252)
     interval: str = "1d"  # Phase 10.4: Time Physics (e.g. "4h", "15m")
     forensic_backfill: Optional[str] = None  # Phase 11: Real-world latency/slippage ingestion
+    latency_model: LatencyModel = LatencyModel() # Item 14: Dynamic Execution Delay
     
     # Item 11: Fiduciary Control
     fiduciary_enabled: bool = False

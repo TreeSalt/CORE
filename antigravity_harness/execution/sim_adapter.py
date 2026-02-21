@@ -23,6 +23,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Optional
 
+from antigravity_harness.config import LatencyModel
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,
     ExecutionAdapter,
@@ -65,14 +66,14 @@ class SimExecutionAdapter(ExecutionAdapter):
         initial_cash: float = 2000.0,
         commission_per_rt: float = 0.85,
         sim_slippage_ticks: int = 0,
-        sim_delay_ms: int = 0,
+        latency_model: Optional[LatencyModel] = None,
         fill_tape: Optional[FillTape] = None,
         paper: bool = True,
     ) -> None:
         self._cash = initial_cash
         self._commission_per_rt = commission_per_rt
         self._sim_slippage_ticks = sim_slippage_ticks
-        self._sim_delay_ms = sim_delay_ms
+        self._latency_model = latency_model or LatencyModel()
         self._fill_tape = fill_tape
         self._paper = paper
         self._positions: dict[str, int] = {}        # symbol → qty
@@ -82,6 +83,8 @@ class SimExecutionAdapter(ExecutionAdapter):
         self._realized_pnl: float = 0.0
         self._connected = False
         self._current_prices: dict[str, float] = {}  # set externally for unrealized P&L
+        self._current_volumes: dict[str, float] = {}
+        self._current_vols: dict[str, float] = {}
 
     @property
     def capabilities(self) -> AdapterCapabilities:
@@ -106,9 +109,11 @@ class SimExecutionAdapter(ExecutionAdapter):
     async def disconnect(self) -> None:
         self._connected = False
 
-    def set_price(self, symbol: str, price: float) -> None:
-        """Set the current mid price for a symbol (for market order fills)."""
+    def set_price(self, symbol: str, price: float, volume: float = 0.0, volatility: float = 0.0) -> None:
+        """Set the current price, volume, and volatility for a symbol."""
         self._current_prices[symbol] = price
+        self._current_volumes[symbol] = volume
+        self._current_vols[symbol] = volatility
 
     async def get_position(self, symbol: str) -> Position:
         qty = self._positions.get(symbol, 0)
@@ -157,8 +162,9 @@ class SimExecutionAdapter(ExecutionAdapter):
 
         # Market orders fill immediately (after optional delay)
         if intent.order_type == OrderType.MARKET:
-            if self._sim_delay_ms > 0:
-                await asyncio.sleep(self._sim_delay_ms / 1000.0)
+            delay_ms = self._calculate_dynamic_delay(intent)
+            if delay_ms > 0:
+                await asyncio.sleep(delay_ms / 1000.0)
             
             fill = await self._fill_market_order(order)
             
@@ -218,6 +224,26 @@ class SimExecutionAdapter(ExecutionAdapter):
             )
 
         return fill
+
+    def _calculate_dynamic_delay(self, intent: OrderIntent) -> float:
+        """Item 14: Dynamic latency calculation based on model settings."""
+        if not self._latency_model:
+            return 0.0
+            
+        delay = self._latency_model.base_ms
+        
+        # 1. Volatility Scaling
+        symbol = intent.symbol
+        vol = self._current_vols.get(symbol, 0.0)
+        delay += vol * self._latency_model.vol_scaling_ms
+        
+        # 2. Size Scaling (Order Qty / Bar Volume)
+        volume = self._current_volumes.get(symbol, 0.0)
+        if volume > 0:
+            size_impact = (intent.quantity / volume) * self._latency_model.size_scaling_ms
+            delay += size_impact
+            
+        return delay
 
     async def cancel_order(self, broker_order_id: str) -> bool:
         if broker_order_id in self._open_orders:
