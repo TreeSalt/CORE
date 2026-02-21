@@ -44,9 +44,15 @@ class RegimeConfig(BaseModel):
     corr_lookback: int = 60  # Rolling window for baseline correlation
     corr_z_threshold: float = 2.0  # Z-score threshold for spike detection
 
+    # Item 17: ML Classification
+    use_ml_classification: bool = False
+    ml_clusters: int = 4
+    ml_fit_window: int = 252  # Periodic re-fit interval
+
     # Legacy compat (will be ignored if Schmitt logic used)
     trend_threshold: float = 0.5
     vol_ratio_threshold: float = 1.2
+
 
 
 @dataclass
@@ -178,9 +184,12 @@ def infer_regimes_from_metrics(
     metrics_df: pd.DataFrame, cfg: RegimeConfig
 ) -> List[RegimeState]:
     """
-    Apply Schmitt Trigger logic iteratively over pre-computed metrics.
-    Fast O(N) loop (just logic, no heavy math).
+    Apply Schmitt Trigger or ML Clustering iteratively over pre-computed metrics.
+    Fast O(N) loop (just logic, no heavy math) for Schmitt.
     """
+    if getattr(cfg, "use_ml_classification", False):
+        return _infer_ml_regimes(metrics_df, cfg)
+        
     states = []
     
     # Schmitt Hysteresis State
@@ -259,6 +268,117 @@ def _infer_single_regime(
         "avg_corr": avg_corr, "corr_z": corr_z,
     }
     return label, flags, m, is_trending, is_high_vol
+
+
+def _infer_ml_regimes(
+    metrics_df: pd.DataFrame, cfg: RegimeConfig
+) -> List[RegimeState]:
+    """
+    Perform expanding/rolling K-Means clustering to classify market regimes.
+    Auto-maps K centroids to RegimeLabels (TREND, HIGH_VOL, PANIC, RANGE).
+    """
+    import warnings
+    # Local import to prevent slow initial module load for non-ML users
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        from sklearn.cluster import KMeans
+
+    n = len(metrics_df)
+    features = ["trend_z", "vol_ratio", "drawdown"]
+    X = metrics_df[features].fillna(0).values
+
+    labels_arr = np.zeros(n, dtype=int)
+    cluster_to_label = {}
+    current_model = None
+    
+    fit_window = getattr(cfg, "ml_fit_window", 252)
+    clusters = getattr(cfg, "ml_clusters", 4)
+
+    for i in range(n):
+        if i < cfg.window:
+            continue
+            
+        # Re-fit every 'fit_window' bars or on first valid bar
+        if current_model is None or (i % fit_window == 0 and i >= cfg.window + clusters):
+            start_ix = max(0, i - fit_window)
+            X_train = X[start_ix:i]
+            
+            # Fallback if sparse
+            if len(X_train) < clusters:
+                X_train = X[0:i]
+                
+            if len(X_train) >= clusters:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    current_model = KMeans(n_clusters=clusters, random_state=42, n_init="auto")
+                    current_model.fit(X_train)
+                
+                centroids = current_model.cluster_centers_
+                # 0=trend_z, 1=vol_ratio, 2=drawdown
+                panic_idx = int(np.argmin(centroids[:, 2]))  # Deepest drawdown
+                remaining = [j for j in range(clusters) if j != panic_idx]
+                
+                cluster_to_label = {panic_idx: RegimeLabel.PANIC}
+                
+                if remaining:
+                    med_trend = np.median(centroids[remaining, 0])
+                    med_vol = np.median(centroids[remaining, 1])
+                    for j in remaining:
+                        c_trend, c_vol = centroids[j, 0], centroids[j, 1]
+                        is_trend = c_trend >= med_trend
+                        is_high_vol = c_vol >= med_vol
+                        
+                        if is_trend and is_high_vol:
+                            cluster_to_label[j] = RegimeLabel.TREND_HIGH_VOL
+                        elif is_trend and not is_high_vol:
+                            cluster_to_label[j] = RegimeLabel.TREND_LOW_VOL
+                        elif not is_trend and is_high_vol:
+                            cluster_to_label[j] = RegimeLabel.RANGE_HIGH_VOL
+                        else:
+                            cluster_to_label[j] = RegimeLabel.RANGE_LOW_VOL
+
+        if current_model is not None:
+            pred = current_model.predict(X[i:i+1])[0]
+            labels_arr[i] = pred
+            
+    states = []
+    # Pre-fetch numpy arrays for mapping phase
+    dd_arr = metrics_df["drawdown"].values
+    vr_arr = metrics_df["vol_ratio"].values
+    disp_arr = metrics_df["dispersion_ratio"].values
+    corr_z_arr = metrics_df["corr_z"].values
+    rv_arr = metrics_df["realized_vol_annual"].values
+    dz_arr = metrics_df["trend_z"].values
+    td_arr = metrics_df["trend_dir"].values
+    ac_arr = metrics_df["avg_corr"].values
+    
+    for i in range(n):
+        if i < cfg.window or current_model is None:
+            states.append(RegimeState(RegimeLabel.UNKNOWN, {"status": "warmup"}))
+            continue
+            
+        c_idx = labels_arr[i]
+        label = cluster_to_label.get(c_idx, RegimeLabel.UNKNOWN)
+        
+        # Hard Panic Override (Same as Schmitt logic)
+        flags = set()
+        if (dd_arr[i] < cfg.panic_drawdown and vr_arr[i] > cfg.panic_vol_spike) or (dd_arr[i] < cfg.panic_drawdown_extreme):
+            label = RegimeLabel.PANIC
+            flags.add(RegimeFlag.PANIC)
+            
+        if disp_arr[i] > 1.5: 
+            flags.add(RegimeFlag.DISPERSION_HIGH)
+        if corr_z_arr[i] > cfg.corr_z_threshold:
+            flags.add(RegimeFlag.CORR_SPIKE)
+             
+        m = {
+            "trend_z": dz_arr[i], "vol_ratio": vr_arr[i], "drawdown": dd_arr[i],
+            "dispersion_ratio": disp_arr[i], "trend_dir": td_arr[i], "realized_vol_annual": rv_arr[i],
+            "avg_corr": ac_arr[i], "corr_z": corr_z_arr[i],
+        }
+        states.append(RegimeState(label, flags, m))
+        
+    return states
 
 
 def detect_regime(  # noqa: PLR0912, PLR0915
