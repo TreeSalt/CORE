@@ -153,6 +153,9 @@ class StrategyParams(BaseModel):
     stop_atr: float = 2.0
     risk_per_trade: float = 0.0  # 0.0 = 100% Cash; 0.02 = 2% Risk
     sizing_multiplier: float = 1.0  # Phase 6E: Scales risk based on plateau depth
+    use_kelly: bool = False  # Item 7: Enable Kelly Criterion sizing
+    kelly_multiplier: float = 0.5  # Fractional Kelly (e.g., 0.5 = Half Kelly)
+    kelly_max_risk: float = 0.05  # Maximum risk per trade when using Kelly
 
     # 4. Ablation / Control
     disable_sma: bool = False

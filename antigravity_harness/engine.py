@@ -31,7 +31,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0):
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05):
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
@@ -40,6 +40,9 @@ class SimulatedAccount:
         self.allow_fractional = allow_fractional
         self.fill_tape = fill_tape
         self.sizing_multiplier = sizing_multiplier
+        self.use_kelly = use_kelly
+        self.kelly_multiplier = kelly_multiplier
+        self.kelly_max_risk = kelly_max_risk
         self.trades: List[Trade] = []
 
     @property
@@ -81,6 +84,19 @@ class SimulatedAccount:
             equity = self.total_value(fill_price)
             # Apply Sizing Multiplier (Autonomous Plateau Scaling)
             risk_amt = equity * risk_pct * self.sizing_multiplier
+
+            # Item 7: Kelly Criterion Scaling
+            if self.use_kelly:
+                from antigravity_harness.metrics import kelly_fraction  # noqa: PLC0415
+                k = kelly_fraction(self.trades) if self.trades else 0.0
+                # Use a baseline if no trades yet? Or just stick to risk_pct
+                if k > 0:
+                    # Risk is min(Kelly * Multiplier, Cap)
+                    kelly_risk = min(k * self.kelly_multiplier, self.kelly_max_risk)
+                    # Override/Scale the risk_pct? 
+                    # Usually, Kelly replaces a fixed risk_pct.
+                    # We'll use Kelly as the risk_pct if it's > 0, otherwise fallback to risk_pct.
+                    risk_amt = equity * kelly_risk * self.sizing_multiplier
             risk_per_share = fill_price - stop_price
             if risk_per_share > 0:
                 qty_risk = risk_amt / risk_per_share
@@ -331,6 +347,9 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         allow_fractional=engine_cfg.allow_fractional_shares,
         fill_tape=tape,
         sizing_multiplier=params.sizing_multiplier,
+        use_kelly=params.use_kelly,
+        kelly_multiplier=params.kelly_multiplier,
+        kelly_max_risk=params.kelly_max_risk,
     )
 
     # Boot the Phoenix Protocol Auditor

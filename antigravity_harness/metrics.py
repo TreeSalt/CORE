@@ -65,6 +65,34 @@ def profit_factor(trades: List[Any]) -> float:
     return float(gains / losses)
 
 
+def kelly_fraction(trades: List[Any]) -> float:
+    """
+    Calculates the Kelly Criterion fraction: K% = W - (1 - W) / R
+    W = Win Rate, R = Win/Loss Ratio (Avg Win / Avg Loss)
+    Returns the recommended risk fraction (e.g., 0.20 for 20% risk).
+    """
+    if not trades:
+        return 0.0
+
+    wins = [float(t.pnl_pct) for t in trades if float(t.pnl_abs) > 0]
+    losses = [abs(float(t.pnl_pct)) for t in trades if float(t.pnl_abs) < 0]
+
+    if not wins or not losses:
+        return 0.0
+
+    win_rate = len(wins) / len(trades)
+    avg_win = np.mean(wins)
+    avg_loss = np.mean(losses)
+
+    if avg_loss == 0:
+        return 1.0  # Perfect strategy (in theory)
+
+    win_loss_ratio = avg_win / avg_loss
+    k = win_rate - (1 - win_rate) / win_loss_ratio
+
+    return float(max(0.0, k))
+
+
 def expectancy(trades: List[Any]) -> float:
     """Average per-trade return (pct), not annualized."""
     if not trades:
@@ -127,6 +155,8 @@ def compute_metrics(equity: pd.Series, trades: List[Any], periods_per_year: int,
     out["max_dd_pct"] = out["max_drawdown"]
     out["sharpe_ratio"] = out["daily_sharpe"]
     out["expectancy_pct"] = out["expectancy"]
+
+    out["kelly_fraction"] = kelly_fraction(trades)
 
     return out
 

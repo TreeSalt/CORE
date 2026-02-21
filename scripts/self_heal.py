@@ -182,7 +182,7 @@ def check_environment(fix=False):
 
 def verify_authorized_list_integrity(authorized: list) -> bool:
     """Verifies that the authorized mutation list has not been tampered with."""
-    EXPECTED_HASH = "3a879aef6f06f46653cba3b8610a151c5c9bea22f48a8794f0c730166e1b2cb1"
+    EXPECTED_HASH = "1005210f1a1fa4ab9695a39da52989fd43268aea7c33d397ee4f8f7e979b6d01"
     actual_hash = hashlib.sha256("".join(authorized).encode()).hexdigest()
     if actual_hash != EXPECTED_HASH:
         print_status(f"INTEGRITY BREACH: Authorized list tampered! (Hash: {actual_hash[:8]}...)", "FAIL")
@@ -298,6 +298,8 @@ def git_surgeon(fix=False):
         "antigravity_harness/config.py", # Item 6 Autonomous Plateau Sizing
         "antigravity_harness/engine.py", # Item 6 Autonomous Plateau Sizing
         "antigravity_harness/tests/test_sizing.py", # Item 6 Autonomous Plateau Sizing
+        "antigravity_harness/metrics.py", # Item 7 Kelly Criterion Sizing
+        "antigravity_harness/tests/test_kelly_sizing.py", # Item 7 Kelly Criterion Sizing
     ]
 
     # V4 Integrity Seal
