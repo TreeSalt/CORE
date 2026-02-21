@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 /*
  * Item 21: Bit-Perfect Physics Mirror (C Core).
  * Deterministic calculation of account equity and position state.
