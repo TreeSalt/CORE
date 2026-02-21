@@ -1,7 +1,6 @@
-import unittest
-import os
-import subprocess
 import shutil
+import subprocess
+import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
@@ -21,7 +20,7 @@ class TestV5Security(unittest.TestCase):
         test_file.write_text(bad_code)
         
         cmd = ["python3", "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")]
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT, check=False)
         self.assertIn("[SHELL] Risky 'shell=True'", result.stdout)
         self.assertEqual(result.returncode, 1)
 
@@ -31,7 +30,7 @@ class TestV5Security(unittest.TestCase):
         test_file.write_text(bad_code)
         
         result = subprocess.run(["python3", "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")], 
-                               capture_output=True, text=True, cwd=REPO_ROOT)
+                               capture_output=True, text=True, cwd=REPO_ROOT, check=False)
         self.assertIn("[IMPORT] Unsafe module 'pickle'", result.stdout)
 
     def test_vuln_scanner_detects_secrets(self):
@@ -47,7 +46,7 @@ class TestV5Security(unittest.TestCase):
             bad_file = secret_test_dir / "shadow.py"
             bad_file.write_text(bad_code)
             result = subprocess.run(["python3", "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")], 
-                                   capture_output=True, text=True, cwd=REPO_ROOT)
+                                   capture_output=True, text=True, cwd=REPO_ROOT, check=False)
             self.assertIn("[SECRET] Potential high-entropy target", result.stdout)
         finally:
             if secret_test_dir.exists():
@@ -59,7 +58,7 @@ class TestV5Security(unittest.TestCase):
         
         try:
             result = subprocess.run(["python3", "-B", str(REPO_ROOT / "scripts/self_heal.py")], 
-                                   capture_output=True, text=True, cwd=REPO_ROOT)
+                                   capture_output=True, text=True, cwd=REPO_ROOT, check=False)
             self.assertIn("SECURITY VIOLATION: Untracked executables", result.stdout)
             self.assertEqual(result.returncode, 1)
         finally:

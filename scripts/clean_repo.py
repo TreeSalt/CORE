@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 
-def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict: bool = False, deep_audit: bool = False) -> int:  # noqa: PLR0912
+def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict: bool = False, deep_audit: bool = False) -> int:  # noqa: PLR0912, PLR0915
     root = Path(__file__).parent.parent.resolve()
 
     is_verify_only = verify_strict or deep_audit or (not clean and not clean_generated)

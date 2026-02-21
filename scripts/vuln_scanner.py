@@ -47,11 +47,10 @@ class VulnVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         # Scan for shell=True in subprocess
-        if isinstance(node.func, ast.Attribute):
-            if node.func.attr in ("run", "Popen", "call", "check_call", "check_output"):
-                for kw in node.keywords:
-                    if kw.arg == "shell" and isinstance(kw.value, ast.Constant) and kw.value.value is True:
-                        self.issues.append(f"[SHELL] Risky 'shell=True' in subprocess.{node.func.attr} at line {node.lineno}")
+        if isinstance(node.func, ast.Attribute) and node.func.attr in ("run", "Popen", "call", "check_call", "check_output"):
+            for kw in node.keywords:
+                if kw.arg == "shell" and isinstance(kw.value, ast.Constant) and kw.value.value is True:
+                    self.issues.append(f"[SHELL] Risky 'shell=True' in subprocess.{node.func.attr} at line {node.lineno}")
         
         self.generic_visit(node)
 
