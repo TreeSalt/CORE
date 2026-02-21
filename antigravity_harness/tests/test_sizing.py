@@ -51,3 +51,19 @@ class TestPositionSizing(unittest.TestCase):
 
         self.assertTrue(executed)
         self.assertAlmostEqual(account.qty, 100.0)
+
+    def test_plateau_multiplier_scaling(self):
+        # Setup: $10,000 Cash
+        # Baseline (1.0x)
+        account_base = SimulatedAccount(initial_cash=10000.0, slippage=0.0, allow_fractional=True, sizing_multiplier=1.0)
+        ts = pd.Timestamp("2021-01-01")
+        account_base.buy(price=100.0, timestamp=ts, stop_price=90.0, risk_pct=0.01)
+        qty_base = account_base.qty  # Expected: 10.0
+
+        # Scaled (1.5x)
+        account_scaled = SimulatedAccount(initial_cash=10000.0, slippage=0.0, allow_fractional=True, sizing_multiplier=1.5)
+        account_scaled.buy(price=100.0, timestamp=ts, stop_price=90.0, risk_pct=0.01)
+        qty_scaled = account_scaled.qty # Expected: 10.0 * 1.5 = 15.0
+
+        self.assertAlmostEqual(qty_base, 10.0)
+        self.assertAlmostEqual(qty_scaled, 15.0)

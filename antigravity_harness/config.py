@@ -152,6 +152,7 @@ class StrategyParams(BaseModel):
     # 3. Risk
     stop_atr: float = 2.0
     risk_per_trade: float = 0.0  # 0.0 = 100% Cash; 0.02 = 2% Risk
+    sizing_multiplier: float = 1.0  # Phase 6E: Scales risk based on plateau depth
 
     # 4. Ablation / Control
     disable_sma: bool = False

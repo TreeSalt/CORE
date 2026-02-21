@@ -31,7 +31,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None):
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0):
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
@@ -39,6 +39,7 @@ class SimulatedAccount:
         self.slippage = slippage
         self.allow_fractional = allow_fractional
         self.fill_tape = fill_tape
+        self.sizing_multiplier = sizing_multiplier
         self.trades: List[Trade] = []
 
     @property
@@ -78,7 +79,8 @@ class SimulatedAccount:
         # 2. Risk-Based Sizing (Phase 6E+)
         if risk_pct > 0.0 and not np.isnan(stop_price) and stop_price < fill_price:
             equity = self.total_value(fill_price)
-            risk_amt = equity * risk_pct
+            # Apply Sizing Multiplier (Autonomous Plateau Scaling)
+            risk_amt = equity * risk_pct * self.sizing_multiplier
             risk_per_share = fill_price - stop_price
             if risk_per_share > 0:
                 qty_risk = risk_amt / risk_per_share
@@ -328,6 +330,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         slippage=engine_cfg.slippage_per_side,
         allow_fractional=engine_cfg.allow_fractional_shares,
         fill_tape=tape,
+        sizing_multiplier=params.sizing_multiplier,
     )
 
     # Boot the Phoenix Protocol Auditor

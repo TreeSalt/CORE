@@ -911,11 +911,19 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                 largest, local_unsafe, local_trade_counts, local_expectancies, thresholds.min_trades_centroid
             )
 
+            # Plateau Sizing Rule: Scale risk based on isolation from failure boundaries.
+            # depth 1 = 1.0x, depth 2 = 1.25x, depth 3 = 1.5x, depth 4+ = 1.75x
+            dist = interior_meta["interior_distance"]
+            sizer = 1.0 + (min(float(dist), 4.0) - 1.0) * 0.25
+            sizer = max(1.0, sizer)
+
             # Reconstruct Config
             chosen_params = {}
             for i, name in enumerate(axis_names):
                 val_idx = best_local_idx[i]
                 chosen_params[name] = axis_values[i][val_idx]
+            
+            chosen_params["sizing_multiplier"] = float(sizer)
 
             best_global_idx = tuple([s_idx, tf_idx] + list(best_local_idx))
             result_blob = results[best_global_idx]
@@ -925,6 +933,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                 "timeframe": tf,
                 "plateau_size": len(largest),
                 "interior_score": interior_meta["interior_distance"],
+                "sizing_multiplier": float(sizer),
                 "profit_factor": result_blob.get("profit_factor", 0.0),
                 "profit_score": result_blob.get("profit_score", 0.0),
                 "params": chosen_params,
