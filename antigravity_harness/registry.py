@@ -4,9 +4,9 @@ from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 
-from antigravity_harness.paths import REPORT_DIR
+from antigravity_harness.paths import STATE_DIR
 
-REGISTRY_PATH = REPORT_DIR / "champion_registry.json"
+REGISTRY_PATH = STATE_DIR / "champion_registry.json"
 
 
 def load_registry() -> Dict[str, Any]:

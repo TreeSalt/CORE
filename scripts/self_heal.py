@@ -136,13 +136,15 @@ AUTHORIZED_MUTATIONS = [
     "antigravity_harness/grid/", # Item 23 Grid / Item 25 Evolution
     "antigravity_harness/ledger.py", # Item 24 Ledger
     "antigravity_harness/dashboard.py", # Item 28 Dashboard
-    "state/STRATEGY_LEDGER.json", # Ledger Data
     "antigravity_harness/execution/safety.py", # Item 27 Safety
     "antigravity_harness/tests/test_safety_breakers.py", # Item 27 Tests
     "antigravity_harness/phoenix.py", # Item 27 Integration
-    "reports/", # Item 28/29 Artifacts
+    "state/", # Ledger & Registry Data
+    "reports/", # Backtest Artifacts
+    "antigravity_harness/paths.py", # Infra
+    "antigravity_harness/registry.py", # Registry Logic
 ]
-AUTHORIZED_MUTATIONS_HASH = "cc7ab5a03f628216aea4a8aab747035b7694604cde5b1cdcaf0b9d5d4d71239e"
+AUTHORIZED_MUTATIONS_HASH = "74ec091e65671f3c59eb8d85daa93c820e7e7af8e2f548fbb97f10397a0f3303"
 
 
 def print_status(msg, status="INFO"):
@@ -249,8 +251,9 @@ def check_hygiene(fix=False):
 
 def check_registry_redemption(fix=False):
     print_status("Checking Registry Redemption (Ledger reconciliation)...")
+    from antigravity_harness.registry import REGISTRY_PATH
     ledger_path = REPO_ROOT / "state/STRATEGY_LEDGER.json"
-    registry_path = REPORT_DIR / "champion_registry.json"
+    registry_path = REGISTRY_PATH
 
     if not ledger_path.exists():
         print_status("No ledger found. Skipping redemption.", "INFO")

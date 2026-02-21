@@ -16,6 +16,7 @@ SNAPSHOT_DIR = DATA_DIR / "snapshots"
 REPORT_DIR = REPO_ROOT / "reports"
 CERT_DIR = REPORT_DIR / "certification"
 INTEL_DIR = REPO_ROOT / "intelligence"
+STATE_DIR = REPO_ROOT / "state"
 
 
 def _safe_mkdir(path: Path) -> None:
@@ -35,6 +36,6 @@ def ensure_dirs() -> None:
 
     Self-heals any path corruption (e.g., file blocking a directory).
     """
-    for d in (DATA_DIR, SNAPSHOT_DIR, REPORT_DIR, CERT_DIR, INTEL_DIR):
+    for d in (DATA_DIR, SNAPSHOT_DIR, REPORT_DIR, CERT_DIR, INTEL_DIR, STATE_DIR):
         _safe_mkdir(d)
 
