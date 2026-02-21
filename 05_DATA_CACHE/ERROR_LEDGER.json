@@ -2,20 +2,6 @@
     "system_start_utc": "2026-02-16T23:45:49Z",
     "events": [
         {
-            "timestamp_utc": "2026-02-20T07:25:40Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.132",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-02-20T07:26:24Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.5.133",
-            "resolution": "Auto-Sync"
-        },
-        {
             "timestamp_utc": "2026-02-20T08:10:38Z",
             "category": "INFRA",
             "gate": "RECOVERY",
@@ -699,6 +685,20 @@
             "category": "METADATA",
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.5.258",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-21T04:59:02Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.259",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-02-21T04:59:13Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.5.260",
             "resolution": "Auto-Sync"
         }
     ],
