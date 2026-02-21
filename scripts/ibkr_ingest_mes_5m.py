@@ -7,22 +7,23 @@ Uses ib_insync for pagination-safe retrieval and strict gate enforcement.
 """
 
 import argparse
+
+# Optional dependency: ib_insync
+import asyncio
+import csv
 import json
 import sys
 from datetime import datetime, timezone
 from datetime import time as dt_time
 from pathlib import Path
-import csv
 
-# Optional dependency: ib_insync
-import asyncio
 try:
     asyncio.get_event_loop()
 except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
 try:
-    from ib_insync import IB, Future, ContFuture, util
+    from ib_insync import IB, ContFuture
 except ImportError:
     print("❌ Missing dependency: ib_insync. Install with 'pip install -r requirements-ibkr.txt'")
     sys.exit(1)

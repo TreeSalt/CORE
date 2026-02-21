@@ -129,6 +129,8 @@ lint:
 format:
 	$(PYTHON) -m ruff check --fix .
 
+fix: format  ## User-friendly alias for format
+
 type-check:
 	$(PYTHON) -m mypy .
 
@@ -207,6 +209,18 @@ council-brief:
 ibkr-paper:
 	@if [ -z "$(STRATEGY)" ]; then echo "❌ ERR: STRATEGY is required. USE: make ibkr-paper STRATEGY=<id>"; exit 1; fi
 	$(PYTHON) scripts/ibkr_paper_execute.py --strategy $(STRATEGY) --profile $(PROFILE) --dist $(DIST) --trusted-pubkey keys/sovereign.pub
+
+ibkr-up:
+	@echo "🔌 Starting IB Gateway..."
+	bash scripts/ibkr_gateway_supervisor.sh up --port 4002
+
+ibkr-wait:
+	@echo "⏳ Waiting for API Port..."
+	bash scripts/ibkr_gateway_supervisor.sh wait --port 4002 --timeout 90
+
+ibkr-ingest-30d: ibkr-up ibkr-wait
+	@echo "📥 Ingesting 30 days of MES 5m bars..."
+	$(PYTHON) scripts/ibkr_ingest_mes_5m.py --host 127.0.0.1 --port 4002 --client-id 1 --duration "30 D"
 
 ibkr-up:
 	@echo "🔌 Starting IB Gateway..."

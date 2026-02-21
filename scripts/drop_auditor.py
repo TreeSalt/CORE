@@ -403,16 +403,15 @@ def audit_drop(drop_path: Path, pub_key_path: Path, strict: bool = False) -> boo
                                 fail("PROMPT_FINGERPRINT.json missing valid prompt_id", acc, "FID-006", "Prompt Fingerprint Valid")
                             elif not p_sha or not re.fullmatch(r"[0-9a-fA-F]{64}", p_sha):
                                 fail("PROMPT_FINGERPRINT.json missing valid prompt_sha256", acc, "FID-006", "Prompt Fingerprint Valid")
-                            else:
-                                if pf_sig_path in ev_namelist and pub_key_path.exists():
-                                    pf_content = evzf.read(pf_path)
-                                    pf_sig_content = evzf.read(pf_sig_path)
-                                    if verify_signature(pf_content, pf_sig_content, pub_key_path):
-                                        ok("Prompt Fingerprint Valid and Signature Verified", acc, "FID-006", "Prompt Fingerprint Valid")
-                                    else:
-                                        fail("PROMPT_FINGERPRINT.json.sig INVALID signature", acc, "FID-006", "Prompt Fingerprint Valid")
+                            elif pf_sig_path in ev_namelist and pub_key_path.exists():
+                                pf_content = evzf.read(pf_path)
+                                pf_sig_content = evzf.read(pf_sig_path)
+                                if verify_signature(pf_content, pf_sig_content, pub_key_path):
+                                    ok("Prompt Fingerprint Valid and Signature Verified", acc, "FID-006", "Prompt Fingerprint Valid")
                                 else:
-                                    ok("Prompt Fingerprint format valid (no signature checked)", acc, "FID-006", "Prompt Fingerprint Valid")
+                                    fail("PROMPT_FINGERPRINT.json.sig INVALID signature", acc, "FID-006", "Prompt Fingerprint Valid")
+                            elif pf_path in ev_namelist:
+                                ok("Prompt Fingerprint format valid (no signature checked)", acc, "FID-006", "Prompt Fingerprint Valid")
                         except Exception as e:
                             fail(f"Failed to parse PROMPT_FINGERPRINT.json: {e}", acc, "FID-006", "Prompt Fingerprint Valid")
                     else:
