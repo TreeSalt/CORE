@@ -345,7 +345,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 sys.executable, "scripts/prompt_fingerprint.py",
                 str(prompt_file),
                 "--out-dir", str(smoke_dir),
-                "--id", prompt_id,
+                "--id", str(prompt_id),
                 "--charter", "TRADER_OPS_PROMPT_CHARTER_v1.0"
             ], cwd=repo_root)
 
