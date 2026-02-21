@@ -188,13 +188,16 @@ class SimExecutionAdapter(ExecutionAdapter):
         # Item 15: Dark Pool Logic
         dp = self._dark_pool_model
         extra_slippage_bps = 0.0
+        exec_venue = "LIT_EXCHANGE"
         
         if dp.enabled:
             # 1. Check for Dark Pool Fail (Leakage)
             if random.random() < dp.fail_prob:
                 extra_slippage_bps = dp.info_leakage_bps
+                exec_venue = "LIT_EXCHANGE" # Leaked to lit
             else:
                 # 2. Roll for Improvement vs Adverse Selection
+                exec_venue = "DARK_POOL"
                 roll = random.random()
                 if roll < dp.improvement_prob:
                     # Price Improvement (Negative slippage)
@@ -222,6 +225,7 @@ class SimExecutionAdapter(ExecutionAdapter):
             fill_price=Decimal(str(round(fill_price, 2))),
             fill_time_utc=now,
             commission_usd=commission,
+            venue=exec_venue,
         )
 
         self._fills.append(fill)

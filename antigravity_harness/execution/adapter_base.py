@@ -68,6 +68,7 @@ class OrderIntent:
     time_in_force: TimeInForce = TimeInForce.DAY
     client_order_id: str = ""            # Idempotency key, set by WAL
     parent_order_id: Optional[str] = None  # For bracket leg linkage
+    venue: str = ""                      # e.g., "DARK_POOL", "LIT_EXCHANGE", "SMART"
 
 
 @dataclass
@@ -77,6 +78,7 @@ class OrderAck:
     client_order_id: str
     status: OrderStatus
     submitted_at_utc: datetime
+    venue: str = ""
     broker_raw: Dict[str, Any] = field(default_factory=dict)  # original broker payload
 
 
@@ -91,6 +93,7 @@ class Fill:
     fill_price: Decimal
     fill_time_utc: datetime
     commission_usd: float
+    venue: str = ""
     slippage_realized_ticks: Optional[int] = None  # Set by FillTape after recording
     broker_raw: Dict[str, Any] = field(default_factory=dict)
 

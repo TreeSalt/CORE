@@ -51,6 +51,7 @@ class FillRecord:
     filled_qty: int
     fill_price: float
     fill_time_utc: str                  # ISO format
+    venue: str                          # Execution venue (e.g., DARK_POOL)
 
     # Slippage analysis (Forensic Drift)
     expected_price: Optional[float]     # Mid price at order submission time
@@ -145,6 +146,7 @@ class FillTape:
             filled_qty=fill.filled_qty,
             fill_price=float(fill.fill_price),
             fill_time_utc=fill.fill_time_utc.isoformat(),
+            venue=fill.venue,
             expected_price=expected_price,
             actual_price=float(fill.fill_price),
             drift_pts=drift_pts,
