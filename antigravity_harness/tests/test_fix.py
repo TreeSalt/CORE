@@ -1,5 +1,7 @@
 import unittest
-from antigravity_harness.execution.fix import FixMessage, FixSession, SOH
+
+from antigravity_harness.execution.fix import SOH, FixMessage, FixSession
+
 
 class TestFixEngine(unittest.TestCase):
     def test_checksum_calculation(self):

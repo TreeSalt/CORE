@@ -5,10 +5,9 @@ Institutional FIX Protocol Engine (Baseline).
 Pure-Python implementation of SOH-delimited tag-value framing.
 """
 
-import asyncio
 import datetime
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Dict, Optional
 
 logger = logging.getLogger("FIX_ENGINE")
 

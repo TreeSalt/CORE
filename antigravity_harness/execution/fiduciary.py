@@ -7,8 +7,8 @@ unauthorized risk exposure in live or paper environments.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
 from dataclasses import replace
+from typing import List, Optional
 
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,

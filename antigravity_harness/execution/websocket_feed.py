@@ -6,10 +6,9 @@ Enables high-fidelity data collection and monitoring for research.
 """
 
 import asyncio
+import inspect
 import json
 import logging
-import time
-import inspect
 from typing import Any, Callable, Dict, Optional
 
 import websockets

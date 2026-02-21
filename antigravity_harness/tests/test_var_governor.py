@@ -5,6 +5,7 @@ import pandas as pd
 from antigravity_harness.engine import SimulatedAccount
 from antigravity_harness.metrics import calculate_var
 
+
 class TestVarGovernor(unittest.TestCase):
     def test_calculate_var_logic(self):
         # Create a series of returns with known distributions

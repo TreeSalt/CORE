@@ -1,10 +1,11 @@
-import unittest
 import asyncio
 import json
-import threading
-from typing import List
+import unittest
+
 from websockets.server import serve
+
 from antigravity_harness.execution.websocket_feed import WebSocketResearchFeed
+
 
 class TestWebSocketFeed(unittest.IsolatedAsyncioTestCase):
     async def test_message_routing(self):
@@ -42,7 +43,6 @@ class TestWebSocketFeed(unittest.IsolatedAsyncioTestCase):
 
     async def test_reconnection(self):
         """Verify that client attempts reconnection when server drops."""
-        reconnect_count = 0
         
         # We'll use a custom uri that fails first then succeeds? 
         # Easier to just verify it doesn't crash on connection error and keeps trying.

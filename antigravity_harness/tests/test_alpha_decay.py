@@ -1,10 +1,11 @@
 import unittest
-import pandas as pd
-import numpy as np
-from antigravity_harness.engine import SimulatedAccount
-from antigravity_harness.config import StrategyParams
-from antigravity_harness.models import Trade
 from datetime import datetime, timezone
+
+import pandas as pd
+
+from antigravity_harness.engine import SimulatedAccount
+from antigravity_harness.models import Trade
+
 
 class TestAlphaDecay(unittest.TestCase):
     def setUp(self):

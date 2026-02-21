@@ -1,6 +1,8 @@
 import unittest
 from typing import NamedTuple
+
 from antigravity_harness.metrics import monte_carlo_shuffled_drawdown
+
 
 class MockTrade(NamedTuple):
     pnl_abs: float

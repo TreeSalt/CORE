@@ -1,9 +1,9 @@
 import unittest
-import asyncio
-from decimal import Decimal
-from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
-from antigravity_harness.execution.fiduciary import FiduciaryBridge
+
 from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
+from antigravity_harness.execution.fiduciary import FiduciaryBridge
+from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
+
 
 class TestFiduciaryBridge(unittest.IsolatedAsyncioTestCase):
     async def test_clamping_logic(self):
@@ -24,7 +24,7 @@ class TestFiduciaryBridge(unittest.IsolatedAsyncioTestCase):
         )
         
         # 4. submission
-        ack = await bridge.submit_order(intent)
+        await bridge.submit_order(intent)
         
         # 5. Verify clamping
         # The base adapter should only have a position of 2

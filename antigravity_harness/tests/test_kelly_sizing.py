@@ -6,6 +6,7 @@ from antigravity_harness.engine import SimulatedAccount
 from antigravity_harness.metrics import kelly_fraction
 from antigravity_harness.models import Trade
 
+
 class TestKellySizing(unittest.TestCase):
     def test_kelly_fraction_calculation(self):
         # Case 1: 60% win rate, 2:1 win/loss ratio

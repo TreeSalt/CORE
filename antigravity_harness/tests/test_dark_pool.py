@@ -1,9 +1,9 @@
 import unittest
-import asyncio
-from decimal import Decimal
+
 from antigravity_harness.config import DarkPoolModel
-from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
 from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
+from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
+
 
 class TestDarkPool(unittest.IsolatedAsyncioTestCase):
     async def test_price_improvement(self):
@@ -18,7 +18,7 @@ class TestDarkPool(unittest.IsolatedAsyncioTestCase):
         adapter.set_price("MES", 100.0)
         intent = OrderIntent(symbol="MES", side=OrderSide.BUY, quantity=1, order_type=OrderType.MARKET)
         
-        ack = await adapter.submit_order(intent)
+        await adapter.submit_order(intent)
         fill = adapter.all_fills[-1]
         
         # 100 * (1 - 0.0010) = 99.9

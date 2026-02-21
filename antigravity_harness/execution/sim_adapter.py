@@ -17,14 +17,14 @@ Does NOT: call any broker API. Does NOT import ib_insync, rithmic, or tradovate.
 from __future__ import annotations
 
 import asyncio
+import random
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Optional
 
-import random
-from antigravity_harness.config import LatencyModel, DarkPoolModel
+from antigravity_harness.config import DarkPoolModel, LatencyModel
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,
     ExecutionAdapter,
@@ -187,16 +187,13 @@ class SimExecutionAdapter(ExecutionAdapter):
         
         # Item 15: Dark Pool Logic
         dp = self._dark_pool_model
-        is_dark_fill = False
         extra_slippage_bps = 0.0
         
         if dp.enabled:
             # 1. Check for Dark Pool Fail (Leakage)
             if random.random() < dp.fail_prob:
                 extra_slippage_bps = dp.info_leakage_bps
-                is_dark_fill = False
             else:
-                is_dark_fill = True
                 # 2. Roll for Improvement vs Adverse Selection
                 roll = random.random()
                 if roll < dp.improvement_prob:

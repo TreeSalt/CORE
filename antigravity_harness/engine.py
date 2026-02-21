@@ -68,7 +68,7 @@ class SimulatedAccount:
     def _calculate_commission(self, price: float, qty: float, bps: float, fixed: float) -> float:
         return (price * qty * bps) + fixed
 
-    def buy(  # noqa: PLR0912
+    def buy(  # noqa: PLR0912, PLR0915
         self,
         price: float,
         timestamp: pd.Timestamp,
@@ -351,7 +351,12 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         atr_shifted = np.concatenate(([np.nan], atr_raw[:-1]))
 
     # Item 10: Regime Pre-calculation
-    from antigravity_harness.regimes import RegimeConfig, compute_regime_indicators, infer_regimes_from_metrics, RegimeLabel  # noqa: PLC0415
+    from antigravity_harness.regimes import (  # noqa: PLC0415
+        RegimeConfig,
+        RegimeLabel,
+        compute_regime_indicators,
+        infer_regimes_from_metrics,
+    )
     regime_cfg = RegimeConfig()
     regime_metrics = compute_regime_indicators(df[["Close"]], regime_cfg)
     regime_states = infer_regimes_from_metrics(regime_metrics, regime_cfg)

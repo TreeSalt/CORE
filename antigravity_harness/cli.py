@@ -7,6 +7,7 @@ import os
 import platform
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -704,7 +705,8 @@ def cmd_stage_candidate(args: argparse.Namespace) -> None:
 
 def cmd_research_feed(args: argparse.Namespace) -> None:
     """Real-time market data ingestion loop for research."""
-    import asyncio # noqa: PLC0415
+    import asyncio  # noqa: PLC0415
+
     from antigravity_harness.execution.websocket_feed import WebSocketResearchFeed  # noqa: PLC0415
     
     print(f"📡 STARTING RESEARCH FEED: {args.uri}")

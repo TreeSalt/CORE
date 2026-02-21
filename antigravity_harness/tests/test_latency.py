@@ -1,10 +1,10 @@
-import unittest
-import asyncio
 import time
-from datetime import datetime, timezone
+import unittest
+
 from antigravity_harness.config import LatencyModel
-from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
 from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
+from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
+
 
 class TestLatencyDynamic(unittest.IsolatedAsyncioTestCase):
     async def test_base_latency(self):

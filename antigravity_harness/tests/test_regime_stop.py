@@ -1,8 +1,11 @@
 import unittest
-import pandas as pd
+
 import numpy as np
-from antigravity_harness.engine import run_backtest
+import pandas as pd
+
 from antigravity_harness.config import EngineConfig, StrategyParams
+from antigravity_harness.engine import run_backtest
+
 
 class TestRegimeStop(unittest.TestCase):
     def test_regime_aware_stop_scaling(self):
