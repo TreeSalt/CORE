@@ -101,8 +101,8 @@ class SovereignAuditor:
         self._strategy_commitment: Optional[Dict[str, str]] = None
         
         # Item 27: Live Safety Guard
-        from antigravity_harness.execution.safety import ExecutionSovereignGuard # noqa: PLC0415
-        self.sovereign_guard = ExecutionSovereignGuard()
+        from antigravity_harness.execution.safety import ExecutionSovereignGuard, ExecutionSafetyConfig # noqa: PLC0415
+        self.sovereign_guard = ExecutionSovereignGuard(ExecutionSafetyConfig(), None)
 
     def attach_strategy_commitment(self, strategy_code: str, params: Dict[str, Any], data_hash: str, results: Dict[str, Any]) -> None:
         """
