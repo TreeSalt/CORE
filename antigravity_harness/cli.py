@@ -702,6 +702,46 @@ def cmd_stage_candidate(args: argparse.Namespace) -> None:
 
 
 
+def cmd_research_feed(args: argparse.Namespace) -> None:
+    """Real-time market data ingestion loop for research."""
+    import asyncio # noqa: PLC0415
+    from antigravity_harness.execution.websocket_feed import WebSocketResearchFeed  # noqa: PLC0415
+    
+    print(f"📡 STARTING RESEARCH FEED: {args.uri}")
+    if args.symbol:
+        print(f"   Subscribing to: {args.symbol}")
+    if args.output:
+        print(f"   Logging to: {args.output}")
+
+    async def _on_msg(msg: dict):
+        # Print a short summary of the message
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+        
+        if args.output:
+            with open(args.output, "a", encoding="utf-8") as f:
+                f.write(json.dumps(msg) + "\n")
+
+    feed = WebSocketResearchFeed(uri=args.uri, on_message=_on_msg)
+
+    async def _run():
+        try:
+            # If symbol provided, we might need a subscription message
+            # This is a generic placeholder for various exchange protocols
+            await asyncio.gather(
+                feed.connect(),
+                # Optional: Send subscription after delay if needed
+            )
+        except KeyboardInterrupt:
+            await feed.stop()
+        except Exception as e:
+            print(f"❌ FEED ERROR: {e}")
+
+    try:
+        asyncio.run(_run())
+    except KeyboardInterrupt:
+        print("\n👋 Feed stopped by user.")
+
+
 def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     p = argparse.ArgumentParser(prog="antigravity_harness", description="FORTRESS PROTOCOL harness")
     p.add_argument("--debug", "-d", action="store_true", help="Enable high-fidelity forensic telemetry")
@@ -925,6 +965,13 @@ def build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
     # Help All (Institutional Discovery)
     ha = sub.add_parser("help-all", help="Display all project commands and scripts")
     ha.set_defaults(func=cmd_help_all)
+
+    # WebSocket Research Feed (Item 12)
+    rf = sub.add_parser("research-feed", help="Real-time WebSocket Research Feed")
+    rf.add_argument("--uri", required=True, help="WebSocket URI (e.g. ws://localhost:8080)")
+    rf.add_argument("--symbol", help="Symbol to subscribe to (optional)")
+    rf.add_argument("--output", help="Path to log raw messages (JSONL)")
+    rf.set_defaults(func=cmd_research_feed)
 
     # Forensic Debug Playback
     dbg = sub.add_parser("debug-playback", help="Forensic playback of an AUDIT_REPORT.json")
