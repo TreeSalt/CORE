@@ -190,6 +190,12 @@ class StrategyParams(BaseModel):
     stop_mult_range_high_vol: float = 1.2
     stop_mult_panic: float = 2.0
 
+    # Item 16: Alpha Decay
+    use_alpha_decay: bool = False
+    decay_lookback_trades: int = 10
+    decay_threshold_win_rate: float = 0.4
+    decay_penalty_multiplier: float = 0.5  # Scale down sizing when decaying
+
     # 4. Ablation / Control
     disable_sma: bool = False
     disable_rsi: bool = False

@@ -31,7 +31,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30):  # noqa: PLR0913
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30, use_alpha_decay: bool = False, decay_lookback_trades: int = 10, decay_threshold_win_rate: float = 0.4, decay_penalty_multiplier: float = 0.5):  # noqa: PLR0913
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
@@ -49,6 +49,12 @@ class SimulatedAccount:
         self.var_confidence = var_confidence
         self.var_lookback = var_lookback
         self.equity_history: List[float] = [float(initial_cash)]
+        
+        # Item 16: Alpha Decay State
+        self.use_alpha_decay = use_alpha_decay
+        self.decay_lookback_trades = decay_lookback_trades
+        self.decay_threshold_win_rate = decay_threshold_win_rate
+        self.decay_penalty_multiplier = decay_penalty_multiplier
         
         self.trades: List[Trade] = []
 
@@ -115,6 +121,17 @@ class SimulatedAccount:
                 if current_var > self.var_limit_pct:
                     scaling_factor = self.var_limit_pct / current_var
                     risk_amt *= scaling_factor
+                    
+            # Item 16: Alpha Decay Scaling
+            if self.use_alpha_decay and len(self.trades) >= self.decay_lookback_trades:
+                recent_trades = self.trades[-self.decay_lookback_trades:]
+                wins = sum(1 for t in recent_trades if t.pnl_abs > 0)
+                win_rate = wins / self.decay_lookback_trades
+                
+                if win_rate < self.decay_threshold_win_rate:
+                    # Apply decay penalty (e.g., 50% cut in risk)
+                    risk_amt *= self.decay_penalty_multiplier
+                    
             risk_per_share = fill_price - stop_price
             if risk_per_share > 0:
                 qty_risk = risk_amt / risk_per_share
@@ -389,6 +406,10 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         var_limit_pct=params.var_limit_pct,
         var_confidence=params.var_confidence,
         var_lookback=params.var_lookback,
+        use_alpha_decay=params.use_alpha_decay,
+        decay_lookback_trades=params.decay_lookback_trades,
+        decay_threshold_win_rate=params.decay_threshold_win_rate,
+        decay_penalty_multiplier=params.decay_penalty_multiplier,
     )
 
     # Boot the Phoenix Protocol Auditor
