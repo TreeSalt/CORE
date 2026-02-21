@@ -100,6 +100,33 @@ def expectancy(trades: List[Any]) -> float:
     return float(np.mean([float(t.pnl_pct) for t in trades]))
 
 
+def monte_carlo_shuffled_drawdown(trades: List[Any], iterations: int = 100, initial_equity: float = 10000.0) -> float:
+    """
+    Shuffles trade PnL (absolute) to simulate different possible equity curves.
+    Returns the 95th percentile of Maximum Drawdown across all iterations.
+    """
+    if not trades or iterations <= 0:
+        return 0.0
+
+    pnls = [float(t.pnl_abs) for t in trades]
+    max_dds = []
+
+    for _ in range(iterations):
+        # Shuffle trades
+        shuffled = np.random.choice(pnls, size=len(pnls), replace=False)
+        
+        # Build equity curve
+        curve = [initial_equity]
+        for p in shuffled:
+            curve.append(curve[-1] + p)
+            
+        # Calc MaxDD for this curve
+        curve_s = pd.Series(curve)
+        max_dds.append(max_drawdown(curve_s))
+
+    return float(np.percentile(max_dds, 95))
+
+
 def calculate_var(equity: pd.Series, confidence: float = 0.95) -> float:
     """
     Calculates historical Value at Risk (VaR) at the specified confidence level.
@@ -182,6 +209,11 @@ def compute_metrics(equity: pd.Series, trades: List[Any], periods_per_year: int,
 
     out["kelly_fraction"] = kelly_fraction(trades)
     out["var_95"] = calculate_var(equity, confidence=0.95)
+    
+    # Item 9: Monte Carlo Robustness
+    # iterations could be passed in, but we'll use a conservative default or look at trades count
+    mc_iters = 100 if len(trades) < 50 else 250
+    out["mc_drawdown_95"] = monte_carlo_shuffled_drawdown(trades, iterations=mc_iters, initial_equity=initial)
 
     return out
 

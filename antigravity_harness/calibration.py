@@ -937,6 +937,7 @@ def calibrate(  # noqa: PLR0912, PLR0913, PLR0915
                 "sizing_multiplier": float(sizer),
                 "kelly_fraction": float(results[best_global_idx].get("kelly_fraction", 0.0)),
                 "var_95": float(results[best_global_idx].get("var_95", 0.0)),
+                "mc_drawdown_95": float(results[best_global_idx].get("mc_drawdown_95", 0.0)),
                 "profit_factor": result_blob.get("profit_factor", 0.0),
                 "profit_score": result_blob.get("profit_score", 0.0),
                 "params": chosen_params,

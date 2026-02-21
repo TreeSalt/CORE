@@ -52,6 +52,7 @@ class MetricSet(BaseModel):
     profit_score: float = Field(default=0.0)
     kelly_fraction: float = Field(default=0.0)
     var_95: float = Field(default=0.0)
+    mc_drawdown_95: float = Field(default=0.0)
     annualized_vol: float = Field(default=0.0)
     raw_entry_signals: int = Field(default=0)
     raw_exit_signals: int = Field(default=0)

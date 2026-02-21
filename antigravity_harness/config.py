@@ -159,6 +159,7 @@ class StrategyParams(BaseModel):
     var_limit_pct: float = 0.0  # Item 8: Enable VaR Governor (e.g., 0.02 = 2% Daily VaR Limit)
     var_confidence: float = 0.95  # Confidence level for VaR calculation
     var_lookback: int = 30  # Lookback window for historical VaR calculation
+    mc_iterations: int = 250  # Item 9: Monte Carlo simulation iterations
 
     # 4. Ablation / Control
     disable_sma: bool = False
