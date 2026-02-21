@@ -328,9 +328,16 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print("🔥 Forcing Evidence Regeneration (Smoke Test)...")
     
     # 1.6.2 Prompt Fingerprint (Tier 0 Binding)
-    prompt_id = "TRADER_OPS_MASTER_IDE_REQUEST_v4.5.148_FIDUCIARY_EXECUTION_BRIDGE_PAPER_FIRST"
-    prompt_file = _resolve_prompt_path(repo_root, prompt_id)
-    
+    prompt_id = os.environ.get("TRADER_OPS_PROMPT_ID")
+    if os.environ.get("STRICT_MODE") == "1" and not prompt_id:
+        raise RuntimeError("FAIL-CLOSED: TRADER_OPS_PROMPT_ID is required in STRICT_MODE.")
+        
+    prompt_file = None
+    if prompt_id:
+        prompt_file = _resolve_prompt_path(repo_root, prompt_id)
+        if os.environ.get("STRICT_MODE") == "1" and not prompt_file.exists():
+            raise RuntimeError(f"FAIL-CLOSED: Mission Prompt '{prompt_file}' missing in STRICT_MODE.")
+
     if prompt_file and prompt_file.exists():
         print(f"📜 Binding Mission Prompt: {prompt_id}...")
         try:
@@ -492,6 +499,14 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             metadata["code_hash"] = real_code_hash
             metadata["manifest_hash"] = payload_manifest_sha256
             metadata["data_hash"] = data_hash
+            
+            if "environment_vars" not in metadata:
+                metadata["environment_vars"] = {}
+            if prompt_id:
+                metadata["environment_vars"]["TRADER_OPS_PROMPT_ID"] = prompt_id
+            if dataset_mode:
+                metadata["environment_vars"]["TRADER_OPS_DATASET"] = dataset_mode
+                
             with open(metadata_path, "w") as f:
                 json.dump(metadata, f, indent=2, sort_keys=True)
         except Exception as e:

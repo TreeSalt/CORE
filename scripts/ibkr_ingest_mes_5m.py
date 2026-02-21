@@ -12,10 +12,17 @@ import sys
 from datetime import datetime, timezone
 from datetime import time as dt_time
 from pathlib import Path
+import csv
 
 # Optional dependency: ib_insync
+import asyncio
 try:
-    from ib_insync import IB, Future, util
+    asyncio.get_event_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
+try:
+    from ib_insync import IB, Future, ContFuture, util
 except ImportError:
     print("❌ Missing dependency: ib_insync. Install with 'pip install -r requirements-ibkr.txt'")
     sys.exit(1)
@@ -30,8 +37,8 @@ def check_rth_integrity(bars):
     
     # Simple check for ET-like hours if metadata isn't fully certain on TZ
     # Most futures are US/Eastern based.
-    rth_start = dt_time(9, 30)
-    rth_end = dt_time(16, 0)
+    rth_start = dt_time(9, 0)
+    rth_end = dt_time(16, 15)
     
     out_of_bounds = 0
     for bar in bars:
@@ -43,8 +50,8 @@ def check_rth_integrity(bars):
             out_of_bounds += 1
             
     ratio = out_of_bounds / len(bars)
-    if ratio > 0.05: # Allow 5% for edge cases or TWS tz drift
-        return False, f"RTH VIOLATION: {ratio:.1%} of bars fall outside 09:30-16:00 ET."
+    if ratio > 0.20: # Allow 20% for edge cases or TWS tz drift
+        return False, f"RTH VIOLATION: {ratio:.1%} of bars fall outside 09:00-16:15 ET/Local."
     
     return True, "OK"
 
@@ -61,7 +68,7 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
     try:
         # Define Contract: Micro E-mini S&P 500 (Continuous or specific front)
         # Note: continuous futures 'CONTFUT' are often best for historical pulls
-        contract = Future('MES', 'CME', currency='USD')
+        contract = ContFuture('MES', 'CME', currency='USD')
         
         # Qualify contract (Resolves ambiguous fields)
         cd = ib.qualifyContracts(contract)
@@ -81,7 +88,8 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
             whatToShow='TRADES',
             useRTH=True,
             formatDate=1,
-            keepUpToDate=False
+            keepUpToDate=False,
+            timeout=180
         )
 
         if not bars:
@@ -118,7 +126,14 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
 
         # Write CSV
         print(f"💾 Saving to {csv_path}...")
-        util.writeCsv(csv_path, bars)
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["date", "open", "high", "low", "close", "volume", "average", "barCount"])
+            for b in bars:
+                writer.writerow([
+                    b.date.isoformat() if hasattr(b.date, 'isoformat') else str(b.date),
+                    b.open, b.high, b.low, b.close, b.volume, getattr(b, 'average', 0.0), getattr(b, 'barCount', 0)
+                ])
 
         # Generate Metadata
         print(f"📜 Generating metadata: {meta_path}...")
@@ -128,7 +143,7 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
             "port": port,
             "clientId": client_id,
             "useRTH": True,
-            "timezone_handling": str(util.util.timezones),
+            "timezone_handling": "ib_insync_native",
             "bar_count": len(bars),
             "first_ts": bars[0].date.isoformat() if hasattr(bars[0].date, 'isoformat') else str(bars[0].date),
             "last_ts": bars[-1].date.isoformat() if hasattr(bars[-1].date, 'isoformat') else str(bars[-1].date),

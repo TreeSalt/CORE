@@ -354,17 +354,115 @@ def audit_drop(drop_path: Path, pub_key_path: Path, strict: bool = False) -> boo
             
             if not cert_found:
                 fail("CERTIFICATE.json missing", acc, "FID-002C", "Certificate Presence")
+            elif evidence_zips:
+                ev_data = zf.read(evidence_zips[0])
+                with zipfile.ZipFile(io.BytesIO(ev_data)) as evzf:
+                    ev_namelist = evzf.namelist()
+                    # EVID-001: EVIDENCE_SUITE_REQUIRED_FILES_PRESENT
+                    req_evidence_files = [
+                        "reports/forge/synthetic_smoke/RUN_METADATA.json",
+                        "reports/forge/synthetic_smoke/EVIDENCE_MANIFEST.json",
+                        "reports/forge/synthetic_smoke/DATA_MANIFEST.json",
+                        "reports/forge/synthetic_smoke/results.csv",
+                        "reports/certification/CERTIFICATE.json",
+                        "reports/certification/CERTIFICATE.json.sig",
+                        "reports/certification/sovereign.pub"
+                    ]
+                    missing_evid = [f for f in req_evidence_files if f not in ev_namelist]
+                    if missing_evid:
+                        fail(f"Missing evidence suite files: {missing_evid}", acc, "EVID-001", "Evidence Suite Complete")
+                    else:
+                        ok("Evidence suite required files are present", acc, "EVID-001", "Evidence Suite Complete")
+
+                    # EVID-002: EVIDENCE_MANIFEST_ENUMERATION_COMPLETE
+                    if "reports/forge/synthetic_smoke/EVIDENCE_MANIFEST.json" in ev_namelist:
+                        em_raw = evzf.read("reports/forge/synthetic_smoke/EVIDENCE_MANIFEST.json")
+                        try:
+                            em = json.loads(em_raw)
+                            files_dict = em.get("files", em.get("checksums", em.get("evidence", {})))
+                            man_req = ["RUN_METADATA.json", "DATA_MANIFEST.json", "results.csv"]
+                            if "reports/forge/synthetic_smoke/PROMPT_FINGERPRINT.json" in ev_namelist:
+                                man_req.append("PROMPT_FINGERPRINT.json")
+                            missing_man = [m for m in man_req if m not in files_dict]
+                            if missing_man:
+                                fail(f"Evidence manifest missing entries: {missing_man}", acc, "EVID-002", "Evidence Manifest Enumeration")
+                            else:
+                                ok("Evidence manifest enumeration complete", acc, "EVID-002", "Evidence Manifest Enumeration")
+                        except Exception as e:
+                            fail(f"Could not parse EVIDENCE_MANIFEST.json: {e}", acc, "EVID-002", "Evidence Manifest Enumeration")
+
+                    # FID-006: PROMPT_FINGERPRINT_PRESENT_AND_VALID
+                    pf_path = "reports/forge/synthetic_smoke/PROMPT_FINGERPRINT.json"
+                    pf_sig_path = "reports/forge/synthetic_smoke/PROMPT_FINGERPRINT.json.sig"
+                    if pf_path in ev_namelist:
+                        try:
+                            pf = json.loads(evzf.read(pf_path))
+                            p_id = pf.get("prompt_id", "")
+                            p_sha = pf.get("prompt_sha256", "")
+                            if not p_id or not isinstance(p_id, str):
+                                fail("PROMPT_FINGERPRINT.json missing valid prompt_id", acc, "FID-006", "Prompt Fingerprint Valid")
+                            elif not p_sha or not re.fullmatch(r"[0-9a-fA-F]{64}", p_sha):
+                                fail("PROMPT_FINGERPRINT.json missing valid prompt_sha256", acc, "FID-006", "Prompt Fingerprint Valid")
+                            else:
+                                if pf_sig_path in ev_namelist and pub_key_path.exists():
+                                    pf_content = evzf.read(pf_path)
+                                    pf_sig_content = evzf.read(pf_sig_path)
+                                    if verify_signature(pf_content, pf_sig_content, pub_key_path):
+                                        ok("Prompt Fingerprint Valid and Signature Verified", acc, "FID-006", "Prompt Fingerprint Valid")
+                                    else:
+                                        fail("PROMPT_FINGERPRINT.json.sig INVALID signature", acc, "FID-006", "Prompt Fingerprint Valid")
+                                else:
+                                    ok("Prompt Fingerprint format valid (no signature checked)", acc, "FID-006", "Prompt Fingerprint Valid")
+                        except Exception as e:
+                            fail(f"Failed to parse PROMPT_FINGERPRINT.json: {e}", acc, "FID-006", "Prompt Fingerprint Valid")
+                    else:
+                        fail("PROMPT_FINGERPRINT.json missing", acc, "FID-006", "Prompt Fingerprint Valid")
+
+                    # INT-006: DATA_LEAF_HASH_BINDING
+                    dm_path = "reports/forge/synthetic_smoke/DATA_MANIFEST.json"
+                    if dm_path in ev_namelist and code_zips:
+                        try:
+                            dm = json.loads(evzf.read(dm_path))
+                            file_sha_map = dm.get("file_sha256", {})
+                            leaf_ok = True
+                            with zipfile.ZipFile(io.BytesIO(zf.read(code_zips[0]))) as czf:
+                                c_names = czf.namelist()
+                                for fname, expected_sha in file_sha_map.items():
+                                    data_p = f"data/{fname}"
+                                    if data_p in c_names:
+                                        actual_sha = hashlib.sha256(czf.read(data_p)).hexdigest()
+                                        if actual_sha != expected_sha:
+                                            fail(f"Data leaf hash mismatch for {fname}", acc, "INT-006", "Data Leaf Hash Binding")
+                                            leaf_ok = False
+                                    else:
+                                        fail(f"Data leaf missing from CODE zip: {data_p}", acc, "INT-006", "Data Leaf Hash Binding")
+                                        leaf_ok = False
+                            if leaf_ok:
+                                ok("All data leaves bound securely to code zip", acc, "INT-006", "Data Leaf Hash Binding")
+                        except Exception as e:
+                            fail(f"INT-006 verification failed: {e}", acc, "INT-006", "Data Leaf Hash Binding")
+                    elif dm_path not in ev_namelist:
+                        fail("DATA_MANIFEST.json missing for INT-006", acc, "INT-006", "Data Leaf Hash Binding")
 
             # 4. Seed Profile check
             if code_zips:
                 try:
                     with zipfile.ZipFile(io.BytesIO(zf.read(code_zips[0]))) as czf:
-                        if any("seed_profile.yaml" in n for n in czf.namelist()):
-                            ok("Seed Profile verified", acc, "INT-004", "Seed Profile Present")
+                        if "profiles/seed_profile.yaml" in czf.namelist():
+                            prof_txt = czf.read("profiles/seed_profile.yaml").decode("utf-8")
+                            prof_txt_lower = prof_txt.lower()
+                            if "live_trading_enabled: false" not in prof_txt_lower:
+                                fail("seed_profile.yaml live_trading_enabled must be false", acc, "PROF-001", "Seed Profile Present and Safe")
+                            elif "max_contracts" not in prof_txt and "max_position_size_contracts" not in prof_txt:
+                                fail("seed_profile.yaml missing max_contracts", acc, "PROF-001", "Seed Profile Present and Safe")
+                            elif "daily_loss_cap_usd" not in prof_txt:
+                                fail("seed_profile.yaml missing daily_loss_cap_usd", acc, "PROF-001", "Seed Profile Present and Safe")
+                            else:
+                                ok("Seed Profile verified and safe", acc, "PROF-001", "Seed Profile Present and Safe")
                         else:
-                            fail("profiles/seed_profile.yaml MISSING", acc, "INT-004", "Seed Profile Present")
+                            fail("profiles/seed_profile.yaml MISSING", acc, "PROF-001", "Seed Profile Present and Safe")
                 except Exception as e:
-                    fail(f"Failed to read CODE zip: {e}", acc, "INT-004", "Seed Profile Present")
+                    fail(f"Failed to read CODE zip: {e}", acc, "PROF-001", "Seed Profile Present and Safe")
 
     except zipfile.BadZipFile:
         fail("Corrupt drop packet", acc, "FID-003", "Manifest Integrity")

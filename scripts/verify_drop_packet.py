@@ -418,9 +418,15 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                 p_id = pf.get("prompt_id")
                                 p_hash = pf.get("prompt_sha256")
                                 
+                                if args.strict:
+                                    if not p_id or not isinstance(p_id, str):
+                                        issues.append(Issue(FAIL, "PROMPT_ID_MISSING", "PROMPT_FINGERPRINT.json must have non-empty prompt_id"))
+                                    if not p_hash or not re.fullmatch(r"[0-9a-fA-F]{64}", p_hash):
+                                        issues.append(Issue(FAIL, "PROMPT_HASH_INVALID", "PROMPT_FINGERPRINT.json must have 64 hex prompt_sha256"))
+                                
                                 # Find the prompt text in the CODE zip (Cashed earlier)
-                                prompt_path = f"prompts/missions/{p_id}.txt"
-                                if "code_prompt_map" in locals() and prompt_path in code_prompt_map:
+                                prompt_path = f"prompts/missions/{p_id}.txt" if p_id else ""
+                                if "code_prompt_map" in locals() and prompt_path and prompt_path in code_prompt_map:
                                     actual_prompt_bytes = code_prompt_map[prompt_path]
                                     actual_p_hash = hashlib.sha256(actual_prompt_bytes).hexdigest()
                                     
