@@ -32,7 +32,7 @@ class WebSocketResearchFeed:
         self._on_message = on_message
         self._reconnect_interval = reconnect_interval
         self._active = False
-        self._websocket: Optional[websockets.WebSocketClientProtocol] = None
+        self._websocket: Optional[Any] = None
 
     async def connect(self) -> None:
         """Main execution loop with automatic reconnection."""
