@@ -31,7 +31,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30, use_alpha_decay: bool = False, decay_lookback_trades: int = 10, decay_threshold_win_rate: float = 0.4, decay_penalty_multiplier: float = 0.5):  # noqa: PLR0913
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30, use_alpha_decay: bool = False, decay_lookback_trades: int = 10, decay_threshold_win_rate: float = 0.4, decay_penalty_multiplier: float = 0.5, use_sentiment: bool = False, sentiment_threshold: float = 0.5, sentiment_sizing_multiplier: float = 1.25):  # noqa: PLR0913
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
@@ -55,6 +55,11 @@ class SimulatedAccount:
         self.decay_lookback_trades = decay_lookback_trades
         self.decay_threshold_win_rate = decay_threshold_win_rate
         self.decay_penalty_multiplier = decay_penalty_multiplier
+
+        # Item 18: Sentiment-Weighted Alpha
+        self.use_sentiment = use_sentiment
+        self.sentiment_threshold = sentiment_threshold
+        self.sentiment_sizing_multiplier = sentiment_sizing_multiplier
         
         self.trades: List[Trade] = []
 
@@ -79,6 +84,7 @@ class SimulatedAccount:
         comm_frac: float = 0.0,
         comm_bps: float = 0.0,
         comm_fixed: float = 0.0,
+        current_sentiment: float = 0.0,
     ) -> bool:
         # Compatibility: comm_bps is legacy name; comm_frac is canonical (decimal fraction)
         if comm_frac == 0.0 and comm_bps != 0.0:
@@ -131,6 +137,15 @@ class SimulatedAccount:
                 if win_rate < self.decay_threshold_win_rate:
                     # Apply decay penalty (e.g., 50% cut in risk)
                     risk_amt *= self.decay_penalty_multiplier
+                    
+            # Item 18: Sentiment Scaling
+            if self.use_sentiment and current_sentiment != 0.0:
+                if current_sentiment >= self.sentiment_threshold:
+                    risk_amt *= self.sentiment_sizing_multiplier
+                elif current_sentiment <= -self.sentiment_threshold:
+                    # Stunt or severely restrict longs during panic sentiment
+                    risk_amt *= (1.0 / self.sentiment_sizing_multiplier)
+
                     
             risk_per_share = fill_price - stop_price
             if risk_per_share > 0:
@@ -295,6 +310,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     engine_cfg: EngineConfig,
     debug: bool = False,
     out_dir: Optional[Path] = None,
+    intelligence: Optional[Dict[str, Any]] = None,
 ) -> BacktestResult:
     """
     Fortress Protocol v2.1.0 - Optimized Physics Engine
@@ -381,6 +397,17 @@ def run_backtest(  # noqa: PLR0912, PLR0915
     volumes = df["Volume"].values.astype(float)
     timestamps = df.index
 
+    # Intelligence Extraction (Item 18)
+    sentiment_arr = np.zeros(len(df), dtype=float)
+    if params.use_sentiment and intelligence and "sentiment" in intelligence:
+        intel_sentiment = intelligence["sentiment"]
+        if isinstance(intel_sentiment, pd.Series):
+            # Align to our master index and forward fill gaps
+            aligned = intel_sentiment.reindex(df.index).ffill().fillna(0.0)
+            sentiment_arr = aligned.values.astype(float)
+        elif isinstance(intel_sentiment, np.ndarray) and len(intel_sentiment) == len(df):
+            sentiment_arr = intel_sentiment
+
     n_bars = len(df)
     equity_arr = np.full(n_bars, np.nan)
     cash_arr = np.full(n_bars, np.nan)
@@ -415,6 +442,9 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         decay_lookback_trades=params.decay_lookback_trades,
         decay_threshold_win_rate=params.decay_threshold_win_rate,
         decay_penalty_multiplier=params.decay_penalty_multiplier,
+        use_sentiment=params.use_sentiment,
+        sentiment_threshold=params.sentiment_threshold,
+        sentiment_sizing_multiplier=params.sentiment_sizing_multiplier,
     )
 
     # Boot the Phoenix Protocol Auditor
@@ -510,6 +540,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     limit_pct=engine_cfg.volume_limit_pct,
                     comm_frac=engine_cfg.commission_rate_frac,
                     comm_fixed=engine_cfg.commission_fixed,
+                    current_sentiment=sentiment_arr[i],
                 ):
                     auditor.log_decision(i, current_ts, "ENTRY_EXEC", {"price": o, "stop": proposed_stop, "risk": params.risk_per_trade})
                     bars_held = 1

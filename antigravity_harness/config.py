@@ -196,6 +196,11 @@ class StrategyParams(BaseModel):
     decay_threshold_win_rate: float = 0.4
     decay_penalty_multiplier: float = 0.5  # Scale down sizing when decaying
 
+    # Item 18: Sentiment-Weighted Alpha
+    use_sentiment: bool = False
+    sentiment_threshold: float = 0.5
+    sentiment_sizing_multiplier: float = 1.25
+
     # 4. Ablation / Control
     disable_sma: bool = False
     disable_rsi: bool = False
