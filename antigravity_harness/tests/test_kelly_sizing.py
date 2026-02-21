@@ -1,9 +1,11 @@
 import unittest
+from typing import Any, List
+
 import pandas as pd
-import numpy as np
+
 from antigravity_harness.engine import SimulatedAccount
-from antigravity_harness.models import Trade
 from antigravity_harness.metrics import kelly_fraction
+from antigravity_harness.models import Trade
 
 class TestKellySizing(unittest.TestCase):
     def test_kelly_fraction_calculation(self):

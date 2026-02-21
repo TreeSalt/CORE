@@ -31,7 +31,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05):
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05):  # noqa: PLR0913
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
