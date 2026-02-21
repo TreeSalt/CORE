@@ -13,6 +13,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import re
 import subprocess
 import sys
@@ -179,6 +180,38 @@ def check_environment(fix=False):
     return True
 
 
+def verify_authorized_list_integrity(authorized: list) -> bool:
+    """Verifies that the authorized mutation list has not been tampered with."""
+    EXPECTED_HASH = "424acc4dcf6dcf6a975d383a5a1e2f4060ffb77daa928c2aa48cfd75c4581c9b"
+    actual_hash = hashlib.sha256("".join(authorized).encode()).hexdigest()
+    if actual_hash != EXPECTED_HASH:
+        print_status(f"INTEGRITY BREACH: Authorized list tampered! (Hash: {actual_hash[:8]}...)", "FAIL")
+        return False
+    return True
+
+
+def check_untracked_sh_py() -> bool:
+    """Detects untracked .py or .sh files in the source tree (Persistence Guard)."""
+    # Scan antigravity_harness/ for untracked executables
+    try:
+        status = subprocess.check_output(
+            ["git", "ls-files", "--others", "--exclude-standard", "antigravity_harness/"],
+            cwd=REPO_ROOT, text=True
+        ).strip()
+        if status:
+            untracked_executables = []
+            for line in status.splitlines():
+                if line.endswith((".py", ".sh")):
+                    untracked_executables.append(line)
+            
+            if untracked_executables:
+                print_status(f"SECURITY VIOLATION: Untracked executables in source tree: {untracked_executables}", "FAIL")
+                return False
+    except subprocess.CalledProcessError:
+        pass # Not a git repo or other issue
+    return True
+
+
 def git_surgeon(fix=False):
     """The 'Git Surgeon' auto-commits authorized mutations if the rest of the tree is clean."""
     if not fix:
@@ -259,7 +292,14 @@ def git_surgeon(fix=False):
         "antigravity_harness/gates.py", # Item 2 Vectorized Scaling
         "scripts/verify_signatures.py", # Item 3 Sovereign Auditor V2
         "antigravity_harness/portfolio_regime_report.py", # Item 4 Multi-Asset Regime Alpha
+        "scripts/vuln_scanner.py", # Item 5 Zero-Day Vulnerability Scrub
+        "scripts/clean_repo.py", # Item 5 Zero-Day Vulnerability Scrub
+        "antigravity_harness/tests/test_v5_security.py", # Item 5 Zero-Day Vulnerability Scrub
     ]
+
+    # V4 Integrity Seal
+    if not verify_authorized_list_integrity(authorized):
+        return False
 
     to_add = []
     forbidden = []
@@ -310,15 +350,21 @@ def main():
     if not check_environment(args.fix):
         success = False
 
-    # 2. Versioning
+    # 2. Security (Persistence Guard)
+    print_status("Checking Security (Persistence Guard)...")
+    if not check_untracked_sh_py():
+        success = False
+        print_status("Security violation detected!", "FAIL")
+
+    # 3. Versioning
     if not check_version_sync(args.fix):
         success = False
 
-    # 3. Hygiene
+    # 4. Hygiene
     if not check_hygiene(args.fix):
         success = False
 
-    # 4. Git (The Final Seal)
+    # 5. Git (The Final Seal)
     if not git_surgeon(args.fix):
         success = False
 

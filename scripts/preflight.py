@@ -26,16 +26,15 @@ BOLD = "\033[1m"
 sys.dont_write_bytecode = True
 
 
-def run_cmd(cmd: str, cwd: Path, env: Optional[dict] = None) -> bool:
-    print(f"🚀 RUN: {cmd}")
+def run_cmd(cmd: list, cwd: Path, env: Optional[dict] = None) -> bool:
+    print(f"🚀 RUN: {' '.join(cmd)}")
     try:
-        # Task 3: Disable bytecode creation if requested (by using -B or environment)
-        # We ensure PYTHONDONTWRITEBYTECODE is set for the subprocess
         current_env = os.environ.copy()
         if env:
             current_env.update(env)
 
-        result = subprocess.run(cmd, shell=True, check=False, cwd=cwd, env=current_env)
+        # Task 5: Eliminate shell=True for institutional security
+        result = subprocess.run(cmd, shell=False, check=False, cwd=cwd, env=current_env)
         if result.returncode == 0:
             print("   ✅ PASS")
             return True
@@ -64,52 +63,60 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     root = Path(__file__).parent.parent.resolve()
     success = True
 
-    # 0. Self-Healing (Proactive Restoration)
+    # 0. Security Audit (Zero-Day Guard)
+    print(f"{BOLD}🛡️  INITIATING VULNERABILITY SCAN...{RESET}")
+    if not run_cmd([sys.executable, "-B", "scripts/vuln_scanner.py"], root):
+        print("   ❌ FAIL: Security audit detected vulnerabilities. Build aborted.")
+        sys.exit(1)
+
+    # 0.1 Self-Healing (Proactive Restoration)
     if args.heal:
         print(f"{BOLD}🩹 INITIATING SELF-HEALING...{RESET}")
-        bump_flag = "" if os.environ.get("SKIP_VERSION_BUMP") == "1" else "--bump"
-        if not run_cmd(f"python3 -B scripts/self_heal.py --fix {bump_flag}", root):
+        cmd = [sys.executable, "-B", "scripts/self_heal.py", "--fix"]
+        if os.environ.get("SKIP_VERSION_BUMP") != "1":
+            cmd.append("--bump")
+        if not run_cmd(cmd, root):
             print("   ❌ FAIL: Self-healing could not resolve all issues.")
             sys.exit(1)
 
     # 1. Hygiene (Strict or Auto-Clean)
     if args.auto_clean:
         print(f"{BOLD}🧹 AUTO-CLEAN (Deep Clean)...{RESET}")
-        run_cmd("python3 -B scripts/clean_repo.py --clean --clean-generated", root)
+        run_cmd([sys.executable, "-B", "scripts/clean_repo.py", "--clean", "--clean-generated"], root)
 
     try:
         # 2. Unit Tests
-        # Task 3: use python3 -B for extra safety
         print("🧪 RUNNING UNIT TESTS...")
-        if not run_cmd("python3 -B -m unittest discover -s antigravity_harness/tests -p 'test*.py'", root):
+        if not run_cmd([sys.executable, "-B", "-m", "unittest", "discover", "-s", "antigravity_harness/tests", "-p", "test*.py"], root):
             sys.exit(1)
 
         # 3. Pytest (Integration)
         print("🔥 RUNNING PYTEST...")
-        # Institutional Gating: Skip distributed tests to prevent semaphore leaks
-        if not run_cmd("PYTHONPATH=. python3 -B -m pytest --import-mode=prepend -q -p no:cacheprovider -k 'not distributed'", root):
+        # Institutional Gating: Skip distributed tests
+        env = {"PYTHONPATH": "."}
+        if not run_cmd([sys.executable, "-B", "-m", "pytest", "--import-mode=prepend", "-q", "-p", "no:cacheprovider", "-k", "not distributed"], root, env=env):
             sys.exit(1)
 
-        # 5. Static Quality Gates (Task 5)
+        # 5. Static Quality Gates
         if args.qa:
             print("🛡️ RUNNING STATIC QUALITY GATES (Institutional Mode)...")
             # Ruff
             print("   (Ruff Linting)")
-            if not run_cmd("python3 -m ruff check . --no-cache", root):
+            if not run_cmd([sys.executable, "-m", "ruff", "check", ".", "--no-cache"], root):
                 sys.exit(1)
             # Mypy
             print("   (Mypy Type Check)")
-            if not run_cmd("python3 -m mypy . --cache-dir=/tmp/.mypy_cache", root):
+            if not run_cmd([sys.executable, "-m", "mypy", ".", "--cache-dir=/tmp/.mypy_cache"], root):
                 sys.exit(1)
 
-        # Final Clean (if auto-clean requested)
+        # Final Clean
         if args.auto_clean:
             print("✨ AUTO-CLEAN: Final sweep...")
-            run_cmd("python3 -B scripts/clean_repo.py --clean --clean-generated", root)
+            run_cmd([sys.executable, "-B", "scripts/clean_repo.py", "--clean", "--clean-generated"], root)
 
-        # 4. Final Hygiene Check (Task 3: Post-Test Verification)
+        # 4. Final Hygiene Check
         print("🔍 VERIFYING CLEANLINESS (Final Audit)...")
-        if not run_cmd("python3 -B scripts/clean_repo.py --verify-strict", root):
+        if not run_cmd([sys.executable, "-B", "scripts/clean_repo.py", "--verify-strict"], root):
             msg = "Repo is dirty (Post-audit check failed)"
             log_event("HYGIENE", msg, "STARTUP")
             print(f"   ❌ FAIL: {msg}")

@@ -8,21 +8,17 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 
-def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict: bool = False) -> int:  # noqa: PLR0912
+def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict: bool = False, deep_audit: bool = False) -> int:  # noqa: PLR0912
     root = Path(__file__).parent.parent.resolve()
 
-    # Task 2: Default to non-destructive verify-only if no flags passed?
-    # Actually, the user says "Default behavior is NON-DESTRUCTIVE verify-only when no flags are passed."
-    # So if (not clean and not clean_generated and not verify_strict), we should do verify-only.
-
-    is_verify_only = verify_strict or (not clean and not clean_generated)
-    mode = "Verifying" if is_verify_only else "Cleaning"
+    is_verify_only = verify_strict or deep_audit or (not clean and not clean_generated)
+    mode = "Auditing" if deep_audit else ("Verifying" if is_verify_only else "Cleaning")
     print(f"🧹 {mode} repo root: {root}")
 
     forbidden_artifacts = []
     generated_outputs = []
 
-    # 1. Strict Detection List (Task 2 & 3)
+    # 1. Strict Detection List
     strict_patterns = [
         "__pycache__",
         "*.pyc",
@@ -33,29 +29,46 @@ def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict
         ".coverage",
         "*.log",
         "tmp",
-        "data_cache",  # Legacy cache (Task 3)
-        "MANIFEST.json",  # Test artifact residue
+        "data_cache",
+        "MANIFEST.json",
     ]
 
     for pat in strict_patterns:
-        # Check if pattern is a simple name or a glob
         if "*" in pat:
             for path in root.rglob(pat):
                 forbidden_artifacts.append(path)
         else:
-            # Check for directory or file at any level
             for path in root.rglob(pat):
                 forbidden_artifacts.append(path)
 
-    # 2. Generated Outputs (Task 2)
+    # 2. Generated Outputs
     output_patterns = ["reports", "reports_old", "reports_production", "dist"]
     for pat in output_patterns:
         p = root / pat
         if p.exists():
             generated_outputs.append(p)
 
+    # 3. Deep Audit (Institutional Hygiene)
+    untracked_garbage = []
+    if deep_audit:
+        try:
+            # List ALL untracked/ignored files
+            status = subprocess.check_output(
+                ["git", "ls-files", "--others", "--exclude-standard"],
+                cwd=root, text=True
+            ).strip()
+            if status:
+                for line in status.splitlines():
+                    p = root / line
+                    # Filter out allowed data/cache items or authorized roots? 
+                    # For now, flag ALL untracked in source tree
+                    if line.startswith("antigravity_harness/") or line.startswith("scripts/"):
+                        untracked_garbage.append(p)
+        except subprocess.CalledProcessError:
+            pass
+
     # Report Findings
-    all_artifacts = forbidden_artifacts + (generated_outputs if clean_generated else [])
+    all_artifacts = forbidden_artifacts + (generated_outputs if clean_generated else []) + untracked_garbage
 
     if all_artifacts:
         print("🔍 Artifact Report:")
@@ -66,13 +79,21 @@ def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict
                 print(f"   [GENERATED] {p.relative_to(root)}")
             else:
                 print(f"   [STAYING]   {p.relative_to(root)} (use --clean-generated to remove)")
+        for p in untracked_garbage:
+             status = "[UNTRACKED]"
+             if p.suffix in (".py", ".sh", ".so", ".exe", ".bin"):
+                 status = "[RISKY_UNTRACKED]"
+             print(f"   {status:13} {p.relative_to(root)}")
 
     # Execution logic
     if is_verify_only:
         if forbidden_artifacts:
             print("❌ VERIFY-STRICT: Forbidden artifacts exist.")
             return 1
-        print("✅ VERIFY-STRICT: Repo is clean.")
+        if deep_audit and untracked_garbage:
+            print("❌ DEEP-AUDIT: Unauthorized untracked files detected in source tree.")
+            return 1
+        print(f"✅ {mode}: Repo is clean.")
         return 0
 
     # Cleaning logic
@@ -117,10 +138,11 @@ if __name__ == "__main__":
     parser.add_argument("--clean-generated", action="store_true", help="Delete generated outputs (reports/, dist/)")
     parser.add_argument("--clean-reports", action="store_true", help="Legacy alias for --clean-generated")
     parser.add_argument("--verify-strict", action="store_true", help="Check only, fail if forbidden exist")
+    parser.add_argument("--deep-audit", action="store_true", help="Comprehensive scan for ANY untracked files in source")
     args = parser.parse_args()
 
     # Handle legacy flags
     if args.clean_reports:
         args.clean_generated = True
 
-    sys.exit(clean_repo(args.clean, args.clean_generated, args.verify_strict))
+    sys.exit(clean_repo(args.clean, args.clean_generated, args.verify_strict, args.deep_audit))
