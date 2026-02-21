@@ -25,6 +25,10 @@ class EngineConfig(BaseModel):
     is_crypto: bool = True  # Phase 10.3: Asset Class Awareness (True=365, False=252)
     interval: str = "1d"  # Phase 10.4: Time Physics (e.g. "4h", "15m")
     forensic_backfill: Optional[str] = None  # Phase 11: Real-world latency/slippage ingestion
+    
+    # Item 11: Fiduciary Control
+    fiduciary_enabled: bool = False
+    fiduciary_max_qty: int = 1
 
     # Artifact 4: The Unit Correction (The Friction)
     commission_rate_frac: float = Field(
