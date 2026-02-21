@@ -61,5 +61,52 @@ class TestWebSocketFeed(unittest.IsolatedAsyncioTestCase):
         await feed.stop()
         await task
 
+    async def test_ofi_streaming(self):
+        """Verify that L1 order book updates trigger correct OFI cumulative scores."""
+        received_messages = []
+        
+        async def on_msg(msg):
+            received_messages.append(msg)
+            
+        async def mock_server(websocket):
+            # 0: Init
+            await websocket.send(json.dumps({
+                "type": "l1", "symbol": "BTC", 
+                "bid_price": 100.0, "bid_size": 10.0, 
+                "ask_price": 101.0, "ask_size": 10.0
+            }))
+            # 1: Bid size increases -> OFI = 5
+            await websocket.send(json.dumps({
+                "type": "l1", "symbol": "BTC", 
+                "bid_price": 100.0, "bid_size": 15.0, 
+                "ask_price": 101.0, "ask_size": 10.0
+            }))
+            # 2: Ask price decreases -> Va = 10, OFI = -10
+            await websocket.send(json.dumps({
+                "type": "l1", "symbol": "BTC", 
+                "bid_price": 100.0, "bid_size": 15.0, 
+                "ask_price": 100.5, "ask_size": 10.0
+            }))
+            await asyncio.sleep(0.1)
+        
+        async with serve(mock_server, "localhost", 8766):
+            feed = WebSocketResearchFeed(uri="ws://localhost:8766", on_message=on_msg)
+            task = asyncio.create_task(feed.connect())
+            
+            for _ in range(20):
+                if len(received_messages) >= 3:
+                    break
+                await asyncio.sleep(0.1)
+                
+            await feed.stop()
+            await task
+            
+        self.assertEqual(len(received_messages), 3)
+        self.assertEqual(received_messages[0]["ofi_tick"], 0.0)
+        self.assertEqual(received_messages[1]["ofi_tick"], 5.0)
+        self.assertEqual(received_messages[1]["ofi_cumulative"], 5.0)
+        self.assertEqual(received_messages[2]["ofi_tick"], -10.0)
+        self.assertEqual(received_messages[2]["ofi_cumulative"], -5.0)
+
 if __name__ == "__main__":
     unittest.main()

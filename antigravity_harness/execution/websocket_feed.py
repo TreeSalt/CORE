@@ -33,6 +33,13 @@ class WebSocketResearchFeed:
         self._reconnect_interval = reconnect_interval
         self._active = False
         self._websocket: Optional[Any] = None
+        
+        # OFI Stateful Tracking
+        self._prev_bid_price = 0.0
+        self._prev_bid_size = 0.0
+        self._prev_ask_price = 0.0
+        self._prev_ask_size = 0.0
+        self.cumulative_ofi = 0.0
 
     async def connect(self) -> None:
         """Main execution loop with automatic reconnection."""
@@ -58,7 +65,7 @@ class WebSocketResearchFeed:
             await self._websocket.close()
             logger.info("WebSocket stopped.")
 
-    async def _handle_messages(self) -> None:
+    async def _handle_messages(self) -> None:  # noqa: PLR0912
         """Internal message processing loop."""
         if not self._websocket:
             return
@@ -72,6 +79,41 @@ class WebSocketResearchFeed:
                     logger.debug("Received heartbeat.")
                     continue
                 
+                # Check for L1 Data and compute streaming OFI
+                if all(k in payload for k in ("bid_price", "bid_size", "ask_price", "ask_size")):
+                    bp = float(payload["bid_price"])
+                    bs = float(payload["bid_size"])
+                    ap = float(payload["ask_price"])
+                    a_s = float(payload["ask_size"])
+                    
+                    if self._prev_bid_price != 0.0 and self._prev_ask_price != 0.0:
+                        if bp > self._prev_bid_price:
+                            delta_vb = bs
+                        elif bp == self._prev_bid_price:
+                            delta_vb = bs - self._prev_bid_size
+                        else:
+                            delta_vb = 0.0
+                            
+                        if ap < self._prev_ask_price:
+                            delta_va = a_s
+                        elif ap == self._prev_ask_price:
+                            delta_va = a_s - self._prev_ask_size
+                        else:
+                            delta_va = 0.0
+                            
+                        ofi_tick = delta_vb - delta_va
+                        self.cumulative_ofi += ofi_tick
+                    else:
+                        ofi_tick = 0.0
+                        
+                    payload["ofi_tick"] = ofi_tick
+                    payload["ofi_cumulative"] = self.cumulative_ofi
+                    
+                    self._prev_bid_price = bp
+                    self._prev_bid_size = bs
+                    self._prev_ask_price = ap
+                    self._prev_ask_size = a_s
+
                 # Route to callback
                 if self._on_message:
                     if inspect.iscoroutinefunction(self._on_message):

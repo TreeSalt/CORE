@@ -58,3 +58,37 @@ def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
 
     out = tr.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
     return out
+
+
+def ofi(df: pd.DataFrame, period: int = 5) -> pd.Series:
+    """
+    Order Flow Imbalance (OFI).
+    Requires columns: 'bid_price', 'bid_size', 'ask_price', 'ask_size'.
+    Computes tick-by-tick net limit order flow and returns smoothed rolling mean.
+    """
+    bp = df["bid_price"]
+    bs = df["bid_size"]
+    ap = df["ask_price"]
+    a_s = df["ask_size"]
+
+    prev_bp = bp.shift(1)
+    prev_bs = bs.shift(1)
+    prev_ap = ap.shift(1)
+    prev_as = a_s.shift(1)
+
+    # Delta V_bid
+    delta_vb = np.where(
+        bp > prev_bp, bs,
+        np.where(bp == prev_bp, bs - prev_bs, 0.0)
+    )
+
+    # Delta V_ask
+    delta_va = np.where(
+        ap < prev_ap, a_s,
+        np.where(ap == prev_ap, a_s - prev_as, 0.0)
+    )
+
+    ofi_raw = pd.Series(delta_vb - delta_va, index=df.index).fillna(0.0)
+    
+    # Smooth over period
+    return ofi_raw.rolling(window=period, min_periods=1).mean()
