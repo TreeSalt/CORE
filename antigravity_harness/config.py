@@ -156,6 +156,9 @@ class StrategyParams(BaseModel):
     use_kelly: bool = False  # Item 7: Enable Kelly Criterion sizing
     kelly_multiplier: float = 0.5  # Fractional Kelly (e.g., 0.5 = Half Kelly)
     kelly_max_risk: float = 0.05  # Maximum risk per trade when using Kelly
+    var_limit_pct: float = 0.0  # Item 8: Enable VaR Governor (e.g., 0.02 = 2% Daily VaR Limit)
+    var_confidence: float = 0.95  # Confidence level for VaR calculation
+    var_lookback: int = 30  # Lookback window for historical VaR calculation
 
     # 4. Ablation / Control
     disable_sma: bool = False

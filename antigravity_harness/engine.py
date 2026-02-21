@@ -31,7 +31,7 @@ class SimulatedAccount:
     Decouples 'Physics' (Market Data) from 'Accounting' (PnL).
     """
 
-    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05):  # noqa: PLR0913
+    def __init__(self, initial_cash: float, slippage: float, allow_fractional: bool, fill_tape: Optional[FillTape] = None, sizing_multiplier: float = 1.0, use_kelly: bool = False, kelly_multiplier: float = 0.5, kelly_max_risk: float = 0.05, var_limit_pct: float = 0.0, var_confidence: float = 0.95, var_lookback: int = 30):  # noqa: PLR0913
         self.cash = float(initial_cash)
         self.qty = 0.0
         self.entry_price = 0.0
@@ -43,6 +43,13 @@ class SimulatedAccount:
         self.use_kelly = use_kelly
         self.kelly_multiplier = kelly_multiplier
         self.kelly_max_risk = kelly_max_risk
+        
+        # Item 8: VaR Governor State
+        self.var_limit_pct = var_limit_pct
+        self.var_confidence = var_confidence
+        self.var_lookback = var_lookback
+        self.equity_history: List[float] = [float(initial_cash)]
+        
         self.trades: List[Trade] = []
 
     @property
@@ -97,6 +104,17 @@ class SimulatedAccount:
                     # Usually, Kelly replaces a fixed risk_pct.
                     # We'll use Kelly as the risk_pct if it's > 0, otherwise fallback to risk_pct.
                     risk_amt = equity * kelly_risk * self.sizing_multiplier
+
+            # Item 8: VaR Governor Scaling
+            if self.var_limit_pct > 0 and len(self.equity_history) >= 2:
+                from antigravity_harness.metrics import calculate_var  # noqa: PLC0415
+                # Rolling VaR from equity history
+                hist_s = pd.Series(self.equity_history[-(self.var_lookback + 1):])
+                current_var = calculate_var(hist_s, confidence=self.var_confidence)
+                
+                if current_var > self.var_limit_pct:
+                    scaling_factor = self.var_limit_pct / current_var
+                    risk_amt *= scaling_factor
             risk_per_share = fill_price - stop_price
             if risk_per_share > 0:
                 qty_risk = risk_amt / risk_per_share
@@ -350,6 +368,9 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         use_kelly=params.use_kelly,
         kelly_multiplier=params.kelly_multiplier,
         kelly_max_risk=params.kelly_max_risk,
+        var_limit_pct=params.var_limit_pct,
+        var_confidence=params.var_confidence,
+        var_lookback=params.var_lookback,
     )
 
     # Boot the Phoenix Protocol Auditor
@@ -487,6 +508,7 @@ def run_backtest(  # noqa: PLR0912, PLR0915
 
         # 4. Mark to Market
         equity_arr[i] = account.total_value(c)
+        account.equity_history.append(equity_arr[i])
         cash_arr[i] = account.cash
         qty_arr[i] = account.qty
         in_pos_arr[i] = account.in_position

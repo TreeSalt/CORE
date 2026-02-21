@@ -100,6 +100,30 @@ def expectancy(trades: List[Any]) -> float:
     return float(np.mean([float(t.pnl_pct) for t in trades]))
 
 
+def calculate_var(equity: pd.Series, confidence: float = 0.95) -> float:
+    """
+    Calculates historical Value at Risk (VaR) at the specified confidence level.
+    VaR represents the minimum loss expected over a period at a given confidence level.
+    """
+    if equity.empty or len(equity) < 2:
+        return 0.0
+    
+    # Calculate returns
+    if isinstance(equity.index, pd.DatetimeIndex):
+        daily = equity.resample("D").last().ffill()
+        rets = daily.pct_change().dropna()
+    else:
+        # Fallback to period-to-period returns if no DatetimeIndex
+        rets = equity.pct_change().dropna()
+    
+    if rets.empty:
+        return 0.0
+        
+    # Historical VaR: Percentile of returns
+    var_val = np.percentile(rets, (1 - confidence) * 100)
+    return float(abs(min(0.0, var_val)))
+
+
 def calmar_ratio(cagr_val: float, max_dd: float) -> float:
     if max_dd == 0.0:
         return 0.0 if cagr_val <= 0 else 100.0  # Cap at 100 for perfect run
@@ -157,6 +181,7 @@ def compute_metrics(equity: pd.Series, trades: List[Any], periods_per_year: int,
     out["expectancy_pct"] = out["expectancy"]
 
     out["kelly_fraction"] = kelly_fraction(trades)
+    out["var_95"] = calculate_var(equity, confidence=0.95)
 
     return out
 
