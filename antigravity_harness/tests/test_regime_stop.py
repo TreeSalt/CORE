@@ -6,6 +6,7 @@ from antigravity_harness.config import EngineConfig, StrategyParams
 
 class TestRegimeStop(unittest.TestCase):
     def test_regime_aware_stop_scaling(self):
+        np.random.seed(42)  # Deterministic dataset to prevent test pollution
         # Create a synthetic dataset that triggers a HIGH_VOL regime
         dates = pd.date_range("2024-01-01", periods=150)
         
@@ -51,6 +52,13 @@ class TestRegimeStop(unittest.TestCase):
         
         dist_41 = open_41 - stop_41
         dist_111 = open_111 - stop_111
+        
+        if pd.isna(dist_111):
+            print("TRACE AROUND 111:")
+            print(trace.iloc[105:115][["cash", "qty", "stop_price"]])
+            print("TRADES:")
+            for t in res.trades:
+                print(t)
         
         self.assertGreater(dist_111, dist_41)
         self.assertAlmostEqual(dist_111 / dist_41, 5.0, delta=0.5)
