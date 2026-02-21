@@ -104,7 +104,7 @@ class SovereignAuditor:
         
         # Item 27: Live Safety Guard
         from antigravity_harness.execution.safety import ExecutionSovereignGuard, ExecutionSafetyConfig # noqa: PLC0415
-        self.sovereign_guard = ExecutionSovereignGuard(ExecutionSafetyConfig(), None)
+        self.sovereign_guard = ExecutionSovereignGuard(ExecutionSafetyConfig(max_contracts=1000000), None)
 
     def attach_strategy_commitment(self, strategy_code: str, params: Dict[str, Any], data_hash: str, results: Dict[str, Any]) -> None:
         """
@@ -172,7 +172,8 @@ class SovereignAuditor:
             order_type=OrderType.LIMIT,
             limit_price=Decimal(str(order_price))
         )
-        data_ts = getattr(account, 'last_update_time', datetime.utcnow())
+        from datetime import timezone
+        data_ts = getattr(account, 'last_update_time', datetime.now(timezone.utc).replace(tzinfo=None))
 
         ok, reason = self.sovereign_guard.validate_intent(mock_intent, equity, data_ts)
         if not ok:
