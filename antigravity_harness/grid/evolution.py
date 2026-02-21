@@ -1,6 +1,7 @@
 import random
 from typing import Any, Dict
 
+
 class StrategyEvolver:
     """
     Item 25: Self-Evolving Opt-Matrix.

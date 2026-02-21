@@ -21,9 +21,9 @@ from antigravity_harness.config import (
 )
 from antigravity_harness.context import SimulationContextBuilder
 from antigravity_harness.data import load_ohlc  # For Ray loading
-from antigravity_harness.grid.manager import GridManager
 from antigravity_harness.engine import Trade
 from antigravity_harness.essence import EssenceLab
+from antigravity_harness.grid.manager import GridManager
 from antigravity_harness.models import SimulationResult
 from antigravity_harness.paths import INTEL_DIR
 from antigravity_harness.runner import SovereignRunner

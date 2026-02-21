@@ -14,14 +14,14 @@ from typing import Any, Dict, List, Optional
 
 from antigravity_harness.execution.adapter_base import (
     AdapterCapabilities,
+    Bar,
     ExecutionAdapter,
+    MarketDataAdapter,
     OrderAck,
     OrderIntent,
     OrderStatus,
     OrderType,
     Position,
-    MarketDataAdapter,
-    Bar,
 )
 
 # Deferred imports for ib_insync to avoid event loop errors in static analysis
@@ -300,18 +300,23 @@ class IBKRAdapter(ExecutionAdapter, MarketDataAdapter):
         contract = self._get_contract(symbol)
         ticker = self._ib.reqTickers(contract)[0]
         # Prefer last if available, else midpoint
-        if ticker.last and not ticker.last == 0:
+        if ticker.last and ticker.last != 0:
             return ticker.last
-        if ticker.marketPrice() and not ticker.marketPrice() == 0:
+        if ticker.marketPrice() and ticker.marketPrice() != 0:
             return ticker.marketPrice()
         # Fallback to last bar close if market data fails
         return (await self.get_latest_bar(symbol, "1m")).close
 
     def _map_timeframe_to_ib(self, timeframe: str) -> str:
         tf = timeframe.lower()
-        if tf == "1m": return "1 min"
-        if tf == "5m": return "5 mins"
-        if tf == "15m": return "15 mins"
-        if tf == "1h": return "1 hour"
-        if tf == "1d": return "1 day"
+        if tf == "1m":
+            return "1 min"
+        if tf == "5m":
+            return "5 mins"
+        if tf == "15m":
+            return "15 mins"
+        if tf == "1h":
+            return "1 hour"
+        if tf == "1d":
+            return "1 day"
         raise ValueError(f"Unsupported timeframe: {timeframe}")

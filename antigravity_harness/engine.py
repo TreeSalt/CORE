@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import ctypes
 import os
 from pathlib import Path
@@ -101,10 +102,8 @@ class SimulatedAccount:
     def __del__(self):
         """Cleanup C memory."""
         if hasattr(self, "_c_account") and self._c_account and hasattr(self, "_lib"):
-            try:
+            with contextlib.suppress(BaseException):
                 self._lib.Account_delete(self._c_account)
-            except:
-                pass
 
     @property
     def in_position(self) -> bool:

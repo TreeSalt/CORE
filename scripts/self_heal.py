@@ -35,6 +35,7 @@ from antigravity_harness.paths import (  # noqa: E402
     SNAPSHOT_DIR,
     ensure_dirs,
 )
+from antigravity_harness.registry import load_registry, save_registry  # noqa: E402
 from scripts.archivist import log_event  # noqa: E402
 
 GREEN = "\033[92m"
@@ -251,9 +252,7 @@ def check_hygiene(fix=False):
 
 def check_registry_redemption(fix=False):
     print_status("Checking Registry Redemption (Ledger reconciliation)...")
-    from antigravity_harness.registry import REGISTRY_PATH
     ledger_path = REPO_ROOT / "state/STRATEGY_LEDGER.json"
-    registry_path = REGISTRY_PATH
 
     if not ledger_path.exists():
         print_status("No ledger found. Skipping redemption.", "INFO")
@@ -267,7 +266,6 @@ def check_registry_redemption(fix=False):
         return False
 
     # Load registry
-    from antigravity_harness.registry import load_registry, save_registry
     registry = load_registry()
     
     missing_strategies = []
@@ -365,8 +363,9 @@ def check_environment(fix=False):
     return True
 
 
-def verify_authorized_list_integrity(authorized: list) -> bool:
+def verify_authorized_list_integrity(authorized: list | None = None) -> bool:
     """Verifies that the authorized mutation list has not been tampered with."""
+    authorized = authorized or []
     actual_hash = hashlib.sha256("".join(authorized).encode()).hexdigest()
     if actual_hash != AUTHORIZED_MUTATIONS_HASH:
         print_status(f"INTEGRITY BREACH: Authorized list tampered! (Hash: {actual_hash[:8]}...)", "FAIL")
@@ -374,8 +373,9 @@ def verify_authorized_list_integrity(authorized: list) -> bool:
     return True
 
 
-def check_untracked_sh_py(authorized: list = []) -> bool:
+def check_untracked_sh_py(authorized: list | None = None) -> bool:
     """Detects untracked .py or .sh files in the source tree (Persistence Guard)."""
+    authorized = authorized or []
     # Scan antigravity_harness/ for untracked executables
     try:
         status = subprocess.check_output(

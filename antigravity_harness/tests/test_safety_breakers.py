@@ -1,9 +1,9 @@
 import unittest
-import time
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal
-from antigravity_harness.execution.safety import ExecutionSafety, ExecutionSafetyConfig
+
 from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
+from antigravity_harness.execution.safety import ExecutionSafety, ExecutionSafetyConfig
+
 
 class TestSafetyBreakers(unittest.TestCase):
     def setUp(self):

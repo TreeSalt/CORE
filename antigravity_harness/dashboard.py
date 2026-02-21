@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
+
 class SovereignDashboard:
     """
     Sovereign Health Dashboard (CLI).
@@ -36,7 +37,7 @@ class SovereignDashboard:
         print("\n[ SYSTEM STATUS ]")
         print(f"  - Ledger Path:  {self.ledger_path}")
         print(f"  - Entry Count:  {len(ledger)}")
-        print(f"  - Audit Health: \033[92mPASS\033[0m" if len(ledger) > 0 else "  - Audit Health: \033[93mEMPTY\033[0m")
+        print("  - Audit Health: \033[92mPASS\033[0m" if len(ledger) > 0 else "  - Audit Health: \033[93mEMPTY\033[0m")
         
         print("\n[ RECENT STRATEGY DEPLOYMENTS ]")
         if not ledger:

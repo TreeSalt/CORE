@@ -1,6 +1,8 @@
 from typing import Any, Dict, List
-from antigravity_harness.grid.matrix import EvaluationMatrix
+
 from antigravity_harness.grid.evolution import StrategyEvolver
+from antigravity_harness.grid.matrix import EvaluationMatrix
+
 
 class GridManager:
     """
@@ -14,7 +16,7 @@ class GridManager:
     def evolve_and_evaluate(self, strategy_id: str, base_params: Dict[str, Any], generations: int = 5) -> List[Dict[str, Any]]:
         current_params = base_params
         all_results = []
-        for gen in range(generations):
+        for _gen in range(generations):
             # Evaluate current gen
             results = self.matrix.run_matrix(strategy_id, [current_params])
             all_results.extend(results)

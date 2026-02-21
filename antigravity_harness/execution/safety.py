@@ -1,9 +1,9 @@
 from __future__ import annotations
+
 import time
-from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
-from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from datetime import date, datetime, timezone
+from typing import Any, List, Optional, Tuple
 
 from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
 
@@ -83,22 +83,30 @@ class ExecutionSafety:
         """
         Run all safety gates. Raises SafetyViolation on failure.
         """
-        # Gate 0: Pause Mode
+        self._check_pause_gate()
+        self._check_daily_loss_gate()
+        self._check_atr_gate(daily_atr_points)
+        self._check_session_gate(now_utc)
+        self._check_contract_limit_gate(intent, current_position)
+        self._check_rapid_fire_gate()
+        self._check_stale_data_gate(now_utc)
+
+    def _check_pause_gate(self) -> None:
         if self.state.pause_trading:
             raise DailyLossCapReached(f"TRADING_PAUSED: {self.state.pause_reason}")
 
-        # Gate 1: Daily Loss Cap
+    def _check_daily_loss_gate(self) -> None:
         total_pnl = self.state.realized_pnl_usd + self.state.unrealized_pnl_usd
         if total_pnl <= -self.config.daily_loss_cap_usd:
             self.state.pause_trading = True
             self.state.pause_reason = f"Daily Loss Cap reached: ${total_pnl:.2f}"
             raise DailyLossCapReached(self.state.pause_reason)
 
-        # Gate 2: ATR Filter
+    def _check_atr_gate(self, daily_atr_points: float) -> None:
         if daily_atr_points > self.config.atr_max_threshold:
             raise ATRFilterBlock(f"ATR {daily_atr_points} exceeds threshold {self.config.atr_max_threshold}")
 
-        # Gate 3: Session Boundary
+    def _check_session_gate(self, now_utc: datetime) -> None:
         if self.calendar:
             d = now_utc.date()
             if not self.calendar.is_trading_day(d):
@@ -108,22 +116,20 @@ class ExecutionSafety:
             if cutoff and now_utc > cutoff:
                 raise SessionBoundaryViolation(f"After session entry cutoff: {now_utc} > {cutoff}")
 
-        # Gate 4: Contract Limit
+    def _check_contract_limit_gate(self, intent: OrderIntent, current_position: int) -> None:
         if intent.order_type != OrderType.STOP: # Exits skip limit check usually
             resulting_pos = current_position + (intent.quantity if intent.side == OrderSide.BUY else -intent.quantity)
             if abs(resulting_pos) > self.config.max_contracts:
                 raise ContractLimitViolation(f"Resulting position {resulting_pos} exceeds limit {self.config.max_contracts}")
 
-        # ─── Live Circuit Breakers ───────────────────────────────────────────
-
-        # Rapid-Fire Guard
+    def _check_rapid_fire_gate(self) -> None:
         now_ts = time.time()
         self._order_timestamps = [ts for ts in self._order_timestamps if now_ts - ts <= 1.0]
         if len(self._order_timestamps) >= self.config.max_orders_per_sec:
             raise SafetyViolation("RAPID_FIRE: Too many orders in last second")
         self._order_timestamps.append(now_ts)
 
-        # Stale Data Guard (Only if configured and not historical)
+    def _check_stale_data_gate(self, now_utc: datetime) -> None:
         if self.config.max_data_age_sec > 0:
             now_real = datetime.now(timezone.utc)
             if now_utc.tzinfo is None:

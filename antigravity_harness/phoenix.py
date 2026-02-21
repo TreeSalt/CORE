@@ -1,12 +1,23 @@
 import hashlib
-from datetime import datetime
 import json
 import sys
 import time
 import traceback
+from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from decimal import Decimal
+
+from antigravity_harness.execution.adapter_base import (  # noqa: E402
+    OrderIntent,
+    OrderSide,
+    OrderType,
+)
+from antigravity_harness.execution.safety import (  # noqa: E402
+    ExecutionSafetyConfig,
+    ExecutionSovereignGuard,
+)
+from antigravity_harness.zkp import SovereigntyCommitment  # noqa: E402
 
 try:
     from nacl.signing import SigningKey
@@ -103,14 +114,12 @@ class SovereignAuditor:
         self._strategy_commitment: Optional[Dict[str, str]] = None
         
         # Item 27: Live Safety Guard
-        from antigravity_harness.execution.safety import ExecutionSovereignGuard, ExecutionSafetyConfig # noqa: PLC0415
         self.sovereign_guard = ExecutionSovereignGuard(ExecutionSafetyConfig(max_contracts=1000000), None)
 
     def attach_strategy_commitment(self, strategy_code: str, params: Dict[str, Any], data_hash: str, results: Dict[str, Any]) -> None:
         """
         Generate a ZKP-inspired commitment for the current strategy run.
         """
-        from antigravity_harness.zkp import SovereigntyCommitment # noqa: PLC0415
         self._strategy_commitment = SovereigntyCommitment.generate_commitment(
             strategy_code, params, data_hash, results
         )
@@ -164,7 +173,6 @@ class SovereignAuditor:
             return False
             
         # Item 27: Live Safety Vetting
-        from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType # noqa: PLC0415
         mock_intent = OrderIntent(
             symbol=getattr(account, 'symbol', 'UNKNOWN'),
             side=OrderSide.BUY if order_qty > 0 else OrderSide.SELL,
@@ -172,7 +180,6 @@ class SovereignAuditor:
             order_type=OrderType.LIMIT,
             limit_price=Decimal(str(order_price))
         )
-        from datetime import timezone
         data_ts = getattr(account, 'last_update_time', datetime.now(timezone.utc).replace(tzinfo=None))
 
         ok, reason = self.sovereign_guard.validate_intent(mock_intent, equity, data_ts)
@@ -234,7 +241,7 @@ class SovereignAuditor:
 
             # Item 24: Record in Immutable Ledger
             if self.invariants_passed and self._strategy_commitment:
-                from antigravity_harness.ledger import StrategyLedger # noqa: PLC0415
+                from antigravity_harness.ledger import StrategyLedger  # noqa: PLC0415
                 ledger = StrategyLedger(self.repo_root / "state/STRATEGY_LEDGER.json")
                 ledger.append(self.account_id, self._strategy_commitment, report_path)
                 
