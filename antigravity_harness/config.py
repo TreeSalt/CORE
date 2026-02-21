@@ -160,6 +160,11 @@ class StrategyParams(BaseModel):
     var_confidence: float = 0.95  # Confidence level for VaR calculation
     var_lookback: int = 30  # Lookback window for historical VaR calculation
     mc_iterations: int = 250  # Item 9: Monte Carlo simulation iterations
+    stop_mult_trend_low_vol: float = 1.0  # Item 10: Regime-Aware Stop Multipliers
+    stop_mult_trend_high_vol: float = 1.5
+    stop_mult_range_low_vol: float = 1.0
+    stop_mult_range_high_vol: float = 1.2
+    stop_mult_panic: float = 2.0
 
     # 4. Ablation / Control
     disable_sma: bool = False

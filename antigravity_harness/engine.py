@@ -333,6 +333,24 @@ def run_backtest(  # noqa: PLR0912, PLR0915
         atr_raw = sig["ATR"].values
         atr_shifted = np.concatenate(([np.nan], atr_raw[:-1]))
 
+    # Item 10: Regime Pre-calculation
+    from antigravity_harness.regimes import RegimeConfig, compute_regime_indicators, infer_regimes_from_metrics, RegimeLabel  # noqa: PLC0415
+    regime_cfg = RegimeConfig()
+    regime_metrics = compute_regime_indicators(df[["Close"]], regime_cfg)
+    regime_states = infer_regimes_from_metrics(regime_metrics, regime_cfg)
+    regime_labels = [s.label for s in regime_states]
+    
+    # Map regimes to multipliers
+    multiplier_map = {
+        RegimeLabel.TREND_LOW_VOL: params.stop_mult_trend_low_vol,
+        RegimeLabel.TREND_HIGH_VOL: params.stop_mult_trend_high_vol,
+        RegimeLabel.RANGE_LOW_VOL: params.stop_mult_range_low_vol,
+        RegimeLabel.RANGE_HIGH_VOL: params.stop_mult_range_high_vol,
+        RegimeLabel.PANIC: params.stop_mult_panic,
+        RegimeLabel.UNKNOWN: 1.0,
+    }
+    regime_multipliers = np.array([multiplier_map.get(lbl, 1.0) for lbl in regime_labels])
+
     # 3. Numpy Conversion for Speed
     opens = df["Open"].values.astype(float)
     _highs = df["High"].values.astype(float)
@@ -448,7 +466,8 @@ def run_backtest(  # noqa: PLR0912, PLR0915
                     raise ValueError("ATR data missing for stop calculation")
                 atr_ref = atr_shifted[i]
                 if np.isfinite(atr_ref) and atr_ref > 0:
-                    stop_dist = float(params.stop_atr) * atr_ref
+                    multiplier = regime_multipliers[i]
+                    stop_dist = float(params.stop_atr) * atr_ref * multiplier
                     proposed_stop = o - stop_dist  # Assume entry at Open 'o'
 
             # Determine capped volume for invariant check
