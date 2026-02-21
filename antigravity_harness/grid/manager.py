@@ -18,7 +18,7 @@ class GridManager:
     def execute_batch(self, func, tasks):
         """Standard batch execution for the grid."""
         try:
-            from joblib import Parallel, delayed
+            from joblib import Parallel, delayed  # noqa: PLC0415
             return Parallel(n_jobs=self.n_jobs)(delayed(func)(*t) for t in tasks)
         except ImportError:
             # Fallback to sequential
