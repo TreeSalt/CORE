@@ -5,6 +5,7 @@ import time
 import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from decimal import Decimal
 
 try:
     from nacl.signing import SigningKey
