@@ -8,6 +8,7 @@ from antigravity_harness.data.sentiment_feed import SentimentFeed
 from antigravity_harness.engine import run_backtest
 from antigravity_harness.models import BacktestResult
 
+
 class TestSentimentAlpha(unittest.TestCase):
     def setUp(self):
         np.random.seed(42)
