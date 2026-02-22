@@ -134,11 +134,11 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):  # noqa: 
         print(f"💾 Saving to {csv_path}...")
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(["date", "open", "high", "low", "close", "volume", "average", "barCount"])
+            writer.writerow(["Datetime", "Open", "High", "Low", "Close", "Volume"])
             for b in bars:
                 writer.writerow([
                     b.date.isoformat() if hasattr(b.date, 'isoformat') else str(b.date),
-                    b.open, b.high, b.low, b.close, b.volume, getattr(b, 'average', 0.0), getattr(b, 'barCount', 0)
+                    b.open, b.high, b.low, b.close, b.volume
                 ])
 
         # Generate Metadata
