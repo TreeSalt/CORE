@@ -155,7 +155,13 @@ forge:
 	$(PYTHON) -B scripts/forge_evidence.py
 
 build:
-	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir dist
+	@if [ -z "$(TRADER_OPS_PROMPT_ID)" ]; then \
+		echo "❌ ERR: TRADER_OPS_PROMPT_ID is required for certified builds."; \
+		echo "   USAGE: TRADER_OPS_PROMPT_ID=YOUR_PROMPT_NAME make all"; \
+		exit 1; \
+	fi
+	@mkdir -p "$(DIST)"
+	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
 
 # Council-Grade Verification Targets
 DIST ?= dist
