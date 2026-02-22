@@ -165,10 +165,6 @@ build:
 		exit 1; \
 	fi
 	@mkdir -p "$(DIST)"
-	@if [ -f "data/ibkr/mes_5m_ibkr_rth_tape.csv" ]; then \
-		cp data/ibkr/mes_5m_ibkr_rth_tape.csv data/ibkr/mes_5m_ibkr_rth.csv; \
-		cp data/ibkr/mes_5m_ibkr_rth_tape.meta.json data/ibkr/mes_5m_ibkr_rth.meta.json; \
-	fi
 	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
 
 # Council-Grade Verification Targets
