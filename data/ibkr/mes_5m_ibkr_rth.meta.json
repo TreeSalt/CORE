@@ -1,0 +1,25 @@
+{
+  "pulled_at_utc": "2026-02-22T00:57:47.537325Z",
+  "host": "127.0.0.1",
+  "port": 4002,
+  "clientId": 1,
+  "useRTH": true,
+  "timezone_handling": "ib_insync_native",
+  "bar_count": 2742,
+  "first_ts": "2026-01-08T08:30:00-06:00",
+  "last_ts": "2026-02-20T15:55:00-06:00",
+  "volume_stats": {
+    "total": 30051324.0,
+    "avg": 10959.636761487965
+  },
+  "pagination_stats": {
+    "is_complete": true,
+    "duration": "30 D"
+  },
+  "contract_fields": {
+    "conId": 750150186,
+    "localSymbol": "MESH6",
+    "exchange": "CME",
+    "lastTradeDateOrContractMonth": "20260320"
+  }
+}
