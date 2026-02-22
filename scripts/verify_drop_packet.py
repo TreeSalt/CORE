@@ -300,6 +300,9 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                 # --- P0 FIX: Data Provenance Loop (Institutional Gold) ---
                 # Verify that the dataset shipped in evidence matches the Manifest Hash
                 data_path = "data/mes_5m_synthetic.csv"
+                if "data/ibkr/mes_5m_ibkr_rth.csv" in e_names:
+                    data_path = "data/ibkr/mes_5m_ibkr_rth.csv"
+                    
                 if data_path in e_names:
                     data_bytes = ez.read(data_path)
                     actual_hash = hashlib.sha256(data_bytes).hexdigest()
