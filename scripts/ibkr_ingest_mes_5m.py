@@ -58,6 +58,11 @@ def check_rth_integrity(bars):
 
 def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
     ib = IB()
+    def on_error(reqId, errorCode, errorString, contract):
+        if errorCode == 321:
+            print(f"❌ ERROR 321 INTERCEPTED (Pacing/Validation): {errorString}")
+            sys.exit(1)
+    ib.errorEvent += on_error
     print(f"🔌 Connecting to IBKR ({host}:{port}, id:{client_id})...")
     
     try:
@@ -122,8 +127,8 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
         # --- PERSISTENCE ---
         out_dir = Path("data/ibkr")
         out_dir.mkdir(parents=True, exist_ok=True)
-        csv_path = out_dir / "mes_5m_ibkr_rth.csv"
-        meta_path = out_dir / "mes_5m_ibkr_rth.meta.json"
+        csv_path = out_dir / "mes_5m_ibkr_rth_tape.csv"
+        meta_path = out_dir / "mes_5m_ibkr_rth_tape.meta.json"
 
         # Write CSV
         print(f"💾 Saving to {csv_path}...")

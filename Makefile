@@ -11,11 +11,11 @@ DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
 ONE_TRUE := scripts/one_true_command.sh
 
 # Mission Identity (Council Certification)
-TRADER_OPS_PROMPT_ID ?= TRADER_OPS_MASTER_IDE_REQUEST_v4.5.271_IBKR_GATEWAY_AUTOMATION_FAIL_CLOSED
+TRADER_OPS_PROMPT_ID ?= TRADER_OPS_MASTER_IDE_REQUEST_v4.5.278_v1
 export TRADER_OPS_PROMPT_ID
 
 # Fiduciary Dataset Enforcement
-TRADER_OPS_DATASET ?= synthetic
+TRADER_OPS_DATASET ?= ibkr
 export TRADER_OPS_DATASET
 
 .PHONY: help install lint format type-check test test-hardening preflight clean forge build all heal commands
@@ -165,6 +165,10 @@ build:
 		exit 1; \
 	fi
 	@mkdir -p "$(DIST)"
+	@if [ -f "data/ibkr/mes_5m_ibkr_rth_tape.csv" ]; then \
+		cp data/ibkr/mes_5m_ibkr_rth_tape.csv data/ibkr/mes_5m_ibkr_rth.csv; \
+		cp data/ibkr/mes_5m_ibkr_rth_tape.meta.json data/ibkr/mes_5m_ibkr_rth.meta.json; \
+	fi
 	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
 
 # Council-Grade Verification Targets
@@ -225,8 +229,12 @@ ibkr-up:
 	bash scripts/ibkr_gateway_supervisor.sh up --port 4002
 
 ibkr-wait:
-	@echo "⏳ Waiting for API Port..."
+	@echo "⏳ Waiting for API Port and validating readiness..."
 	bash scripts/ibkr_gateway_supervisor.sh wait --port 4002 --timeout 90
+
+ibkr-probe:
+	@echo "🔍 Probing IBKR API Readiness..."
+	bash scripts/ibkr_gateway_supervisor.sh probe --port 4002
 
 ibkr-ingest-30d: ibkr-up ibkr-wait
 	@echo "📥 Ingesting 30 days of MES 5m bars..."

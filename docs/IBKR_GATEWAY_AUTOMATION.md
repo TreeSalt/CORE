@@ -15,7 +15,10 @@ make ibkr-up
 # 2. Wait for the API to come online (fails closed if timeout hits)
 make ibkr-wait
 
-# 3. Complete Data Pipeline (Start -> Wait -> Ingest 30d of MES 5m)
+# 3. Probe the API manually to see verbose errors if offline
+make ibkr-probe
+
+# 4. Complete Data Pipeline (Start -> Wait -> Ingest 30d of MES 5m)
 make ibkr-ingest-30d
 ```
 

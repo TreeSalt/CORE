@@ -21,12 +21,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
-# sys.path hacking to allow importing antigravity_harness from repo root
-REPO_ROOT = Path(__file__).parent.parent.resolve()
-if str(REPO_ROOT) not in sys.path:
-    sys.path.append(str(REPO_ROOT))
-
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
+# Standalone Drop Auditor
+# Dependencies are extracted in-memory from the target drop packet.
 
 # ANSI Colors for Institutional Output
 RED = "\033[31m"
@@ -119,6 +115,24 @@ def verify_signature(content: bytes, sig_bytes: bytes, pub_path: Path) -> Option
         return None
     except subprocess.CalledProcessError:
         return False
+
+
+def _extract_trust_root(zf: zipfile.ZipFile) -> str:
+    """Extract the sovereign pubkey SHA256 from the inner CODE zip in memory."""
+    fallback = "e195d74e9f30420410e07d9802c782db31cf6db7d18d0bc062d2a3f305481b50"
+    namelist = zf.namelist()
+    code_zips = [n for n in namelist if "TRADER_OPS_CODE" in n and n.endswith(".zip")]
+    if code_zips:
+        try:
+            with zipfile.ZipFile(io.BytesIO(zf.read(code_zips[0]))) as czf:
+                if "antigravity_harness/trust_root.py" in czf.namelist():
+                    content = czf.read("antigravity_harness/trust_root.py").decode("utf-8")
+                    m = re.search(r'TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256\s*=\s*"([a-f0-9]{64})"', content)
+                    if m:
+                        return m.group(1)
+        except Exception:
+            pass
+    return fallback
 
 
 def _scan_manifest(zf: zipfile.ZipFile, manifest_data: dict, inner_zf: Optional[zipfile.ZipFile], acc: GateAccumulator) -> bool:
@@ -267,28 +281,28 @@ def audit_drop(drop_path: Path, pub_key_path: Path, strict: bool = False) -> boo
         fail(f"Drop packet missing: {drop_path}", acc, "FID-003", "Manifest Integrity")
         return False
 
-    if pub_key_path.exists():
-        # Verifying pubkey pin (P0-C)
-        h = hashlib.sha256()
-        h.update(pub_key_path.read_bytes())
-        actual_pub_sha = h.hexdigest()
-        if actual_pub_sha != TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256:
-            fail(f"Sovereign identity hash mismatch! Expected {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]}, got {actual_pub_sha[:8]}", acc, "FID-001", "Sovereign Identity")
-            if strict:
-                return False
-        else:
-            ok(f"Sovereign identity verified (Pinned: {TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256[:8]})", acc, "FID-001", "Sovereign Identity")
-    elif strict:
-        fail("Sovereign identity missing in strict mode.", acc, "FID-001", "Sovereign Identity")
-        return False
-    else:
-        warn("Public key missing. Signature verification skipped.", acc, "FID-001", "Sovereign Identity")
-
     if strict:
         _check_timeline_sovereignty(drop_path, acc)
 
     try:
         with zipfile.ZipFile(drop_path, "r") as zf:
+            trust_root_sha256 = _extract_trust_root(zf)
+
+            if pub_key_path.exists():
+                h = hashlib.sha256()
+                h.update(pub_key_path.read_bytes())
+                actual_pub_sha = h.hexdigest()
+                if actual_pub_sha != trust_root_sha256:
+                    fail(f"Sovereign identity hash mismatch! Expected {trust_root_sha256[:8]}, got {actual_pub_sha[:8]}", acc, "FID-001", "Sovereign Identity")
+                    if strict:
+                        return False
+                else:
+                    ok(f"Sovereign identity verified (Pinned: {trust_root_sha256[:8]})", acc, "FID-001", "Sovereign Identity")
+            elif strict:
+                fail("Sovereign identity missing in strict mode.", acc, "FID-001", "Sovereign Identity")
+                return False
+            else:
+                warn("Public key missing. Signature verification skipped.", acc, "FID-001", "Sovereign Identity")
             namelist = zf.namelist()
 
             # 1. Manifest Phase

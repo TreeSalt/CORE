@@ -1,0 +1,25 @@
+PROMPT_ID: TRADER_OPS_MASTER_IDE_REQUEST_v4.5.278_v1
+CHARTER: TRADER_OPS_PROMPT_CHARTER_v1.0 (mandatory)
+DATE: 2026-02-21
+OWNER: Alec
+TARGET_VERSION: v4.5.278
+BRANCH: release/v4.5.278
+SCOPE: P0+P1
+
+EXCLUSIONS (do not do these):
+    Do not refactor code outside of the listed allowed files.
+    Do not introduce new third-party dependencies.
+    Do not weaken, bypass, or alter the sovereign verification gates.
+    Do not attempt to fix the portfolio/futures "mixed physics" execution engine in this patch; keep scope strictly to trust remediation and IBKR ingest.
+    Do not output any secrets, account IDs, or tokens in logs or terminal outputs.
+
+CONTEXT (immutable facts, 3–7 bullets):
+    v4.5.277 currently passes core fiduciary gates but fails to prove live market "reality contact."
+    The existing data_hash is anchored to a synthetic tape; it must be forced to mutate by anchoring to a newly ingested, real MES dataset.
+    The ibkr_ingest_mes_5m.py script contains a breaking regression (AttributeError: ib_insync.util has no attribute writeCsv).
+    The IBKR Gateway automation relies on dumb port-polling and fails silently or hangs.
+    The top-level README.md is currently titled "CORRUPTED README", destroying reviewer trust.
+    The drop_auditor.py script falsely claims to be standalone but currently fails unless the inner antigravity_harness is manually extracted.
+
+MISSION:
+    By the end of this patch, TRADER_OPS will have a truly standalone drop auditor, a restored trust front-door, and a fail-closed, deterministic IBKR real-data ingestion pipeline that anchors a new data_hash.
