@@ -56,7 +56,7 @@ def check_rth_integrity(bars):
     
     return True, "OK"
 
-def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):
+def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):  # noqa: PLR0915
     ib = IB()
     def on_error(reqId, errorCode, errorString, contract):
         if errorCode == 321:
