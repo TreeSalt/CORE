@@ -10,6 +10,10 @@ LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
 DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
 ONE_TRUE := scripts/one_true_command.sh
 
+# Mission Identity (Council Certification)
+TRADER_OPS_PROMPT_ID ?= TRADER_OPS_MASTER_IDE_REQUEST_v4.5.271_IBKR_GATEWAY_AUTOMATION_FAIL_CLOSED
+export TRADER_OPS_PROMPT_ID
+
 # Fiduciary Dataset Enforcement
 TRADER_OPS_DATASET ?= synthetic
 export TRADER_OPS_DATASET
