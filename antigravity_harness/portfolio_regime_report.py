@@ -20,6 +20,9 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
     close_prices_df: pd.DataFrame | None = None,
     initial_cash: float = 100_000.0,
     metadata_config: Dict[str, Any] | None = None,
+    total_trades: int = 0,
+    trades: List[Any] | None = None,
+    extra_metadata: Dict[str, Any] | None = None,
 ) -> None:  # noqa: PLR0912, PLR0915, PLC0415
     """
     Generate performance matrix per regime.
@@ -46,9 +49,10 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
         safe_to_csv(pd.DataFrame(columns=trace_headers), outdir / "router_trace.csv", index=False)
 
         # Task 5: RUN_METADATA.json (Standarized)
-        save_run_metadata(
-            outdir, config={}, extra={"periods_per_year": periods_per_year, "note": "EMPTY_RUN_NO_TRADES"}
-        )
+        base_extra = {"periods_per_year": periods_per_year, "note": "EMPTY_RUN_NO_TRADES"}
+        if extra_metadata:
+            base_extra.update(extra_metadata)
+        save_run_metadata(outdir, config={}, extra=base_extra)
         return
 
     # Convert log to DF
@@ -125,7 +129,7 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
         max_dd_segment = min(segment_dds) if segment_dds else 0.0
 
         stats[regime] = {
-            "days_in_regime": int(n_days),
+            "bars_in_regime": int(n_days),
             "total_return_pct": float(round(total_ret * 100, 2)),
             "sharpe_ratio": float(round(sharpe, 2)),
             "max_drawdown_pct_global": float(round(max_dd_global * 100, 2)),
@@ -141,6 +145,7 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
     safe_to_csv(regime_df, outdir / "regime_log.csv")
 
     # Write router_trace.csv (Task G: full decision trace)
+    # MISSION v4.7.2: Also emit DECISION_TRACE.json (Mandated)
     trace_cols = [
         "timestamp",
         "regime",
@@ -174,21 +179,30 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
         )
 
     safe_to_csv(trace_df[trace_cols], outdir / "router_trace.csv", index=False)
+    
+    # MISSION v4.7.2: Emitting Mandated REGIME_DECISION_TRACE.json
+    trace_json = trace_df[trace_cols].to_dict(orient="records")
+    with open(outdir / "REGIME_DECISION_TRACE.json", "w") as f:
+        json.dump(trace_json, f, indent=2, default=str)
+    print(f"🛡️  Artifact Secured: REGIME_DECISION_TRACE.json ({len(trace_json)} records)")
 
-    # Task 5: RUN_METADATA.json (Standardized)
     # Task 5: RUN_METADATA.json (Standardized)
     final_config = metadata_config or {}
     final_config.update({"regime_settings": "derived_from_log", "initial_cash": initial_cash})
+    
+    final_extra = {
+        "n_regime_changes": len(regime_df),
+        "total_bars": len(equity_curve),
+        "initial_cash": initial_cash,
+        "periods_per_year": periods_per_year,
+    }
+    if extra_metadata:
+        final_extra.update(extra_metadata)
 
     save_run_metadata(
         outdir,
         config=final_config,
-        extra={
-            "n_regime_changes": len(regime_df),
-            "total_days": len(equity_curve),
-            "initial_cash": initial_cash,
-            "periods_per_year": periods_per_year,
-        },
+        extra=final_extra,
     )
 
     # Write full merged equity_regime_curve.csv
@@ -207,14 +221,24 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
     dd_series = (cum / cum.cummax()) - 1.0
     max_dd = dd_series.min()
     n_trades = len(regime_log)
-    pf = (
-        abs(all_returns[all_returns > 0].sum() / all_returns[all_returns < 0].sum())
-        if all_returns[all_returns < 0].sum() != 0
-        else 999.0
-    )
+    if trades:
+        from antigravity_harness.metrics import profit_factor  # noqa: PLC0415
+        pf = profit_factor(trades)
+    else:
+        # Fallback (NOT RECOMMENDED for Strategy Truth)
+        pf = (
+            abs(all_returns[all_returns > 0].sum() / all_returns[all_returns < 0].sum())
+            if all_returns[all_returns < 0].sum() != 0
+            else 999.0
+        )
 
-    # Worst 1-day return
-    worst_1d = float(all_returns.min()) if len(all_returns) > 0 else 0.0
+    # MISSION v4.5.290: Worst 1-day return (resample to daily first)
+    if "equity" in equity_curve.columns and not equity_curve.empty:
+        daily_eq = equity_curve["equity"].resample("1D").last().ffill()
+        daily_ret = daily_eq.pct_change().fillna(0)
+        worst_1d = float(daily_ret.min())
+    else:
+        worst_1d = float(all_returns.min()) if len(all_returns) > 0 else 0.0
 
     # Max DD date range (peak → trough)
     trough_idx = dd_series.idxmin() if len(dd_series) > 0 else None
@@ -245,7 +269,8 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
         "overall_max_drawdown_pct": round(max_dd * 100, 2),
         "profit_factor": round(float(pf), 2),
         "rebalance_events": n_trades,
-        "total_days": len(equity_curve),
+        "trade_count": total_trades,
+        "total_bars": len(equity_curve),
         "worst_1d_return_pct": round(worst_1d * 100, 4),
         "max_drawdown_date_range": dd_date_range,
         "time_in_safety_states": safety_counts,
@@ -289,7 +314,8 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
         f"| Overall Max Drawdown | {overall['overall_max_drawdown_pct']:.2f}% |",
         f"| Profit Factor | {overall['profit_factor']:.2f} |",
         f"| Rebalance Events | {overall['rebalance_events']} |",
-        f"| Total Days | {overall['total_days']} |",
+        f"| Trade Count | {overall['trade_count']} |",
+        f"| Total Bars | {overall['total_bars']} |",
         f"| Worst 1-Day | {overall['worst_1d_return_pct']:.4f}% |",
         f"| DD Peak→Trough | {dd_date_range['peak_ts']} → {dd_date_range['trough_ts']} |",
         f"| Exposure Cap Events | {overall['exposure_cap_events']} |",
@@ -317,7 +343,7 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
     lines += [
         "## Safety State Distribution",
         "",
-        "| State | Days |",
+        "| State | Bars |",
         "|-------|------|",
     ]
     for state, count in safety_counts.items():
@@ -327,12 +353,12 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
         "",
         "## Per-Regime Performance",
         "",
-        "| Regime | Days | Return | Sharpe | DD (Global) | DD (Segment) |",
+        "| Regime | Bars | Return | Sharpe | DD (Global) | DD (Segment) |",
         "|--------|------|--------|--------|-------------|--------------|",
     ]
     for regime, s in stats.items():
         lines.append(
-            f"| {regime} | {s['days_in_regime']} | {s['total_return_pct']:.2f}% | "
+            f"| {regime} | {s['bars_in_regime']} | {s['total_return_pct']:.2f}% | "
             f"{s['sharpe_ratio']:.2f} | {s['max_drawdown_pct_global']:.2f}% | {s['within_segment_max_drawdown_pct']:.2f}% |"  # noqa: E501
         )
     lines.append("")

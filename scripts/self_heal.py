@@ -132,6 +132,9 @@ AUTHORIZED_MUTATIONS = [
     "antigravity_harness/tests/test_dark_pool.py", # Item 15 Dark Pool Impact Modeling
     "antigravity_harness/tests/test_alpha_decay.py", # Item 16 Market Microstructure Decay
     "antigravity_harness/tests/test_ml_regimes.py", # Item 17 ML-Based Regime Classification
+    "antigravity_harness/tests/test_friction.py", # MISSION v4.5.301
+    "antigravity_harness/tests/test_portfolio.py", # MISSION v4.5.301
+    "antigravity_harness/tests/test_sentiment_alpha.py", # MISSION v4.5.301
     "antigravity_harness/zkp.py", # Item 22 ZKP
     "antigravity_harness/physics/", # Item 21 Mirror
     "antigravity_harness/grid/", # Item 23 Grid / Item 25 Evolution
@@ -144,8 +147,50 @@ AUTHORIZED_MUTATIONS = [
     "reports/", # Backtest Artifacts
     "antigravity_harness/paths.py", # Infra
     "antigravity_harness/registry.py", # Registry Logic
+    "antigravity_harness/portfolio_policies.py", # Policy Physics
+    "antigravity_harness/portfolio.py", # Portfolio Logic
+    "antigravity_harness/data/sentiment_feed.py", # MISSION v4.5.370
+    "antigravity_harness/data_loader.py", # MISSION v4.5.370
+    "scripts/test_orthogonal_wiring.py", # MISSION v4.5.370
+    "scripts/forward_data_collector.py", # MISSION v4.5.380
+    "config/instrument_specs.json", # MISSION v4.5.380
+    "data/DATA_CATALOG_v4.5.380.json", # MISSION v4.5.380
+    "data/ibkr/mes_5m_ibkr_rth_tape.csv", # MISSION v4.5.380
+    "data/ibkr/mes_5m_ibkr_rth_tape.meta.json", # MISSION v4.5.380
+    "docs/constitution/LAWS.md", # MISSION v4.5.382
+    "docs/constitution/PHYSICS.md", # MISSION v4.5.382
+    "docs/COUNCIL_GOVERNANCE.md", # MISSION v4.5.382
+    "scripts/quickgate.py", # MISSION v4.5.382
+    "antigravity_harness/instruments/base.py",
+    "antigravity_harness/instruments/mes.py",
+    "antigravity_harness/tradability.py",
+    "antigravity_harness/reporting.py",
+    "tests/test_execution_safety.py",
+    "scripts/generate_evidence.py",
+    "antigravity_harness/portfolio_router.py",
+    "antigravity_harness/engine.py",
+    "antigravity_harness/portfolio_engine.py",
+    "docs/constitution/GOVERNANCE.md",
+    "docs/constitution/SAFETY.md",
+    "docs/schemas/RUN_METADATA.schema.json",
+    "tests/fixtures/synthetic/README.md",
+    "prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.6.1.txt",
+
+    # PHASE 2 ADDITIONS
+    "docs/constitution/STRATEGY_REGISTRY_AUDIT.md",
+    "docs/schemas/INTENT_SPEC.schema.json",
+    "docs/schemas/EFFECTIVE_POLICY.schema.json",
+    "scripts/intake_compile.py",
+    "scripts/infer_universe.py",
+    "antigravity_harness/authz.py",
+    "data/wavepool/",
+    "data/intel/",
+    "profiles/users/alec/INTENT_SPEC.yaml",
+    "profiles/users/alec/EFFECTIVE_POLICY.json",
+    "state/INFERRED_UNIVERSE.json",
+    "prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.6.5.txt",
 ]
-AUTHORIZED_MUTATIONS_HASH = "74ec091e65671f3c59eb8d85daa93c820e7e7af8e2f548fbb97f10397a0f3303"
+AUTHORIZED_MUTATIONS_HASH = "66bad5a7d230cff7c009ac8ad27858900bd738ed6ba522ff0af56f4038b5a49e"
 
 
 def print_status(msg, status="INFO"):
@@ -189,7 +234,7 @@ def check_version_sync(fix=False):
     readme_path = manifests[1]
     if readme_path.exists():
         content = readme_path.read_text()
-        if f"v{current_version}" not in content:
+        if f"v{current_version}" not in content or "Charter: v2.0" not in content:
             print_status("README.md is out of date.", "WARN")
             version_synced = False
             

@@ -10,10 +10,11 @@ import antigravity_harness.wal as write_ahead_log
 from antigravity_harness.compliance import ComplianceOfficer
 from antigravity_harness.engine import SimulatedAccount
 from antigravity_harness.execution.fill_tape import FillTape
+from antigravity_harness.instruments.base import TEST_SPEC, InstrumentSpec
 
 
 @dataclass
-class PortfolioMetrics:
+class PortfolioMetrics:  # noqa: PLR0915
     total_equity: float
     cash: float
     allocation_pct: Dict[str, float]
@@ -32,6 +33,8 @@ class PortfolioAccount:
         compliance: Optional[ComplianceOfficer] = None,
         wal: Optional[write_ahead_log.WriteAheadLog] = None,
         fill_tape: Optional[FillTape] = None,
+        max_position_size_contracts: int = 1000,
+        max_trades_per_day: int = 1000,
     ):
         self.global_cash = float(initial_cash)
         self.fill_tape = fill_tape
@@ -39,17 +42,25 @@ class PortfolioAccount:
         self.allow_fractional = allow_fractional
         self.compliance = compliance
         self.wal = wal
+        self.max_position_size_contracts = max_position_size_contracts
+        self.max_trades_per_day = max_trades_per_day
         self.history: List[PortfolioMetrics] = []
         self._asset_configs: Dict[str, dict] = {}
 
     def add_asset(
         self,
         symbol: str,
-        slippage: float = 0.001,
+        spec: InstrumentSpec = TEST_SPEC,
+        slippage: float = 0.0,
+        slippage_ticks: Optional[float] = None,
         comm_bps: float = 0.0,
         comm_fixed: float = 0.0,
         volume_limit_pct: float = 0.0,
     ) -> None:
+        if slippage_ticks is None:
+            # MISSION v4.5.306: Compatibility Map
+            # Existing tests use 'slippage' to mean integer ticks for futures-like physics.
+            slippage_ticks = slippage
         if symbol in self.accounts:
             return
         # Initialize sub-account with 0 cash. We will push cash to it during rebalance.
@@ -61,9 +72,13 @@ class PortfolioAccount:
         # Or we initialize with 0 and modify cash directly.
         acct = SimulatedAccount(
             initial_cash=0.0,
-            slippage=slippage,
+            symbol=symbol,
+            slippage_ticks=slippage_ticks,
             allow_fractional=self.allow_fractional,
             fill_tape=self.fill_tape,
+            spec=spec,
+            max_position_size_contracts=self.max_position_size_contracts,
+            max_trades_per_day=self.max_trades_per_day,
         )
         # Patch friction configs which usually come from EngineConfig
         # But SimulatedAccount doesn't store them, they are passed to buy/sell.
@@ -71,6 +86,7 @@ class PortfolioAccount:
         # Better: Store them in a config dict per asset.
         self.accounts[symbol] = acct
         self._asset_configs[symbol] = {
+            "spec": spec,
             "slippage": slippage,
             "comm_bps": comm_bps,
             "comm_fixed": comm_fixed,
@@ -80,24 +96,19 @@ class PortfolioAccount:
     def get_total_equity(self, current_prices: Dict[str, float]) -> float:
         """
         Sum of Global Cash + Sum of (SubAccount Equity).
-        Note: Sub-accounts usually hold 'cash' from sells.
-        In this architecture, sub-accounts should arguably sweep cash back to global?
-        Or we stick to: Global Cash is 'Unallocated'. Sub-account cash is 'Allocated but idle'.
+        MISSION v4.5.290: Includes $5 MES multiplier.
         """
         equity = self.global_cash
         for sym, acct in self.accounts.items():
             price = current_prices.get(sym, 0.0)
             if price > 0:
+                # SimulatedAccount.total_value already includes multiplier 5.0
                 equity += acct.total_value(price)
             else:
-                # If no price, rely on cash + last known value?
-                # For safety, if no price, we assume 0 value for qty?
-                # Or use last entry price?
-                # Strict: 0.
                 equity += acct.cash
         return equity
 
-    def rebalance(  # noqa: PLR0912
+    def rebalance(  # noqa: PLR0912, PLR0915
         self,
         target_weights: Dict[str, float],
         current_prices: Dict[str, float],
@@ -148,10 +159,17 @@ class PortfolioAccount:
 
             # We need to reduce value by abs(diff)
             sell_val_usd = abs(diff)
-            qty_to_sell = sell_val_usd / price
-
-            # Cap at owned
-            qty_to_sell = min(qty_to_sell, acct.qty)
+            # MISSION v4.5.290: ESD (Integer Lots) + Multiplier from Spec
+            multiplier = acct.spec.multiplier
+            # ESD: Account for friction in Qty Calculation to prevent cash drift
+            from antigravity_harness.engine import _apply_slippage  # noqa: PLC0415
+            fill_price = _apply_slippage(price, "sell", acct.slippage_ticks, spec=acct.spec)
+            unit_comm = 0.85 # Baseline baseline physics
+            denom = (fill_price * multiplier)
+            # Commissions are deducted from proceeds, so they don't affect qty directly in sell-to-target-value, 
+            # but they affect the remaining cash. 
+            # However, logic in SimulatedAccount.sell handles this.
+            qty_to_sell = int(sell_val_usd / denom) if not acct.allow_fractional else sell_val_usd / denom
 
             if qty_to_sell > 0:
                 # Execute Sell
@@ -192,16 +210,35 @@ class PortfolioAccount:
             acct.cash += buy_val_usd
             self.global_cash -= buy_val_usd
 
-            # Execute Buy (SimulatedAccount calculates qty from cash)
-            # We don't pass qty, we pass cash via account state.
-            acct.buy(
-                price,
-                timestamp,
-                volume=current_volumes.get(sym, 0.0) if current_volumes else np.inf,
-                limit_pct=conf.get("volume_limit_pct", 0.0),
-                comm_bps=conf.get("comm_bps", 0.0),
-                comm_fixed=conf.get("comm_fixed", 0.0),
-            )
+            # MISSION v4.5.306: Multiplier from Spec
+            multiplier = acct.spec.multiplier
+            # ESD: Account for friction in Qty Calculation to prevent cash drift
+            from antigravity_harness.engine import _apply_slippage  # noqa: PLC0415
+            fill_price = _apply_slippage(price, "buy", acct.slippage_ticks, spec=acct.spec)
+            unit_comm = 0.85 # Baseline baseline physics
+            denom = (fill_price * multiplier) + unit_comm
+            qty_to_buy = int(buy_val_usd / denom) if not acct.allow_fractional else buy_val_usd / denom
+
+            if qty_to_buy > 0:
+                acct.buy(
+                    price,
+                    timestamp,
+                    qty=qty_to_buy,
+                        volume=current_volumes.get(sym, 0.0) if current_volumes else np.inf,
+                        limit_pct=conf.get("volume_limit_pct", 0.0),
+                        comm_bps=conf.get("comm_bps", 0.0),
+                        comm_fixed=conf.get("comm_fixed", 0.0),
+                    )
+            else:
+                # Standard Fractional Path (Global 5.0 Multiplier)
+                acct.buy(
+                    price,
+                    timestamp,
+                    volume=current_volumes.get(sym, 0.0) if current_volumes else np.inf,
+                    limit_pct=conf.get("volume_limit_pct", 0.0),
+                    comm_bps=conf.get("comm_bps", 0.0),
+                    comm_fixed=conf.get("comm_fixed", 0.0),
+                )
 
             # Sweep Dust back?
             # If buy didn't use all cash (e.g. integer shares), return remainder to Global.

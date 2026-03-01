@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "TRADER_OPS IntentSpec Schema",
+    "description": "Schema for generalizing user trade intent and security boundaries.",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string"
+        },
+        "user": {
+            "type": "string"
+        },
+        "intents": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "strategy_id": {
+                        "type": "string"
+                    },
+                    "symbols": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "max_exposure_usd": {
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "max_contracts": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "risk_tier": {
+                        "enum": [
+                            "CONSERVATIVE",
+                            "BALANCED",
+                            "AGGRESSIVE"
+                        ]
+                    },
+                    "allow_overnight": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "strategy_id",
+                    "symbols",
+                    "max_exposure_usd"
+                ]
+            }
+        },
+        "global_limits": {
+            "type": "object",
+            "properties": {
+                "total_max_drawdown_pct": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "daily_loss_limit_usd": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "emergency_delever_button": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "required": [
+        "version",
+        "user",
+        "intents"
+    ]
+}

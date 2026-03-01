@@ -12,7 +12,7 @@ class TestAlphaDecay(unittest.TestCase):
         # Base setup: Initial cash 10,000. Price 100.0. No slippage.
         self.account = SimulatedAccount(
             initial_cash=10000.0,
-            slippage=0.0,
+            slippage=1.0,
             allow_fractional=True,
             use_alpha_decay=True,
             decay_lookback_trades=5,
@@ -48,7 +48,9 @@ class TestAlphaDecay(unittest.TestCase):
         # Max Qty by cash = 10,000 / 100 = 100 shares. 
         self.account.buy(price=100.0, timestamp=self.ts, stop_price=90.0, risk_pct=1.0)
         
-        self.assertEqual(self.account.qty, 100.0) # Full position size allocated by cash cap
+        # MISSION v4.5.290: ESD (Multiplier $5)
+        # Max Qty = 10000 / (100.25 * 5.0 + 0.85) = 19.91635132443736
+        self.assertAlmostEqual(self.account.qty, 19.91635132443736)
 
     def test_decay_activation(self):
         """Verify decay penalty triggers when win rate is too low."""
@@ -69,7 +71,8 @@ class TestAlphaDecay(unittest.TestCase):
         self.account.cash = 10000.0
         self.account.buy(price=100.0, timestamp=self.ts, stop_price=90.0, risk_pct=0.02)
         
-        self.assertEqual(self.account.qty, 10.0) # 10 shares instead of 20
+        # Risk = 100. RiskPerContract = 10.25 * 5.0 = 51.25. Qty = 1.9512...
+        self.assertAlmostEqual(self.account.qty, 1.951219512195122)
 
     def test_decay_recovery(self):
         """Verify decay penalty lifts when win rate recovers."""
@@ -84,9 +87,8 @@ class TestAlphaDecay(unittest.TestCase):
         self.account.cash = 10000.0
         self.account.buy(price=100.0, timestamp=self.ts, stop_price=90.0, risk_pct=0.02)
         
-        # Win rate 60% > 40% threshold. Penalty lifted.
-        # Risk = 200. Qty = 200 / 10 = 20 shares.
-        self.assertEqual(self.account.qty, 20.0)
+        # Risk = 200. Qty = 200 / 51.25 = 3.902439...
+        self.assertAlmostEqual(self.account.qty, 3.902439024390244)
 
 if __name__ == "__main__":
     unittest.main()

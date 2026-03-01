@@ -70,14 +70,19 @@ class TestPolicies(unittest.TestCase):
         self.close_df, self.dates = _make_clean_data()
         self.asof = self.dates[-1]
 
-    def test_momentum_long_winner(self):
-        """Momentum → allocates to A (strongest uptrend)."""
+    def test_momentum_bidirectional(self):
+        """Momentum → allocates to A (winner) AND shorts B (loser)."""
         pol = CrossSectionMomentumPolicy()
         cfg = PolicyConfig(top_k=1, lookback=20)
         w = pol.compute_target_weights(self.close_df, self.asof, cfg)
-        self.assertGreater(w["A"], 0.0)
-        self.assertEqual(w["B"], 0.0)
-        self.assertAlmostEqual(sum(w.values()), 1.0)
+        
+        # A is winner (+0.5), B is loser (-0.5)
+        self.assertAlmostEqual(w["A"], 0.5)
+        self.assertAlmostEqual(w["B"], -0.5)
+        
+        # Gross exposure is 1.0, Net exposure is 0.0
+        self.assertAlmostEqual(sum(abs(v) for v in w.values()), 1.0)
+        self.assertAlmostEqual(sum(w.values()), 0.0)
 
     def test_mean_reversion_long_loser(self):
         """MeanReversion → allocates to B (biggest loser)."""

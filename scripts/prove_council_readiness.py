@@ -89,7 +89,7 @@ def main():  # noqa: PLR0912, PLR0915
 
     # 4. Code Hash Binding
     print(f"\n{BOLD}[4] Metadata Binding (The Golden Thread){RESET}")
-    metadata_path = repo_root / "reports/forge/synthetic_smoke/RUN_METADATA.json"
+    metadata_path = repo_root / "reports/forge/ibkr_smoke/RUN_METADATA.json"
     if not metadata_path.exists():
         print_fail("RUN_METADATA.json missing (Did you run make all?)")
 

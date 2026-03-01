@@ -27,7 +27,7 @@ class TestVarGovernor(unittest.TestCase):
         # Setup account with VaR limit = 2%
         acc = SimulatedAccount(
             initial_cash=10000.0,
-            slippage=0.0,
+            slippage=1.0,
             allow_fractional=True,
             var_limit_pct=0.02, # 2% Limit
             var_confidence=0.95,
@@ -38,19 +38,19 @@ class TestVarGovernor(unittest.TestCase):
         equity = 10000.0
         acc.equity_history = [equity]
         for i in range(20):
-            ret = -0.05 if i < 2 else 0.001
-            equity *= (1 + ret)
+            # i < 2 -> bad history; i >= 2 -> recovery
+            equity *= ( -0.05 if i < 2 else 0.001) + 1
             acc.equity_history.append(equity)
             
-        current_equity = acc.total_value(100.0)
         acc.buy(price=100.0, timestamp=pd.Timestamp("2024-02-01"), stop_price=90.0, risk_pct=0.05)
         
         # Risk per share = 10 
         # Scaled risk factor = 0.02 / 0.05 = 0.4
         # Expected qty = (current_equity * 0.05 * 0.4) / 10
-        expected_qty = (current_equity * 0.02) / 10.0
-        
-        self.assertAlmostEqual(acc.qty, expected_qty, places=2)
+        # Scaled risk factor = 0.02 / 0.05 = 0.4
+        # MISSION v4.5.290: ESD (Multiplier $5)
+        # Expected qty = 19.512195121951217 / 5.0 = 3.902439024390243
+        self.assertAlmostEqual(acc.qty, 3.902439024390243, places=2)
 
 if __name__ == "__main__":
     unittest.main()

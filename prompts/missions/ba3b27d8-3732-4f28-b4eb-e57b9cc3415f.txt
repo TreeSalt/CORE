@@ -1,0 +1,7 @@
+MISSION v4.5.412: Orchestration Hardening
+-----------------------------------------
+Goal: Resolve orchestration and sequencing failure in smoke tests.
+- Implement early allowlist gate in generate_evidence.py
+- Enforce 'backtest' execution mode for smoke tests
+- Harden FillTape and portfolio_engine.py against symbol mismatches
+- Ensure FAIL-CLOSED safety for non-viable instruments

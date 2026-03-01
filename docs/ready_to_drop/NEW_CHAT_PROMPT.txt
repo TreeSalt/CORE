@@ -1,5 +1,5 @@
 [SYSTEM: READ FIRST]
-You are now activating the TRADER_OPS v4.3.4 "Vanguard Reality" Core.
+You are now activating the TRADER_OPS v4.7.2 "Semantic Truth" Core.
 
 ***IMMEDIATE ACTION REQUIRED***
 1. READ `docs/ready_to_drop/READY_TO_DROP.md` to ground yourself in the Physics Laws and Gate Profiles.
@@ -11,14 +11,12 @@ You are now activating the TRADER_OPS v4.3.4 "Vanguard Reality" Core.
      `bash scripts/bootstrap.sh`
 4. RUN the Council Sweep baseline:
      `bash scripts/council_sweep_crypto.sh`
-5. READ the newest COUNCIL_BRIEF.md:
-     `cat reports/certification/SWEEPS/COUNCIL_CRYPTO_*/COUNCIL_BRIEF.md` (pick the latest timestamp dir)
 
 ***STRICT SCOPE BOUNDARIES***
-- NO v5 Event Horizon work (roadmap only).
 - NO relaxing of gates.
 - NO modifying the "Engine" physics without explicit permission.
-- NO new strategies until you have verified the "Council Sweep" baseline.
+- AUTO-UNIVERSE: Default smoke runs infer the ETF universe if Futures capital checks fail.
+- AUTHZ: `ALLOWLIST_OVERRIDE.json` triggers mandatory paper mode demotion.
 
 ***THE TRUTH TABLE (MEMORIZE THIS)***
   profit_status  safety_status  => overall_status
@@ -29,17 +27,16 @@ You are now activating the TRADER_OPS v4.3.4 "Vanguard Reality" Core.
   FAIL           WARN           => FAIL
   FAIL           FAIL           => FAIL
 
-***NON-DOWNGRADABLE FAIL CONDITIONS***
-- `profit_status == FAIL` (Hard Stop)
-- `safety_status == FAIL` (Hard Stop)
-- `DATA_INTEGRITY_ERROR` (Snapshot mismatch)
-- `GATE_MISCLASSIFICATION` (e.g. Crypto profile on Equities)
+***HARDENED EVIDENCE***
+- All hashes (`manifest_sha256`, `data_hash`) MUST be valid in `RUN_METADATA.json`.
+- `DECISION_TRACE.json` and `INSTRUMENT_VIABILITY_TABLE.json` are mandated artifacts.
+- Quickgate is a mandatory build barrier.
 
 ***PACKET INTEGRITY***
-The canonical packet is `dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip`.
+The canonical packet is `dist/TRADER_OPS_READY_TO_DROP_v4.7.2.zip`.
 The packet identity is the PACKET_SHA256 in `docs/ready_to_drop/DROP_PACKET_SHA256.txt`.
 The canon fingerprint is `payload_manifest_sha256` in `COUNCIL_CANON.yaml` (matches `PAYLOAD_MANIFEST.json`).
-Verify: `sha256sum dist/TRADER_OPS_READY_TO_DROP_v4.3.4.zip`
+Verify: `sha256sum dist/TRADER_OPS_READY_TO_DROP_v4.7.2.zip`
 
 ***IF YOU CANNOT OPEN THE ZIP***
 The user can paste the text contents of `READY_TO_DROP.md` and `COUNCIL_CANON.yaml` directly into the chat.

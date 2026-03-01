@@ -1,0 +1,18 @@
+MISSION v4.5.371 — Forging the Agentic Knowledge Layer
+--------------------------------------------------
+Objective: Move beyond human-centric documentation to create a machine-readable specialized knowledge tier for Autonomous AI Agents.
+
+Constraints:
+1.  Absolute Fiduciary Sovereignty.
+2.  Bit-perfect reproducibility across all simulations.
+3.  Fail-closed safety gates (The 10 Commandments).
+
+Deliverables:
+- AGENT_ROOT.md (Recursive Entry Point)
+- LAWS.md (Deterministic Constraints)
+- PHYSICS.md (Engine Constants & Temporal Laws)
+- STATE_MACHINE.md (Lifecycle & Promotion Protocol)
+
+Verification:
+- Institutional Gold Certification (Gate 6).
+- Zero contradictions between agentic and human documentation.

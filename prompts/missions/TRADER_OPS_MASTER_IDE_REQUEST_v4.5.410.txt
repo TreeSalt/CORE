@@ -1,0 +1,69 @@
+PROMPT_ID: TRADER_OPS_MASTER_IDE_REQUEST_v4.5.382_PHASE_2_PURGE_FINAL
+CHARTER: TRADER_OPS_PROMPT_CHARTER_v2.0 (mandatory)
+DATE: 2026-02-24
+OWNER: Alec
+TARGET_VERSION: v4.5.382
+BRANCH: release/v4.5.382
+SCOPE: P0 (The Frankenstein Purge, Runtime Enforcement, & Quickgate Patching)
+
+SECURITY MANDATE:
+- READ `.agent/LAWS.md` AND `.agent/PHYSICS.md` BEFORE writing any code. These define the "Frankenstein Fills" you are about to purge.
+- ZERO SECRETS. Redact [REDACTED].
+
+EXCLUSIONS:
+- Do NOT attempt to force a successful trade. Failing closed on an allowlist violation is the EXPECTED and CORRECT outcome of this run. Do not weaken gates to make tests pass.
+- Do NOT implement Orthogonal Feature Tournaments or live broker integrations.
+
+CONTEXT & P0 VIOLATIONS IN CURRENT REPO:
+- **Phase 1 Complete:** The governance layer (`.agent/`, `quickgate.py`) is installed, but runtime enforcement is missing.
+- **Quickgate Flaws:** `quickgate.py` uses unsafe modulo (`%`) math for tick grids and skips required artifacts instead of failing.
+- **FillTape Disconnect:** `FillTape` is not fully `InstrumentSpec`-bound end-to-end at instantiation.
+- **Synthetic Contamination:** Synthetic stubs (`data/sentiment_feed.csv`, `reports/forge/synthetic_data/`) still exist and violate the purge doctrine.
+- **Manifest Ghosting:** `ACTIVE_TAPE_MANIFEST.json` is referenced in metadata logic but never actually generated during the data load sequence.
+- **Packaging Leak:** The `.agent/` directory is not being bundled into the final `CODE` zip manifest.
+
+MISSION:
+Execute the Frankenstein Purge. Patch `quickgate.py` to be float-safe and strict. Bind `InstrumentSpec` end-to-end. Delete synthetic stubs. Generate the active tape manifest. Ensure `.agent/` is crytographically shipped.
+
+ORDER OF OPERATIONS:
+0) Plan Mode: Acknowledge the P0 violations and list target files.
+1) Preflight: Verify Phase 1 files exist (`.agent/LAWS.md`, `scripts/quickgate.py`).
+2) Patch A (Quickgate Hardening):
+   - Edit `scripts/quickgate.py`.
+   - If `RUN_METADATA.json` or `PROMPT_FINGERPRINT.json` is missing/unparseable, `FAIL` in strict mode (do not "skip").
+   - Change tick-grid logic to be float-safe: use `math.isclose()` or `Decimal`. Remove all `%` modulo tick checks.
+3) Patch B (Hash-Addressed FillTape & Coherence):
+   - Ensure `FillTape` instantiation in `engine.py` / `portfolio_engine.py` passes the full `InstrumentSpec`.
+   - Ensure columns contain: `instrument_spec_sha256`, `tick_size`, `qty_step`, `multiplier`.
+   - Invariant Gate: `set(fill_tape.symbol) ⊆ set(RUN_METADATA.cmd_args.symbols)`. If violated, status = `SMOKE_BLOCKED_SYMBOL_INCOHERENCE`.
+4) Patch C (Synthetic Purge & Active Tape Manifest):
+   - Delete any `*synthetic*.csv` files in `data/` or `reports/forge/`, and delete `data/sentiment_feed.csv`.
+   - In `data_loader.py` (or orchestration), explicitly GENERATE `ACTIVE_TAPE_MANIFEST.json` (path, sha256, first_ts, last_ts) once the price tape is loaded, and write it to the run directory.
+   - If the active tape path contains `synthetic`, fail closed with `SMOKE_BLOCKED_SYNTHETIC_DATA` and emit `DATA_REQUIREMENTS.json`.
+5) Patch D (Universal No-Trade & Allowlist Gate):
+   - In runtime execution, if the selected instrument is not in `allowlist`, fail closed with `SMOKE_BLOCKED_ALLOWLIST_VIOLATION`.
+   - If `ALLOWLIST_OVERRIDE.json` exists, bind its SHA to `RUN_METADATA`.
+   - Rule: ALL `SMOKE_BLOCKED_*` statuses MUST unconditionally emit `NO_TRADE_REPORT.json` and a header-only `fill_tape.csv`.
+6) Patch E (Sovereign Packaging):
+   - In `scripts/generate_evidence.py` or `forge/build.py`, ensure the `.agent/` directory and its contents are explicitly included in the `MANIFEST.json` and bundled into the final `CODE` zip archive.
+7) Test: Run the smoke harness. Expect `SMOKE_BLOCKED_ALLOWLIST_VIOLATION` (or `SMOKE_BLOCKED_NO_REAL_DATA`).
+8) Artifacts & Verify: Build v4.5.382 drop. Run `make quickgate` and `verify_drop_packet.py --strict`.
+9) Report: Produce post-run report.
+
+ALLOWED FILE LIST:
+- `antigravity_harness/engine.py`
+- `antigravity_harness/portfolio_engine.py`
+- `antigravity_harness/data_loader.py`
+- `antigravity_harness/reporting.py`
+- `antigravity_harness/tradability.py` / `router.py`
+- `scripts/generate_evidence.py`
+- `scripts/quickgate.py`
+- `antigravity_harness/forge/build.py`
+- `Makefile`
+*STOP if new files are required.*
+
+ACCEPTANCE TESTS:
+A) `make quickgate` runs without modulo math and strictly fails on missing artifacts.
+B) `.agent/` directory is successfully packaged inside the final code archive.
+C) `ACTIVE_TAPE_MANIFEST.json` is physically generated in the run directory.
+D) Expected Failure Achieved: The run fails closed (e.g., `SMOKE_BLOCKED_ALLOWLIST_VIOLATION`), emitting both `NO_TRADE_REPORT.json` and an empty, spec-bound `fill_tape.csv`.

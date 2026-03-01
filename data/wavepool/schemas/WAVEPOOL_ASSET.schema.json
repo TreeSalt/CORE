@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "TRADER_OPS WavePool Asset Schema",
+    "description": "Schema for individual assets within the WavePool registry.",
+    "type": "object",
+    "properties": {
+        "symbol": {
+            "type": "string"
+        },
+        "asset_class": {
+            "enum": [
+                "future",
+                "equity",
+                "crypto",
+                "fx"
+            ]
+        },
+        "tick_size": {
+            "type": "number"
+        },
+        "contract_size": {
+            "type": "number"
+        },
+        "exchange": {
+            "type": "string"
+        },
+        "status": {
+            "enum": [
+                "ACTIVE",
+                "QUARANTINED",
+                "STUB"
+            ]
+        }
+    },
+    "required": [
+        "symbol",
+        "asset_class",
+        "tick_size",
+        "exchange"
+    ]
+}

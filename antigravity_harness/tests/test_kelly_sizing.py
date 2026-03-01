@@ -43,7 +43,7 @@ class TestKellySizing(unittest.TestCase):
         # Setup account with Kelly enabled
         acc = SimulatedAccount(
             initial_cash=20000.0, 
-            slippage=0.0, 
+            slippage=1.0, 
             allow_fractional=True,
             use_kelly=True,
             kelly_multiplier=0.5, # Half Kelly
@@ -69,12 +69,12 @@ class TestKellySizing(unittest.TestCase):
         # Half Kelly (0.2) > Cap (0.1), so risk_pct should be 0.1
         acc.buy(price=100.0, timestamp=pd.Timestamp("2024-01-03"), stop_price=95.0, risk_pct=0.01)
         
+        # MISSION v4.5.290: ESD (Multiplier $5)
         # Risk amount = 20000 * 0.1 = 2000
-        # Risk per share = 100 - 95 = 5
-        # Qty = 2000 / 5 = 400
-        # Cash = 20000, max_qty_cash = 200
-        # Min(400, 200) = 200
-        self.assertEqual(acc.qty, 200.0)
+        # Risk per contract = (100.25 - 95.0) * 5.0 = 26.25
+        # Target Qty = 2000 / 26.25 = 76.19
+        # Max Qty (Cash Limit) = 20000 / (100.25 * 5.0 + 0.85) = 20000 / 502.1 = 39.83270264887472
+        self.assertAlmostEqual(acc.qty, 39.83270264887472, places=5)
 
 if __name__ == "__main__":
     unittest.main()

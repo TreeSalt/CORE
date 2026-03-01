@@ -1,0 +1,10 @@
+PROMPT_ID: TRADER_OPS_MASTER_IDE_REQUEST_v4.5.360
+CHARTER: TRADER_OPS_PROMPT_CHARTER_v2.0 (mandatory)
+DATE: 2026-02-24
+OWNER: Alec
+TARGET_VERSION: v4.5.360
+BRANCH: release/v4.5.360
+SCOPE: P0 (Walk-Forward OOS Harness & Leakage Guards)
+
+MISSION:
+Implement a deterministic chronological IS/OOS split on the active viable asset. Produce decoupled IS/OOS evidence artifacts, enforce strict raw-data leakage guards, and handle the zero-fill edge cases.

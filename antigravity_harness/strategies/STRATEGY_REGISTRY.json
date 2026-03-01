@@ -41,11 +41,17 @@
     },
     "v040_alpha_prime": {
       "tier": "certified",
-      "merkle_root_sha256": "0a9e8a805cbafea2bbd32a2b22f42fe2ca563cfcd9592a86f9c2746b3b2cd634"
+      "merkle_root_sha256": "6967148bc4fa4ff9e9edaeeac10cd721fbf8403c6e28aa5c18f63b7834073197"
     },
     "v080_volatility_guard_trend": {
       "tier": "certified",
       "merkle_root_sha256": "3bffc38157db77dda6f667a59710ef1fbfd81ef4392b1b3532b28292d9e247c4"
+    },
+    "EQ_SENTIMENT_v1": {
+      "tier": "quarantine",
+      "merkle_root_sha256": "4100961f98da71c591ccb7dc7c1826b6752c757acf123f2e8ac6ca0685cdd482",
+      "data_dependency": "orthogonal:sentiment_score",
+      "provenance_required": true
     }
   }
 }

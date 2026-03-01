@@ -1,0 +1,23 @@
+version: "1.0.0"
+user: "alec"
+intents:
+  - strategy_id: "v050_trend_pullback_intent"
+    symbols:
+      - "MES"
+    max_exposure_usd: 15000.0
+    max_contracts: 1
+    risk_tier: "BALANCED"
+    allow_overnight: false
+  
+  - strategy_id: "v040_alpha_prime"
+    symbols:
+      - "MES"
+    max_exposure_usd: 15000.0
+    max_contracts: 1
+    risk_tier: "CONSERVATIVE"
+    allow_overnight: false
+
+global_limits:
+  total_max_drawdown_pct: 5.0
+  daily_loss_limit_usd: 250.0
+  emergency_delever_button: false

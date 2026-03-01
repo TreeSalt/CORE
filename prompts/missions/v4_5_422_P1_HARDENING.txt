@@ -1,0 +1,7 @@
+MISSION: v4.5.422 P1 Hardening
+GOALS:
+1. Block short-selling on cash accounts (Physics Gate).
+2. Complete TRADE_PROPOSAL.json with intended_exposure_pct.
+3. Fix dynamic annualization using observed bars per day.
+4. Fix self-healing and README version/charter sync.
+5. Update PHYSICS.md with cash constraint.

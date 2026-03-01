@@ -196,6 +196,11 @@ def run_sweep(args: argparse.Namespace) -> None:  # noqa: PLR0912, PLR0915
         safe_to_csv(pd.DataFrame(c.most_common(), columns=["Reason", "Count"]), breakdown_path, index=False)
         print(f"🔍 Forensics: {breakdown_path}")
 
-    save_run_metadata(outdir, config={"sweep_config": args.config_grid or "default_single"}, cmd_args=vars(args))
+    save_run_metadata(
+        outdir, 
+        config={"sweep_config": args.config_grid or "default_single"}, 
+        cmd_args=vars(args),
+        extra={"data_hash": "SWEEP_AGGREGATE"} # MISSION v4.7.2
+    )
 
     print(f"\n✅ Sweep Complete. Output: {outdir}")

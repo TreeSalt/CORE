@@ -1,0 +1,15 @@
+OBJECTIVE: v4.5.424 — The Contract Roll, Continuous Physics, & SaaS Identity Warden Stub
+CHARTER: TRADER_OPS_PROMPT_CHARTER_v2.0
+DATE: 2026-02-25
+TARGET_VERSION: v4.5.424
+
+REQUIREMENTS:
+1. Refactor ingestion for --contract support.
+2. Update physics constitution against unadjusted splicing.
+3. Introduce Identity Warden license gate.
+4. Expand instrument specs for MESH6/MESM6.
+
+NON-NEGOTIABLES:
+- Fail-closed on license violation.
+- Explicit contract encoding in filenames.
+- Verification via institutional quickgate.

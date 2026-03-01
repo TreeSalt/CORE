@@ -267,7 +267,7 @@ class ZipVerifier:
             with zipfile.ZipFile(fpath, "r") as z:
                 # 7a. Router Trace Purity
                 try:
-                    roots = ["reports/forge/smoke_test", "reports/forge/synthetic_smoke"]
+                    roots = ["reports/forge/smoke_test", "reports/forge/ibkr_smoke"]
                     present = [r for r in roots if f"{r}/RUN_METADATA.json" in z.namelist()]
                     if not present:
                         self.fail("EPISTEMOLOGICAL VOID: No smoke root found in Evidence.")

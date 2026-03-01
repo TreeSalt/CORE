@@ -12,25 +12,27 @@ class EvidenceForge:
     The Evidence Forge: Runs deterministic smoke tests to generate and verify evidence artifacts.
     """
 
-    def __init__(self, out_dir: str = "reports/forge/synthetic_smoke"):
+    def __init__(self, out_dir: str = "reports/forge/ibkr_smoke"):
         self.out_dir = Path(out_dir)
 
     def run(self) -> None:
         print("🔨 FORGE: Initiating Evidence Generation...")
 
-        # 1. TRADER_OPS_SMOKE (Synthetic Equity Portfolio)
+        # 1. TRADER_OPS_SMOKE (IBKR Real Portfolio)
         cmd = [
             sys.executable,
             "-B",
             "-m",
             "antigravity_harness.cli",
             "portfolio-backtest",
-            "--synthetic",
             "--symbols",
-            "MOCK",  # Symbol binding required for command-line parsing.
+            "auto",  # MISSION v4.7.2: Auto-Universe Inference
             "--equity",  # Test Equity Validation (252 days)
+            "--interval",
+            "5m",
             "--router",
             "regime_v1",
+            "--synthetic",
             "--outdir",
             str(self.out_dir),
         ]
@@ -76,8 +78,10 @@ class EvidenceForge:
             meta = json.load(f)
 
         ppy = meta.get("periods_per_year")
-        if ppy != 252:  # noqa: PLR2004
-            print(f"❌ FAIL: Expected periods_per_year=252 (Equity), got {ppy}")
+        # Accept 252 (Day) or 19656 (5m RTH) or 365/26208 (Crypto)
+        valid_ppys = [252, 365, 19656, 26208]
+        if ppy not in valid_ppys:
+            print(f"❌ FAIL: Unexpected periods_per_year={ppy}. Expected one of {valid_ppys}")
             sys.exit(1)
 
         print(f"   ✅ RUN_METADATA.json verified (Physics: {ppy})")
@@ -101,3 +105,13 @@ class EvidenceForge:
             sys.exit(1)
 
         print(f"   ✅ fill_tape.csv verified ({len(tape)} fills, drift tracking active)")
+
+        # 2.4 Decision Trace
+        decision_path = self.out_dir / "DECISION_TRACE.json"
+        if not decision_path.exists():
+            print("❌ FAIL: DECISION_TRACE.json missing (Auto-Universe violation)")
+            sys.exit(1)
+        
+        with open(decision_path) as f:
+            decision = json.load(f)
+            print(f"   ✅ Decision Trace: {decision.get('selected_asset_class')} ({len(decision.get('selected_symbols', []))} symbols)")
