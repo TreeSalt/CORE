@@ -38,6 +38,9 @@ class MockTrade:
     exit_time: pd.Timestamp
     pnl_abs: float
     pnl_pct: float
+    exit_reason: str = "exit"
+    qty: float = 1.0
+    entry_price: float = 100.0
 
     def model_dump(self):
         from dataclasses import asdict
@@ -339,6 +342,7 @@ class TestPhysics(unittest.TestCase):
         self.assertEqual(len(trades), 1)
         t = trades[0]
         self.assertEqual(t.exit_reason, "gap_stop")
+        # MISSION v4.5.301: slippage_per_side=0.0 → zero friction
         self.assertAlmostEqual(t.exit_price, 85.0)
 
     def test_intrabar_stop(self) -> None:
@@ -367,6 +371,7 @@ class TestPhysics(unittest.TestCase):
         self.assertEqual(len(trades), 1)
         t = trades[0]
         self.assertEqual(t.exit_reason, "stop")
+        # MISSION v4.5.301: slippage_per_side=0.0 → zero friction
         self.assertAlmostEqual(t.exit_price, 90.0)
 
 

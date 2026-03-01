@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "TRADER_OPS EffectivePolicy Schema",
+    "description": "Schema for the compiled, internal security policy governing all execution.",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string"
+        },
+        "user": {
+            "type": "string"
+        },
+        "compiled_at": {
+            "type": "string"
+        },
+        "universe": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "strategy_bounds": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "strategy_id": {
+                        "type": "string"
+                    },
+                    "symbols": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "max_exposure_usd": {
+                        "type": "number"
+                    },
+                    "max_contracts": {
+                        "type": "integer"
+                    },
+                    "risk_tier": {
+                        "type": "string"
+                    },
+                    "allow_overnight": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "global_limits": {
+            "type": "object",
+            "properties": {
+                "total_max_drawdown_pct": {
+                    "type": "number"
+                },
+                "daily_loss_limit_usd": {
+                    "type": "number"
+                },
+                "emergency_delever_button": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "required": [
+        "version",
+        "user",
+        "universe",
+        "strategy_bounds",
+        "global_limits"
+    ]
+}

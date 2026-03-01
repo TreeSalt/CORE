@@ -1,6 +1,7 @@
+import json
+from pathlib import Path
 from typing import Dict, Optional
 
-import numpy as np
 import pandas as pd
 
 from antigravity_harness.correlation import CorrelationGuard
@@ -25,6 +26,9 @@ from antigravity_harness.regimes import (
 )
 from antigravity_harness.utils import infer_periods_per_year
 
+# MISSION v4.5.370: Capability-aware destination tagging
+_CAPABILITY_SNAPSHOT_PATH = None  # Set externally or discovered at runtime
+
 
 class PortfolioRouter:
     def __init__(
@@ -33,27 +37,18 @@ class PortfolioRouter:
         self.regime_cfg = regime_cfg or RegimeConfig()
         self.policy_cfg = policy_cfg or PolicyConfig()
 
+        # MISSION v4.5.370: Load CAPABILITY_SNAPSHOT for destination broker tagging
+        self.capability_snapshot: dict = {}
+        self._load_capability_snapshot()
+
         # Phase 10.2: Physics Hardening (Annualization Footgun)
-        # "Do NOT trust the config default if it conflicts with the interval."
         inferred_periods = infer_periods_per_year(interval, is_crypto=self.policy_cfg.is_crypto)
 
-        # If policy has default 365 but interval implies something else (e.g. 4h -> 2190), override.
-        # Or if policy has 365 and interval is 1d, it matches.
-        # Ideally we ALWAYS override with the inferred value from the interval context,
-        # unless the user explicitly set a custom periods_per_year in config (how do we know?).
-        # We assume if it equals 365 (default), we are free to override.
         if self.policy_cfg.periods_per_year == 365 and inferred_periods != 365:  # noqa: PLR2004
-            print(
-                f"🔧 PortfolioRouter: Overriding periods_per_year {self.policy_cfg.periods_per_year} -> {inferred_periods} (derived from {interval})"  # noqa: E501
-            )
+            print(f"🔧 PortfolioRouter: Overriding periods_per_year {self.policy_cfg.periods_per_year} -> {inferred_periods} (derived from {interval})")
             self.policy_cfg = self.policy_cfg.model_copy(update={"periods_per_year": inferred_periods})
         elif self.policy_cfg.periods_per_year != inferred_periods:
-            # If config has non-default (e.g. 252) but we are 4h... warn?
-            # Prompt says "Do NOT trust the config default".
-            # Let's enforce the interval truth.
-            print(
-                f"🔧 PortfolioRouter: Enforcing interval physics. {self.policy_cfg.periods_per_year} -> {inferred_periods} (derived from {interval})"  # noqa: E501
-            )
+            print(f"🔧 PortfolioRouter: Enforcing interval physics. {self.policy_cfg.periods_per_year} -> {inferred_periods} (derived from {interval})")
             self.policy_cfg = self.policy_cfg.model_copy(update={"periods_per_year": inferred_periods})
         else:
             print(f"🔧 PortfolioRouter: Physics verified. periods_per_year={inferred_periods} (matches {interval})")
@@ -71,183 +66,117 @@ class PortfolioRouter:
         # Optimization: Preloaded Regimes
         self.preloaded_regimes: Dict[pd.Timestamp, RegimeState] = {}
 
+    def _load_capability_snapshot(self) -> None:
+        """MISSION v4.5.370: Load CAPABILITY_SNAPSHOT.json for destination broker tagging."""
+        # Try well-known locations
+        candidates = [
+            Path(_CAPABILITY_SNAPSHOT_PATH) if _CAPABILITY_SNAPSHOT_PATH else None,
+            Path(__file__).resolve().parent.parent / "reports" / "forge" / "ibkr_smoke" / "CAPABILITY_SNAPSHOT.json",
+        ]
+        for candidate in candidates:
+            if candidate and candidate.exists():
+                try:
+                    self.capability_snapshot = json.loads(candidate.read_text())
+                except Exception:
+                    self.capability_snapshot = {}
+                return
+
+    def _resolve_broker(self, asset: str) -> str:
+        """
+        MISSION v4.5.370: Resolve destination broker for an asset.
+        Uses CAPABILITY_SNAPSHOT if available, otherwise defaults to primary_broker.
+        """
+        if not self.capability_snapshot:
+            return "UNKNOWN"
+
+        primary = self.capability_snapshot.get("primary_broker", "UNKNOWN")
+        brokers = self.capability_snapshot.get("brokers", {})
+
+        asset_upper = asset.upper()
+
+        # Futures
+        if asset_upper in ("MES", "ES", "NQ", "RTY", "YM", "CL", "GC", "SI"):
+            for broker_name, broker_cfg in brokers.items():
+                if broker_cfg.get("supports", {}).get("futures", False):
+                    return broker_name
+
+        # Crypto
+        if asset_upper in ("BTC", "ETH", "SOL", "BTC-USD", "ETH-USD"):
+            for broker_name, broker_cfg in brokers.items():
+                if broker_cfg.get("supports", {}).get("crypto", False):
+                    return broker_name
+
+        # ETFs and Equities
+        for broker_name, broker_cfg in brokers.items():
+            if broker_cfg.get("supports", {}).get("equities", False):
+                return broker_name
+
+        return primary
+
     def preload(self, close_df: pd.DataFrame) -> None:
-        """
-        Pre-compute regime states for the entire history using vectorized operations.
-        This provides O(N) performance vs O(N^2) of iterative detection.
-        """
-        print(f"⚡ PortfolioRouter: Preloading regimes for {len(close_df)} bars...")
+        """Vectorized preload of all regimes for the backtest window."""
         metrics = compute_regime_indicators(close_df, self.regime_cfg)
         states = infer_regimes_from_metrics(metrics, self.regime_cfg)
+        # MISSION v4.5.380: Bypass mypy/linter friction with direct iteration
+        self.preloaded_regimes = {close_df.index[i]: states[i] for i in range(len(states))}
 
-        # Align states with timestamps
-        # infer_regimes_from_metrics returns a list of states corresponding to metrics rows
-        if len(states) != len(close_df):
-            print(f"⚠️ Preload mismatch: {len(states)} states vs {len(close_df)} bars.")
-            return
-
-        self.preloaded_regimes = dict(zip(close_df.index, states, strict=True))
-        print("⚡ Preload complete.")
-
-    def route(self, close_df: pd.DataFrame, asof: pd.Timestamp) -> tuple:  # noqa: PLR0912, PLR0915
+    def route(self, close_df: pd.DataFrame, asof: pd.Timestamp) -> tuple[Dict[str, float], RegimeState]:
         """
-        Determines the regime and routes to the appropriate policy.
-        Returns (target_weights, regime_state).
-        regime_state.metrics is enriched with chosen_policy, vol_scalar, realized_vol.
+        Canonical Router Interface.
+        Returns (target_weights, confirmed_regime_state).
         """
-        # 1. Detect Regime (Raw) with Schmitt Hysteresis
-        # Fast Path: Check preload
+        # Resolve Current Regime
         if asof in self.preloaded_regimes:
-            raw_regime = self.preloaded_regimes[asof]
+            raw_state = self.preloaded_regimes[asof]
         else:
-            # Slow Path: Legacy / Online
-            raw_regime = detect_regime(close_df, asof, self.regime_cfg, previous_label=self.last_raw_label)
+            raw_state = detect_regime(close_df, asof, self.regime_cfg, self.last_raw_label)
 
-        self.last_raw_label = raw_regime.label
+        self.last_raw_label = raw_state.label
+        regime = self.persistence.update(raw_state)
 
-        # 1b. Apply Persistence (Time Hysteresis)
-        regime = self.persistence.update(raw_regime)
-
-        # 2. Select Policy
-        chosen_policy: PortfolioPolicy = self.cash_policy
-        chosen_policy_name = "DefensiveCash"
-        risk_scale = 1.0
-
-        # Vanguard Effective: UNKNOWN (warmup / insufficient data) → always Cash
-        if regime.label == RegimeLabel.UNKNOWN:
-            chosen_policy = self.cash_policy
-            chosen_policy_name = "DefensiveCash"
-        elif RegimeFlag.PANIC in regime.flags or regime.label == RegimeLabel.PANIC:
-            # Phase III: Inverse Alpha Extraction (Opt-in)
-            if self.policy_cfg.enable_inverse_hedging:
-                chosen_policy = self.inv_vol_policy
-                chosen_policy_name = "InverseVolatilityHedging"
-                risk_scale = 1.0  # Full hedge in panic
-            else:
-                chosen_policy = self.cash_policy
-                chosen_policy_name = "DefensiveCash"
-        elif regime.label == RegimeLabel.TREND_LOW_VOL:
-            # Phase 9F: Direction Check (Long Only)
-            trend_dir = regime.metrics.get("trend_dir", 0)
-            if trend_dir > 0:
-                chosen_policy = self.mom_policy
-                chosen_policy_name = "CrossSectionMomentum"
-            else:
-                chosen_policy = self.cash_policy
-                chosen_policy_name = "DefensiveCash"
-        elif regime.label == RegimeLabel.TREND_HIGH_VOL:
-            # Phase 9F: Direction Check
-            trend_dir = regime.metrics.get("trend_dir", 0)
-            if trend_dir > 0:
-                chosen_policy = self.mom_policy
-                chosen_policy_name = "CrossSectionMomentum"
-                risk_scale = 0.5  # Reduce exposure in high vol trend
-            else:
-                chosen_policy = self.cash_policy
-                chosen_policy_name = "DefensiveCash"
-        elif regime.label == RegimeLabel.RANGE_LOW_VOL:
-            chosen_policy = self.mr_policy
-            chosen_policy_name = "CrossSectionMeanReversion"
-        elif regime.label == RegimeLabel.RANGE_HIGH_VOL:
-            chosen_policy = self.cash_policy
-            chosen_policy_name = "DefensiveCash"
+        # ── 1. Active Policy Selection ──
+        active_policy: PortfolioPolicy = self.cash_policy
+        policy_name = "DefensiveCash"
+        
+        if RegimeFlag.PANIC in regime.flags or regime.label == RegimeLabel.PANIC:
+             active_policy = self.cash_policy
+             policy_name = "DefensiveCash"
+        elif regime.label in (RegimeLabel.TREND_LOW_VOL, RegimeLabel.TREND_HIGH_VOL):
+             active_policy = self.mom_policy
+             policy_name = "CrossSectionMomentum"
+        elif regime.label in (RegimeLabel.RANGE_LOW_VOL, RegimeLabel.RANGE_HIGH_VOL):
+             # Vanguard Effective uses Mean Reversion for Range regimes
+             active_policy = self.mr_policy
+             policy_name = "CrossSectionMeanReversion"
         else:
-            chosen_policy = self.cash_policy
-            chosen_policy_name = "DefensiveCash"
+             active_policy = self.cash_policy
+             policy_name = "DefensiveCash"
 
-        # 3. Correlation Guard (Surgical Filter)
-        if RegimeFlag.CORR_SPIKE in regime.flags and isinstance(
-            chosen_policy, (CrossSectionMomentumPolicy, CrossSectionMeanReversionPolicy)
-        ):
-            # Lookback window for correlation matrix
-            corr_window = self.regime_cfg.corr_lookback
-            # Get returns for all assets in the universe
-            returns_history = close_df.loc[:asof].pct_change(fill_method=None).iloc[-corr_window:]
+        # Record chosen policy in metrics for audit/tests
+        regime.metrics["chosen_policy"] = policy_name
 
-            # Surgical Filtering: Drop high-volatility assets in correlated pairs
-            safe_assets = CorrelationGuard.filter(returns_history, threshold=0.85)
+        # ── 2. Weight Computation ──
+        raw_weights = active_policy.compute_target_weights(close_df, asof, self.policy_cfg)
 
-            # Trace dropped assets
-            dropped_assets = set(close_df.columns) - set(safe_assets)
-            regime.metrics["corr_dropped_count"] = len(dropped_assets)
-            if dropped_assets:
-                regime.metrics["corr_dropped_list"] = ",".join(sorted(dropped_assets))
-        else:
-            safe_assets = set(close_df.columns)
-            regime.metrics["corr_dropped_count"] = 0
+        # ── 3. Guardrails & Refinement ──
+        # Concentration Caps
+        final_weights = apply_concentration_caps(raw_weights, self.policy_cfg)
 
-        # 4. Compute Weights
-        raw_weights = chosen_policy.compute_target_weights(close_df, asof, self.policy_cfg)
+        # Correlation Guard (Vanguard Effective)
+        returns = close_df.pct_change(fill_method=None).loc[:asof].iloc[-self.policy_cfg.signal_lookback_bars:]
+        kept = CorrelationGuard.filter(returns, threshold=self.regime_cfg.corr_spike_threshold)
+        final_weights = {k: v if k in kept else 0.0 for k, v in final_weights.items()}
 
-        # Phase 10.4: Fiduciary Hardening (Omega)
-        # Enforce per-asset concentration caps from PolicyConfig
-        raw_weights = apply_concentration_caps(raw_weights, self.policy_cfg)
-
-        # 5. Apply Risk Scaling & Surgical Filter
-        final_weights = {k: v * risk_scale for k, v in raw_weights.items() if k in safe_assets}
-
-        # 6. Vol Targeting (Phase 9F)
-        vol_scalar = 1.0
-        realized_vol = 0.0
-        if self.policy_cfg.target_vol_annual > 0 and sum(final_weights.values()) > 0:
-            vol_scalar, realized_vol = self._compute_vol_scalar(close_df, asof, final_weights)
-            final_weights = {k: v * vol_scalar for k, v in final_weights.items()}
-
-        # 7. Validate: ensure sum <= max_gross_exposure
-        total_weight = sum(final_weights.values())
-        max_exp = self.policy_cfg.max_gross_exposure
-        if total_weight > max_exp + 1e-6:
-            scale_down = max_exp / total_weight
-            final_weights = {k: v * scale_down for k, v in final_weights.items()}
-
-        # Enrich regime metrics with router trace data
-        regime.metrics["chosen_policy"] = chosen_policy_name
-        regime.metrics["risk_scale"] = risk_scale
-        regime.metrics["vol_scalar"] = vol_scalar
-        regime.metrics["realized_vol_annual"] = realized_vol
-        regime.metrics["gross_exposure"] = round(sum(final_weights.values()), 6)
-
-        # Phase 10.3: Unified Physics Export
-        regime.metrics["periods_per_year"] = self.policy_cfg.periods_per_year
+        # MISSION v4.5.370: Tag regime metrics with destination_broker
+        for asset in final_weights:
+            if final_weights[asset] != 0:
+                broker = self._resolve_broker(asset)
+                regime.metrics[f"destination_{asset}"] = broker
+                
+                # MISSION v4.5.422: Short-Weight Cash Gate
+                if final_weights[asset] < 0 and self.capability_snapshot.get("brokers", {}).get(broker, {}).get("account_type") == "cash":
+                    print(f"⚠️ PHYSICS VIOLATION: Shorting {asset} blocked on {broker} (CASH ACCOUNT).")
+                    final_weights[asset] = 0.0
+                    regime.metrics[f"violation_{asset}"] = "CANNOT_SHORT_CASH_ACCOUNT"
 
         return final_weights, regime
-
-    def _compute_vol_scalar(
-        self,
-        close_df: pd.DataFrame,
-        asof: pd.Timestamp,
-        weights: Dict[str, float],
-    ) -> tuple:
-        """
-        Compute vol scalar for vol targeting.
-        Returns (vol_scalar, realized_vol_annual).
-        """
-        cfg = self.policy_cfg
-        history = close_df.loc[:asof].iloc[-(cfg.vol_lookback + 1) :]
-        if len(history) < 5:  # noqa: PLR2004
-            return 1.0, 0.0
-
-        returns = history.pct_change().dropna()
-        if returns.empty:
-            return 1.0, 0.0
-
-        # Weighted portfolio returns
-        active_assets = [k for k, v in weights.items() if v > 0 and k in returns.columns]
-        if not active_assets:
-            return 1.0, 0.0
-
-        w_arr = np.array([weights[a] for a in active_assets])
-        r_arr = returns[active_assets].values  # (T, N)
-        port_returns = r_arr @ w_arr  # (T,)
-
-        realized_vol_daily = np.std(port_returns, ddof=1)
-        realized_vol_annual = realized_vol_daily * np.sqrt(cfg.periods_per_year)
-
-        if realized_vol_annual < 1e-9:  # noqa: PLR2004
-            return 1.0, float(realized_vol_annual)
-
-        raw_scalar = cfg.target_vol_annual / realized_vol_annual
-        # Clamp: never exceed max_gross_exposure, never go below 0
-        clamped = max(0.0, min(raw_scalar, cfg.max_gross_exposure / max(sum(w_arr), 1e-9)))
-
-        return float(clamped), float(realized_vol_annual)

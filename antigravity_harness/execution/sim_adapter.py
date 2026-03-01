@@ -37,6 +37,7 @@ from antigravity_harness.execution.adapter_base import (
     Position,
 )
 from antigravity_harness.execution.fill_tape import FillTape
+from antigravity_harness.execution.slippage import PhysicsViolationError, apply_mes_friction
 from antigravity_harness.instruments.mes import (
     MES_POINT_VALUE,
     MES_TICK_SIZE,
@@ -112,7 +113,7 @@ class SimExecutionAdapter(ExecutionAdapter):
     async def disconnect(self) -> None:
         self._connected = False
 
-    def set_price(self, symbol: str, price: float, volume: float = 0.0, volatility: float = 0.0) -> None:
+    def set_price(self, symbol: str, price: float, volume: float = 0.0, volatility: float = 0.0) -> None:  # noqa: PLR0913
         """Set the current price, volume, and volatility for a symbol."""
         self._current_prices[symbol] = price
         self._current_volumes[symbol] = volume
@@ -177,44 +178,50 @@ class SimExecutionAdapter(ExecutionAdapter):
 
         return ack
 
-    async def _fill_market_order(self, order: _SimOrder) -> Fill:
+    async def _fill_market_order(self, order: _SimOrder) -> Fill:  # noqa: PLR0912, PLR0915
         intent = order.intent
         symbol = intent.symbol
         base_price = self._current_prices.get(symbol, 5000.0)
-
-        # Apply synthetic slippage
-        slip_pts = self._sim_slippage_ticks * MES_TICK_SIZE
-        
-        # Item 15: Dark Pool Logic
         dp = self._dark_pool_model
-        extra_slippage_bps = 0.0
-        exec_venue = "LIT_EXCHANGE"
-        
-        if dp.enabled:
-            # 1. Check for Dark Pool Fail (Leakage)
-            if random.random() < dp.fail_prob:
-                extra_slippage_bps = dp.info_leakage_bps
-                exec_venue = "LIT_EXCHANGE" # Leaked to lit
-            else:
-                # 2. Roll for Improvement vs Adverse Selection
-                exec_venue = "DARK_POOL"
-                roll = random.random()
-                if roll < dp.improvement_prob:
-                    # Price Improvement (Negative slippage)
-                    extra_slippage_bps = -dp.improvement_bps
-                elif roll < (dp.improvement_prob + dp.adverse_selection_prob):
-                    # Adverse Selection
-                    extra_slippage_bps = dp.adverse_selection_bps
-        
-        # Net Slippage Calculation
-        net_slippage_bps = (extra_slippage_bps / 10000.0)
-        fill_price = base_price * (1.0 + net_slippage_bps) if intent.side == OrderSide.BUY else base_price * (1.0 - net_slippage_bps)
-        
-        # Add tick-based slippage on top
-        fill_price = fill_price + slip_pts if intent.side == OrderSide.BUY else fill_price - slip_pts
-
         commission = self._commission_per_rt * intent.quantity
         now = datetime.now(tz=timezone.utc)
+        
+        if not isinstance(intent.quantity, int) or float(intent.quantity) != float(int(intent.quantity)):
+             raise PhysicsViolationError(f"FRACTIONAL_ORDER: {intent.quantity} contracts not allowed.")
+
+        fill_price, commission = apply_mes_friction(base_price, intent.side, intent.quantity)
+        
+        # Add synthetic test slippage if requested
+        if self._sim_slippage_ticks > 0:
+            extra_slip = self._sim_slippage_ticks * MES_TICK_SIZE
+            if intent.side == OrderSide.BUY:
+                fill_price = Decimal(str(float(fill_price) + extra_slip))
+            else:
+                fill_price = Decimal(str(float(fill_price) - extra_slip))
+
+        # Dark Pool Routing Logic (Hydra v2.4.1)
+        exec_venue = "LIT_EXCHANGE"
+        if dp.enabled:
+            # Check for failure (fail_prob)
+            if random.random() < dp.fail_prob:
+                exec_venue = "LIT_EXCHANGE"
+            else:
+                # Potential Improvement
+                exec_venue = "DARK_POOL"
+                if random.random() < dp.improvement_prob:
+                    improvement = float(fill_price) * (dp.improvement_bps / 10000.0)
+                    if intent.side == OrderSide.BUY:
+                        fill_price = Decimal(str(float(fill_price) - improvement))
+                    else:
+                        fill_price = Decimal(str(float(fill_price) + improvement))
+                
+                # Adverse Selection check
+                if random.random() < dp.adverse_selection_prob:
+                    slip = float(fill_price) * (dp.adverse_selection_bps / 10000.0)
+                    if intent.side == OrderSide.BUY:
+                        fill_price = Decimal(str(float(fill_price) + slip))
+                    else:
+                        fill_price = Decimal(str(float(fill_price) - slip))
 
         fill = Fill(
             broker_order_id=order.ack.broker_order_id,
@@ -232,6 +239,8 @@ class SimExecutionAdapter(ExecutionAdapter):
         order.status = OrderStatus.FILLED
         order.ack.status = OrderStatus.FILLED
 
+        fill_price_f = float(fill_price)
+
         # Update position
         qty_delta = intent.quantity if intent.side == OrderSide.BUY else -intent.quantity
         prev_qty = self._positions.get(symbol, 0)
@@ -240,17 +249,17 @@ class SimExecutionAdapter(ExecutionAdapter):
 
         # Update average cost (simplified — full FIFO accounting out of scope here)
         if new_qty == 0:
-            realized = (fill_price - self._avg_costs.get(symbol, fill_price)) * MES_POINT_VALUE * abs(qty_delta)
+            realized = (fill_price_f - self._avg_costs.get(symbol, fill_price_f)) * MES_POINT_VALUE * abs(qty_delta)
             if prev_qty < 0:
                 realized = -realized
             self._realized_pnl += realized - commission
             self._avg_costs[symbol] = 0.0
         elif prev_qty == 0:
-            self._avg_costs[symbol] = fill_price
+            self._avg_costs[symbol] = fill_price_f
         else:
-            _cost = self._avg_costs.get(symbol, fill_price)
+            _cost = self._avg_costs.get(symbol, fill_price_f)
             self._avg_costs[symbol] = (
-                (_cost * abs(prev_qty) + fill_price * intent.quantity)
+                (_cost * abs(prev_qty) + fill_price_f * intent.quantity)
                 / abs(new_qty)
             )
 

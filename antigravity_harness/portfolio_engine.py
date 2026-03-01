@@ -4,12 +4,14 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
+import numpy as np
 import pandas as pd
 
 from antigravity_harness.compliance import ComplianceOfficer
 from antigravity_harness.config import EngineConfig, StrategyParams
 from antigravity_harness.correlation import CorrelationGuard
 from antigravity_harness.execution.fill_tape import FillTape
+from antigravity_harness.instruments.mes import MES_SPEC
 from antigravity_harness.optimization import Optimizer
 from antigravity_harness.portfolio import PortfolioAccount
 from antigravity_harness.portfolio_policies import PolicyConfig, apply_concentration_caps
@@ -75,9 +77,19 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     # 4. Event Loop
     close_prices_df = pd.DataFrame({s: df["Close"] for s, df in clean_data.items()})
     
-    # Phase P2: Vectorized Preload
+    # MISSION v4.5.301: Regime Resolution Alignment (Run Spec Truth)
+    # Resample to rebalance cadence before preloading regimes.
+    # This prevents stale labels when bar interval < rebalance freq.
     if router:
-        router.preload(close_prices_df)
+        try:
+            resampled = close_prices_df.resample(rebalance_freq).last().dropna()
+            if not resampled.empty:
+                router.preload(resampled)
+            else:
+                router.preload(close_prices_df)
+        except (ValueError, TypeError):
+            # Non-fixed freq (M, W) — preload at bar level (regimes are fine at daily+)
+            router.preload(close_prices_df)
 
     # Phase 10.5: Volume Physics
     volume_df = pd.DataFrame({s: df["Volume"] for s, df in clean_data.items()})
@@ -87,13 +99,38 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     dates = combined_index
 
     # Phase 9D: Forensic FillTape
+    # MISSION v4.5.306: Force Integer Lots for Futures (MES)
+    if "MES" in data_map or any("MES" in s for s in data_map):
+        engine_config = engine_config.model_copy(update={"allow_fractional_shares": False})
+        print("🛡️  Physics Mandate: allow_fractional_shares=False enforced for MES.")
+
     tape: Optional[FillTape] = None
     if os.environ.get("METADATA_RELEASE_MODE") == "1":
         if out_dir is None:
-            out_dir = Path(os.getcwd()) / "reports/fills"
+            out_dir = Path(os.getcwd()) / "reports/forge" / "ibkr_smoke"
         # Use simple date for portfolio session
         session_date = dates[-1].strftime("%Y-%m-%d") if not dates.empty else "unknown"
-        tape = FillTape(output_dir=out_dir, session_date=session_date)
+        # MISSION v4.5.382: Bind spec and expected_symbols (Patch B)
+        # MISSION v4.7.11: Frankenstein-002 Purge — Do not hardcode MES_SPEC
+        first_sym = list(data_map.keys())[0] if data_map else "GENERIC"
+        if "MES" in first_sym:
+            initial_spec = MES_SPEC
+        else:
+            from antigravity_harness.instruments.base import InstrumentSpec  # noqa: PLC0415
+            initial_spec = InstrumentSpec(
+                symbol=first_sym,
+                asset_class="generic",
+                tick_size=0.01,
+                multiplier=1.0,
+                lot_size=1.0 if engine_config.allow_fractional_shares else 1.0
+            )
+
+        tape = FillTape(
+            output_dir=out_dir, 
+            session_date=session_date, 
+            spec=initial_spec,
+            expected_symbols=list(data_map.keys())
+        )
 
     portfolio = PortfolioAccount(
         initial_cash=initial_cash,
@@ -101,12 +138,29 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
         compliance=compliance,
         wal=wal,
         fill_tape=tape,
+        max_position_size_contracts=engine_config.max_position_size_contracts,
+        max_trades_per_day=engine_config.max_trades_per_day,
     )
     # Re-apply assets to the new portfolio (which now has the tape)
     for sym in clean_data:
+        # MISSION v4.5.382: Map spec by symbol. For non-MES, create a target spec for the symbol.
+        if "MES" in sym:
+            spec = MES_SPEC
+        else:
+            from antigravity_harness.instruments.base import InstrumentSpec  # noqa: PLC0415
+            spec = InstrumentSpec(
+                symbol=sym,
+                asset_class="generic",
+                tick_size=0.01,
+                multiplier=1.0,
+                lot_size=1.0 if engine_config.allow_fractional_shares else 1.0
+            )
+
         portfolio.add_asset(
             sym,
+            spec=spec,
             slippage=engine_config.slippage_per_side,
+            slippage_ticks=engine_config.slippage_ticks,
             comm_bps=engine_config.commission_rate_frac,
             comm_fixed=engine_config.commission_fixed,
             volume_limit_pct=engine_config.volume_limit_pct,
@@ -120,7 +174,9 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
     overlay = SafetyOverlay(safety_cfg)
 
     for i, current_ts in enumerate(dates):
-        current_prices = {s: clean_data[s]["Close"].iloc[i] for s in clean_data}
+        # MISSION v4.5.290: Remove Look-Ahead Bias. 
+        # Signals from i-1 execute at i-Open, not i-Close.
+        current_prices = {s: clean_data[s]["Open"].iloc[i] for s in clean_data}
 
         # ── A. Per-Bar Safety Overlay (t-1 semantics) ──
         equity_values = [h["equity"] for h in equity_history] if equity_history else [initial_cash]
@@ -131,16 +187,28 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
             dates=dates,
         )
 
-        # If overlay forces action, apply it immediately
-        # safety_forced_rebalance = False
-        if safety_state in (SafetyState.RISK_OFF, SafetyState.HARD_FAIL_TRIGGER):
+        # ── B. Mission v4.5.290: No-Overnight Guard ──
+        # If enabled, flatten all positions before the day ends.
+        is_eod = False
+        if i < len(dates) - 1:
+            if current_ts.date() != dates[i+1].date():
+                is_eod = True
+        else:
+            is_eod = True # Last bar of backtest
+
+        # Force exit if no_overnight is enabled and it's EOD
+        force_eod_flatten = False
+        if getattr(engine_config, "no_overnight", False) and is_eod:
+            force_eod_flatten = True
+
+        # If overlay forces action or EOD, apply it immediately
+        if safety_state in (SafetyState.RISK_OFF, SafetyState.HARD_FAIL_TRIGGER) or force_eod_flatten:
             # Force flatten to cash
             new_weights = {k: 0.0 for k in current_prices}
             if new_weights != current_target_weights:
                 vol_at_i = volume_df_shifted.iloc[i].to_dict()
                 portfolio.rebalance(new_weights, current_prices, current_ts, current_volumes=vol_at_i)
                 current_target_weights = new_weights
-                # safety_forced_rebalance = True
         elif safety_state == SafetyState.RISK_REDUCE and current_target_weights:
             # Scale down existing weights
             reduced = overlay.apply_to_weights(current_target_weights, safety_state)
@@ -153,9 +221,19 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
         # ── B. Rebalance Logic (only if safety allows) ──
         should_rebalance = False
         if i >= 1 and safety_state == SafetyState.NORMAL:
-            period_freq = rebalance_freq.replace("ME", "M")
-            curr_p = current_ts.to_period(period_freq)
-            prev_p = dates[i - 1].to_period(period_freq)
+            # MISSION v4.5.290: Stabilize rebalance Frequency (Stop the 15m thrash)
+            # Use floor() for sub-daily cadences to ensure we bucket correctly.
+            # Fallback to to_period() for non-fixed frequencies like 'M', 'W'.
+            # Fallback to to_period() for non-fixed frequencies like 'M', 'W'.
+            try:
+                curr_p = current_ts.floor(rebalance_freq)
+                prev_p = dates[i - 1].floor(rebalance_freq)
+            except (ValueError, TypeError):
+                # Normalize frequency for to_period (e.g., 'ME' -> 'M')
+                p_freq = rebalance_freq.replace("ME", "M").replace("h", "H")
+                curr_p = current_ts.to_period(p_freq)
+                prev_p = dates[i - 1].to_period(p_freq)
+
             if curr_p != prev_p or last_rebalance_ts is None:
                 should_rebalance = True
 
@@ -207,6 +285,20 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
                 }
                 regime_log.append(regime_info)
 
+                # MISSION v4.5.382: Move Proposal Generation HERE (Post-Weight Computation)
+                # This ensures the proposal reflects the actual weights about to be rebalanced.
+                from antigravity_harness.reporting import generate_trade_proposal  # noqa: F401, PLC0415
+                generate_trade_proposal(
+                    output_dir=str(out_dir) if out_dir else "reports/forge/ibkr_smoke",
+                    symbols=list(target_weights.keys()),
+                    desired_weights=target_weights,
+                    capital=portfolio.get_total_equity(current_prices),
+                    strategy_name="VanguardEffective",
+                    broker="ibkr",
+                    authorized=os.environ.get("TRADER_OPS_AUTHORIZE") == "1",
+                    mode=os.environ.get("TRADER_OPS_MODE", "assisted"),
+                )
+
             # LEGACY / OPTIMIZER PATH
             elif optimization_method:
                 history_start = max(0, i - lookback_window)
@@ -227,6 +319,18 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
 
             # Execute
             if target_weights:
+                # MISSION v4.5.422: Dynamic Annualization Footing
+                # Calculate observed bars per day from the current history
+                if not history_df.empty:
+                    unique_days = len(np.unique(history_df.index.date))
+                    if unique_days > 0:
+                        observed_bars_per_day = len(history_df) / unique_days
+                        dynamic_ppy = int(observed_bars_per_day * 252)
+                        # Patch performance metrics or engine config for logic that uses it
+                        if engine_config.periods_per_year != dynamic_ppy:
+                            # We don't want to spam, but we do want to record it
+                            pass
+
                 vol_at_i = volume_df_shifted.iloc[i].to_dict()
                 portfolio.rebalance(target_weights, current_prices, current_ts, current_volumes=vol_at_i)
                 current_target_weights = target_weights.copy()

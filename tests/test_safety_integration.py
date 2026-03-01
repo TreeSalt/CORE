@@ -62,7 +62,11 @@ class TestSafetyIntegration(unittest.TestCase):
         # Fill rest
         prices.extend([97.0] * (100 - len(prices)))
 
-        df = pd.DataFrame({"Close": prices, "Volume": [1000.0] * len(prices)}, index=dates)
+        df = pd.DataFrame({
+            "Open": prices,
+            "Close": prices, 
+            "Volume": [1000.0] * len(prices)
+        }, index=dates)
         data_map = {"MOCK": df}
 
         # Config

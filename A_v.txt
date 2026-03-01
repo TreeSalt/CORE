@@ -1,9 +1,0 @@
-Archive:  ./A.zip
- Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
---------  ------  ------- ---- ---------- ----- --------  ----
-  272521  Defl:N   261123   4% 02-15-2026 00:58 0e147616  TRADER_OPS_CODE_v4.4.54.zip
-   11485  Defl:N     8929  22% 02-15-2026 00:58 34e828ca  TRADER_OPS_EVIDENCE_v4.4.54.zip
-     843  Defl:N      502  41% 02-15-2026 00:58 a572e154  RUN_LEDGER_INNER_v4.4.54.json
-     494  Stored      494   0% 01-01-2020 00:00 895567fa  METADATA.txt
---------          -------  ---                            -------
-  285343           271048   5%                            4 files

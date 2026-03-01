@@ -134,7 +134,7 @@ P1) Council Packet summary artifact (deterministic, no LLM)
       - data_hash + dataset files list (from DATA_MANIFEST in evidence zip)
 - Critical fix:
   - Read PROMPT_FINGERPRINT.json / DATA_MANIFEST.json / results.csv FROM EVIDENCE ZIP (not repo_root/reports paths), so COUNCIL_BRIEF never shows “N/A” when evidence exists.
-- This does NOT contact any LLMs (no OpenClaw yet). Deterministic file-to-file only.
+- This does NOT contact any LLMs (no Autopilot yet). Deterministic file-to-file only.
 
 ACCEPTANCE CRITERIA (paste raw output)
 A) Pre-flight strict verify PASS (v4.5.133):

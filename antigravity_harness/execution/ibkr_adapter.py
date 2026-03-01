@@ -65,6 +65,14 @@ class IBKRAdapter(ExecutionAdapter, MarketDataAdapter):
 
     async def connect(self) -> None:
         """Connect to IB. Fail closed if IBKR library missing or live mode attempted incorrectly."""
+        # MISSION v4.5.417: Orchestration Guards
+        # Explicitly block network connections if we are in 'backtest' execution mode.
+        if os.environ.get("TRADER_OPS_EXECUTION_MODE") == "backtest":
+            raise RuntimeError(
+                "IBKR FATAL: Network connection blocked. TRADER_OPS_EXECUTION_MODE is set to 'backtest'. "
+                "The system must remain strictly offline during smoke tests."
+            )
+
         global IB, Order, Trade, Contract, MarketOrder, LimitOrder, StopOrder
         try:
             from ib_insync import IB as _IB  # noqa: PLC0415

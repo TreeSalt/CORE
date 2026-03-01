@@ -39,6 +39,10 @@ def _sync_project_metadata(repo_root: Path, new_version: str) -> None:
         content = re.sub(r"(# ANTIGRAVITY HARNESS v)(\d+\.\d+\.\d+)", f"\\g<1>{new_version}", content)
         # Update Status Line: **Status**: ... (vX.Y.Z)
         content = re.sub(r"(\(v)(\d+\.\d+\.\d+)(\))", f"\\g<1>{new_version}\\g<3>", content)
+        # MISSION v4.5.422: Update Top Header Version/Charter
+        content = re.sub(r"(Version: v)(\d+\.\d+\.\d+)", f"\\g<1>{new_version}", content)
+        content = re.sub(r"(Charter: v)(\d+\.\d+)", "\\g<1>2.0", content)
+        
         if content != readme_path.read_text():
             readme_path.write_text(content)
             print(f"📜 README.md Synced: v{new_version}")
@@ -153,6 +157,88 @@ def _resolve_prompt_path(repo_root: Path, prompt_id: str) -> Path:
     # 2. Institutional Default
     return repo_root / "prompts/missions" / f"{prompt_id}.txt"
 
+def _generate_synthetic_etf_csv(
+    output_path: Path,
+    symbol: str = "SPY",
+    seed: int = 42,
+    num_bars: int = 360,
+    start_price: float = 590.0,
+) -> None:
+    """
+    MISSION v4.5.340: Generate deterministic synthetic ETF 5m OHLCV data.
+
+    Produces ~360 bars (approximately 4 trading days of 5m bars in RTH).
+    Data is ephemeral (reports/forge/synthetic_data/), NOT committed to repo.
+
+    Args:
+        output_path: Where to write the CSV.
+        symbol: Symbol name (for metadata only).
+        seed: Random seed for reproducibility.
+        num_bars: Number of 5-minute bars.
+        start_price: Starting price level.
+    """
+    import numpy as np  # noqa: PLC0415
+    import pandas as pd  # noqa: PLC0415
+
+    rng = np.random.RandomState(seed)
+
+    # Generate price walk: Geometric Brownian Motion
+    # Drift ~0.02% per bar, vol ~0.05% per bar (realistic for 5m SPY)
+    drift = 0.0002
+    volatility = 0.0005
+    log_returns = rng.normal(drift, volatility, num_bars)
+    cumulative = np.exp(np.cumsum(log_returns))
+    close_prices = start_price * cumulative
+
+    # Generate realistic OHLCV from close
+    bar_range = rng.uniform(0.10, 0.50, num_bars)  # Intrabar range
+    open_prices = close_prices - rng.uniform(-0.2, 0.2, num_bars)
+    high_prices = np.maximum(open_prices, close_prices) + bar_range * 0.6
+    low_prices = np.minimum(open_prices, close_prices) - bar_range * 0.4
+    volumes = rng.randint(50000, 500000, num_bars)
+
+    # Generate RTH timestamps (9:30 AM - 4:00 PM ET, 5-min bars, ~78 bars/day)
+    # Start from 2026-01-12 (Monday)
+    bars_per_day = 78
+    trading_days = (num_bars + bars_per_day - 1) // bars_per_day
+    timestamps = []
+    day_offset = 0
+    bar_count = 0
+    base_date = pd.Timestamp("2026-01-12", tz="US/Eastern")
+
+    for _d in range(trading_days):
+        day = base_date + pd.Timedelta(days=day_offset)
+        # Skip weekends
+        while day.weekday() >= 5:  # noqa: PLR2004
+            day_offset += 1
+            day = base_date + pd.Timedelta(days=day_offset)
+
+        market_open = day.replace(hour=9, minute=30)
+        for bar_idx in range(bars_per_day):
+            if bar_count >= num_bars:
+                break
+            ts = market_open + pd.Timedelta(minutes=5 * bar_idx)
+            timestamps.append(ts)
+            bar_count += 1
+
+        day_offset += 1
+        if bar_count >= num_bars:
+            break
+
+    timestamps = timestamps[:num_bars]
+
+    df = pd.DataFrame({
+        "Open": open_prices[:len(timestamps)],
+        "High": high_prices[:len(timestamps)],
+        "Low": low_prices[:len(timestamps)],
+        "Close": close_prices[:len(timestamps)],
+        "Volume": volumes[:len(timestamps)],
+    }, index=pd.DatetimeIndex(timestamps, name="Datetime"))
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path)
+    print(f"🧪 Synthetic {symbol}: {len(df)} bars, {df.index[0]} → {df.index[-1]}, ${start_price:.0f}→${df['Close'].iloc[-1]:.2f}")
+
 
 def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noqa: PLR0915, PLR0912
     """
@@ -179,6 +265,13 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     if os.environ.get("STRICT_MODE", "1") == "1" and git_info["dirty"]:
         raise RuntimeError("CRITICAL FAILURE: STRICT_MODE requires an initial clean source tree. Forcing fail-closed. Commit all changes.")
+
+    # MISSION v4.7.1: Mandatory Quickgate
+    if os.environ.get("SKIP_QUICKGATE") != "1":
+        print("🛡️  Sovereign Gate: Executing Mandatory Quickgate...")
+        subprocess.check_call([sys.executable, "scripts/quickgate.py"], cwd=repo_root)
+    else:
+        print("⚠️  Sovereign Gate: Quickgate BYPASSED (SKIP_QUICKGATE=1).")
 
     release_mode = os.environ.get("METADATA_RELEASE_MODE") == "1"
     if release_mode and os.environ.get("STRICT_MODE") != "1":
@@ -263,7 +356,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 raise RuntimeError(f"PURITY VIOLATION: Forge mutated UNEXPECTED tracked files: {unexpected}. Use commitment-first workflow.")
 
     # 1.6 Data Anchor (Tier 1) - Must run BEFORE smoke test for evidence manifest completeness
-    smoke_dir = repo_root / "reports/forge/synthetic_smoke"
+    smoke_dir = repo_root / "reports/forge/ibkr_smoke"
     smoke_dir.mkdir(parents=True, exist_ok=True)
     print("⚓ Casting Data Anchor...")
     
@@ -346,7 +439,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 str(prompt_file),
                 "--out-dir", str(smoke_dir),
                 "--id", str(prompt_id),
-                "--charter", "TRADER_OPS_PROMPT_CHARTER_v1.0"
+                "--charter", "TRADER_OPS_PROMPT_CHARTER_v2.0"
             ], cwd=repo_root)
 
             # [ITEM 3] Sign Prompt Fingerprint
@@ -368,29 +461,140 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if os.environ.get("STRICT_MODE") == "1":
             raise RuntimeError("FAIL-CLOSED: Prompt file missing in STRICT_MODE.")
 
-    # Run the smoke test
+    # ══════════════════════════════════════════════════════════════════════
+    # MISSION v4.5.340: Tradability Inference & Dual-Smoke Architecture
+    # ══════════════════════════════════════════════════════════════════════
+
+    # A) Capability Snapshot + Viability Table
+    print("🔧 Phase A: Capability Inference...")
+    from antigravity_harness.capabilities import generate_capability_snapshot  # noqa: PLC0415
+    from antigravity_harness.tradability import generate_viability_table, select_viable_smoke_universe  # noqa: PLC0415
+
+    profile_path = repo_root / "profiles/seed_profile.yaml"
+    capabilities = generate_capability_snapshot(profile_path, smoke_dir)
+    viability_table = generate_viability_table(capabilities, smoke_dir)
+    viable_universe = select_viable_smoke_universe(viability_table, output_dir=smoke_dir)
+
+    # B) Prepare smoke environment
+    env = os.environ.copy()
+    env["METADATA_RELEASE_MODE"] = "1"
     try:
-        env = os.environ.copy()
-        env["METADATA_RELEASE_MODE"] = "1"
-        # Pass the calculated code hash to ensure deterministic RUN_METADATA
-        env["METADATA_CODE_HASH"] = str(repo_root.name) + ":" + (repo_root.parent.name) # Use something stable if git fails
-        # Actually, we have code_hash in build.py (from manifest or git)
-        # Let's use the git SHA if available
+        sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=repo_root, stderr=subprocess.DEVNULL
+        ).decode("utf-8").strip()
+        env["METADATA_CODE_HASH"] = sha
+    except Exception:
+        env["METADATA_CODE_HASH"] = "STABLE_SOVEREIGN_HASH"
+
+    # C) Viable-Asset Smoke (fills > 0 required)
+    viable_smoke_dir = repo_root / "reports/forge/viable_smoke"
+    viable_smoke_dir.mkdir(parents=True, exist_ok=True)
+
+    if viable_universe:
+        # Generate deterministic synthetic ETF data (ephemeral, not committed)
+        synth_dir = repo_root / "reports/forge/synthetic_data"
+        synth_dir.mkdir(parents=True, exist_ok=True)
+        viable_symbol = viable_universe[0] if viable_universe else "SPY"
+        synth_csv = synth_dir / f"{viable_symbol}_5m_synthetic.csv"
+
+        if not synth_csv.exists():
+            print(f"🧪 Generating synthetic {viable_symbol} 5m data...")
+            _generate_synthetic_etf_csv(synth_csv, symbol=viable_symbol)
+
+        print(f"🚀 Running Viable-Asset Smoke: {viable_symbol}...")
         try:
-            sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root, stderr=subprocess.DEVNULL).decode("utf-8").strip()
-            env["METADATA_CODE_HASH"] = sha
-        except Exception:
-             env["METADATA_CODE_HASH"] = "STABLE_SOVEREIGN_HASH"
-             
+            subprocess.check_call([
+                sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
+                "--symbols", viable_symbol,
+                "--prices-csv", str(synth_csv),
+                "--strategy-base", "v040_alpha_prime",
+                "--max_weight_per_asset", "1.0",
+                "--start", "2026-01-10", "--end", "2026-01-15",
+                "--interval", "5m",
+                "--equity",
+                "--rebalance", "15min",
+                "--outdir", str(viable_smoke_dir),
+            ], cwd=repo_root, env=env)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"VIABLE SMOKE FAILURE: {e}") from e
+
+        # Verify fills > 0
+        viable_results = viable_smoke_dir / "results.csv"
+        if viable_results.exists():
+            import csv as _csv  # noqa: PLC0415
+            with open(viable_results) as f:
+                reader = _csv.DictReader(f)
+                for row in reader:
+                    fills = int(row.get("fills_count", 0))
+                    if fills == 0:
+                        raise RuntimeError(
+                            f"VIABLE SMOKE FAILURE: fills_count=0 for {viable_symbol}. "
+                            "Universe pivot did not produce trades."
+                        )
+                    print(f"✅ Viable Smoke PASSED: {viable_symbol} fills_count={fills}")
+        else:
+            raise RuntimeError("VIABLE SMOKE FAILURE: results.csv missing after smoke test.")
+    else:
+        print("⚠️  No viable universe found — skipping viable smoke (diagnostic only).")
+
+    # D) MES Diagnostic Smoke (SMOKE_NO_TRADE required)
+    print("🔬 Running MES Diagnostic Smoke (negative test)...")
+    try:
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
-            "--symbols", "MES", "--prices-csv", f"data/{csv_target}", 
-            "--start", "2024-01-01", "--end", "2026-12-31",
+            "--symbols", "MES", "--prices-csv", f"data/{csv_target}",
+            "--strategy-base", "v040_alpha_prime",
+            "--max_weight_per_asset", "1.0",
+            "--start", "2026-01-10", "--end", "2026-01-15",
+            "--interval", "5m",
+            "--equity",
             "--rebalance", "15min",
-            "--outdir", "reports/forge/synthetic_smoke"
+            "--outdir", str(smoke_dir),
         ], cwd=repo_root, env=env)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"SMOKE TEST FAILURE: Cannot package evidence if smoke test fails. {e}") from e
+        raise RuntimeError(f"MES DIAGNOSTIC SMOKE FAILURE: {e}") from e
+
+    # Verify MES diagnostic produced SMOKE_NO_TRADE
+    mes_results = smoke_dir / "results.csv"
+    if mes_results.exists():
+        import csv as _csv2  # noqa: PLC0415
+        with open(mes_results) as f:
+            reader = _csv2.DictReader(f)
+            for row in reader:
+                status = row.get("status", "")
+                if status != "SMOKE_NO_TRADE":
+                    raise RuntimeError(
+                        f"MES DIAGNOSTIC FAILURE: Expected SMOKE_NO_TRADE, got '{status}'. "
+                        "MES should be non-tradable on $2k cash."
+                    )
+                print(f"✅ MES Diagnostic PASSED: status={status}")
+
+    # Verify MES diagnostic evidence artifacts
+    for artifact_name in ["NO_TRADE_REPORT.json", "fill_tape.csv"]:
+        if not (smoke_dir / artifact_name).exists():
+            raise RuntimeError(f"MES DIAGNOSTIC FAILURE: {artifact_name} missing.")
+
+    # E) Copy viable smoke artifacts into main smoke dir for evidence packaging
+    if viable_smoke_dir.exists():
+        viable_prefix = "viable_smoke_"
+        for artifact in viable_smoke_dir.iterdir():
+            if artifact.is_file():
+                dest = smoke_dir / f"{viable_prefix}{artifact.name}"
+                shutil.copy2(artifact, dest)
+        print(f"📋 Viable smoke artifacts merged into {smoke_dir.name}")
+
+    # ══════════════════════════════════════════════════════════════════════
+
+    # MISSION v4.5.301: Forge Sync (Run Spec Truth)
+    # Ensure filesystem buffers are flushed before reading artifacts.
+    os.sync()
+    import time  # noqa: PLC0415
+    time.sleep(0.5)
+    # Verify critical artifacts exist after smoke test
+    for required_artifact in ["RUN_METADATA.json", "results.csv", "EVIDENCE_MANIFEST.json"]:
+        artifact_path = smoke_dir / required_artifact
+        if not artifact_path.exists():
+            raise RuntimeError(f"FORGE SYNC FAILURE: {required_artifact} missing after smoke test.")
 
     # Verify evidence version matches
     metadata_path = smoke_dir / "RUN_METADATA.json"
@@ -421,6 +625,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "docs",  # Includes all Sovereign Books
         "prompts", # Mission records
         "keys",    # Sovereign public key
+        ".agent",  # MISSION v4.5.382: Sovereign Packaging
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
     manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
@@ -499,6 +704,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             metadata["code_hash"] = real_code_hash
             metadata["manifest_hash"] = payload_manifest_sha256
             metadata["data_hash"] = data_hash
+            # MISSION v4.5.339: Top-level prompt ID for direct lineage
+            if prompt_id:
+                metadata["TRADER_OPS_PROMPT_ID"] = prompt_id
             
             if "environment_vars" not in metadata:
                 metadata["environment_vars"] = {}
@@ -523,16 +731,12 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     for m_file in manifest_files:
         evidence_includes.append(f"data/{m_file}")
     
-    # [ITEM 3] Include Signatures in Evidence
-    for sig_file in ["DATA_MANIFEST.json.sig", "PROMPT_FINGERPRINT.json.sig"]:
-        sig_p = smoke_dir / sig_file
-        if sig_p.exists():
-            # We want them to appear in the same directory as the JSONs in the zip
-            # but _create_zip uses relative paths from repo_root if we are not careful.
-            # Actually _create_zip handles paths relative to repo_root.
-            # smoke_dir is usually reports/forge/synthetic_smoke
-            rel_sig = sig_p.relative_to(repo_root).as_posix()
-            evidence_includes.append(rel_sig)
+    # [ITEM 3] Signatures are already in smoke_dir (inside reports), so 
+    # they are auto-included by "reports" being in evidence_includes.
+    # No further explicit addition is needed to avoid duplicates.
+
+    # MISSION v4.5.290: Deduplicate evidence_includes (set-based)
+    evidence_includes = list(dict.fromkeys(evidence_includes))
 
     _create_zip(evidence_zip, repo_root, includes=evidence_includes)
 
@@ -676,10 +880,15 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print(f"🔮 Drop Preimage Secured: {ledger['sovereign_binding']['drop_preimage_sha256'][:8]}")
 
     # 5.1 Create INNER LEDGER (shipped inside drop)
-    # This ledger MUST NOT contain artifacts.ready_to_drop to avoid circularity.
+    # MISSION v4.7.1: Include ready_to_drop object (Match Outer Ledger)
     ledger_inner_name = f"RUN_LEDGER_INNER_v{version}.json"
     ledger_inner_path = build_tmp / ledger_inner_name
-    # [CHAOS V231] Ledger Inflation Protection
+    
+    # [CIRCULARITY GUARD-V2] We include the 'ready_to_drop' key as a placeholder 
+    # to maintain schema parity with the outer ledger. The actual hash is 'N/A' 
+    # for the inner version to avoid infinite recursion.
+    ledger["artifacts"]["ready_to_drop"] = {"filename": drop_zip_name, "sha256": "N/A (Inner Placeholder)"}
+    
     inner_json = json.dumps(ledger, indent=2, sort_keys=True, separators=(", ", ": "))
     if len(inner_json) > 10 * 1024 * 1024: # 10MB Limit
         raise RuntimeError(f"CRITICAL: RUN_LEDGER_INNER exceeds size limit ({len(inner_json)/1024/1024:.2f}MB). Sabotage?")
@@ -823,7 +1032,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # 8. Inner/Outer Consistency Gate
     expected_inner = json.loads(json.dumps(ledger))
-    expected_inner.get("artifacts", {}).pop("ready_to_drop", None)
+    # MISSION v4.7.2 FIX: Matches the placeholder in inner ledger for schema parity
+    expected_inner["artifacts"]["ready_to_drop"] = {"filename": drop_zip_name, "sha256": "N/A (Inner Placeholder)"}
     with open(ledger_inner_path, "r") as f:
         final_inner = json.load(f)
     
@@ -917,6 +1127,9 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
 def _create_zip(zip_path: Path, root: Path, includes: List[str], exclude: List[str] = None) -> None:
     """Create a deterministic zip file containing specified paths."""
     exclude = exclude or []
+    # MISSION v4.5.306: Evidence Zip Hygiene (Duplicate Detection)
+    added_arcnames = set()
+    
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for item in includes:
             item_path = root / item
@@ -925,8 +1138,12 @@ def _create_zip(zip_path: Path, root: Path, includes: List[str], exclude: List[s
             if item_path.is_file():
                 if item in exclude:
                     continue
-                # Use the relative path from includes to preserve structure
+                
+                if item in added_arcnames:
+                    raise RuntimeError(f"ZIP HYGIENE VIOLATION: Duplicate arcname detected: {item}")
+                
                 _write_to_zip(zf, item_path, item)
+                added_arcnames.add(item)
             elif item_path.is_dir():
                 for file_path in sorted(item_path.rglob("*")):
                     if not file_path.is_file():
@@ -937,7 +1154,12 @@ def _create_zip(zip_path: Path, root: Path, includes: List[str], exclude: List[s
                     arcname = Path(file_path.relative_to(root)).as_posix()
                     if arcname in exclude:
                         continue
+                        
+                    if arcname in added_arcnames:
+                        raise RuntimeError(f"ZIP HYGIENE VIOLATION: Duplicate arcname detected: {arcname}")
+                        
                     _write_to_zip(zf, file_path, arcname)
+                    added_arcnames.add(arcname)
 
 
 def _write_to_zip(zf: zipfile.ZipFile, path: Path, arcname: str) -> None:
@@ -980,9 +1202,13 @@ def _write_to_zip(zf: zipfile.ZipFile, path: Path, arcname: str) -> None:
 
 
 def _assert_cleanliness(root: Path) -> None:
-    """Abort if __pycache__ exists."""
-    if list(root.rglob("__pycache__")):
-        raise RuntimeError("Dirty Repo: __pycache__ found. Run 'make clean' first.")
+    """Ensure __pycache__ are removed before build."""
+    for pycache in list(root.rglob("__pycache__")):
+        try:
+            shutil.rmtree(pycache)
+            print(f"🧹 Hygiene: Purged stale {pycache.relative_to(root)}")
+        except Exception as e:
+            print(f"⚠️  Hygiene Warning: Could not purge {pycache}: {e}")
 
 
 def _check_disk_quota(min_gb: float = 5.0) -> None:

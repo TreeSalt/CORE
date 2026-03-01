@@ -47,12 +47,21 @@ class V040AlphaPrime(Strategy):
         # Signal
         out["entry_signal"] = (trend_ok & entry_ok).fillna(False).astype(bool)
 
-        # 3. Exit Logic (Snap back or Trend Fail)
-        # Note: Connors sometimes exits on Close > High(5) etc, but we stick to RSI Exit spec.
+        # 3. Short Logic (Inverse Mean Reversion)
+        # Entry Short: Close < SMA AND RSI > rsi_exit
+        trend_down = out["Close"] < out["SMA"] if not params.disable_sma else pd.Series(True, index=out.index)
+        entry_short_ok = out["RSI"] > float(params.rsi_exit) if not params.disable_rsi else pd.Series(True, index=out.index)
+        out["short_entry_signal"] = (trend_down & entry_short_ok).fillna(False).astype(bool)
 
-        exit_trend = out["Close"] < out["SMA"]
-        exit_rsi = out["RSI"] > float(params.rsi_exit)
+        # 4. Exit Logic (Snap back or Trend Fail)
+        # Long Exit: Close < SMA OR RSI > rsi_exit
+        exit_trend_long = out["Close"] < out["SMA"]
+        exit_rsi_long = out["RSI"] > float(params.rsi_exit)
+        out["exit_signal"] = (exit_trend_long | exit_rsi_long).fillna(False).astype(bool)
 
-        out["exit_signal"] = (exit_trend | exit_rsi).fillna(False).astype(bool)
+        # Short Exit: Close > SMA OR RSI < rsi_entry
+        exit_trend_short = out["Close"] > out["SMA"]
+        exit_rsi_short = out["RSI"] < float(params.rsi_entry)
+        out["short_exit_signal"] = (exit_trend_short | exit_rsi_short).fillna(False).astype(bool)
 
         return out

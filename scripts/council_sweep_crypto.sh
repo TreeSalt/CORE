@@ -110,9 +110,8 @@ def to_md_table(df):
     cols = list(df.columns)
     header = "| " + " | ".join(cols) + " |"
     sep = "| " + " | ".join(["---"] * len(cols)) + " |"
-    rows = []
-    for _, r in df.iterrows():
-        rows.append("| " + " | ".join([str(x) for x in r]) + " |")
+    # O(n) concatenation vs O(n*m) iterrows overhead
+    rows = ["| " + " | ".join([str(x) for x in row]) + " |" for row in df.values]
     return "\n".join([header, sep] + rows)
 
 # Top 10 Candidates (Task 1: Use correct columns)

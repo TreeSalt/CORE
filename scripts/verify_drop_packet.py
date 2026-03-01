@@ -327,7 +327,7 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                 # Stricter audit of evidence suite
                 roots = [
                     "reports/forge/smoke_test",
-                    "reports/forge/synthetic_smoke",
+                    "reports/forge/ibkr_smoke",
                 ]
                 present_roots = []
                 for r in roots:
@@ -341,7 +341,7 @@ def main() -> int:  # noqa: PLR0915, PLR0912
 
                 if not present_roots:
                     issues.append(Issue(FAIL, "SMOKE_ROOT_MISSING",
-                                       "No smoke root found. Expected RUN_METADATA.json under smoke_test or synthetic_smoke."))
+                                       "No smoke root found. Expected RUN_METADATA.json under smoke_test or ibkr_smoke."))
                 elif args.strict and len(present_roots) != 1:
                     issues.append(Issue(FAIL, "SMOKE_ROOT_AMBIGUOUS_STRICT",
                                        f"Strict: multiple smoke roots found: {present_roots}"))
@@ -601,8 +601,10 @@ def main() -> int:  # noqa: PLR0915, PLR0912
         # --- Inspect INNER LEDGER
         if inner_ledger_name:
             il = json.loads(drop_zf.read(inner_ledger_name).decode("utf-8"))
-            if "ready_to_drop" in il.get("artifacts", {}):
-                issues.append(Issue(FAIL, "INNER_LEDGER_CIRCULARITY", "Inner ledger contains ready_to_drop hash! (Circular)"))
+            # MISSION v4.7.2: Allow placeholder for schema parity
+            rd = il.get("artifacts", {}).get("ready_to_drop", {})
+            if rd and rd.get("sha256") != "N/A (Inner Placeholder)":
+                issues.append(Issue(FAIL, "INNER_LEDGER_CIRCULARITY", "Inner ledger contains ready_to_drop REAL hash! (Circular)"))
             
             # Check for Saboteur Node identity
             if il.get("sovereign_binding", {}).get("builder_id") == "SABOTEUR_NODE_01":

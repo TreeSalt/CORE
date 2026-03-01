@@ -56,6 +56,7 @@ class MetricSet(BaseModel):
     annualized_vol: float = Field(default=0.0)
     raw_entry_signals: int = Field(default=0)
     raw_exit_signals: int = Field(default=0)
+    weight_utilization: float = Field(default=0.0)
 
     # Heavy Data
     equity_curve: Dict[str, float] = Field(default_factory=dict)
@@ -84,12 +85,16 @@ class GateResult(BaseModel):
         return self.status in ["PASS", "WARN"]
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        d = {
             "gate": self.gate,
             "status": self.status,
             "reason": self.reason,
             "metrics": self.metrics,
         }
+        # MISSION v4.5.290: Explicit weight utilization audit
+        if "weight_utilization" in self.metrics:
+             d["weight_utilization"] = self.metrics["weight_utilization"]
+        return d
 
     @property
     def details(self) -> Dict[str, Any]:

@@ -5,6 +5,7 @@ Delegates all logic to antigravity_harness.forge.
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -54,6 +55,12 @@ def main():
         ])
         
         # Generate Gate Report (Fail-Closed Artifact)
+        
+        # Enforce target version binding for trust parity
+        target_version = os.environ.get("TARGET_VERSION")
+        if target_version and target_version.lstrip("v") != ledger['version']:
+            raise ValueError(f"Version Mismatch: Built v{ledger['version']} but TARGET_VERSION={target_version}")
+            
         gate_report = {
             "version": ledger['version'],
             "timestamp_utc": ledger['timestamp_utc'],

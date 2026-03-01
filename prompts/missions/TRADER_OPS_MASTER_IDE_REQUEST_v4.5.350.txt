@@ -1,0 +1,9 @@
+MISSION: Assisted Trader Mode: Proposal + Authorization Gate v4.5.350
+OBJECTIVE: Implement a safety layer where orders require explicit --authorize flag.
+SCOPE:
+- config.py: OperatingMode enum (ASSISTED, AUTOPILOT).
+- reporting.py: generate_trade_proposal() for review artifacts.
+- cli.py: --mode and --authorize flags + authorization gate logic.
+- build.py: Auto-authorize forge runs to maintain build flow.
+AUTHOR: Antigravity
+DATE: 2026-02-23

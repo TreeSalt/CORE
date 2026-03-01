@@ -10,8 +10,8 @@ LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
 DROP_SHA ?= $(DIST)/DROP_PACKET_SHA256_v$(VERSION).txt
 ONE_TRUE := scripts/one_true_command.sh
 
-# Mission Identity (Council Certification)
-TRADER_OPS_PROMPT_ID ?= TRADER_OPS_MASTER_IDE_REQUEST_v4.5.278_v1
+# Mission Identity (Council Certification) — MISSION v4.5.339: Dynamic Binding
+TRADER_OPS_PROMPT_ID ?= TRADER_OPS_MASTER_IDE_REQUEST_v$(VERSION)
 export TRADER_OPS_PROMPT_ID
 
 # Fiduciary Dataset Enforcement
@@ -85,36 +85,31 @@ commands:
 	@echo "│  🐉 TRADER_OPS COMMAND CONSOLE — v$(VERSION)                        │"
 	@echo "├─────────────────────────────────────────────────────────────────────┤"
 	@echo "│                                                                     │"
-	@echo "│  🚀 DAILY WORKFLOW (just do these)                                  │"
-	@echo "│    make install ····· Install deps          (first time / update)    │"
-	@echo "│    make heal ········ Auto-repair everything (version, hygiene)      │"
-	@echo "│    make all ········· Full pipeline          (the one command)       │"
-	@echo "│    make release ····· Council delivery       (clean → build → seal)  │"
+	@echo "│  🚀 DAILY WORKFLOW                                                  │"
+	@echo "│    make all ········· Full pipeline  (clean → test → audit)         │"
+	@echo "│    make heal ········ Auto-repair repository hygiene                │"
+	@echo "│    make release ····· For Council delivery (locked/sealed)          │"
+	@echo "│                                                                     │"
+	@echo "│  🔬 STRATEGY EXECUTION (CLI)                                        │"
+	@echo "│    Assisted:  python3 -m antigravity_harness.cli portfolio-backtest │"
+	@echo "│    Authorize: ... --authorize                                       │"
+	@echo "│    Autopilot: ... --mode autopilot                                  │"
+	@echo "│                                                                     │"
+	@echo "│  🔭 WALK-FORWARD & EVIDENCE                                         │"
+	@echo "│    Run WF:    python3 scripts/generate_evidence.py --symbols [SYM] │"
+	@echo "│    Example:   python3 scripts/generate_evidence.py --symbols MES --outdir reports/wf1 │"
 	@echo "│                                                                     │"
 	@echo "│  🔍 QUALITY                 📦 BUILD                                │"
 	@echo "│    make lint              make build  (→ dist/)                      │"
-	@echo "│    make format            make forge  (evidence)                     │"
-	@echo "│    make type-check        make council-brief                         │"
-	@echo "│    make test                                                         │"
-	@echo "│    make test-hardening    🛡️  VERIFY                                │"
-	@echo "│    make preflight         make autopilot-verify (Unified)            │"
-	@echo "│                           make autopilot-paper (Guarded)             │"
-	@echo "│                           make verify (Sovereign Audit)              │"
-	@echo "│                                                                     │"
-	@echo "│  🐒 CHAOS                  🧹 MAINTENANCE                           │"
-	@echo "│    make chaos (all)       make clean                                │"
-	@echo "│    make hydra             make clean-zombies                        │"
-	@echo "│    make basilisk          make show-errors                          │"
-	@echo "│    make echo / chimera                                              │"
-	@echo "│    make kraken / mimic    🔬 CLI MODULE                              │"
-	@echo "│    make legion / gorgon   python3 -m antigravity_harness.cli -h     │"
-	@echo "│    make shadow-verify     python3 -m antigravity_harness.cli info   │"
+	@echo "│    make test              make forge  (evidence)                     │"
+	@echo "│    make verify (Audit)    make show-errors                           │"
 	@echo "│                                                                     │"
 	@echo "├─────────────────────────────────────────────────────────────────────┤"
 	@echo "│  📖 Full guide with examples: docs/COMMANDS.md                      │"
-	@echo "│  🩺 Recent errors: make show-errors                                 │"
-	@echo "│  💡 Any command -h for details                                      │"
+	@echo "│  💡 Use -h with any command for deep details                        │"
 	@echo "└─────────────────────────────────────────────────────────────────────┘"
+	@echo ""
+
 	@echo ""
 
 show-errors:
@@ -158,7 +153,11 @@ clean:
 forge:
 	$(PYTHON) -B scripts/forge_evidence.py
 
-build:
+quickgate: forge
+	@echo "🛡️  Running Quickgate sanity checks..."
+	$(PYTHON) -B scripts/quickgate.py --run-dir reports/forge --strict
+
+build: quickgate
 	@if [ -z "$(TRADER_OPS_PROMPT_ID)" ]; then \
 		echo "❌ ERR: TRADER_OPS_PROMPT_ID is required for certified builds."; \
 		echo "   USAGE: TRADER_OPS_PROMPT_ID=YOUR_PROMPT_NAME make all"; \
@@ -254,6 +253,17 @@ release: clean build verify
 
 all: preflight
 	$(MAKE) release SKIP_VERSION_BUMP=1
+
+quickgate:
+ifdef SKIP_QUICKGATE
+ifndef REASON
+	$(error SKIP_QUICKGATE requires REASON="..." to be non-empty)
+endif
+	@echo "⚠️  QUICKGATE BYPASSED — Reason: $(REASON)"
+else
+	@echo "🛡️  Running Quickgate sanity checks..."
+	$(PYTHON) scripts/quickgate.py --run-dir reports/forge --strict
+endif
 
 chaos:
 	@echo "🐒 Chaos Monkey vs The Dragon..."

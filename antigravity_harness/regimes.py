@@ -174,7 +174,7 @@ def compute_regime_indicators(  # noqa: PLR0915
         "trend_dir": trend_dir,
         "avg_corr": avg_corr,
         "corr_z": corr_z,
-        "realized_vol_annual": rolling_vol * np.sqrt(252), # Approx annual vol
+        "realized_vol_annual": rolling_vol * np.sqrt(365), # MISSION v4.5.290: Default to 365, will be refined in router
     }, index=close_df.index)
     
     return metrics

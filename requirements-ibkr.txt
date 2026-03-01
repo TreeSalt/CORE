@@ -1,2 +1,0 @@
-# Optional dependencies for IBKR Ingestion
-ib_insync

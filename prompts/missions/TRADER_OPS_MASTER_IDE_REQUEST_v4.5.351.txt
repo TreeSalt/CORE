@@ -1,0 +1,8 @@
+MISSION: Assisted Trader Mode: Build Stabilization v4.5.351
+OBJECTIVE: Finalize release v4.5.350 and stabilize build artifacts for v4.5.351.
+SCOPE:
+- build.py: Secured Institutional Gold Certification.
+- cli.py: Verified --authorize gate and SMOKE_ASSISTED_BLOCKED status.
+- archivist.py: Ingested STRICT_MISSION_PROMPT vaccine for fail-closed prevention.
+AUTHOR: Antigravity
+DATE: 2026-02-23

@@ -1,0 +1,13 @@
+PROMPT_ID: TRADER_OPS_MASTER_IDE_REQUEST_v4.5.382_PHASE_1_GOVERNANCE
+CHARTER: TRADER_OPS_PROMPT_CHARTER_v2.0 (mandatory)
+DATE: 2026-02-24
+OWNER: Alec
+TARGET_VERSION: (no version bump — governance install only, SKIP_VERSION_BUMP=1)
+BRANCH: governance/agent-constitution
+SCOPE: P0-PREREQUISITE (Install Sovereign Agent Constitution before running v4.5.382)
+
+MISSION SUMMARY:
+- Install the sovereign agent constitution files (.agent/LAWS.md, .agent/PHYSICS.md).
+- Update build infrastructure (Makefile) to support quickgate.
+- Wire governance documentation into agent onboarding docs.
+- No version bump — this is a file installation prerequisite.

@@ -19,7 +19,7 @@ python3 scripts/preflight.py --auto-clean --qa
 
 ---
 
-## 2. Navigating the Graduation (v4.5.287)
+## 2. Navigating the Graduation (v4.7.14)
 
 The project has recently undergone an "Institutional Gold" graduation. Key transitions:
 
@@ -68,6 +68,21 @@ When modifying the codebase:
 1.  **Strict Mode**: The forge operates in `STRICT_MODE=1` by default. Do not add untracked files without intending them to be part of the legal release record.
 2.  **Determinism**: Avoid `datetime.now()` or non-seeded random numbers. Always use fixed epochs for verification logic.
 3.  **Audit Awareness**: Any new critical state transition **MUST** be registered with `engine.auditor.log_event()`.
+
+---
+
+## 6. Agent Constitution (`.agent/` — READ BEFORE WRITING CODE)
+
+> **⚠️ MANDATORY**: Before writing any code, you MUST read the governance files in `.agent/`.
+
+| Document | Purpose |
+| :--- | :--- |
+| [`.agent/LAWS.md`](../.agent/LAWS.md) | Agent governance laws, failure mode catalog (Frankenstein reports), status codes, artifact checklist, and process rules. |
+| [`.agent/PHYSICS.md`](../.agent/PHYSICS.md) | Instrument specifications, trading constants, tick grids, and commission models. |
+
+These files are **SHA-bound** in the sovereign drop hash. An agent that reads them before writing code cannot hallucinate.
+
+See also: [`docs/COUNCIL_GOVERNANCE.md`](./COUNCIL_GOVERNANCE.md) for the multi-agent council charter.
 
 ---
 

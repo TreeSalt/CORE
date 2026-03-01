@@ -5,6 +5,11 @@ from decimal import Decimal
 from typing import Any, List
 
 
+class GovernanceViolationError(Exception):
+    """Raised when a quarantined strategy violates tier governance."""
+    pass
+
+
 @dataclass
 class OrderIntent:
     symbol: str
