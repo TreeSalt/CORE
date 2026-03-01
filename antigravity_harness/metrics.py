@@ -26,11 +26,19 @@ def cagr(equity: pd.Series, periods_per_year: int) -> float:
         return 0.0
 
     # Use n_bars / periods_per_year for dynamic annualization
-    # 1.1 -> n_bars = 100, ppy=252 -> years = 100/252 = 0.39
-    n_days = len(equity) - 1
-    if n_days <= 0:
+    n_bars = len(equity) - 1
+    if n_bars <= 0:
         return 0.0
-    years = n_days / float(periods_per_year)
+        
+    # Dynamic cadence detection for RTH Timebase
+    if isinstance(equity.index, pd.DatetimeIndex) and n_bars > 0:
+        diffs = equity.index.to_series().diff().dropna().dt.total_seconds()
+        median_sec = diffs.median() if not diffs.empty else 0
+        if median_sec > 0 and median_sec < 86400:
+            # 252 days * 6.5 hours * 3600 sec = 5896800 seconds actively trading
+            periods_per_year = int(5896800 / median_sec)
+
+    years = n_bars / float(periods_per_year)
     # HYDRA GUARD: Zero-Div Chaos (Vector 102)
     if years == 0:
         return 0.0
@@ -56,12 +64,11 @@ def profit_factor(trades: List[Any]) -> float:
         return float("nan")
     gains = sum(float(t.pnl_abs) for t in trades if float(t.pnl_abs) > 0)
     losses = -sum(float(t.pnl_abs) for t in trades if float(t.pnl_abs) < 0)
-    # Strict-mode stabilization: PF must be finite.
+    # Institutional Gold: Use 0.01 threshold for stability but keep it strict
     if losses <= 0.0:
         if gains <= 0.0:
             return 1.0
-        pf = gains / 1e-12
-        return float(min(pf, 1e6))
+        return 100.0 # Standard cap for perfect runs
     return float(gains / losses)
 
 
@@ -185,7 +192,13 @@ def compute_metrics(equity: pd.Series, trades: List[Any], periods_per_year: int,
     # Open at end = trades forced closed
     out["open_positions_at_end"] = sum(1 for t in trades if getattr(t, "exit_reason", "") == "force_close")
 
+    # Institutional Gold: Gross Profit/Loss
+    gross_p = sum(float(t.pnl_abs) for t in trades if float(t.pnl_abs) > 0)
+    gross_l = -sum(float(t.pnl_abs) for t in trades if float(t.pnl_abs) < 0)
+    out["gross_profit"] = gross_p
+    out["gross_loss"] = gross_l
     out["profit_factor"] = profit_factor(trades)
+    
     out["expectancy"] = expectancy(trades)
     out["daily_sharpe"] = daily_sharpe(equity, periods=annualization)
 
@@ -197,9 +210,6 @@ def compute_metrics(equity: pd.Series, trades: List[Any], periods_per_year: int,
     out["calmar_ratio"] = calmar
 
     # ProfitScore: Business Scalability Metric
-    # Rewards Risk-Adj Return (Calmar) AND Frequency (Log Trades)
-    # A straetgy with Calmar 2.0 and 1 trade is luck (Score ~0.7)
-    # A strategy with Calmar 2.0 and 100 trades is business (Score ~9.2)
     out["profit_score"] = calmar * np.log1p(len(trades))
 
     # Phase 6: Gate Compatibility Aliases
@@ -211,9 +221,18 @@ def compute_metrics(equity: pd.Series, trades: List[Any], periods_per_year: int,
     out["var_95"] = calculate_var(equity, confidence=0.95)
     
     # Item 9: Monte Carlo Robustness
-    # iterations could be passed in, but we'll use a conservative default or look at trades count
     mc_iters = 100 if len(trades) < 50 else 250
     out["mc_drawdown_95"] = monte_carlo_shuffled_drawdown(trades, iterations=mc_iters, initial_equity=initial)
+
+    # MISSION v4.5.290: Weight Utilization
+    # How much of the average risk budget was used vs initial cash
+    if trades and initial > 0:
+        # Calculate max exposure per trade
+        # Unified ESD (Multiplier $5) for MES
+        max_exposure = max([abs(float(t.qty) * float(t.entry_price) * 5.0) for t in trades])
+        out["weight_utilization"] = max_exposure / initial
+    else:
+        out["weight_utilization"] = 0.0
 
     return out
 

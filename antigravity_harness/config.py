@@ -2,12 +2,26 @@ from __future__ import annotations
 
 import os
 import pathlib
+from enum import Enum
 from typing import Any, Dict, Optional
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from antigravity_harness.paths import DATA_DIR
+
+
+# MISSION v4.5.350: Assisted Trader Mode
+class OperatingMode(str, Enum):
+    """
+    Operating mode for TRADER_OPS execution.
+    ASSISTED (default): Generate trade proposal, block unless --authorize.
+    AUTOPILOT: Execute without proposal gate.
+    """
+    ASSISTED = "assisted"
+    AUTOPILOT = "autopilot"
+
+
 
 
 class LatencyModel(BaseModel):
@@ -29,8 +43,9 @@ class DarkPoolModel(BaseModel):
 
 
 class EngineConfig(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
     initial_cash: float = 10_000.0
+    slippage_ticks: float = 0.0  # MISSION v4.5.306: Integer ticks for Futures (MES)
     slippage_per_side: float = 0.001  # Crypto Standard: 0.1%
     commission_bps: float = 0.0  # DEPRECATED compatibility only
     commission_fixed: float = 0.0  # Fixed cost per trade (e.g., $1.00)
@@ -49,6 +64,9 @@ class EngineConfig(BaseModel):
     # Item 11: Fiduciary Control
     fiduciary_enabled: bool = False
     fiduciary_max_qty: int = 1
+    no_overnight: bool = False  # MISSION v4.5.290
+    max_position_size_contracts: int = 1_000_000  # MISSION v4.5.306: Large default for simulation
+    max_trades_per_day: int = 1_000_000           # MISSION v4.5.306: Large default for simulation
 
     # Artifact 4: The Unit Correction (The Friction)
     commission_rate_frac: float = Field(

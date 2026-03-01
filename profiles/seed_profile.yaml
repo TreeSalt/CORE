@@ -3,6 +3,7 @@ profile_id: "founder_seed_v1"
 operator:
   name: "Alec"
   python_proficiency: "novice"
+  license_key: "DEV_SOVEREIGN_KEY_001"
 
 system_intent:
   long_term: true
@@ -15,7 +16,7 @@ capital:
 instrument_universe:
   primary: "MES"
   exchange: "CME_GLOBEX"
-  allowlist: ["MES"]
+  allowlist: ["MES", "MNQ"]
 
 session:
   calendar: "CME_RTH"             # MUST be calendar-driven, not hardcoded hours

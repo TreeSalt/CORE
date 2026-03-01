@@ -53,6 +53,7 @@ from antigravity_harness.execution.safety import (
 from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
 from antigravity_harness.instruments.mes import (
     MES_MAX_PLANNED_RISK_USD,
+    MES_SPEC,
     MESRiskParams,
 )
 
@@ -356,7 +357,7 @@ class TestFillTape(unittest.TestCase):
     def test_slippage_recorded(self):
         """FillTape computes slippage_realized_ticks correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            tape = FillTape(Path(tmpdir), "2026-02-17", spec=MES_SPEC, slippage_buffer_ticks=4)
             fill = self._make_fill(OrderSide.BUY, fill_price=5000.25)
             record = tape.record(fill, expected_price=5000.00)
             # 0.25 points / 0.25 tick_size = 1 tick of slippage
@@ -366,7 +367,7 @@ class TestFillTape(unittest.TestCase):
     def test_buffer_exceeded_flag(self):
         """Fill with 5 ticks slippage exceeds 4-tick buffer — flag set."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            tape = FillTape(Path(tmpdir), "2026-02-17", spec=MES_SPEC, slippage_buffer_ticks=4)
             fill = self._make_fill(OrderSide.BUY, fill_price=5001.25)  # 5 ticks above
             record = tape.record(fill, expected_price=5000.00)
             self.assertEqual(record.slippage_realized_ticks, 5)
@@ -375,7 +376,7 @@ class TestFillTape(unittest.TestCase):
     def test_drift_flag_emitted_above_threshold(self):
         """20%+ of fills exceeding buffer triggers ProfileDriftFlag artifact."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            tape = FillTape(Path(tmpdir), "2026-02-17", spec=MES_SPEC, slippage_buffer_ticks=4)
             # 3 fills with >4 ticks slippage + 2 normal = 60% — above 20% threshold
             for _i in range(3):
                 fill = self._make_fill(OrderSide.BUY, fill_price=5001.50)  # 6 ticks
@@ -390,7 +391,7 @@ class TestFillTape(unittest.TestCase):
     def test_no_drift_flag_below_threshold(self):
         """Single fill with excess slippage (20% of 1 = 100%? No: check exact math)."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tape = FillTape(Path(tmpdir), "2026-02-17", slippage_buffer_ticks=4)
+            tape = FillTape(Path(tmpdir), "2026-02-17", spec=MES_SPEC, slippage_buffer_ticks=4)
             # 1 excess + 9 normal = 10% — below 20% threshold
             fill_bad = self._make_fill(OrderSide.BUY, fill_price=5001.50)
             tape.record(fill_bad, expected_price=5000.00)
@@ -544,14 +545,14 @@ class TestSimAdapter(unittest.IsolatedAsyncioTestCase):
 
     async def test_slippage_applied_to_buy(self):
         """2-tick sim slippage fills BUY 2 ticks above mid."""
-        from antigravity_harness.instruments.mes import MES_TICK_SIZE
         adapter = SimExecutionAdapter(sim_slippage_ticks=2)
         await adapter.connect()
         adapter.set_price("MES", 5000.0)
 
         await adapter.submit_order(make_intent(side=OrderSide.BUY))
         fill = adapter.all_fills[-1]
-        expected = 5000.0 + 2 * MES_TICK_SIZE
+        # MISSION v4.5.290: 5000 + 0.25 (mandatory) + 2*0.25 (synthetic) = 5000.75
+        expected = 5000.75
         self.assertAlmostEqual(float(fill.fill_price), expected)
 
 

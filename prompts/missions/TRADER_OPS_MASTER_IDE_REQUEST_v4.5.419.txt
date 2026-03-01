@@ -1,0 +1,14 @@
+# MISSION: TRADER_OPS_MASTER_IDE_REQUEST_v4.5.419
+# GOAL: Orchestration Guards & Fail-Closed Logic
+
+## Non-Negotiable Rules
+1. Smoke tests MUST NOT attempt network connections.
+2. IBKRAdapter MUST block connect() if TRADER_OPS_EXECUTION_MODE='backtest'.
+3. generate_evidence.py MUST fail-closed with NO_TRADE_REPORT.json and results.csv if symbols are non-viable.
+4. results.csv status MUST be 'SMOKE_BLOCKED_ALLOWLIST_VIOLATION' on fail-closed.
+5. results.csv MUST exist for all runs (even fail-closed) for Quickgate compliance.
+
+## Acceptance Criteria
+- [x] manual test scripts/test_ibkr_block.py passes.
+- [x] generate_evidence.py --symbols GHOST generates required artifacts.
+- [ ] make all passes (Graduation Pass).

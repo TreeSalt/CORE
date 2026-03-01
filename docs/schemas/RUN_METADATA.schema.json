@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "TRADER_OPS RUN_METADATA Schema",
+    "description": "Canonical schema for run metadata in TRADER_OPS v4.6.1",
+    "type": "object",
+    "properties": {
+        "schema_version": {
+            "type": "string"
+        },
+        "run_id": {
+            "type": "string"
+        },
+        "timestamp_utc": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "trader_ops_version": {
+            "type": "string"
+        },
+        "version": {
+            "type": "string"
+        },
+        "TRADER_OPS_PROMPT_ID": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "metrics_valid": {
+            "type": "boolean"
+        },
+        "metrics_invalid_reason": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "cmd_args": {
+            "type": "object"
+        },
+        "code_hash": {
+            "type": "string"
+        },
+        "config_hash": {
+            "type": "string"
+        },
+        "data_hash": {
+            "type": "string"
+        },
+        "fills_count": {
+            "type": "integer"
+        },
+        "periods_per_year": {
+            "type": "integer"
+        }
+    },
+    "required": [
+        "version",
+        "timestamp_utc",
+        "status"
+    ]
+}

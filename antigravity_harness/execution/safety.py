@@ -6,6 +6,7 @@ from datetime import date, datetime, timezone
 from typing import Any, List, Optional, Tuple
 
 from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType
+from antigravity_harness.execution.slippage import PhysicsViolationError
 
 # ─── Exceptions ───────────────────────────────────────────────────────────────
 
@@ -117,6 +118,10 @@ class ExecutionSafety:
                 raise SessionBoundaryViolation(f"After session entry cutoff: {now_utc} > {cutoff}")
 
     def _check_contract_limit_gate(self, intent: OrderIntent, current_position: int) -> None:
+        # MISSION v4.5.290: Enforce integer lot physics
+        if not isinstance(intent.quantity, int) or float(intent.quantity) != float(int(intent.quantity)):
+             raise PhysicsViolationError(f"FRACTIONAL_ORDER: Contract quantity {intent.quantity} must be integer.")
+
         if intent.order_type != OrderType.STOP: # Exits skip limit check usually
             resulting_pos = current_position + (intent.quantity if intent.side == OrderSide.BUY else -intent.quantity)
             if abs(resulting_pos) > self.config.max_contracts:

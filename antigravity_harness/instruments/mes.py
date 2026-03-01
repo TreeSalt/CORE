@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from antigravity_harness.instruments.base import InstrumentSpec
+
 # ─── Core Contract Physics ────────────────────────────────────────────────────
 
 MES_POINT_VALUE: float = 5.00
@@ -122,3 +124,13 @@ class MESRiskParams:
                 f"stop={self.stop_points}pts (${self.stop_risk_usd:.2f}) + "
                 f"buffer={self.slippage_buffer_ticks}tks (${self.buffer_risk_usd:.2f})"
             )
+
+# ─── Canonical Instrument Spec ───────────────────────────────────────────────
+
+MES_SPEC = InstrumentSpec(
+    symbol=MES_CONTRACT_SYMBOL,
+    asset_class="future",
+    tick_size=MES_TICK_SIZE,
+    multiplier=MES_POINT_VALUE,
+    lot_size=1.0,  # Contracts are whole numbers
+)

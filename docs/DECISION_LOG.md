@@ -1904,3 +1904,591 @@ chore: self-healing synchronization of project state
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.287)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.287 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.297)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.297 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.298)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.298 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.299)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.299 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.288)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.288 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.289)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.289 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix(forge): ensure ibkr_smoke backtest has deterministic synthetic data source (v4.5.290)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.290 forge.
+
+### Decision
+fix(forge): ensure ibkr_smoke backtest has deterministic synthetic data source
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.291)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.291 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.292)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.292 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.293)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.293 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.300)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.300 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.304)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.304 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.305)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.305 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.330)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.330 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.331)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.331 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.335)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.335 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.336)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.336 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.337)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.337 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.338)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.338 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.350)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.350 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.351)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.351 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.360)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.360 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: v4.5.372: Finalizing Agentic Knowledge Layer release (v4.5.373)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.373 forge.
+
+### Decision
+v4.5.372: Finalizing Agentic Knowledge Layer release
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: MISSION: Finalize v4.5.375 (Mission Prompt Sync) (v4.5.376)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.376 forge.
+
+### Decision
+MISSION: Finalize v4.5.375 (Mission Prompt Sync)
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: MISSION: Finalize v4.5.376 (Mission Prompt Sync) (v4.5.377)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.377 forge.
+
+### Decision
+MISSION: Finalize v4.5.376 (Mission Prompt Sync)
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.380)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.380 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.381)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.381 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.407)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.407 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.408)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.408 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.409)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.409 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.415)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.415 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.420)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.420 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.422)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.422 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.423)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.423 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.5.424)
+
+### Context
+Automated entry captured via Git Provenance during the v4.5.424 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: MISSION v4.6.1: Phase 1 — FOUNDATION TRUTH (Final Graduation) (v4.6.3)
+
+### Context
+Automated entry captured via Git Provenance during the v4.6.3 forge.
+
+### Decision
+MISSION v4.6.1: Phase 1 — FOUNDATION TRUTH (Final Graduation)
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: MISSION v4.6.1: Phase 2 — PRODUCT CORE BOOTSTRAP (Ceremonial Seal) (v4.6.4)
+
+### Context
+Automated entry captured via Git Provenance during the v4.6.4 forge.
+
+### Decision
+MISSION v4.6.1: Phase 2 — PRODUCT CORE BOOTSTRAP (Ceremonial Seal)
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.6.5)
+
+### Context
+Automated entry captured via Git Provenance during the v4.6.5 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.7.0)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.0 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: MISSION v4.7.2: Update verifier to allow Inner Ledger placeholder (v4.7.3)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.3 forge.
+
+### Decision
+MISSION v4.7.2: Update verifier to allow Inner Ledger placeholder
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.7.10)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.10 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: chore: self-healing synchronization of project state (v4.7.11)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.11 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

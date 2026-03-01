@@ -1,25 +1,6 @@
 {
-  "pulled_at_utc": "2026-02-22T01:02:54.176262Z",
-  "host": "127.0.0.1",
-  "port": 4002,
-  "clientId": 1,
-  "useRTH": true,
-  "timezone_handling": "ib_insync_native",
-  "bar_count": 2742,
-  "first_ts": "2026-01-08T08:30:00-06:00",
-  "last_ts": "2026-02-20T15:55:00-06:00",
-  "volume_stats": {
-    "total": 30051324.0,
-    "avg": 10959.636761487965
-  },
-  "pagination_stats": {
-    "is_complete": true,
-    "duration": "30 D"
-  },
-  "contract_fields": {
-    "conId": 750150186,
-    "localSymbol": "MESH6",
-    "exchange": "CME",
-    "lastTradeDateOrContractMonth": "20260320"
-  }
+  "last_collected_at_utc": "2026-02-24T07:41:09.513437Z",
+  "row_count": 3030,
+  "data_hash": "adea78f2a88f9e073027fb7443c06c4ed5292a2c35a3790a0ccf68931ce6dfc0",
+  "version": "4.5.380"
 }

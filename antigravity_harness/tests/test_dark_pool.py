@@ -9,7 +9,13 @@ class TestDarkPool(unittest.IsolatedAsyncioTestCase):
     async def test_price_improvement(self):
         """Verify that price improvement triggers correctly (statistical check)."""
         # Set improvement bps to something large for visibility
-        dp = DarkPoolModel(enabled=True, fail_prob=0.0, improvement_prob=1.0, improvement_bps=10.0)
+        dp = DarkPoolModel(
+            enabled=True,
+            fail_prob=0.0,
+            improvement_prob=1.0,
+            improvement_bps=10.0,
+            adverse_selection_prob=0.0,
+        )
         adapter = SimExecutionAdapter(dark_pool_model=dp)
         await adapter.connect()
         
@@ -21,9 +27,9 @@ class TestDarkPool(unittest.IsolatedAsyncioTestCase):
         await adapter.submit_order(intent)
         fill = adapter.all_fills[-1]
         
-        # 100 * (1 - 0.0010) = 99.9
-        self.assertLess(float(fill.fill_price), 100.0)
-        self.assertAlmostEqual(float(fill.fill_price), 99.9, places=2)
+        # MISSION v4.5.290: ESD (Multiplier $5)
+        # Improvement 10 bps on 100.25 = 100.149... -> 100.15
+        self.assertAlmostEqual(float(fill.fill_price), 100.15, places=2)
 
     async def test_adverse_selection(self):
         """Verify that adverse selection increases fill cost."""
@@ -39,8 +45,10 @@ class TestDarkPool(unittest.IsolatedAsyncioTestCase):
         await adapter.submit_order(intent)
         fill = adapter.all_fills[-1]
         
+        # Adverse 10 bps = 0.1 pts on 100.25 = 100.35
         self.assertGreater(float(fill.fill_price), 100.0)
-        self.assertAlmostEqual(float(fill.fill_price), 100.1, places=2)
+        # Adverse 10 bps = 100.25 * 1.0010 = 100.35025 -> 100.35
+        self.assertAlmostEqual(float(fill.fill_price), 100.35, places=2)
 
     async def test_info_leakage(self):
         """Verify that dark pool failure triggers information leakage penalty."""
@@ -57,7 +65,8 @@ class TestDarkPool(unittest.IsolatedAsyncioTestCase):
         fill = adapter.all_fills[-1]
         
         self.assertGreater(float(fill.fill_price), 100.0)
-        self.assertAlmostEqual(float(fill.fill_price), 100.05, places=3)
+        # fill_price (100.25)
+        self.assertAlmostEqual(float(fill.fill_price), 100.25, places=3)
 
 if __name__ == "__main__":
     unittest.main()

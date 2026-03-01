@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 from datetime import timedelta
 from typing import Any, Dict, Optional, Tuple
@@ -20,6 +21,55 @@ def _compute_file_hash(path: str) -> str:
     """Compute SHA256 of the physical file content bytes."""
     with open(path, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
+
+
+def _compute_merkle_root(leaf_hashes: list[str]) -> str:
+    """Computes Merkle Root from a list of leaf hashes (SHA256). Sorting ensures determinism."""
+    if not leaf_hashes:
+        return ""
+    
+    # Sort for deterministic root regardless of file discovery order
+    nodes = sorted(leaf_hashes)
+    
+    while len(nodes) > 1:
+        new_level = []
+        for i in range(0, len(nodes), 2):
+            left = nodes[i]
+            right = nodes[i + 1] if i + 1 < len(nodes) else left
+            combined = hashlib.sha256((left + right).encode("utf-8")).hexdigest()
+            new_level.append(combined)
+        nodes = new_level
+    
+    return nodes[0]
+
+
+def _update_data_manifest() -> None:
+    """Scan SNAPSHOT_DIR, compute leaf hashes and Merkle root, and save to data_manifest.json."""
+    manifest_path = os.path.join(SNAPSHOT_DIR, "data_manifest.json")
+    
+    files = [f for f in os.listdir(SNAPSHOT_DIR) if f.endswith(".csv")]
+    leaf_map = {}
+    
+    for f in files:
+        f_path = os.path.join(SNAPSHOT_DIR, f)
+        leaf_map[f] = _compute_file_hash(f_path)
+    
+    root = _compute_merkle_root(list(leaf_map.values()))
+    
+    manifest = {
+        "version": "v4.5.290",
+        "generated_at": pd.Timestamp.now().isoformat(),
+        "merkle_root": root,
+        "leaf_hashes": leaf_map
+    }
+    
+    # Atomic write for manifest
+    temp_path = manifest_path + ".tmp"
+    with open(temp_path, "w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+    
+    os.replace(temp_path, manifest_path)
+    print(f"🛡️  Data Manifest Updated: Root={root[:12]}... (Leaves: {len(leaf_map)})")
 
 
 def get_snapshot_path(symbol: str, timeframe: str, end_date: str, content_hash: str) -> str:
@@ -52,9 +102,12 @@ def save_snapshot(symbol: str, start: str, end: str, timeframe: str) -> Tuple[st
 
     if os.path.exists(final_path):
         os.remove(temp_path)
+        # Still update manifest in case it's missing
+        _update_data_manifest()
         return final_path, full_hash
 
     os.rename(temp_path, final_path)
+    _update_data_manifest()
     return final_path, full_hash
 
 

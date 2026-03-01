@@ -1,0 +1,9 @@
+MISSION: Tradability Inference & Pivot v4.5.339
+OBJECTIVE: Implement "No-Trade Intelligence" and support for non-tradable instruments (MES on $2k).
+SCOPE:
+- reporting.py: generate_no_trade_report() for capital failures.
+- engine.py: Ensure fill_tape.csv headers exist on 0 fills.
+- cli.py: SMOKE_NO_TRADE status and dynamic annualization.
+- build.py: Metadata lineage binding.
+AUTHOR: Antigravity
+DATE: 2026-02-23

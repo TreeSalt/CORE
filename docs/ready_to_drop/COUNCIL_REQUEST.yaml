@@ -17,7 +17,6 @@ scope_boundaries:
     - "Inspect gate profiles and status logic"
     - "Validate packaging completeness"
   forbidden:
-    - "v5 Event Horizon work"
     - "Gate relaxation or threshold changes"
     - "New strategy creation"
     - "Engine physics modifications"

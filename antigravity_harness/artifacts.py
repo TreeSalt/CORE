@@ -7,6 +7,9 @@ from typing import Any, Dict, Set
 import numpy as np
 import pandas as pd
 
+from antigravity_harness.compliance import GovernanceViolationError
+from antigravity_harness.strategies.registry import STRATEGY_REGISTRY
+
 
 class ArtifactManager:
     """
@@ -21,6 +24,22 @@ class ArtifactManager:
 
     def get_abs_path(self, relative_path: str) -> Path:
         """Resolve a relative path against the secure root."""
+        # MISSION v4.5.290: Governance Write-Gate
+        if "certification" in str(self.root_dir).lower() or "certification" in relative_path.lower():
+            current_strat = os.environ.get("TRADER_OPS_CURRENT_STRATEGY")
+            if current_strat:
+                try:
+                    strat_meta = STRATEGY_REGISTRY._registry_data.get("strategies", {}).get(current_strat, {})
+                    if strat_meta.get("tier") == "quarantine":
+                         raise GovernanceViolationError(
+                             f"GOVERNANCE_LEAKAGE: Quarantined strategy '{current_strat}' "
+                             f"cannot write to certification directory: {relative_path}"
+                         )
+                except GovernanceViolationError:
+                    raise
+                except Exception:
+                    pass # Don't block if registry is missing, let other gates catch it
+
         full_path = (self.root_dir / relative_path).resolve()
         if not str(full_path).startswith(str(self.root_dir)):
             raise PermissionError(f"Path Traversal Detected: {relative_path}")

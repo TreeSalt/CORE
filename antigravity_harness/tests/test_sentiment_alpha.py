@@ -20,7 +20,7 @@ class TestSentimentAlpha(unittest.TestCase):
             "High": closes + 5.0,
             "Low": closes - 5.0,
             "Close": closes,
-            "Volume": 1500.0
+            "Volume": 1000000.0
         }, index=dates)
         
         self.prepared = self.df.copy()
@@ -32,15 +32,16 @@ class TestSentimentAlpha(unittest.TestCase):
         self.prepared["ATR"] = 2.0
         
         self.engine_cfg = EngineConfig(
-            initial_cash=150000.0, 
+            initial_cash=10000000.0, 
             warmup_extra_bars=1,
-            volume_limit_pct=1.0 
+            volume_limit_pct=1.0,
+            slippage_per_side=1.0  # MISSION v4.5.301: Explicit 1-tick MES friction
         )
 
     def test_sentiment_baseline_vs_boosted(self):
         # 1. Baseline Run (No Sentiment)
         params_base = StrategyParams(
-            risk_per_trade=0.02, 
+            risk_per_trade=0.001, 
             cooldown_bars=0,
             use_sentiment=False
         )
@@ -53,7 +54,7 @@ class TestSentimentAlpha(unittest.TestCase):
         
         # 2. Boosted Run (Max Greed)
         params_boost = StrategyParams(
-            risk_per_trade=0.02, 
+            risk_per_trade=0.001, 
             cooldown_bars=0,
             use_sentiment=True,
             sentiment_threshold=0.5,
@@ -85,7 +86,7 @@ class TestSentimentAlpha(unittest.TestCase):
     def test_sentiment_panic_restriction(self):
         # 3. Restricted Run (Max Fear)
         params_panic = StrategyParams(
-            risk_per_trade=0.02, 
+            risk_per_trade=0.001, 
             cooldown_bars=0,
             use_sentiment=True,
             sentiment_threshold=0.5,
@@ -106,7 +107,7 @@ class TestSentimentAlpha(unittest.TestCase):
         )
         
         # Baseline check
-        params_base = StrategyParams(risk_per_trade=0.02, cooldown_bars=0, use_sentiment=False)
+        params_base = StrategyParams(risk_per_trade=0.001, cooldown_bars=0, use_sentiment=False)
         res_base = run_backtest(
             df=self.df, prepared=self.prepared, params=params_base, engine_cfg=self.engine_cfg
         )

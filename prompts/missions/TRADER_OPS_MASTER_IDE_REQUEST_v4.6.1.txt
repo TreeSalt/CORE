@@ -1,0 +1,15 @@
+OBJECTIVE: v4.6.1 — Foundation Truth: Canon Root Path Truth & Sovereign Constitution
+CHARTER: TRADER_OPS_PROMPT_CHARTER_v2.0
+DATE: 2026-02-25
+TARGET_VERSION: v4.6.1
+
+REQUIREMENTS:
+1. Purge stale version references and stabilize canon root path.
+2. Migrate Sovereign Constitution to docs/constitution/.
+3. Unify RUN_METADATA schemas across all emitters.
+4. Standardize synthetic evidence on MES Truth anchor.
+
+NON-NEGOTIABLES:
+- Absolute coherence in symbol reporting (Gate 2).
+- Bit-perfect evidence forging.
+- Fail-closed structural integrity.

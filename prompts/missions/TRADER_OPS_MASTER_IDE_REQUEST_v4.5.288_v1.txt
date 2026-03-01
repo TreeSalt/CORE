@@ -1,0 +1,11 @@
+MASTER IDE REQUEST v4.5.288: Physics & Trust Remediation
+Targets:
+1. Fix Timebase Physics (CAGR/Sharpe on RTH 5m bars).
+2. Fix Slippage Physics (MES Tick Friction + Fixed Commission).
+3. Synchronize versioning across trust artifacts (gate_report.json binding).
+4. Repair front-door README (Institutional Manifest).
+
+Mandates:
+- No shortcuts. World-class solutions only.
+- Fail-closed security.
+- Reproducible verification via 'make verify'.

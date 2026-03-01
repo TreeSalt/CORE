@@ -13,6 +13,7 @@ import asyncio
 import csv
 import json
 import sys
+from datetime import date as dt_date
 from datetime import datetime, timezone
 from datetime import time as dt_time
 from pathlib import Path
@@ -23,7 +24,7 @@ except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
 try:
-    from ib_insync import IB, ContFuture
+    from ib_insync import IB, ContFuture, Future, Stock
 except ImportError:
     print("❌ Missing dependency: ib_insync. Install with 'pip install -r requirements-ibkr.txt'")
     sys.exit(1)
@@ -56,7 +57,7 @@ def check_rth_integrity(bars):
     
     return True, "OK"
 
-def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):  # noqa: PLR0915
+def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D", symbol="MES", exchange="CME", contract_month=None):  # noqa: PLR0915
     ib = IB()
     def on_error(reqId, errorCode, errorString, contract):
         if errorCode == 321:
@@ -71,18 +72,24 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):  # noqa: 
         print(f"❌ CONNECTION FAILURE: {e}")
         sys.exit(1)
 
-    try:
-        # Define Contract: Micro E-mini S&P 500 (Continuous or specific front)
-        # Note: continuous futures 'CONTFUT' are often best for historical pulls
-        contract = ContFuture('MES', 'CME', currency='USD')
+        # Define Contract: Micro E-mini S&P 500 (Continuous or Specific) or Stock/ETF
+        if symbol == "MES":
+            if contract_month:
+                contract = Future('MES', exchange, lastTradeDateOrContractMonth=contract_month, currency='USD')
+                print(f"🎯 Explicit Contract Requested: {contract_month}")
+            else:
+                contract = ContFuture('MES', 'CME', currency='USD')
+                print("🔗 Using Continuous Future (Auto-Roll)")
+        else:
+            contract = Stock(symbol, exchange, currency='USD')
         
         # Qualify contract (Resolves ambiguous fields)
         cd = ib.qualifyContracts(contract)
         if not cd:
-            print("❌ CONTRACT RESOLUTION FAILED: Could not find MES on CME.")
+            print(f"❌ CONTRACT RESOLUTION FAILED: Could not find {symbol} on {exchange}.")
             sys.exit(1)
         contract = cd[0]
-        print(f"📦 Contract Bound: {contract.localSymbol} ({contract.lastTradeDateOrContractMonth})")
+        print(f"📦 Contract Bound: {contract.localSymbol} ({getattr(contract, 'lastTradeDateOrContractMonth', 'N/A')})")
 
         print(f"📥 Pulling {duration} of TRADES at 5 min intervals (useRTH=True)...")
         # reqHistoricalData handles pagination automatically in ib_insync if needed
@@ -127,8 +134,13 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):  # noqa: 
         # --- PERSISTENCE ---
         out_dir = Path("data/ibkr")
         out_dir.mkdir(parents=True, exist_ok=True)
-        csv_path = out_dir / "mes_5m_ibkr_rth_tape.csv"
-        meta_path = out_dir / "mes_5m_ibkr_rth_tape.meta.json"
+        
+        # MISSION v4.5.424: Strict Contract Month Encoding in Filename
+        timestamp_slug = dt_date.today().strftime("%Y%m%d")
+        contract_slug = contract_month if contract_month else "cont"
+        
+        csv_path = out_dir / f"{symbol.lower()}_5m_ibkr_{contract_slug}_{timestamp_slug}.csv"
+        meta_path = out_dir / f"{symbol.lower()}_5m_ibkr_{contract_slug}_{timestamp_slug}.meta.json"
 
         # Write CSV
         print(f"💾 Saving to {csv_path}...")
@@ -178,11 +190,22 @@ def ingest(host="127.0.0.1", port=4002, client_id=1, duration="30 D"):  # noqa: 
         ib.disconnect()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Institutional IBKR MES Ingest")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=4002, help="Paper: 4002, Live: 7496")
-    parser.add_argument("--client-id", type=int, default=1)
+    parser = argparse.ArgumentParser(description="TRADER_OPS IBKR Ingest")
+    parser.add_argument("--symbol", default="MES", help="Symbol to ingest (e.g. MES, SPY, AAPL)")
+    parser.add_argument("--exchange", default="", help="Exchange (e.g. CME, ARCA, NASDAQ). Auto-selected if empty for MES.")
     parser.add_argument("--duration", default="30 D", help="Duration string (e.g., '60 D', '1 Y')")
+    parser.add_argument("--contract", default="", help="Specific contract month (e.g. 202603, MESH6)")
+    parser.add_argument("--host", default="127.0.0.1", help="IBKR TWS/Gateway Host")
+    parser.add_argument("--port", type=int, default=4002, help="IBKR TWS/Gateway Port")
+    parser.add_argument("--client_id", type=int, default=1, help="IBKR Client ID")
     args = parser.parse_args()
     
-    ingest(args.host, args.port, args.client_id, args.duration)
+    # MISSION v4.5.423: Adapting for SPY/ETF
+    symbol = args.symbol.upper()
+    exchange = args.exchange.upper()
+    contract_month = args.contract if args.contract else None
+
+    if not exchange:
+        exchange = "CME" if symbol == "MES" else "ARCA"
+    
+    ingest(args.host, args.port, args.client_id, args.duration, symbol, exchange, contract_month)
