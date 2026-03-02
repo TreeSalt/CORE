@@ -117,26 +117,35 @@ class TestPhase10Trust(unittest.TestCase):
 
     def test_trace_generation(self):
         """Task 5: Verify router_trace.csv and RUN_METADATA.json generation."""
-        # 1. Empty Log (Warmup only)
-        portfolio_regime_report.generate_regime_report([], pd.DataFrame(), self.out_dir, periods_per_year=365)
-
-        trace_path = self.out_dir / "router_trace.csv"
-        meta_path = self.out_dir / "RUN_METADATA.json"
-
-        self.assertTrue(trace_path.exists())
-        self.assertTrue(meta_path.exists())
-
-        # Check Headers
-        df = pd.read_csv(trace_path)
-        self.assertIn("regime", df.columns)
-        self.assertIn("final_weights_hash", df.columns)
-
-        # Check Metadata
-        with open(meta_path) as f:
-            meta = json.load(f)
-        from antigravity_harness.utils import get_version_str
-
-        self.assertEqual(meta["trader_ops_version"], get_version_str())
+        import os
+        old_val = os.environ.get("METADATA_RELEASE_MODE")
+        os.environ["METADATA_RELEASE_MODE"] = "0"
+        try:
+            # 1. Empty Log (Warmup only)
+            portfolio_regime_report.generate_regime_report([], pd.DataFrame(), self.out_dir, periods_per_year=365)
+    
+            trace_path = self.out_dir / "router_trace.csv"
+            meta_path = self.out_dir / "RUN_METADATA.json"
+    
+            self.assertTrue(trace_path.exists())
+            self.assertTrue(meta_path.exists())
+    
+            # Check Headers
+            df = pd.read_csv(trace_path)
+            self.assertIn("regime", df.columns)
+            self.assertIn("final_weights_hash", df.columns)
+    
+            # Check Metadata
+            with open(meta_path) as f:
+                meta = json.load(f)
+            from antigravity_harness.utils import get_version_str
+    
+            self.assertEqual(meta["trader_ops_version"], get_version_str())
+        finally:
+            if old_val is None:
+                os.environ.pop("METADATA_RELEASE_MODE", None)
+            else:
+                os.environ["METADATA_RELEASE_MODE"] = old_val
 
     def test_deterministic_packaging(self):
         """Task 6: Verify consistent zip hashing."""

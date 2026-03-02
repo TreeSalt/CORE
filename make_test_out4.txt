@@ -1,0 +1,76 @@
+.venv/bin/python3 -m pytest
+============================= test session starts ==============================
+platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0
+rootdir: /home/asanchez/TRADER_OPS/v9e_stage
+plugins: anyio-4.12.1
+collected 215 items
+
+antigravity_harness/tests/test_alpha_decay.py ...                        [  1%]
+antigravity_harness/tests/test_cli_alias.py ..                           [  2%]
+antigravity_harness/tests/test_config_validation.py ......               [  5%]
+antigravity_harness/tests/test_correlation.py ...                        [  6%]
+antigravity_harness/tests/test_dark_pool.py ...                          [  7%]
+antigravity_harness/tests/test_distributed.py .                          [  8%]
+antigravity_harness/tests/test_engine.py ..                              [  9%]
+antigravity_harness/tests/test_fiduciary.py ..                           [ 10%]
+antigravity_harness/tests/test_fix.py ...                                [ 11%]
+antigravity_harness/tests/test_friction.py ....                          [ 13%]
+antigravity_harness/tests/test_golden_cert.py ...                        [ 14%]
+antigravity_harness/tests/test_kelly_sizing.py ..                        [ 15%]
+antigravity_harness/tests/test_latency.py ...                            [ 17%]
+antigravity_harness/tests/test_ml_regimes.py .                           [ 17%]
+antigravity_harness/tests/test_monte_carlo.py ...                        [ 19%]
+antigravity_harness/tests/test_ofi.py .                                  [ 19%]
+antigravity_harness/tests/test_optimization.py ...                       [ 20%]
+antigravity_harness/tests/test_phase10_2_iron_gate.py ....               [ 22%]
+antigravity_harness/tests/test_phase10_compliance.py ...                 [ 24%]
+antigravity_harness/tests/test_portfolio.py ...                          [ 25%]
+antigravity_harness/tests/test_portfolio_engine.py ..                    [ 26%]
+antigravity_harness/tests/test_reality_gap.py ..                         [ 27%]
+antigravity_harness/tests/test_regime_stop.py .                          [ 27%]
+antigravity_harness/tests/test_resilience.py ..............              [ 34%]
+antigravity_harness/tests/test_safety_breakers.py ...                    [ 35%]
+antigravity_harness/tests/test_sentiment_alpha.py ..                     [ 36%]
+antigravity_harness/tests/test_sizing.py ....                            [ 38%]
+antigravity_harness/tests/test_strategy_contract.py .                    [ 39%]
+antigravity_harness/tests/test_suite.py ...........                      [ 44%]
+antigravity_harness/tests/test_v080_dynamic.py ..                        [ 45%]
+antigravity_harness/tests/test_v31.py .....                              [ 47%]
+antigravity_harness/tests/test_v5_security.py ....                       [ 49%]
+antigravity_harness/tests/test_var_governor.py ..                        [ 50%]
+antigravity_harness/tests/test_warnings.py .                             [ 50%]
+antigravity_harness/tests/test_websocket_feed.py ...                     [ 52%]
+antigravity_harness/tests/test_x_exchange.py ..                          [ 53%]
+scripts/test_orthogonal_wiring.py .                                      [ 53%]
+test_min.py .                                                            [ 53%]
+tests/test_basket_scale_invariant.py ...                                 [ 55%]
+tests/test_engine_wal.py ...                                             [ 56%]
+tests/test_execution_safety.py ......................................    [ 74%]
+tests/test_falling_knife.py ..                                           [ 75%]
+tests/test_import_smoke.py .                                             [ 75%]
+tests/test_phase10_trust.py ......                                       [ 78%]
+tests/test_phase_9e_hardening.py ...                                     [ 80%]
+tests/test_physics_engine.py ...                                         [ 81%]
+tests/test_portfolio_router.py ............                              [ 86%]
+tests/test_portfolio_safety.py ...........                               [ 92%]
+tests/test_regime_persistence.py ..                                      [ 93%]
+tests/test_regime_spec.py ....                                           [ 94%]
+tests/test_safety_integration.py .                                       [ 95%]
+tests/test_vanguard_effective.py .........                               [ 99%]
+tests/test_volume_leak.py .                                              [100%]
+
+=============================== warnings summary ===============================
+antigravity_harness/tests/test_websocket_feed.py:5
+  /home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/tests/test_websocket_feed.py:5: DeprecationWarning: websockets.server.serve is deprecated
+    from websockets.server import serve
+
+.venv/lib64/python3.14/site-packages/websockets/legacy/__init__.py:6
+  /home/asanchez/TRADER_OPS/v9e_stage/.venv/lib64/python3.14/site-packages/websockets/legacy/__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+    warnings.warn(  # deprecated in 14.0 - 2024-11-09
+
+tests/test_import_smoke.py::TestImportSmoke::test_all_modules_importable
+  /home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/legacy/__init__.py:9: DeprecationWarning: v050_trend_momentum uses the legacy StrategyBase contract. Migrate to IntentStrategy (v050_base_intent.py) for new work.
+    from .v050_trend_momentum import V050TrendMomentum
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 215 passed, 3 warnings in 11.92s =======================

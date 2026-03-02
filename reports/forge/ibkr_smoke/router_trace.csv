@@ -1,0 +1,8 @@
+timestamp,regime,trend_dir,vol_scalar,safety_rate,final_leverage,top_weights,final_weights_hash,avg_corr,corr_dropped_count,safety_state
+2021-01-02,UNKNOWN,0.0,1.0,1.0,0.0,"{""MES"":0.0}",b595933b7925,0.0,0,NORMAL
+2021-02-01,UNKNOWN,-1.0,1.0,1.0,0.0,"{""MES"":0.0}",b595933b7925,0.0,0,NORMAL
+2021-03-01,UNKNOWN,-1.0,1.0,1.0,0.0,"{""MES"":0.0}",b595933b7925,0.0,0,NORMAL
+2021-04-01,TREND_LOW_VOL,1.0,1.0,1.0,0.0,"{""MES"":0.5}",6b87cfca755e,0.0,0,NORMAL
+2021-05-01,TREND_LOW_VOL,1.0,1.0,1.0,0.0,"{""MES"":0.5}",6b87cfca755e,0.0,0,NORMAL
+2021-06-01,TREND_LOW_VOL,-1.0,1.0,1.0,0.20944046491456192,"{""MES"":0.0}",b595933b7925,0.0,0,NORMAL
+2021-07-01,TREND_LOW_VOL,1.0,1.0,1.0,0.0,"{""MES"":0.5}",6b87cfca755e,0.0,0,NORMAL

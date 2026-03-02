@@ -91,7 +91,7 @@ def main():
     total_issues = 0
     
     # Exclude directories
-    exclude = {".git", ".gemini", "reports", "dist", "node_modules", "05_DATA_CACHE"}
+    exclude = {".git", ".gemini", "reports", "dist", "node_modules", "05_DATA_CACHE", ".venv"}
     
     for root, dirs, files in os.walk(REPO_ROOT):
         dirs[:] = [d for d in dirs if d not in exclude]

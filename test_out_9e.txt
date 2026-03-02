@@ -1,0 +1,9 @@
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK
+Entering test_falling_knife_guard
+Entering test_persistence_delay
+🔧 PortfolioRouter: Physics verified. periods_per_year=365 (matches 1d)
+Entering test_schmitt_trigger_behavior

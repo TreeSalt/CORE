@@ -25,7 +25,7 @@ def test_sentiment_wiring():
     print(f"Loaded sentiment feed with provenance: {feed.provenance_hash[:12]}")
 
     # 3. Align Sentiment (simulating harness logic)
-    intelligence = {"sentiment": feed.as_dict()}
+    intelligence = feed.as_dict(df_price.index)
     
     # 4. Prepare Strategy
     strat = EQSentimentV1()
@@ -49,11 +49,18 @@ def test_sentiment_wiring():
     print(f"\nValue at 08:35:00-06:00: \n{val_0835[['sentiment_score', 'entry_signal']]}")
     
     assert val_0835['sentiment_score'] == 0.6
-    assert val_0835['entry_signal'] is True
+    assert val_0835['entry_signal']
     print("\n✅ Verification SUCCESS: Lag rule and signal logic confirmed.")
 
     # 6. Verify Destination Tagging in Router
     router = PortfolioRouter() # loads snapshot from default path
+    router.capability_snapshot = {
+        "primary_broker": "robinhood",
+        "brokers": {
+            "ibkr": {"supports": {"futures": True}},
+            "robinhood": {"supports": {"crypto": True, "equities": True}}
+        }
+    }
     
     # Create fake weights to test routing
     fake_weights = {"MES": 1.0, "AAPL": 0.5, "BTC-USD": 0.2}

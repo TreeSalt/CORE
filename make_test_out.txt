@@ -1,0 +1,72 @@
+Collecting yfinance
+  Downloading yfinance-1.2.0-py2.py3-none-any.whl.metadata (6.1 kB)
+Requirement already satisfied: pandas>=1.3.0 in ./.venv/lib64/python3.14/site-packages (from yfinance) (3.0.1)
+Requirement already satisfied: numpy>=1.16.5 in ./.venv/lib64/python3.14/site-packages (from yfinance) (2.4.2)
+Collecting requests>=2.31 (from yfinance)
+  Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+Collecting multitasking>=0.0.7 (from yfinance)
+  Downloading multitasking-0.0.12.tar.gz (19 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting platformdirs>=2.0.0 (from yfinance)
+  Downloading platformdirs-4.9.2-py3-none-any.whl.metadata (4.7 kB)
+Collecting pytz>=2022.5 (from yfinance)
+  Downloading pytz-2025.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting frozendict>=2.3.4 (from yfinance)
+  Downloading frozendict-2.4.7-py3-none-any.whl.metadata (23 kB)
+Collecting peewee>=3.16.2 (from yfinance)
+  Downloading peewee-4.0.1-py3-none-any.whl.metadata (8.5 kB)
+Collecting beautifulsoup4>=4.11.1 (from yfinance)
+  Downloading beautifulsoup4-4.14.3-py3-none-any.whl.metadata (3.8 kB)
+Collecting curl_cffi<0.14,>=0.7 (from yfinance)
+  Downloading curl_cffi-0.13.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (13 kB)
+Collecting protobuf>=3.19.0 (from yfinance)
+  Downloading protobuf-7.34.0-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+Requirement already satisfied: websockets>=13.0 in ./.venv/lib64/python3.14/site-packages (from yfinance) (16.0)
+Collecting cffi>=1.12.0 (from curl_cffi<0.14,>=0.7->yfinance)
+  Downloading cffi-2.0.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+Requirement already satisfied: certifi>=2024.2.2 in ./.venv/lib64/python3.14/site-packages (from curl_cffi<0.14,>=0.7->yfinance) (2026.2.25)
+Collecting soupsieve>=1.6.1 (from beautifulsoup4>=4.11.1->yfinance)
+  Downloading soupsieve-2.8.3-py3-none-any.whl.metadata (4.6 kB)
+Requirement already satisfied: typing-extensions>=4.0.0 in ./.venv/lib64/python3.14/site-packages (from beautifulsoup4>=4.11.1->yfinance) (4.15.0)
+Collecting pycparser (from cffi>=1.12.0->curl_cffi<0.14,>=0.7->yfinance)
+  Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Requirement already satisfied: python-dateutil>=2.8.2 in ./.venv/lib64/python3.14/site-packages (from pandas>=1.3.0->yfinance) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in ./.venv/lib64/python3.14/site-packages (from python-dateutil>=2.8.2->pandas>=1.3.0->yfinance) (1.17.0)
+Collecting charset_normalizer<4,>=2 (from requests>=2.31->yfinance)
+  Downloading charset_normalizer-3.4.4-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (37 kB)
+Requirement already satisfied: idna<4,>=2.5 in ./.venv/lib64/python3.14/site-packages (from requests>=2.31->yfinance) (3.11)
+Collecting urllib3<3,>=1.21.1 (from requests>=2.31->yfinance)
+  Downloading urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+Downloading yfinance-1.2.0-py2.py3-none-any.whl (130 kB)
+Downloading curl_cffi-0.13.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (8.3 MB)
+   ━━━ 8.… 4… eta 0:0…
+       MB  M…         
+Downloading beautifulsoup4-4.14.3-py3-none-any.whl (107 kB)
+Downloading cffi-2.0.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (219 kB)
+Downloading frozendict-2.4.7-py3-none-any.whl (16 kB)
+Downloading peewee-4.0.1-py3-none-any.whl (139 kB)
+Downloading platformdirs-4.9.2-py3-none-any.whl (21 kB)
+Downloading protobuf-7.34.0-cp310-abi3-manylinux2014_x86_64.whl (324 kB)
+Downloading pytz-2025.2-py2.py3-none-any.whl (509 kB)
+Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+Downloading charset_normalizer-3.4.4-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (152 kB)
+Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
+Downloading soupsieve-2.8.3-py3-none-any.whl (37 kB)
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+Building wheels for collected packages: multitasking
+  Building wheel for multitasking (pyproject.toml): started
+  Building wheel for multitasking (pyproject.toml): finished with status 'done'
+  Created wheel for multitasking: filename=multitasking-0.0.12-py3-none-any.whl size=15540 sha256=65ddd746a615acfcc4ef283a9511f0916ffb0dcf2a30044e65d14e1a0a1f8e02
+  Stored in directory: /home/asanchez/.cache/pip/wheels/7e/62/f9/20d7dbb144b6f563edab8e3a7fda71d976870cd41972035cdd
+Successfully built multitasking
+Installing collected packages: pytz, peewee, multitasking, urllib3, soupsieve, pycparser, protobuf, platformdirs, frozendict, charset_normalizer, requests, cffi, beautifulsoup4, curl_cffi, yfinance
+
+Successfully installed beautifulsoup4-4.14.3 cffi-2.0.0 charset_normalizer-3.4.4 curl_cffi-0.13.0 frozendict-2.4.7 multitasking-0.0.12 peewee-4.0.1 platformdirs-4.9.2 protobuf-7.34.0 pycparser-3.0 pytz-2025.2 requests-2.32.5 soupsieve-2.8.3 urllib3-2.6.3 yfinance-1.2.0
+
+[notice] A new release of pip is available: 25.1.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
