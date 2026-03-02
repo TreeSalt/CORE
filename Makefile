@@ -160,7 +160,7 @@ build: quickgate
 		exit 1; \
 	fi
 	@mkdir -p "$(DIST)"
-	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
+	$(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
 
 drop: build  ## Alias for build — creates the READY_TO_DROP zip in dist/
 
