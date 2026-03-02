@@ -19,7 +19,7 @@ python3 scripts/preflight.py --auto-clean --qa
 
 ---
 
-## 2. Navigating the Graduation (v4.7.20)
+## 2. Navigating the Graduation (v4.7.25)
 
 The project has recently undergone an "Institutional Gold" graduation. Key transitions:
 
@@ -71,14 +71,14 @@ When modifying the codebase:
 
 ---
 
-## 6. Agent Constitution (`.agent/` — READ BEFORE WRITING CODE)
+## 6. Agent Constitution (`docs/constitution/` — READ BEFORE WRITING CODE)
 
-> **⚠️ MANDATORY**: Before writing any code, you MUST read the governance files in `.agent/`.
+> **⚠️ MANDATORY**: Before writing any code, you MUST read the governance files in `docs/constitution/`.
 
 | Document | Purpose |
 | :--- | :--- |
-| [`.agent/LAWS.md`](../.agent/LAWS.md) | Agent governance laws, failure mode catalog (Frankenstein reports), status codes, artifact checklist, and process rules. |
-| [`.agent/PHYSICS.md`](../.agent/PHYSICS.md) | Instrument specifications, trading constants, tick grids, and commission models. |
+| [`docs/constitution/LAWS.md`](./constitution/LAWS.md) | Agent governance laws, failure mode catalog (Frankenstein reports), status codes, artifact checklist, and process rules. |
+| [`docs/constitution/PHYSICS.md`](./constitution/PHYSICS.md) | Instrument specifications, trading constants, tick grids, and commission models. |
 
 These files are **SHA-bound** in the sovereign drop hash. An agent that reads them before writing code cannot hallucinate.
 

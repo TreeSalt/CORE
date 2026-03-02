@@ -1,6 +1,6 @@
 # Sovereign Build Protocol: The 12 Institutional Gates
 
-This document codifies the "Dragonproof" security standard for TRADER_OPS v4.3.4 (OMEGA). 
+This document codifies the "Dragonproof" security standard for TRADER_OPS.
 Every artifact must pass these 12 gates before being granted Sovereign Status.
 
 ## Gate 1: Ledger Presence
@@ -31,7 +31,7 @@ The file set in the Code Zip must match the Manifest's file list exactly. No "st
 The Zip Central Directory is audited for duplicate filenames. This prevents "shadowing" attacks where a valid file hides a sabotaged one.
 
 ## Gate 10: Verifier's Vow (Filter Self-Verification)
-`great_filter.py` is part of the manifest. Before checking the code, it recalculates its own on-disk hash to detect "Medusa-style" verifier hijacking.
+`zip_verifier.py` is part of the manifest. Before checking the code, it recalculates its own on-disk hash to detect "Medusa-style" verifier hijacking.
 
 ## Gate 11: Absolute Exhaustive Audit
 Every single file in the artifact is audited bit-by-bit against its Manifest hash. No statistical sampling. Total verification.
