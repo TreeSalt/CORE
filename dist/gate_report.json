@@ -1,0 +1,11 @@
+{
+  "version": "4.7.25",
+  "timestamp_utc": "2026-03-02T03:35:55Z",
+  "gates": {
+    "pubkey_pin_verification": "PASS",
+    "certificate_signature": "PASS",
+    "run_ledger_signature": "PASS",
+    "manifest_integrity": "PASS",
+    "timeline_sovereignty": "PASS"
+  }
+}
