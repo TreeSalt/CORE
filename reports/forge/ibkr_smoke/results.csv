@@ -1,2 +1,0 @@
-status,metrics_valid,fail_gate,fail_reason,profit_factor,rebalance_events,fills_count,sharpe_ratio,max_dd_pct,total_return_pct
-SMOKE_OK,true,,,0.28,7,5,-9.34,-3.7,-2.66
