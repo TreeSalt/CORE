@@ -1,0 +1,17 @@
+{
+  "TRADER_OPS_PROMPT_ID": "COUNCIL_DROP",
+  "authorized": false,
+  "broker": "ibkr",
+  "capital_usd": 1981.6000000000004,
+  "desired_weights": {
+    "MES": 0.5
+  },
+  "intended_exposure_pct": 50.0,
+  "mode": "assisted",
+  "strategy": "VanguardEffective",
+  "symbols": [
+    "MES"
+  ],
+  "timestamp_utc": "2026-03-02T02:46:44.613254+00:00",
+  "trader_ops_version": "4.7.18+g524a236"
+}

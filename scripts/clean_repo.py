@@ -34,13 +34,16 @@ def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict
         "MANIFEST.json",
     ]
 
+    venv_root = root / ".venv"
     for pat in strict_patterns:
         if "*" in pat:
             for path in root.rglob(pat):
-                forbidden_artifacts.append(path)
+                if not path.is_relative_to(venv_root):
+                    forbidden_artifacts.append(path)
         else:
             for path in root.rglob(pat):
-                forbidden_artifacts.append(path)
+                if not path.is_relative_to(venv_root):
+                    forbidden_artifacts.append(path)
 
     # 2. Generated Outputs
     output_patterns = ["reports", "reports_old", "reports_production", "dist"]

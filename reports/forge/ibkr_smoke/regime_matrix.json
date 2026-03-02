@@ -1,0 +1,9 @@
+{
+  "TREND_LOW_VOL": {
+    "bars_in_regime": 110,
+    "max_drawdown_pct_global": -3.7,
+    "sharpe_ratio": -12.59,
+    "total_return_pct": -2.66,
+    "within_segment_max_drawdown_pct": -3.7
+  }
+}

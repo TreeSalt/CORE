@@ -1,0 +1,13 @@
+{
+    "TEST_1d": {
+        "anchor_metrics": {
+            "profit_factor": 2.0
+        },
+        "deployment_state": "STAGING",
+        "metrics": {
+            "profit_factor": 2.0
+        },
+        "status": "PASS",
+        "updated_at": "2026-03-01 21:46:06.667482"
+    }
+}

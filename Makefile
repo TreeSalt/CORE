@@ -1,6 +1,6 @@
 SHELL := /bin/bash
-PYTHON := python3
-PIP := pip3
+PYTHON := .venv/bin/python3
+PIP := .venv/bin/pip
 
 DIST ?= dist
 VERSION ?= $(shell $(PYTHON) -c "import pathlib,re; p=pathlib.Path('antigravity_harness/__init__.py'); txt=p.read_text(encoding='utf-8') if p.exists() else ''; m=re.search(r'__version__\s*=\s*\"(\d+\.\d+\.\d+)\"', txt); print(m.group(1) if m else '0.0.0')" )
@@ -18,7 +18,7 @@ export TRADER_OPS_PROMPT_ID
 TRADER_OPS_DATASET ?= ibkr
 export TRADER_OPS_DATASET
 
-.PHONY: help install lint format type-check test test-hardening preflight clean forge build all heal commands
+.PHONY: help install lint format type-check test test-hardening preflight clean forge build drop all heal commands
 help:
 	@echo ""
 	@echo "🐉 TRADER_OPS — Antigravity Harness (v$(VERSION))"
@@ -153,10 +153,6 @@ clean:
 forge:
 	$(PYTHON) -B scripts/forge_evidence.py
 
-quickgate: forge
-	@echo "🛡️  Running Quickgate sanity checks..."
-	$(PYTHON) -B scripts/quickgate.py --run-dir reports/forge --strict
-
 build: quickgate
 	@if [ -z "$(TRADER_OPS_PROMPT_ID)" ]; then \
 		echo "❌ ERR: TRADER_OPS_PROMPT_ID is required for certified builds."; \
@@ -165,6 +161,8 @@ build: quickgate
 	fi
 	@mkdir -p "$(DIST)"
 	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
+
+drop: build  ## Alias for build — creates the READY_TO_DROP zip in dist/
 
 # Council-Grade Verification Targets
 DIST ?= dist
@@ -254,7 +252,7 @@ release: clean build verify
 all: preflight
 	$(MAKE) release SKIP_VERSION_BUMP=1
 
-quickgate:
+quickgate: forge
 ifdef SKIP_QUICKGATE
 ifndef REASON
 	$(error SKIP_QUICKGATE requires REASON="..." to be non-empty)

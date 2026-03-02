@@ -1,0 +1,93 @@
+[
+  {
+    "timestamp": "2021-01-02 00:00:00",
+    "regime": "UNKNOWN",
+    "trend_dir": 0.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.0,
+    "top_weights": "{\"MES\":0.0}",
+    "final_weights_hash": "b595933b7925",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  },
+  {
+    "timestamp": "2021-02-01 00:00:00",
+    "regime": "UNKNOWN",
+    "trend_dir": -1.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.0,
+    "top_weights": "{\"MES\":0.0}",
+    "final_weights_hash": "b595933b7925",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  },
+  {
+    "timestamp": "2021-03-01 00:00:00",
+    "regime": "UNKNOWN",
+    "trend_dir": -1.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.0,
+    "top_weights": "{\"MES\":0.0}",
+    "final_weights_hash": "b595933b7925",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  },
+  {
+    "timestamp": "2021-04-01 00:00:00",
+    "regime": "TREND_LOW_VOL",
+    "trend_dir": 1.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.0,
+    "top_weights": "{\"MES\":0.5}",
+    "final_weights_hash": "6b87cfca755e",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  },
+  {
+    "timestamp": "2021-05-01 00:00:00",
+    "regime": "TREND_LOW_VOL",
+    "trend_dir": 1.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.0,
+    "top_weights": "{\"MES\":0.5}",
+    "final_weights_hash": "6b87cfca755e",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  },
+  {
+    "timestamp": "2021-06-01 00:00:00",
+    "regime": "TREND_LOW_VOL",
+    "trend_dir": -1.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.20944046491456192,
+    "top_weights": "{\"MES\":0.0}",
+    "final_weights_hash": "b595933b7925",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  },
+  {
+    "timestamp": "2021-07-01 00:00:00",
+    "regime": "TREND_LOW_VOL",
+    "trend_dir": 1.0,
+    "vol_scalar": 1.0,
+    "safety_rate": 1.0,
+    "final_leverage": 0.0,
+    "top_weights": "{\"MES\":0.5}",
+    "final_weights_hash": "6b87cfca755e",
+    "avg_corr": 0.0,
+    "corr_dropped_count": 0,
+    "safety_state": "NORMAL"
+  }
+]

@@ -189,8 +189,9 @@ AUTHORIZED_MUTATIONS = [
     "profiles/users/alec/EFFECTIVE_POLICY.json",
     "state/INFERRED_UNIVERSE.json",
     "prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.6.5.txt",
+    ".gitignore",
 ]
-AUTHORIZED_MUTATIONS_HASH = "66bad5a7d230cff7c009ac8ad27858900bd738ed6ba522ff0af56f4038b5a49e"
+AUTHORIZED_MUTATIONS_HASH = "08c02f2ad48e2bb48c7cc1c204bc5075676ff0c3a4c47b1891649cfebead864d"
 
 
 def print_status(msg, status="INFO"):
@@ -270,7 +271,7 @@ def check_hygiene(fix=False):
         if (REPO_ROOT / ".git").exists():
             print_status("Purging untracked and ignored artifacts (protecting identity and ledger)...")
             # Build exclusions from AUTHORIZED_MUTATIONS
-            clean_cmd = ["git", "clean", "-fdx", "-e", "sovereign.key", "-e", "sovereign.pub"]
+            clean_cmd = ["git", "clean", "-fdx", "-e", "sovereign.key", "-e", "sovereign.pub", "-e", ".venv"]
             for a in AUTHORIZED_MUTATIONS:
                 clean_cmd.extend(["-e", a])
             

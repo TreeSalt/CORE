@@ -1,5 +1,4 @@
 import unittest
-
 import pandas as pd
 
 from antigravity_harness.portfolio_policies import CrossSectionMeanReversionPolicy, PolicyConfig
@@ -13,30 +12,31 @@ class TestPhase9EHardening(unittest.TestCase):
         self.cfg = RegimeConfig(trend_th_entry=0.6, trend_th_exit=0.3)
 
     def test_schmitt_trigger_behavior(self):
+        print("Entering test_schmitt_trigger_behavior")
         """
         Verify Schmitt Trigger uses different thresholds based on state.
+        Entry requires 0.6, Exit requires 0.3.
         """
-        # Create data that is "moderately" trending (z=0.45)
-        # Entry requires 0.6, Exit requires 0.3
-        # So if we were NOT trending, we stay NOT trending (0.45 < 0.6)
-        # If we WERE trending, we stay trending (0.45 > 0.3)
+        from antigravity_harness.regimes import _infer_single_regime
 
-        # 1. Start from Neutral -> Should be RANGE
-        # We'll mock the internal calc by creating standard prices,
-        # but let's test `detect_regime` logic directly by crafting exact return series?
-        # Hard to craft exact Z.
-        # Instead, trust the logic step:
-        # We'll use a mock object or modify the function?
-        # No, integration test.
-        # We can construct a DataFrame where Z-score is approx 0.45.
+        # Case 1: Was not trending. Z=0.45 (< 0.6). Should stay in RANGE.
+        label, _, _, is_trending, _ = _infer_single_regime(
+            dz=0.45, vr=1.0, dd=0.0, disp=1.0, td=1.0, rv=0.15,
+            avg_corr=0.0, corr_z=0.0, was_trending=False, was_high_vol=False, cfg=self.cfg
+        )
+        self.assertIn("RANGE", label)
+        self.assertFalse(is_trending)
 
-        # Instead of fighting math, let's verify the logic in `regimes.py` by
-        # creating a condition where Z is between entry and exit.
-
-        pass  # Difficult to mathematically force Z=0.45 precisely without trial/error.
-        # Rely on unit inspection or simple logic test.
+        # Case 2: Was trending. Z=0.45 (> 0.3). Should stay in TREND.
+        label, _, _, is_trending, _ = _infer_single_regime(
+            dz=0.45, vr=1.0, dd=0.0, disp=1.0, td=1.0, rv=0.15,
+            avg_corr=0.0, corr_z=0.0, was_trending=True, was_high_vol=False, cfg=self.cfg
+        )
+        self.assertIn("TREND", label)
+        self.assertTrue(is_trending)
 
     def test_persistence_delay(self):
+        print("Entering test_persistence_delay")
         """
         Router should not switch regime until N bars confirm it.
         """
@@ -65,6 +65,7 @@ class TestPhase9EHardening(unittest.TestCase):
         self.assertEqual(res.label, RegimeLabel.PANIC)  # 3/3 -> Switch!
 
     def test_falling_knife_guard(self):
+        print("Entering test_falling_knife_guard")
         """
         MeanRev policy should return empty weights if returns < crash_floor.
         """

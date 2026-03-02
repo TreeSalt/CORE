@@ -1,0 +1,8 @@
+{
+  "selected_asset_class": "synthetic_smoke",
+  "selected_symbols": [
+    "MES"
+  ],
+  "reason": "Deterministic Synthetic Smoke Data Generation.",
+  "buying_power_usd": 2000.0
+}

@@ -835,3 +835,4 @@ setuptools==82.0.0 \
     # via
     #   -r requirements.in
     #   pip-tools
+yfinance
