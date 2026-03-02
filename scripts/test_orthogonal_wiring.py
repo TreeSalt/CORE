@@ -20,7 +20,7 @@ def test_sentiment_wiring():
     print(f"Loaded {len(df_price)} price bars.")
 
     # 2. Load Sentiment Data (Lagged)
-    sent_path = Path("data/sentiment_feed.csv")
+    sent_path = Path("tests/fixtures/synthetic/sentiment_feed.csv")
     feed = SentimentFeed.from_csv(sent_path, lag_seconds=300)
     print(f"Loaded sentiment feed with provenance: {feed.provenance_hash[:12]}")
 

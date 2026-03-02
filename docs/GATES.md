@@ -1,4 +1,4 @@
-# TRADER_OPS Gatebook (Frozen v4.5.29)
+# TRADER_OPS Gatebook
 
 Every gate defaults to **FAIL** until proven PASS. The drop auditor enforces all gates
 and emits `gate_report.json`. Non-zero exit on any FAIL.

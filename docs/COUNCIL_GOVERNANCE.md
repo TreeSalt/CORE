@@ -1,7 +1,7 @@
 # TRADER_OPS COUNCIL GOVERNANCE CHARTER
 # docs/COUNCIL_GOVERNANCE.md
 # Version: Living document — updated by council at each major release.
-# Binding: Referenced by .agent/LAWS.md. Not SHA-bound (living document).
+# Binding: Referenced by docs/constitution/LAWS.md. Not SHA-bound (living document).
 # Purpose: Defines the multi-agent council process, roles, cadence, and escalation rules.
 
 ---
@@ -16,7 +16,7 @@
 | **Architect** | Gemini | Roadmap design. Strategic sequencing. Synthesizes council inputs into master IDE prompts. Emergency brake authority. |
 | **Hostile Auditor** | Claude | Evidence-only forensics. Cryptographic verification. Physics validation. Never accepts prose — must be provable from artifacts. |
 | **Truth Engineers (×5)** | Solari (CGPT Hive) | Convert doctrine into un-gameable execution gates. Hash-addressing. Float-tolerance checks. Parser-safe tagging. |
-| **IDE Agent** | Antigravity | Code implementation. Subject to all laws in .agent/LAWS.md and .agent/PHYSICS.md. |
+| **IDE Agent** | Antigravity | Code implementation. Subject to all laws in docs/constitution/LAWS.md and docs/constitution/PHYSICS.md. |
 
 ### Cognitive Division of Labor
 
@@ -155,9 +155,9 @@ All → READY_TO_DROP.zip → SHA256 → sidecar .sha256 file
 
 This chain must be intact in every drop. The sovereign verifier checks it. Any break = invalid drop.
 
-### .agent/ Files in the Sovereign Binding
+### Constitution Files in the Sovereign Binding
 
-.agent/LAWS.md and .agent/PHYSICS.md must appear in MANIFEST.json.
+`docs/constitution/LAWS.md` and `docs/constitution/PHYSICS.md` must appear in MANIFEST.json.
 They must be SHA-bound in the sovereign drop hash.
 If their content changes without a version increment: invalid drop.
 These files are the AI agent's constitution. Their integrity is as important as the code.
@@ -190,17 +190,17 @@ P1 findings are tracked but do not trigger emergency brake.
 They must be resolved within 3 version increments.
 Unresolved P1s escalate to P0 after 3 increments.
 
-Current unresolved P1s (as of v4.5.381):
-- README version stale (showing v4.5.290)
+Current unresolved P1s (as of v4.7.25):
+- ~~README version stale~~ — **RESOLVED** (synced by forge at build time)
 - periods_per_year hardcoded (should be derived from tape)
 - Strategy certification governance (merkle change auto-demotion not implemented)
-- .agent/ content underspecified (taxonomy and status vocabulary not yet populated)
+- ~~.agent/ content underspecified~~ — **RESOLVED** (constitution moved to `docs/constitution/`)
 
 ---
 
 ## 7. OPENLAW / AUTONOMOUS AGENT POLICY
 
-### Current Policy (as of v4.5.382)
+### Current Policy (as of v4.7.25)
 
 OpenClaw and similar autonomous agent orchestration tools are:
 - **PROHIBITED** from touching the main TRADER_OPS repo until semantic truth is welded shut.

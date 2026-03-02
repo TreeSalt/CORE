@@ -61,4 +61,4 @@ If the repository feels "dirty" or files are missing:
 
 ---
 *Identity Warden: sovereign.pub found.*
-*Fiduciary State: Institutional Gold (v4.5.360).*
+*Fiduciary State: Institutional Gold (v4.7.25).*
