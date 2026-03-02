@@ -38,7 +38,7 @@ def main():
         print(f"✅ Received {len(df)} bars.")
         
         # Replace synthetic file with real data
-        target_path = REPO_ROOT / "data" / "mes_5m_synthetic.csv"
+        target_path = REPO_ROOT / "tests" / "fixtures" / "synthetic" / "mes_5m_synthetic.csv"
         print(f"💾 Overwriting {target_path.name} with REAL data...")
         
         # Ensure we keep index (timestamps)

@@ -81,11 +81,14 @@ def _sync_project_metadata(repo_root: Path, new_version: str) -> None:
     # 3. Sync Council Canon
     canon_path = repo_root / "docs/ready_to_drop/COUNCIL_CANON.yaml"
     if canon_path.exists():
+        from datetime import datetime, timezone  # noqa: PLC0415
         content = canon_path.read_text()
         new_content = re.sub(r'(version:\s*")\d+\.\d+\.\d+(")', f"\\g<1>{new_version}\\g<2>", content)
+        utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        new_content = re.sub(r'generated_at_utc:\s*"[^"]*"', f'generated_at_utc: "{utc_now}"', new_content)
         if new_content != content:
             canon_path.write_text(new_content)
-            print(f"⚖️  Synced Canon: {canon_path.name} -> v{new_version}")
+            print(f"⚖️  Synced Canon: {canon_path.name} -> v{new_version} @ {utc_now}")
 
 
 def bump_version(init_path: Path) -> str:
@@ -380,9 +383,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
              raise RuntimeError(f"CRITICAL FAILURE: IBKR mode selected but {csv_target} missing.")
         manifest_files = [csv_target, meta_target]
     else:
-        # Synthetic mode
-        csv_target = "mes_5m_synthetic.csv"
-        if not (data_root / csv_target).exists():
+        # Synthetic mode — data lives in tests/fixtures/synthetic/ (Law 2.7 quarantine)
+        csv_target = "tests/fixtures/synthetic/mes_5m_synthetic.csv"
+        if not (repo_root / csv_target).exists():
              raise RuntimeError(f"CRITICAL FAILURE: Synthetic mode selected but {csv_target} missing.")
         manifest_files = [csv_target]
 
