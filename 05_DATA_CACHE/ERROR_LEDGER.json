@@ -154,7 +154,26 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.7.52",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:45:01Z",
+            "category": "LOGIC",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.7.52.txt' missing in STRICT_MODE",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:46:40Z",
+            "category": "LOGIC",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Prompt missing in STRICT_MODE",
+            "resolution": null
         }
     ],
-    "vaccines": {}
+    "vaccines": {
+        "PROMPT_MISSING": {
+            "learned_at": "2026-03-04T23:46:45Z",
+            "resolution": "Create TRADER_OPS_MASTER_IDE_REQUEST file matching version"
+        }
+    }
 }
