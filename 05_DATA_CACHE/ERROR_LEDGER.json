@@ -91,6 +91,41 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 4.7.46",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:16:29Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: debug_test.py",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:16:29Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: run_manual.py",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:16:29Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: test_min.py",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:16:29Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.7.47",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-04T23:19:09Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.7.48",
+            "resolution": "Auto-Sync"
         }
     ],
     "vaccines": {}
