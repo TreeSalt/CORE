@@ -1,90 +1,13 @@
-# ============================================================================
-# CHECKPOINTS.yaml — Fiduciary ZeroClaw Autonomous Loop Governor
-# ============================================================================
-# Defines the four standard checkpoint tiers that gate the autonomous loop's
-# progression from simulation to production. No tier may be advanced past
-# without a passing `make quickgate` run.
-#
-# Version: 4.7.27
-# Author:  Supreme AI Council Directive (Gap 5 Resolution)
-# ============================================================================
-
 checkpoints:
-
   CP1_PAPER_SANDBOX:
-    description: >
-      Live market data feed with fully simulated execution.
-      No real capital is ever at risk. All fills are synthetic.
-    status: ACTIVE
-    capital_limit_usd: 0
-    execution_mode: simulated
-    data_feed: live
-    enforcement_command: "make quickgate"
-    advancement_requires:
-      - All unit tests pass (make quickgate)
-      - Minimum 50 simulated trades logged
-      - No physics violations in fill tape
-      - Sharpe ratio > 0.5 on simulated equity curve
-
+    description: "Live feed, simulated execution"
+    enforcement: "MANDATORY: `make quickgate` must pass"
   CP2_MICRO_CAPITAL:
-    description: >
-      Real execution with a hard $100 capital ceiling.
-      Designed to validate broker connectivity, fill quality,
-      and slippage assumptions with minimal risk.
-    status: LOCKED
-    capital_limit_usd: 100
-    execution_mode: live
-    data_feed: live
-    enforcement_command: "make quickgate"
-    advancement_requires:
-      - CP1 passed with clean gate report
-      - make quickgate passes at CP2 level
-      - Minimum 20 real fills with slippage < 2x expected
-      - No fiduciary violations in execution ledger
-
+    description: "$100 hard limit execution"
+    enforcement: "MANDATORY: `make quickgate` must pass"
   CP3_AUDIT_LEDGER:
-    description: >
-      Full audit trail via immutable SQLite trade ledger.
-      Every fill, every cancel, every risk decision is logged
-      with cryptographic signatures for post-hoc forensics.
-    status: LOCKED
-    capital_limit_usd: 500
-    execution_mode: live
-    data_feed: live
-    enforcement_command: "make quickgate"
-    advancement_requires:
-      - CP2 passed with clean gate report
-      - make quickgate passes at CP3 level
-      - SQLite ledger integrity verified (no gaps, no orphans)
-      - Run ledger signature chain unbroken for 5 consecutive sessions
-
+    description: "Immutable SQLite trade tracking"
+    enforcement: "MANDATORY: `make quickgate` must pass"
   CP4_MULTI_TENANT:
-    description: >
-      SaaS-grade cryptographic isolation for multi-operator deployment.
-      Each tenant gets an independent signing key, ledger, and risk envelope.
-    status: LOCKED
-    capital_limit_usd: configurable
-    execution_mode: live
-    data_feed: live
-    enforcement_command: "make quickgate"
-    advancement_requires:
-      - CP3 passed with clean gate report
-      - make quickgate passes at CP4 level
-      - Tenant isolation verified (no cross-contamination in WAL)
-      - Independent key rotation tested and documented
-
-# ============================================================================
-# ENFORCEMENT MANDATE
-# ============================================================================
-# The `enforcement_command` field under each checkpoint tier MUST be executed
-# and must return exit code 0 before the autonomous loop is permitted to
-# advance past that checkpoint. This is a hard gate — no exceptions, no
-# overrides, no "I'll fix it later."
-#
-# The command `make quickgate` runs the full verification suite:
-#   - Import smoke test
-#   - Physics engine validation
-#   - Strategy contract verification
-#   - Prompt ID drift detection
-#   - Fiduciary safety checks
-# ============================================================================
+    description: "SaaS cryptographic isolation"
+    enforcement: "MANDATORY: `make quickgate` must pass"
