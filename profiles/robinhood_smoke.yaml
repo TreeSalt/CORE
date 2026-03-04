@@ -1,0 +1,49 @@
+# ============================================================================
+# robinhood_smoke.yaml — Smoke Test Profile for Fractional SPY Execution
+# ============================================================================
+# This profile drives the SMOKE_OK certification test for fractional equity
+# trading via Robinhood (or any fractional-share broker adapter).
+#
+# Key constraints:
+#   - Cash limit: $2,000 (hard ceiling)
+#   - Instrument: SPY only
+#   - Execution: Simulated (paper mode)
+#   - Fills: 10 fractional SPY fills required for SMOKE_OK
+# ============================================================================
+
+profile:
+  name: robinhood_smoke
+  version: "4.7.27"
+  description: "Fractional SPY smoke test — validates physics engine with $2K cash limit"
+
+instrument:
+  symbol: SPY
+  asset_class: equity
+  tick_size: 0.01
+  multiplier: 1.0
+  lot_size: 0.001
+
+risk:
+  cash_limit_usd: 2000.00
+  max_position_usd: 2000.00
+  stop_percent: 0.5
+  daily_loss_cap_usd: 50.00
+  slippage_bps: 5
+
+execution:
+  mode: simulated
+  broker: robinhood
+  fractional: true
+  min_fill_qty: 0.001
+
+session:
+  open_et: "09:30"
+  close_et: "16:00"
+  no_new_after_et: "15:50"
+  flatten_by_et: "15:55"
+  overnight_hold: false
+
+certification:
+  required_fills: 10
+  max_physics_violations: 0
+  smoke_ok_gate: true

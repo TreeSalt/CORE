@@ -45,7 +45,7 @@ class FillRecord:
     client_order_id: str
     symbol: str
     side: str                           # "BUY" or "SELL"
-    filled_qty: int
+    filled_qty: float
     fill_price: float
     fill_time_utc: str                  # ISO format
     venue: str                          # Execution venue (e.g., DARK_POOL)

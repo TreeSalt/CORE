@@ -1280,15 +1280,18 @@ def cmd_list_strategies(args: argparse.Namespace) -> None:
 
 
 def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, PLR0915
+    print("DEBUG: Entered cmd_portfolio_backtest")
     print(f"PORTFOLIO BACKTEST: {args.symbols} (Router: {args.router})")
     out_dir = Path(args.outdir)
     out_dir.mkdir(parents=True, exist_ok=True)
     
     # MISSION v4.5.306: Map Seed Profile to Physics (Moved Up for v4.7.2 mandates)
     # MISSION v4.7.11: Support custom profile via CLI
-    seed_profile_path = args.profile if args.profile else REPO_ROOT / "profiles/seed_profile.yaml"
+    print("DEBUG: Loading seed profile")
+    seed_profile_path = args.profile if hasattr(args, 'profile') and args.profile else REPO_ROOT / "profiles/seed_profile.yaml"
     seed_cfg = load_yaml(seed_profile_path) if seed_profile_path.exists() else {}
     
+    print("DEBUG: Checking viability and decision paths")
     capital_cfg = seed_cfg.get("capital", {})
     initial_cash = float(capital_cfg.get("starting_usd", 100_000))
     
@@ -1297,15 +1300,18 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
     decision_path = out_dir / "DECISION_TRACE.json"
     
     if not viability_path.exists() or not decision_path.exists():
+        print("DEBUG: Generating capability snapshot")
         from antigravity_harness.capabilities import generate_capability_snapshot  # noqa: PLC0415
         from antigravity_harness.tradability import generate_viability_table  # noqa: PLC0415
         caps = generate_capability_snapshot(seed_profile_path, out_dir)
         
         if not viability_path.exists():
+            print("DEBUG: Generating viability table")
             generate_viability_table(caps, out_dir)
             print(f"🛡️  Artifact Secured: {viability_path.name} (Mandated)")
             
         if not decision_path.exists():
+            print("DEBUG: Checking decision path")
             # If we already have symbols, simulate selection
             if getattr(args, "symbols", "auto") != "auto":
                 selection = [s.strip() for s in args.symbols.split(",")]
@@ -1775,6 +1781,25 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
 
     if total_trades_count == 0 and has_desired_exposure:
         print("⚠️  NO-TRADE CONDITION DETECTED: Router desired exposure but 0 fills executed.")
+        # Grab first symbol for dynamic reporting
+        first_sym = list(router_desired_weights.keys())[0] if router_desired_weights else (list(data_map.keys())[0] if data_map else "UNKNOWN")
+        
+        # Look up spec corresponding to this symbol if possible, else generic
+        sym_mult = 1.0
+        min_unit_cost = "UNKNOWN"
+        try:
+            from antigravity_harness.instruments.mes import MES_SPEC
+            from antigravity_harness.instruments.spy import SPY_SPEC
+            from antigravity_harness.instruments.base import InstrumentSpec
+            spec = SPY_SPEC if "SPY" in first_sym else (MES_SPEC if "MES" in first_sym else InstrumentSpec("GENERIC", "equity", 0.01, 1.0, 1.0))
+            sym_mult = spec.multiplier
+            # Get last price
+            if data_map and first_sym in data_map and not data_map[first_sym].empty:
+                last_price = data_map[first_sym]["Close"].iloc[-1]
+                min_unit_cost = f"{first_sym} @ ~{last_price:.2f} \u00d7 ${sym_mult} = ~${last_price * sym_mult:.2f} per unit"
+        except Exception:
+            pass
+            
         generate_no_trade_report(
             output_dir=str(out_dir),
             router_desired_weights=router_desired_weights,
@@ -1782,11 +1807,11 @@ def cmd_portfolio_backtest(args: argparse.Namespace) -> None:  # noqa: PLR0912, 
             capital=initial_cash,
             reason="INSUFFICIENT_CAPITAL_MIN_UNIT",
             extra={
-                "asset": "MES",
-                "multiplier": 5.0,
-                "min_contract_cost_est": "MES @ ~5300 pts × $5 = ~$26,500 per contract",
+                "asset": first_sym,
+                "multiplier": sym_mult,
+                "min_contract_cost_est": min_unit_cost,
                 "available_capital": initial_cash,
-                "integer_lot_enforcement": True,
+                "integer_lot_enforcement": not eng_cfg.allow_fractional_shares,
             },
         )
 

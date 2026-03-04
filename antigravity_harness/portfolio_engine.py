@@ -12,6 +12,7 @@ from antigravity_harness.config import EngineConfig, StrategyParams
 from antigravity_harness.correlation import CorrelationGuard
 from antigravity_harness.execution.fill_tape import FillTape
 from antigravity_harness.instruments.mes import MES_SPEC
+from antigravity_harness.instruments.spy import SPY_SPEC
 from antigravity_harness.optimization import Optimizer
 from antigravity_harness.portfolio import PortfolioAccount
 from antigravity_harness.portfolio_policies import PolicyConfig, apply_concentration_caps
@@ -115,6 +116,8 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
         first_sym = list(data_map.keys())[0] if data_map else "GENERIC"
         if "MES" in first_sym:
             initial_spec = MES_SPEC
+        elif "SPY" in first_sym:
+            initial_spec = SPY_SPEC
         else:
             from antigravity_harness.instruments.base import InstrumentSpec  # noqa: PLC0415
             initial_spec = InstrumentSpec(
@@ -122,7 +125,7 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
                 asset_class="generic",
                 tick_size=0.01,
                 multiplier=1.0,
-                lot_size=1.0 if engine_config.allow_fractional_shares else 1.0
+                lot_size=0.001 if engine_config.allow_fractional_shares else 1.0
             )
 
         tape = FillTape(
@@ -146,6 +149,8 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
         # MISSION v4.5.382: Map spec by symbol. For non-MES, create a target spec for the symbol.
         if "MES" in sym:
             spec = MES_SPEC
+        elif "SPY" in sym:
+            spec = SPY_SPEC
         else:
             from antigravity_harness.instruments.base import InstrumentSpec  # noqa: PLC0415
             spec = InstrumentSpec(
@@ -153,7 +158,7 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
                 asset_class="generic",
                 tick_size=0.01,
                 multiplier=1.0,
-                lot_size=1.0 if engine_config.allow_fractional_shares else 1.0
+                lot_size=0.001 if engine_config.allow_fractional_shares else 1.0
             )
 
         portfolio.add_asset(

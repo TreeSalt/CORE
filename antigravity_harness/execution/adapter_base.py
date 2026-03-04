@@ -89,7 +89,7 @@ class Fill:
     client_order_id: str
     symbol: str
     side: OrderSide
-    filled_qty: int
+    filled_qty: float
     fill_price: Decimal
     fill_time_utc: datetime
     commission_usd: float
