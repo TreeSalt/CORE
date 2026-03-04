@@ -612,7 +612,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if not ev_version.startswith(version):
             raise RuntimeError(f"VERSION DRIFT DETECTED: Evidence ({ev_version}) != Code ({version})")
 
-    
+    # 1.9 Automated Decision Log (Automatic Sovereignty)
+    _auto_log_decision(repo_root, version, git_info)
+
     # 2. Create CODE Manifest (BREAK THE LOOP)
     print("📋 Generating CODE Manifest...")
     # NOTE: COUNCIL_CANON.yaml is EXCLUDED from manifest entries to break circularity
@@ -1060,9 +1062,6 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     print("🐉 Integrity Lock Secured.")
     print(f"   CODE: {code_hash[:8]}")
     print(f"   DROP: {drop_hash[:8]}")
-
-    # 9. Automated Decision Log (Automatic Sovereignty)
-    _auto_log_decision(repo_root, version, git_info)
 
     # Final gate: verify the assembled drop packet end-to-end.
     print("🛡️  Running Sovereign End-to-End Audit...")
