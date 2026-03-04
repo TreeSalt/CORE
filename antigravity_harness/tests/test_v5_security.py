@@ -1,5 +1,6 @@
 import shutil
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -19,7 +20,7 @@ class TestV5Security(unittest.TestCase):
         test_file = self.test_dir / "bad_shell.py"
         test_file.write_text(bad_code)
         
-        cmd = ["python3", "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")]
+        cmd = [sys.executable, "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")]
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT, check=False)
         self.assertIn("[SHELL] Risky 'shell=True'", result.stdout)
         self.assertEqual(result.returncode, 1)
@@ -29,7 +30,7 @@ class TestV5Security(unittest.TestCase):
         test_file = self.test_dir / "bad_import.py"
         test_file.write_text(bad_code)
         
-        result = subprocess.run(["python3", "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")], 
+        result = subprocess.run([sys.executable, "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")], 
                                capture_output=True, text=True, cwd=REPO_ROOT, check=False)
         self.assertIn("[IMPORT] Unsafe module 'pickle'", result.stdout)
 
@@ -45,7 +46,7 @@ class TestV5Security(unittest.TestCase):
         try:
             bad_file = secret_test_dir / "shadow.py"
             bad_file.write_text(bad_code)
-            result = subprocess.run(["python3", "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")], 
+            result = subprocess.run([sys.executable, "-B", str(REPO_ROOT / "scripts/vuln_scanner.py")], 
                                    capture_output=True, text=True, cwd=REPO_ROOT, check=False)
             self.assertIn("[SECRET] Potential high-entropy target", result.stdout)
         finally:
@@ -57,7 +58,7 @@ class TestV5Security(unittest.TestCase):
         shadow_file.write_text("print('persistence')")
         
         try:
-            result = subprocess.run(["python3", "-B", str(REPO_ROOT / "scripts/self_heal.py")], 
+            result = subprocess.run([sys.executable, "-B", str(REPO_ROOT / "scripts/self_heal.py")], 
                                    capture_output=True, text=True, cwd=REPO_ROOT, check=False)
             self.assertIn("SECURITY VIOLATION: Untracked executables", result.stdout)
             self.assertEqual(result.returncode, 1)
