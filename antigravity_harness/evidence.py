@@ -41,7 +41,7 @@ class EvidenceForge:
         try:
             env = os.environ.copy()
             env["METADATA_RELEASE_MODE"] = "1"
-            subprocess.run(cmd, check=True, env=env)
+            subprocess.run(cmd, check=True, env=env, stdout=sys.stdout, stderr=sys.stderr)
         except subprocess.CalledProcessError as e:
             print(f"❌ FAIL: Simulation crashed. {e}")
             sys.exit(1)

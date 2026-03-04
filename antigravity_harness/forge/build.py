@@ -631,6 +631,9 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         "prompts", # Mission records
         "keys",    # Sovereign public key
         ".agent",  # MISSION v4.5.382: Sovereign Packaging
+        "CHECKPOINTS.yaml",
+        "TASK_COMPLEXITY.md",
+        "orchestration",
     ]
     # Pass 1: Generate manifest excluding the Canon Truth Seal to avoid circularity
     manifest_data = _generate_manifest_data(repo_root, includes=includes, exclude=["docs/ready_to_drop/COUNCIL_CANON.yaml"])
@@ -677,6 +680,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     tmp_manifest_path = build_tmp / "PAYLOAD_MANIFEST.json"
     tmp_manifest_path.write_bytes(final_manifest_bytes)
+    
+    # [FIX] Overwrite the tracked actual manifest as well so it's not frozen
+    tracked_manifest_path = repo_root / "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
+    tracked_manifest_path.write_bytes(final_manifest_bytes)
+
 
     code_zip_includes = includes
     

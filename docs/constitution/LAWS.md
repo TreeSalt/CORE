@@ -291,3 +291,19 @@ If they do not exist, create them before writing any other code.
 README.md must reflect the current version. A README that is 92 versions behind
 (e.g., showing v4.5.290 when codebase is at v4.5.382) is a documentation failure.
 The Repo Doctor (self_heal.py) must keep README.md in sync with __init__.py version.
+
+---
+
+## ARTICLE VIII — DATA INTEGRITY & OPSEC GOVERNANCE (PHASE 3)
+
+**LAW 8.1 — The Multiplexer Consensus Mandate**
+The `DATA_MULTIPLEXER` must never emit a canonical tick derived from a single feed if multiple feeds are subscribed.
+If quorum drops below the threshold (e.g., 2/N agreement), or if a tick deviates by >2.5σ from the median, the tick must be rejected or emitted with a `LOW_CONFIDENCE` flag. The physics engine must be configured to halt trading if confidence drops below the required threshold.
+
+**LAW 8.2 — The Execution Reality Anchor**
+Sentiment and narrative matrices from `OPSEC_RAG_SCOUT` are soft modifying overlays only.
+Sentiment NEVER overrides the hard physics engine constraints or kill switches. If the `Execution Layer` determines a NO TRADE condition due to capital insufficiency, unlisted capabilities, or lack of data provenance, the sentiment matrix (no matter how strongly convicted) cannot force an order.
+
+**LAW 8.3 — The OPSEC Veto (Black Swan Protocol)**
+All language model inference for the `OPSEC_RAG_SCOUT` must execute locally (via Ollama).
+No cloud LLM API calls (OpenAI, Anthropic, etc.) are permitted during live trading loops. Zero tokens describing the current internal portfolio state or real-time trading intent may leave the host machine. If local inference fails, sentiment evaluation defaults to `0.0` (Neutral), ensuring the system degrades gracefully into pure quantitative physics.

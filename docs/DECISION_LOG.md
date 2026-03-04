@@ -4,6 +4,48 @@ This log documents the major architectural decisions and "forks in the road" for
 
 ---
 
+## 2026-03-04: Fiduciary ZeroClaw Orchestration Scaffolding (Phase 3)
+
+### Context
+Following the `SMOKE_OK` physics validation, the Supreme Council authorized the construction of the Phase 3 orchestration layer to route tasks autonomously.
+
+### Decision
+Scaffolded the Semantic Router and Sensor specs:
+- **Action**: Created `orchestration/semantic_router.py` to route tasks based on hardware constraints (7B GPU for Sprinter vs 32B CPU for Heavy Lifter).
+- **Action**: Formalized `TASK_COMPLEXITY.md` to define the routing tag schema.
+- **Action**: Synchronized `STATE_SYNC.md` with pending Phase 3 directives.
+
+### Trade-offs
+- **Pros**: Enables autonomous, complexity-aware task delegation without cloud dependency.
+- **Cons**: Adds Ollama orchestration overhead to the primary loop.
+
+---
+
+## 2026-03-04: Robinhood Smoke Certification (SMOKE_OK)
+
+### Context
+Fractional equity fills on real SPY data were failing because of integer truncation (`Fill.filled_qty` typed as `int`) and hardcoded MES multipliers in the execution core.
+
+### Decision
+Surgically patched the engine physics to achieve `SMOKE_OK` certification.
+- **Action**: Changed `Fill.filled_qty` and `FillRecord.filled_qty` from `int` to `float` to preserve fractional boundaries.
+- **Action**: Removed the hardcoded `MES` multiplier, deferring to `self.spec.multiplier`.
+- **Action**: Validated a `$2,000` cash limit enforcing exact fractional boundaries (10 live fills matching sub-share precision natively).
+- **Action**: Executed via the following forensic trace command:
+  ```bash
+  TRADER_OPS_FREE_FILLS=1 METADATA_RELEASE_MODE=1 .venv/bin/python3 -m antigravity_harness.cli portfolio-backtest \
+    --symbols SPY --start 2026-02-01 --end 2026-02-28 --interval 5m \
+    --rebalance D --outdir reports/forge/robinhood_smoke \
+    --strategy-base v080_volatility_guard_trend --equity --fetch --authorize \
+    --profile profiles/robinhood_smoke.yaml
+  ```
+
+### Trade-offs
+- **Pros**: Validates the core physics engine for zero-commission fractional equities.
+- **Cons**: Sub-cent precision issues must be monitored closely up the accounting chain.
+
+---
+
 ## 2026-02-14: Dual-Ledger Sovereignty (v4.4.25)
 
 ### Context
@@ -2572,3 +2614,115 @@ Three persistent P1 bugs flagged by the Supreme Council across multiple audit cy
 
 ### Verification
 Tasks 1 and 2 passed their inline verification steps. Task 3 was N/A (target absent).
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.28)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.28 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.27)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.27 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.34)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.34 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.35)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.35 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.36)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.36 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.37)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.37 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.38)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.38 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2020-01-01: fix: v4.7.26 forge re-run + staging LAWS.md header (v4.7.40)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.40 forge.
+
+### Decision
+fix: v4.7.26 forge re-run + staging LAWS.md header
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

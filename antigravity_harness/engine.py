@@ -433,8 +433,8 @@ class SimulatedAccount:
         if qty_to_sell <= 0:
             return False
 
-        multiplier = 5.0 if "MES" in self.symbol else 1.0
-        fill_price = _apply_slippage(price, "sell", self.slippage_ticks)
+        multiplier = self.spec.multiplier
+        fill_price = _apply_slippage(price, "sell", self.slippage_ticks, spec=self.spec)
         gross_proceeds = qty_to_sell * fill_price * multiplier
         commission = self._calculate_commission(fill_price, qty_to_sell, comm_frac, comm_fixed)
         

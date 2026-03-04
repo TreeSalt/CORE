@@ -8,13 +8,20 @@ This document provides a high-level mapping of the TRADER_OPS system to facilita
 
 ```mermaid
 graph TD
+    %% Existing Nodes
     A["Intelligence (Essence Lab)"] --> B["Physics (Engine Core)"]
     B --> C["Auditing (Phoenix Protocol)"]
     C --> D["Validation (Quality Gates)"]
     D --> E["Distribution (Sovereign Forge)"]
+    
+    %% Phase 3 Planned/Spec-Phase Nodes
+    M["[DATA_MULTIPLEXER] (Spec)"] -->|WebSocket Consensus| B
+    O["[OPSEC_RAG_SCOUT] (Spec)"] -->|Sentiment Matrix| B
 
     subgraph "Truth Layer"
         A
+        M
+        O
     end
 
     subgraph "Execution Layer"
@@ -31,6 +38,9 @@ graph TD
 ### 1.1 Truth Layer (`antigravity_harness/essence.py`)
 - **Responsibility**: Ingesting, signing, and average-weighting market intelligence.
 - **Key Modules**: `EssenceLab`, `parse_cnn_fear_greed`, `parse_market_alpha`.
+- **Planned Additions**:
+  - `[DATA_MULTIPLEXER]`: Multi-feed WebSocket consensus engine (latency-aware).
+  - `[OPSEC_RAG_SCOUT]`: Local ChromaDB + Ollama sentiment matrix.
 - **Constraint**: Must remain decoupled from executor state.
 
 ### 1.2 Execution Layer (`antigravity_harness/engine.py`)
