@@ -5,5 +5,5 @@ This module contains the logic for creating deterministic release artifacts,
 including cryptographic manifests, zip archives, and ledger verification.
 """
 
-from .build import build_drop_packet
-from .manifest import create_manifest, hash_file
+from .build import build_drop_packet as build_drop_packet
+from .manifest import create_manifest as create_manifest, hash_file as hash_file
