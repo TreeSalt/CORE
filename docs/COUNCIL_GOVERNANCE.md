@@ -202,7 +202,7 @@ Current unresolved P1s (as of v4.7.25):
 
 ### Current Policy (as of v4.7.25)
 
-OpenClaw and similar autonomous agent orchestration tools are:
+Fiduciary ZeroClaw and similar autonomous agent orchestration tools are:
 - **PROHIBITED** from touching the main TRADER_OPS repo until semantic truth is welded shut.
 - **ALLOWED** in read-only observation mode on a sandboxed copy of the repo.
 - **PROHIBITED** from running git push or touching secrets.
@@ -217,8 +217,8 @@ An autonomous agent may be granted write access when:
 4. The council explicitly authorizes autonomous mode in a mission prompt.
 
 The Operating Mode for autonomous execution is called **Autopilot Mode** in the product.
-OpenClaw is a potential implementation tool, not a product concept.
-Do not use "OpenClaw" in product documentation, doctrine, or status codes.
+Fiduciary ZeroClaw is a potential implementation tool, not a product concept.
+Do not use "Fiduciary ZeroClaw" in product documentation, doctrine, or status codes.
 
 ---
 

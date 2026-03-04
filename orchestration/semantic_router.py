@@ -169,7 +169,22 @@ def parse_complexity_from_file(filepath: Path) -> list[RoutedTask]:
         task_match = TASK_RE.search(search_window)
         description = task_match.group(1) if task_match else "(no description)"
 
-        profile = PROFILES["sprinter"] if complexity == "LOW" else PROFILES["heavy_lifter"]
+        domain_match = re.search(r"DOMAIN:\s*([A-Za-z0-9_-]+)", search_window, re.IGNORECASE)
+        domain = domain_match.group(1).upper() if domain_match else "SYSTEM"
+
+        base_profile = PROFILES["sprinter"] if complexity == "LOW" else PROFILES["heavy_lifter"]
+        
+        from dataclasses import replace
+        profile = replace(base_profile)
+        
+        # Domain parsing logic
+        if domain in ("OSINT", "RAG"):
+            pass  # keep base models (qwen2.5:7b or 32b)
+        elif domain in ("CODE", "SYSTEM"):
+            # Swap to coder family where appropriate
+            if "7b" in profile.model:
+                profile.model = profile.model.replace("qwen2.5:7b", "qwen2.5-coder:7b")
+
         tasks.append(RoutedTask(
             description=description,
             complexity=complexity,
@@ -188,7 +203,20 @@ def parse_complexity_from_file(filepath: Path) -> list[RoutedTask]:
             clean_line = re.sub(r"^-\s*\[.\]\s*", "", clean_line).strip()
             description = clean_line or f"(task at line {i + 1})"
 
-            profile = PROFILES["sprinter"] if complexity == "LOW" else PROFILES["heavy_lifter"]
+            domain_match = re.search(r"DOMAIN:\s*([A-Za-z0-9_-]+)", line, re.IGNORECASE)
+            domain = domain_match.group(1).upper() if domain_match else "SYSTEM"
+
+            base_profile = PROFILES["sprinter"] if complexity == "LOW" else PROFILES["heavy_lifter"]
+            from dataclasses import replace
+            profile = replace(base_profile)
+            
+            # Domain parsing logic
+            if domain in ("OSINT", "RAG"):
+                pass
+            elif domain in ("CODE", "SYSTEM"):
+                if "7b" in profile.model:
+                    profile.model = profile.model.replace("qwen2.5:7b", "qwen2.5-coder:7b")
+
             tasks.append(RoutedTask(
                 description=description,
                 complexity=complexity,
