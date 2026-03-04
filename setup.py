@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="antigravity_harness",
-    version="4.7.51",
+    version="4.7.52",
     packages=find_packages(),
     install_requires=[
         "numpy",
