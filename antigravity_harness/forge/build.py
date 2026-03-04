@@ -684,6 +684,10 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     # [FIX] Overwrite the tracked actual manifest as well so it's not frozen
     tracked_manifest_path = repo_root / "docs/ready_to_drop/PAYLOAD_MANIFEST.json"
     tracked_manifest_path.write_bytes(final_manifest_bytes)
+    
+    # [FIX] Overwrite the tracked actual canon so its timestamp and hashes remain accurate
+    tracked_canon_path = repo_root / "docs/ready_to_drop/COUNCIL_CANON.yaml"
+    tracked_canon_path.write_text(canon_txt)
 
 
     code_zip_includes = includes
@@ -1088,8 +1092,9 @@ def _auto_log_decision(repo_root: Path, version: str, git_info: Dict[str, Any]) 
         return
 
     content = log_path.read_text()
-    # [STAGE 1 FIX: Determinism] Use fixed date for Decision Log
-    date_str = "2020-01-01"
+    # [STAGE 1 FIX: Determinism] Use actual utcnow for Decision Log so it remains human-readable
+    import datetime
+    date_str = datetime.datetime.utcnow().isoformat() + "Z"
     
     # Avoid duplicate entries for the same version
     # Check specifically for the version header to avoid false positives in body text
