@@ -1,13 +1,25 @@
 checkpoints:
   CP1_PAPER_SANDBOX:
     description: "Live feed, simulated execution"
-    enforcement: "MANDATORY: `make quickgate` must pass"
+    enforcement_command: "make quickgate"
+    capital_limit: 0
+    human_approval_required: true
+    metrics_required: ["latency", "fill_rate", "slippage"]
   CP2_MICRO_CAPITAL:
     description: "$100 hard limit execution"
-    enforcement: "MANDATORY: `make quickgate` must pass"
+    enforcement_command: "make quickgate"
+    capital_limit: 100
+    human_approval_required: true
+    metrics_required: ["capital_preservation", "max_drawdown"]
   CP3_AUDIT_LEDGER:
     description: "Immutable SQLite trade tracking"
-    enforcement: "MANDATORY: `make quickgate` must pass"
+    enforcement_command: "make quickgate"
+    capital_limit: 1000
+    human_approval_required: true
+    metrics_required: ["ledger_sync", "fiduciary_compliance"]
   CP4_MULTI_TENANT:
     description: "SaaS cryptographic isolation"
-    enforcement: "MANDATORY: `make quickgate` must pass"
+    enforcement_command: "make quickgate"
+    capital_limit: 5000
+    human_approval_required: true
+    metrics_required: ["tenant_isolation", "memory_partitioning"]

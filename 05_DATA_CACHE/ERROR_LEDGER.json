@@ -182,6 +182,13 @@
             "gate": "RECOVERY",
             "message": "Auto-created prompt stub for v4.7.53",
             "resolution": "Auto-Stub"
+        },
+        {
+            "timestamp_utc": "2026-03-05T07:25:51Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B scripts/self_heal.py --fix",
+            "resolution": null
         }
     ],
     "vaccines": {
