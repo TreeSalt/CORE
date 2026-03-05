@@ -2840,3 +2840,17 @@ chore: self-healing synchronization of project state
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-05T08:45:25.919780Z: fiduciary: merge execution router, restore Basecamp Protocol, correct hygiene loops (v4.7.54)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.54 forge.
+
+### Decision
+fiduciary: merge execution router, restore Basecamp Protocol, correct hygiene loops
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
