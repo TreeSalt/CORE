@@ -39,10 +39,14 @@ def run_cmd(cmd: list, cwd: Path, env: Optional[dict] = None) -> bool:
             print("   ✅ PASS")
             return True
         else:
+            msg = f"Preflight step failed (exit {result.returncode}): {' '.join(cmd)}"
             print(f"   ❌ FAIL (Exit Code: {result.returncode})")
+            log_event("INFRA", msg, "STARTUP")
             return False
     except Exception as e:
+        msg = f"Preflight step error: {e}"
         print(f"   ❌ ERROR: {e}")
+        log_event("INFRA", msg, "STARTUP")
         return False
 
 

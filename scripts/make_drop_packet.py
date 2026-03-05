@@ -16,6 +16,13 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from antigravity_harness.forge.build import build_drop_packet  # noqa: E402
 
+# ANTIGRAVITY HARNESS: Autonomous Error Intelligence
+try:
+    from scripts.archivist import log_event, check_vaccine  # noqa: E402
+except ImportError:
+    def log_event(*args, **kwargs): pass  # noqa: E302
+    def check_vaccine(*args, **kwargs): return None  # noqa: E302
+
 
 def main():
     print("🔨 Sovereign Forge: Initializing...")
@@ -80,7 +87,24 @@ def main():
         print("✅ POST-BUILD VERIFICATION PASSED.")
         print(f"📜 Ledger: {ledger_file}")
     except Exception as e:
-        print(f"⛔ FATAL: {e}")
+        error_msg = str(e)
+        print(f"⛔ FATAL: {error_msg}")
+
+        # Autonomous Error Intelligence: Log to ERROR_LEDGER.json
+        category = "LOGIC"
+        if "SECURITY" in error_msg.upper() or "SABOTAGE" in error_msg.upper():
+            category = "IDENTITY"
+        elif "PURITY" in error_msg.upper() or "HYGIENE" in error_msg.upper():
+            category = "HYGIENE"
+        elif "STRICT" in error_msg.upper() or "ANCHOR" in error_msg.upper():
+            category = "METADATA"
+        log_event(category, error_msg, "RUNTIME")
+
+        # Autonomous Self-Healing Hint: Check for known vaccines
+        vaccine = check_vaccine(error_msg)
+        if vaccine:
+            print(f"💡 SUGGESTED FIX: {vaccine}")
+
         sys.exit(1)
 
 
