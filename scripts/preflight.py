@@ -77,8 +77,8 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     if args.heal:
         print(f"{BOLD}🩹 INITIATING SELF-HEALING...{RESET}")
         cmd = [sys.executable, "-B", "scripts/self_heal.py", "--fix"]
-        if os.environ.get("SKIP_VERSION_BUMP") != "1":
-            cmd.append("--bump")
+        # VERSION BUMP REMOVED: Sovereign versions are incremented by human intent only.
+        # The --bump flag was automatically burning version numbers on every preflight run.
         if not run_cmd(cmd, root):
             print("   ❌ FAIL: Self-healing could not resolve all issues.")
             sys.exit(1)

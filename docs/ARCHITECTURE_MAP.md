@@ -1,5 +1,15 @@
 # Architecture Map: TRADER_OPS Sovereign Protocol
 
+## THE BASECAMP PROTOCOL (Universal Operating System)
+
+> **This repository is governed by the [Basecamp Protocol — Adversarial Governance Framework v1.0](THE_BASECAMP_PROTOCOL.md).**
+>
+> The Basecamp Protocol defines the Supreme Council topology, the air-gapped governor architecture, sovereign context packaging, checkpoint-based capability escalation, and all fiduciary strictures that bind multi-agent operations within this repository. All agents — Architect, Human, and Hostile Auditor — operate under its authority.
+>
+> **Read this document before writing any code.**
+
+---
+
 This document provides a high-level mapping of the TRADER_OPS system to facilitate rapid agentic onboarding and prevent architectural regressions.
 
 ---
