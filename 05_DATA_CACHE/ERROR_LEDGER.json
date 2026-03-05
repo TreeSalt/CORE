@@ -168,6 +168,20 @@
             "gate": "RUNTIME",
             "message": "FAIL-CLOSED: Prompt missing in STRICT_MODE",
             "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-05T00:12:15Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 4.7.53",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-05T00:12:15Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Auto-created prompt stub for v4.7.53",
+            "resolution": "Auto-Stub"
         }
     ],
     "vaccines": {
