@@ -24,6 +24,7 @@ from pathlib import Path
 # Add repo root for imports
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 sys.path.append(str(REPO_ROOT))
+sys.dont_write_bytecode = True  # Globally suppress __pycache__ for hygiene compliance
 
 # ANTIGRAVITY HARNESS: Fortress Protocol
 from antigravity_harness.forge.build import _sync_project_metadata, bump_version, read_version  # noqa: E402
@@ -190,8 +191,16 @@ AUTHORIZED_MUTATIONS = [
     "state/INFERRED_UNIVERSE.json",
     "prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.6.5.txt",
     ".gitignore",
+
+    # PHASE 3 ADDITIONS — Basecamp Protocol Governance Layer (v4.7.53)
+    "STATE_SYNC.md",  # Session Continuity (Basecamp Protocol §IV)
+    "CHECKPOINTS.yaml",  # Physical Governor (Basecamp Protocol §V)
+    ".repomixignore",  # Sovereign Context Filter (Basecamp Protocol §IV)
+    "docs/THE_BASECAMP_PROTOCOL.md",  # Constitutional Foundation (Basecamp Protocol)
+    "08_IMPLEMENTATION_NOTES/",  # Implementation Notes Directory
+    "08_IMPLEMENTATION_NOTES/LATEST_EXECUTION_PROPOSAL.md",  # Execution Proposals
 ]
-AUTHORIZED_MUTATIONS_HASH = "08c02f2ad48e2bb48c7cc1c204bc5075676ff0c3a4c47b1891649cfebead864d"
+AUTHORIZED_MUTATIONS_HASH = "352ca8ee17ca78c6314267945a1588fe8848e056f31b1c35a4ba8633343319d1"
 
 
 def print_status(msg, status="INFO"):

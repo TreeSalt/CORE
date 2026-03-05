@@ -18,10 +18,15 @@ import re
 import sys
 import json
 import logging
-import subprocess
+import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
+
+try:
+    import requests
+except ImportError:
+    requests = None  # type: ignore[assignment]
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -250,30 +255,39 @@ def discover_tasks() -> list[RoutedTask]:
     return all_tasks
 
 # ---------------------------------------------------------------------------
-# Ollama Interface
+# Ollama Interface (requests-based, fail-closed)
 # ---------------------------------------------------------------------------
 
+OLLAMA_TIMEOUT = 120  # seconds — strict timeout for all Ollama API calls
+EXECUTION_OUTPUT = REPO_ROOT / "08_IMPLEMENTATION_NOTES" / "LATEST_EXECUTION_PROPOSAL.md"
+
+
+def _fail_closed(reason: str) -> None:
+    """Emit FAIL-CLOSED diagnostic and terminate. (LAW 1.4)"""
+    log.critical(f"FAIL-CLOSED: {reason}")
+    sys.exit(1)
+
+
 def check_ollama_status() -> bool:
-    """Check if Ollama is running and accessible."""
+    """Ping Ollama /api/tags. Returns True if reachable, False otherwise."""
+    if requests is None:
+        log.warning("'requests' library not installed. Ollama unavailable.")
+        return False
     try:
-        result = subprocess.run(
-            ["curl", "-s", f"{OLLAMA_BASE_URL}/api/tags"],
-            capture_output=True, text=True, timeout=5,
-        )
-        return result.returncode == 0
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=5)
+        return resp.status_code == 200
+    except (requests.ConnectionError, requests.Timeout):
         return False
 
 
 def list_available_models() -> list[str]:
     """Query Ollama for locally available models."""
+    if requests is None:
+        return []
     try:
-        result = subprocess.run(
-            ["curl", "-s", f"{OLLAMA_BASE_URL}/api/tags"],
-            capture_output=True, text=True, timeout=5,
-        )
-        if result.returncode == 0:
-            data = json.loads(result.stdout)
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=5)
+        if resp.status_code == 200:
+            data = resp.json()
             return [m["name"] for m in data.get("models", [])]
     except Exception:
         pass
@@ -297,8 +311,11 @@ def route_to_ollama(task: RoutedTask, prompt: Optional[str] = None) -> dict:
             "gpu_layers": profile.gpu_layers,
         }
 
-    # Live inference via Ollama API
-    payload = json.dumps({
+    # Live inference via Ollama API (requests-based, fail-closed)
+    if requests is None:
+        _fail_closed("'requests' library not installed — cannot reach Ollama.")
+
+    payload = {
         "model": profile.model,
         "prompt": prompt,
         "stream": False,
@@ -308,24 +325,82 @@ def route_to_ollama(task: RoutedTask, prompt: Optional[str] = None) -> dict:
             "num_ctx": profile.context_window,
             "num_gpu": profile.gpu_layers,
         },
-    })
+    }
 
     try:
-        result = subprocess.run(
-            ["curl", "-s", "-X", "POST",
-             f"{OLLAMA_BASE_URL}/api/generate",
-             "-H", "Content-Type: application/json",
-             "-d", payload],
-            capture_output=True, text=True, timeout=300,
+        resp = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json=payload,
+            timeout=OLLAMA_TIMEOUT,
         )
-        if result.returncode == 0:
-            return json.loads(result.stdout)
+        if resp.status_code == 200:
+            return resp.json()
         else:
-            return {"error": f"Ollama returned code {result.returncode}", "stderr": result.stderr}
-    except subprocess.TimeoutExpired:
-        return {"error": "Ollama inference timed out (300s)"}
+            return {"error": f"Ollama returned HTTP {resp.status_code}", "body": resp.text}
+    except requests.Timeout:
+        return {"error": f"Ollama inference timed out ({OLLAMA_TIMEOUT}s)"}
+    except requests.ConnectionError:
+        return {"error": "Ollama connection lost during inference."}
     except Exception as e:
         return {"error": str(e)}
+
+
+def execute_task(model: str, task: str) -> None:
+    """
+    Execute a routed task against Ollama with fail-closed constraints.
+
+    1. Ping /api/tags — if unreachable, FAIL-CLOSED.
+    2. POST to /api/generate with timeout=120.
+    3. Write provenance header + response to LATEST_EXECUTION_PROPOSAL.md.
+    4. NEVER overwrites .py files, modifies directories, or executes shell commands.
+    """
+    if requests is None:
+        _fail_closed("'requests' library not installed — cannot reach Ollama.")
+
+    # Step 1: FAIL-CLOSED ping check
+    log.info("Pinging Ollama at /api/tags...")
+    if not check_ollama_status():
+        _fail_closed("Ollama unavailable")
+
+    # Step 2: Send inference request
+    log.info(f"Sending task to model '{model}' (timeout={OLLAMA_TIMEOUT}s)...")
+    payload = {
+        "model": model,
+        "prompt": task,
+        "stream": False,
+    }
+
+    try:
+        resp = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json=payload,
+            timeout=OLLAMA_TIMEOUT,
+        )
+    except requests.Timeout:
+        _fail_closed(f"Ollama inference timed out ({OLLAMA_TIMEOUT}s). Model: {model}")
+    except requests.ConnectionError:
+        _fail_closed("Ollama connection lost during inference.")
+
+    if resp.status_code != 200:
+        _fail_closed(f"Ollama returned HTTP {resp.status_code}: {resp.text[:200]}")
+
+    # Step 3: Extract response
+    response_text = resp.json().get("response", "(no response from model)")
+
+    # Step 4: Construct provenance header
+    timestamp = datetime.datetime.utcnow().isoformat()
+    provenance = (
+        f"### MODEL: {model}\n"
+        f"### TASK: {task}\n"
+        f"### TIMESTAMP (UTC): {timestamp}\n"
+        f"---\n\n"
+    )
+
+    # Step 5: Write to LATEST_EXECUTION_PROPOSAL.md
+    EXECUTION_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    EXECUTION_OUTPUT.write_text(provenance + response_text, encoding="utf-8")
+    log.info(f"✅ Proposal written to: {EXECUTION_OUTPUT}")
+    log.info(f"   Model: {model} | Timestamp: {timestamp}")
 
 # ---------------------------------------------------------------------------
 # CLI Entry Point
@@ -358,24 +433,33 @@ def print_routing_table(tasks: list[RoutedTask]) -> None:
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Fiduciary ZeroClaw Semantic Router")
+    parser.add_argument("--execute", nargs=2, metavar=("MODEL", "TASK"),
+                        help="Execute a task against Ollama (fail-closed mode)")
+    args = parser.parse_args()
+
     log.info("Semantic Router initializing...")
     log.info(f"Repo root: {REPO_ROOT}")
 
-    # Check Ollama
+    # Execution mode: route directly to Ollama with fail-closed constraints
+    if args.execute:
+        model, task_desc = args.execute
+        execute_task(model, task_desc)
+        return 0
+
+    # Discovery mode: scan, route, and display
     if check_ollama_status():
         models = list_available_models()
         log.info(f"Ollama online. Available models: {models}")
     else:
         log.warning("Ollama is not running. Routing will be dry-run only.")
 
-    # Discover and route tasks
     tasks = discover_tasks()
     log.info(f"Discovered {len(tasks)} routable task(s).")
 
-    # Print routing table
     print_routing_table(tasks)
 
-    # Dry-run routing decisions
     for task in tasks:
         result = route_to_ollama(task)
         log.info(f"Route decision: {json.dumps(result, indent=2)}")

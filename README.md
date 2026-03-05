@@ -4,6 +4,7 @@ Version: v4.7.53 | Charter: v2.0 | Owner: Alec
 ## Overview
 TRADER_OPS is a high-fidelity, sovereign validation engine for institutional-grade trading strategies. 
 It enforces strict physics-based execution, sovereign governance gates, and verifiable data provenance 
+under the strictures of the [THE BASECAMP PROTOCOL](docs/THE_BASECAMP_PROTOCOL.md) (Adversarial Governance Framework). 
 to eliminate overfitting, survival bias, and execution leakage.
 
 ## Core Mandates
