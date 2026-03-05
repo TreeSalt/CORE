@@ -1,0 +1,68 @@
+# .repomixignore — Supreme Council Sovereign Context Filter
+# Principle: Logic, markdown, and config only. No data. No archives. No noise.
+# CRITICAL: ERROR_LEDGER.json is EXEMPT — it is required for hostile audits.
+
+# 1. Dependencies & Environments
+node_modules/
+venv/
+env/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# 2. Binary & Compiled Artifacts
+*.pkl
+*.pickle
+*.so
+*.dylib
+*.egg-info/
+dist/
+build/
+
+# 3. Raw Market Data (context poison — use DATA_CATALOG references instead)
+*.csv
+*.parquet
+*.db
+*.sqlite3
+*.kdbx
+data/
+ibkr/data/
+wavepool/
+
+# 4. Cache Snapshots (generated artifacts, not logic)
+05_DATA_CACHE/snapshots/
+02_STRATEGY_ENGINE/05_DATA_CACHE/
+
+# 5. Archives (historical, not active context)
+99_ARCHIVE/
+*.zip
+*.tar.gz
+*.gz
+
+# 6. External Research Bulk (keep deep research papers, exclude chat logs)
+13_EXTERNAL RESEARCH_BY_HUMAN/CHAT GPT (SOLARI)/
+13_EXTERNAL RESEARCH_BY_HUMAN/CLAUDE'S INPUT/
+13_EXTERNAL RESEARCH_BY_HUMAN/FORMING THE FUTURE/
+
+# 7. Reports & Certification Artifacts (generated, not authored)
+reports/
+dist/
+
+# 8. Logs & Secrets
+logs/
+*.log
+.env
+.env.local
+secrets/
+credentials.json
+
+# 9. The repomix output itself (prevents recursive inception)
+repomix-output.xml
+repomix-output.md
+
+# --- EXPLICIT EXEMPTIONS (do not add these above) ---
+# v9e_stage/05_DATA_CACHE/ERROR_LEDGER.json  ← ALWAYS INCLUDED
+# tests/fixtures/synthetic/*.csv              ← small, needed for test context
+# 13_EXTERNAL RESEARCH_BY_HUMAN/GEMINI DEEP RESEARCH/  ← council research
+# 13_EXTERNAL RESEARCH_BY_HUMAN/TRADER_OPS_MASTER_IDE_REQUEST_v4.7.53+.md  ← mission charter

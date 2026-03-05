@@ -1,3 +1,5 @@
+> **[PRE-AUDIT ADDENDUM]:** Entries prior to v4.7.53 were subject to a deterministic build artifact loop (the "rogue loop") which corrupted timestamps. 175 automated stub entries have been purged. Everything from v4.7.53 forward carries cryptographically real, human-verified timestamps.
+
 # TRADER_OPS Decision Log
 
 This log documents the major architectural decisions and "forks in the road" for the TRADER_OPS project. It serves as the long-term memory for the Project's constitutional evolution.
@@ -2814,6 +2816,20 @@ chore: self-healing synchronization of project state
 ---
 
 ## 2026-03-05T00:13:03.293199Z: chore: self-healing synchronization of project state (v4.7.53)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.53 forge.
+
+### Decision
+chore: self-healing synchronization of project state
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-05T07:04:04.939778Z: chore: self-healing synchronization of project state (v4.7.53)
 
 ### Context
 Automated entry captured via Git Provenance during the v4.7.53 forge.
