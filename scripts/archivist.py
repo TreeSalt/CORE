@@ -84,6 +84,32 @@ def learn_from_failure(error_code, solution):
         json.dump(data, f, indent=4)
     print(f"[ARCHIVIST] Learned new vaccine for: {error_code}")
 
+def check_vaccine(error_message):
+    """Check if a known vaccine exists for the given error message.
+    
+    Returns the resolution string if a matching vaccine is found, None otherwise.
+    This enables autonomous self-healing: when a build fails, the system can
+    suggest the exact fix before the operator even looks at the error.
+    """
+    init_ledger()
+    with open(LEDGER_PATH, "r") as f:
+        data = json.load(f)
+    
+    vaccines = data.get("vaccines", {})
+    error_lower = error_message.lower()
+    
+    for code, info in vaccines.items():
+        # Match if the vaccine code appears in the error message (case-insensitive)
+        if code.lower() in error_lower or any(
+            keyword in error_lower
+            for keyword in code.lower().replace("_", " ").split()
+        ):
+            resolution = info.get("resolution", "No resolution documented.")
+            print(f"💉 [ARCHIVIST] VACCINE FOUND for '{code}': {resolution}")
+            return resolution
+    
+    return None
+
 def show_ledger(last_n=20):
     """Pretty-print recent events from the Error Ledger in a human-friendly table."""
     init_ledger()
@@ -155,6 +181,7 @@ def main():
     parser.add_argument("--log", nargs=3, metavar=('CAT', 'MSG', 'GATE'), help="Log a new error")
     parser.add_argument("--learn", nargs=2, metavar=('CODE', 'SOL'), help="Learn a new resolution")
     parser.add_argument("--verify-ledger", action="store_true", help="Verify ledger integrity")
+    parser.add_argument("--check-vaccine", metavar='MSG', help="Check if a vaccine exists for the given error")
     parser.add_argument("--show", action="store_true", help="Show recent errors (human-friendly table)")
     parser.add_argument("--last", type=int, default=20, help="Number of recent events to show (default: 20)")
 
@@ -166,6 +193,14 @@ def main():
         log_event(args.log[0], args.log[1], args.log[2])
     elif args.learn:
         learn_from_failure(args.learn[0], args.learn[1])
+    elif args.check_vaccine:
+        result = check_vaccine(args.check_vaccine)
+        if result:
+            print(f"Resolution: {result}")
+            sys.exit(0)
+        else:
+            print("[ARCHIVIST] No matching vaccine found.")
+            sys.exit(1)
     elif args.verify_ledger:
         if LEDGER_PATH.exists():
             print(f"[PASS] Error Ledger present: {LEDGER_PATH}")
