@@ -2,62 +2,6 @@
     "system_start_utc": "2026-03-01T12:55:13Z",
     "events": [
         {
-            "timestamp_utc": "2026-03-01T12:55:13Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.15",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-01T13:00:30Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.16",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-01T13:09:22Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.16",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-02T01:43:24Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.17",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-02T01:43:29Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.17",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-02T02:01:34Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.18",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-04T19:56:35Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.28",
-            "resolution": "Auto-Sync"
-        },
-        {
-            "timestamp_utc": "2026-03-04T21:39:22Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 4.7.41",
-            "resolution": "Auto-Sync"
-        },
-        {
             "timestamp_utc": "2026-03-04T22:15:32Z",
             "category": "METADATA",
             "gate": "RECOVERY",
@@ -196,6 +140,566 @@
             "gate": "RUNTIME",
             "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v4.7.54.txt' missing in STRICT_MODE.",
             "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/__init__.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/artifacts.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/autonomy.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/calibration.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/catalog.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/certification.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/cli.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/compliance.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/config.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/context.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/correlation.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/council.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/emit.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/engine.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/essence.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/gates.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/indicators.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/metrics.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/models.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/optimization.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/paths.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/phoenix.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_benchmark.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_engine.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_policies.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_regime_report.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_router.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_safety_overlay.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/profiles.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/reality_gap.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/regimes.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/registry.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/reporting.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/runner.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/schema.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/sweep.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/trust_root.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/types.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/utils.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/wal.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/zip_verifier.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/zkp.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/accelerators/__pycache__/__init__.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/accelerators/__pycache__/vector_cache.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/data/__pycache__/__init__.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/data/__pycache__/market_tape.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/__init__.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/adapter_base.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/fill_tape.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/flatten_manager.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/rollover.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/safety.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/sim_adapter.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/slippage.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/grid/__pycache__/evolution.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/grid/__pycache__/manager.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/grid/__pycache__/matrix.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/instruments/__pycache__/base.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/instruments/__pycache__/mes.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/instruments/__pycache__/spy.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/__pycache__/__init__.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/__pycache__/base.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/__pycache__/catalog.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/__pycache__/registry.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/certified/v040_alpha_prime/__pycache__/v040_alpha_prime.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/certified/v080_volatility_guard_trend/__pycache__/v080_volatility_guard_trend.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v060_bit_uni_core/__pycache__/v060_bit_uni_core.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v070_donchian_breakout/__pycache__/v070_donchian_breakout.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v090_essence_follower/__pycache__/v090_essence_follower.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v100_consensual_momentum/__pycache__/v100_consensual_momentum.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/quarantine/v032_simple/__pycache__/v032_simple.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: antigravity_harness/strategies/quarantine/v050_trend_momentum/__pycache__/v050_trend_momentum.cpython-314.pyc",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/RUN_LEDGER_v4.7.54.json",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/RUN_LEDGER_v4.7.54.json.sig",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/TRADER_OPS_CODE_v4.7.54.zip",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/TRADER_OPS_EVIDENCE_v4.7.54.zip",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/TRADER_OPS_READY_TO_DROP_v4.7.54.zip",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/TRADER_OPS_READY_TO_DROP_v4.7.54.zip.sha256",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-08T02:58:24Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: dist/gate_report.json",
+            "resolution": "Git Checkout"
         }
     ],
     "vaccines": {
