@@ -1,0 +1,1 @@
+Design a PhysicsEngine class for the 00_PHYSICS_ENGINE domain. It must: calculate position P&L using tick-accurate pricing, enforce position limits, track open positions in a ledger, and raise PhysicsViolationError on constraint breach. No hardcoded credentials. No governance domain writes.
