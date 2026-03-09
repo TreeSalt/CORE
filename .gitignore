@@ -1,3 +1,7 @@
 
 reports/
 *.txt
+__pycache__/
+*.pyc
+*.pyo
+06_BENCHMARKING/reports/
