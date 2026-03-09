@@ -2868,3 +2868,30 @@ chore: self-healing synchronization of project state
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-08T03:02:08.196324Z: chore: remove tracked pycache and dist (v4.7.54)
+
+### Context
+Automated entry captured via Git Provenance during the v4.7.54 forge.
+
+### Decision
+chore: remove tracked pycache and dist
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+### [2026-03-08] RATIFICATION: Agentic Ethical Constitution v1.0
+- **Author:** Alec (CTO)
+- **Action:** Officially ratified the foundational Constitutional Layer utilizing the Two-Layer Principle.
+- **Enforcement:** `AGENTIC_ETHICAL_CONSTITUTION.md` and `OPERATOR_INSTANCE.yaml` are cryptographically bound to the Orchestration Engine. Unresolved parameters or altered checksums will trigger FAIL-CLOSED.
+- **Hardware Profile Locked:** 32GB RAM / 8GB VRAM concurrent load limits explicitly enforced via YAML.
+- **Independence:** Article VII codified to legally separate open-source AOS from commercial TRADER_OPS SaaS.
+- **Known Outstanding Debt:** Article V.2 references the Dead Man's Switch. This mechanism is not yet implemented. Implementation is mandatory before advancing beyond CP1_PAPER_SANDBOX.
+
+### [2026-03-09] RATIFICATION: Benchmark Schema v1.1 & Data Ingestion Test Suite
+- **Author:** Alec (CTO)
+- **Action:** Ratified BENCHMARK_SCHEMA.yaml with 1.0 Logic threshold and 2-strike rewrite limit.
+- **Action:** Ratified `test_websocket_handler.py` for the `01_DATA_INGESTION` domain. Logic Gate enforcement for this domain is now active at 1.0.

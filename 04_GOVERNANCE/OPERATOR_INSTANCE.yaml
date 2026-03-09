@@ -1,0 +1,41 @@
+# OPERATOR INSTANCE CONFIGURATION
+# TRADER_OPS Instance - v4.7.54
+
+operator:
+  name: "Alec"
+  role: "CTO & Chief Fiduciary"
+  jurisdiction: "Texas, United States"
+  contact: "System Console / Encrypted Local"
+
+project:
+  name: "TRADER_OPS"
+  version: "v4.7.54"
+  repo_root: "/home/asanchez/TRADER_OPS/v9e_stage"
+  domain: "Quantitative Trading Payload (Incubating AOS)"
+
+supreme_council:
+  human_members:
+    - name: "Alec"
+      role: "CTO / Chief Fiduciary"
+  ai_advisors:
+    - name: "Claude"
+      role: "Hostile Auditor"
+    - name: "Gemini"
+      role: "Strategic Advisor"
+
+hardware:
+  system_ram_gb: 32
+  vram_gb: 8
+  orchestrator_model: "qwen2.5:32b"
+  worker_model: "qwen2.5-coder:7b"
+  ollama_max_loaded_models: 2
+  ollama_num_parallel: 1
+
+heartbeat:
+  version_bump_interval: 10
+  calendar_day_interval: 90
+
+checkpoints_file: "CHECKPOINTS.yaml"
+decision_log_file: "docs/DECISION_LOG.md"
+error_ledger_file: "docs/ERROR_LEDGER.md"
+cloud_execution_mode: "file_handoff"

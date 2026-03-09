@@ -1,0 +1,47 @@
+version: "1.1"
+ratified_by: "Alec, CTO"
+ratified_date: "2026-03-09"
+council_amendments:
+  - "Gemini: Logic gate raised to 1.0 — financial code is binary"
+  - "Gemini: max_rewrites lowered to 2 — protect VRAM, prevent hallucination loops"
+  - "Claude: test_suite_ratification required before 1.0 enforcement"
+
+gates:
+  hygiene:
+    weight: 0.25
+    pass_threshold: 1.0
+    timeout_seconds: 5
+  hallucination:
+    weight: 0.35
+    pass_threshold: 1.0
+    timeout_seconds: 30
+  logic:
+    weight: 0.40
+    pass_threshold: 1.0
+    test_suite_must_be_ratified: true
+    unratified_domain_fallback: 0.80
+    timeout_seconds: 120
+
+overall_pass_threshold: 1.0
+
+failure_behavior:
+  max_rewrites: 2
+  escalation_path: "ERROR_LEDGER → Supreme Council"
+  rewrite_context: "full error log + gate failure detail returned to agent"
+
+constitutional_violations:
+  - pattern: "hardcoded_credentials"
+    severity: "HARD_FAIL"
+  - pattern: "governance_write_attempt"
+    severity: "HARD_FAIL"
+  - pattern: "position_without_ledger_read"
+    severity: "HARD_FAIL"
+  - pattern: "bypass_fail_closed"
+    severity: "HARD_FAIL"
+  - pattern: "domain_boundary_violation"
+    severity: "HARD_FAIL"
+
+evolution:
+  schema_amendment_requires: "Supreme Council unanimous vote"
+  execution_amendment_requires: "Benchmarking Agent proposal + Council review"
+  anti_overfitting_check: "Constitutional Heartbeat audit reviews benchmark drift"

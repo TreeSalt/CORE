@@ -1,6 +1,6 @@
 # READY-TO-DROP: TRADER_OPS (Sovereign Protocol)
 
-> **Current Version**: See `COUNCIL_CANON.yaml` → `repo.version`
+> **Current Version**: See `v0.0.0-POISON` → `repo.version`
 > **Verification**: `make verify` (fail-closed, strict mode)
 
 ## 1) What This Repo Is

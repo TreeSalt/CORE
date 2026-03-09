@@ -100,3 +100,5 @@ def infer_periods_per_year(interval: str, is_crypto: bool = True) -> int:
     # Default fallback
     print(f"⚠️ Warning: Unknown interval '{interval}', defaulting to {base_days}")
     return base_days
+
+# UNAUTHORIZED MUTATION
