@@ -1,0 +1,34 @@
+{
+  "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
+  "_constitution": "bound",
+  "last_updated": "2026-03-09T18:29:08.832554+00:00",
+  "last_task": {
+    "domain_id": "01_DATA_INGESTION",
+    "model": "qwen2.5-coder:7b",
+    "status": "COMPLETE",
+    "completed_at": "2026-03-09T18:29:08.832554+00:00",
+    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260309T182908Z.md"
+  },
+  "session_history": [
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:7b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-09T18:28:33.573866+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:7b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-09T18:29:08.832554+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260309T182908Z.md"
+    }
+  ],
+  "hardware_ceiling": {
+    "vram_gb": 8,
+    "system_ram_gb": 32,
+    "max_loaded_models": 2,
+    "num_parallel": 1
+  }
+}
