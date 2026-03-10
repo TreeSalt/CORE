@@ -5,21 +5,44 @@ checkpoints:
     capital_limit: 0
     human_approval_required: true
     metrics_required: ["latency", "fill_rate", "slippage"]
+    advancement_gates:
+      min_trading_days: 90
+      min_trades: 250
+      min_sharpe_ratio: 2.5
+      target_sharpe_ratio: 3.0
+      max_drawdown_pct: 15.0
+      sharpe_window_days: 90
+      gate_breach_action: "disqualify_run_reset_clock"
+      ratified_by: "Alec W. Sanchez"
+      ratified_date: "2026-03-10"
+      decision_log_ref: "DECISION-THRESHOLD-001"
+
   CP2_MICRO_CAPITAL:
     description: "$100 hard limit execution"
     enforcement_command: "make quickgate"
     capital_limit: 100
     human_approval_required: true
     metrics_required: ["capital_preservation", "max_drawdown"]
+    dead_mans_switch:
+      drawdown_floor_pct: 80
+      max_loss_dollars: 80
+
   CP3_AUDIT_LEDGER:
     description: "Immutable SQLite trade tracking"
     enforcement_command: "make quickgate"
     capital_limit: 1000
     human_approval_required: true
     metrics_required: ["ledger_sync", "fiduciary_compliance"]
+    dead_mans_switch:
+      drawdown_floor_pct: 20
+      max_loss_dollars: 200
+
   CP4_MULTI_TENANT:
     description: "SaaS cryptographic isolation"
     enforcement_command: "make quickgate"
     capital_limit: 5000
     human_approval_required: true
     metrics_required: ["tenant_isolation", "memory_partitioning"]
+    dead_mans_switch:
+      drawdown_floor_pct: 10
+      max_loss_dollars: 500
