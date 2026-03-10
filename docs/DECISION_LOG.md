@@ -3147,3 +3147,31 @@ fix: governor_seal format AEC_HASH= → AEC_HASH: (colon format)
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T16:50:04.756156Z: fix: stabilize build and backtest engine for v9.9.21 (v9.9.21)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.21 forge.
+
+### Decision
+fix: stabilize build and backtest engine for v9.9.21
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T17:16:50.605668Z: fix: stabilize build and backtest engine for v9.9.21 (v9.9.22)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.22 forge.
+
+### Decision
+fix: stabilize build and backtest engine for v9.9.21
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
