@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-10T01:38:10.956713+00:00",
+  "last_updated": "2026-03-10T01:44:58.662601+00:00",
   "last_task": {
-    "domain_id": "02_RISK_MANAGEMENT",
-    "model": "qwen2.5-coder:32b",
+    "domain_id": "05_REPORTING",
+    "model": "qwen2.5-coder:7b",
     "status": "COMPLETE",
-    "completed_at": "2026-03-10T01:38:10.956713+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260310T013810Z.md"
+    "completed_at": "2026-03-10T01:44:58.662601+00:00",
+    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T014458Z.md"
   },
   "session_history": [
     {
@@ -58,6 +58,20 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-10T01:38:10.956713+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260310T013810Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-10T01:44:39.040581+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-10T01:44:58.662601+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T014458Z.md"
     }
   ],
   "hardware_ceiling": {
@@ -80,6 +94,20 @@
       "model": "qwen2.5-coder:32b",
       "tier": "heavy",
       "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-10T01:43:43.464839+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
+    },
+    {
+      "timestamp": "2026-03-10T01:44:39.040228+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
     }
   ]
 }

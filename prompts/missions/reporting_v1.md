@@ -1,0 +1,1 @@
+Design a ReportGenerator class for the 05_REPORTING domain. It must: accept a completed benchmark result and produce a structured markdown report, include domain name, model used, tier, score, gate results, and timestamp, write reports to 05_REPORTING/ directory, and log all report generation events. No hardcoded credentials. No governance domain writes.
