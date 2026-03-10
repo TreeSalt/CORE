@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/models.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: antigravity_harness/__pycache__/optimization.cpython-314.pyc",
             "resolution": "Git Checkout"
         },
@@ -699,6 +692,13 @@
             "category": "INFRA",
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m pytest --import-mode=prepend -q -p no:cacheprovider -k not distributed",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T00:44:30Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -m ruff check . --no-cache",
             "resolution": null
         }
     ],
