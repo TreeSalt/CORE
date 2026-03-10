@@ -254,12 +254,12 @@ def write_proposal(domain_id, model, tier, content):
     proposal_path = PROPOSALS_DIR / f"PROPOSAL_{domain_id}_{timestamp}.md"
     PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
     proposal_path.write_text(
-        f"---\nDOMAIN: {domain_id}\nMODEL: {model}\nTIER: {tier}\nSTATUS: PENDING_REVIEW\n---\n\n{content}"
+        f"---\nDOMAIN: {domain_id}\nMODEL: {model}\nTIER: {tier}\nTYPE: {proposal_type}\nSTATUS: PENDING_REVIEW\n---\n\n{content}"
     )
     log.info(f"Proposal written: {proposal_path.name}")
     return proposal_path
 
-def execute_local(domain, task, mission, tier, model):
+def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTATION"):
     domain_id = domain["id"]
     context = _build_context_package(domain, task, mission)
     _log_routing_decision(domain_id, model, tier, f"local execution — security_class={domain.get('security_class')}")
@@ -279,7 +279,7 @@ def execute_local(domain, task, mission, tier, model):
     except Exception as e:
         _fail_closed(f"LOCAL_EXECUTION_FAILED [{model}]: {e}")
 
-def execute_cloud(domain, task, mission, tier):
+def execute_cloud(domain, task, mission, tier, proposal_type="IMPLEMENTATION"):
     domain_id = domain["id"]
     cloud_model = domain.get("cloud_model", "claude-code")
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -299,7 +299,7 @@ def execute_cloud(domain, task, mission, tier):
 
 # ── MAIN ROUTING LOGIC ────────────────────────────────────────────────────────
 
-def route_task(domain_id, task, mission_file):
+def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
     if domain_id not in _domains:
         _fail_closed(f"DOMAIN_NOT_FOUND: {domain_id}")
 
@@ -324,22 +324,22 @@ def route_task(domain_id, task, mission_file):
     if not cloud_eligible:
         # Must stay local — security policy
         log.info(f"Security policy: {domain_id} is {sec_class} — local only, no cloud dispatch")
-        return execute_local(domain, task, mission, tier, model)
+        return execute_local(domain, task, mission, tier, model, proposal_type)
 
     # Cloud eligible — check reachability
     cloud_up = check_cloud_reachable()
     if cloud_up and tier == "heavy":
         # Complex cloud-eligible task — send to Claude Code
         log.info(f"Cloud dispatch: {domain_id} is cloud-eligible and task is heavy tier")
-        return execute_cloud(domain, task, mission, tier)
+        return execute_cloud(domain, task, mission, tier, proposal_type)
 
     if not cloud_up and cloud_eligible:
         # Cloud down — fall back to local Heavy Lifter
         log.warning(f"Cloud unreachable — falling back to local heavy lifter: {domain['heavy_model']}")
-        return execute_local(domain, task, mission, "heavy", domain["heavy_model"])
+        return execute_local(domain, task, mission, "heavy", domain["heavy_model"], proposal_type)
 
     # Default: local sprinter
-    return execute_local(domain, task, mission, tier, model)
+    return execute_local(domain, task, mission, tier, model, proposal_type)
 
 # ── INIT ──────────────────────────────────────────────────────────────────────
 
@@ -359,6 +359,8 @@ if __name__ == "__main__":
     parser.add_argument("--domain",  required=True, help="Domain ID from DOMAINS.yaml")
     parser.add_argument("--task",    required=True, help="Task identifier")
     parser.add_argument("--mission", required=True, help="Mission filename in prompts/missions/")
+    parser.add_argument("--type", default="IMPLEMENTATION", choices=["IMPLEMENTATION", "ARCHITECTURE"],
+                        help="Proposal type hint: IMPLEMENTATION or ARCHITECTURE")
     args = parser.parse_args()
-    result = route_task(args.domain, args.task, args.mission)
+    result = route_task(args.domain, args.task, args.mission, args.type)
     print(f"\nProposal ready: {result}")
