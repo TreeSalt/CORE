@@ -5,3 +5,25 @@ __pycache__/
 *.pyc
 *.pyo
 06_BENCHMARKING/reports/
+# PATCH: Add to .gitignore
+# Fiduciary Segregation of State — DECISION ratified 2026-03-10
+# Transient runtime memory — ephemeral, never forensically meaningful
+
+# AOS Runtime State (transient)
+orchestration/RUN_LOOP_STATE.json
+orchestration/VRAM_STATE.json
+orchestration/ORCHESTRATOR_STATE.json
+orchestration/last_drop.log
+
+# Forge run artifacts (regenerated each drop)
+reports/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Distribution (already ignored but explicit)
+dist/
