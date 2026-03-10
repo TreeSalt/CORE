@@ -293,7 +293,7 @@ def execute_cloud(domain, task, mission, tier):
         f"{context}\n\n"
         f"INSTRUCTIONS: Execute in Claude Code terminal. Return proposal to 08_IMPLEMENTATION_NOTES/."
     )
-    _log_routing_decision(domain_id, cloud_model, tier, f"cloud execution via file_handoff")
+    _log_routing_decision(domain_id, cloud_model, tier, "cloud execution via file_handoff")
     log.info(f"\n{'='*60}\nCLOUD TASK PACKAGED [{tier.upper()}]: {pending_file}\nRun: claude < {pending_file}\n{'='*60}")
     return pending_file
 

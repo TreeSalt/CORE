@@ -115,7 +115,8 @@ def gate_hygiene(code_blocks: list, proposal: Path) -> dict:
         triggered = False
         if pattern == "hardcoded_credentials":
             # Use tokenizer — skip string literals (scanner code legitimately contains these as list items)
-            import tokenize as _tok2, io as _io2
+            import tokenize as _tok2
+            import io as _io2
             code_joined = " ".join(code_blocks)
             try:
                 toks = list(_tok2.generate_tokens(_io2.StringIO(code_joined).readline))
@@ -125,7 +126,8 @@ def gate_hygiene(code_blocks: list, proposal: Path) -> dict:
             except Exception:
                 triggered = any(p in " ".join(code_blocks).lower() for p in ["api_key =", "password =", "secret =", "bearer "])
         elif pattern == "governance_write_attempt":
-            import tokenize, io
+            import tokenize
+            import io
             code_only = " ".join(code_blocks)
             try:
                 tokens = list(tokenize.generate_tokens(io.StringIO(code_only).readline))
@@ -161,7 +163,8 @@ def gate_hallucination(code_blocks: list, proposal: Path, domain: dict) -> dict:
     other_domain_paths = [d["write_path"] for did, d in _domains.items() if did != domain["id"] and d.get("write_path")]
     
     # Only flag actual path operations — not constraint documentation or comments
-    import tokenize as _tok, io as _io
+    import tokenize as _tok
+    import io as _io
     code_only = " ".join(code_blocks)
     try:
         tokens = list(_tok.generate_tokens(_io.StringIO(code_only).readline))
