@@ -118,7 +118,8 @@ class TestClosePosition:
 
 class TestFiduciaryConstraints:
     def test_no_governance_domain_imports(self):
-        import ast, pathlib
+        import ast
+        import pathlib
         src = pathlib.Path("00_PHYSICS_ENGINE/physics_engine/physics_engine.py").read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):
