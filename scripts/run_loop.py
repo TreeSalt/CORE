@@ -241,18 +241,18 @@ def write_escalation_packet(domain: str, task: str, proposal_type: str,
     escalation_path = ESCALATION_DIR / f"ESCALATION_{domain}_{timestamp}.md"
 
     lines = [
-        f"# SOVEREIGN ESCALATION PACKET",
+        "# SOVEREIGN ESCALATION PACKET",
         f"**Domain:** {domain}",
         f"**Task:** {task}",
         f"**Type:** {proposal_type}",
         f"**Timestamp:** {timestamp}",
         f"**Reason:** {reason}",
-        f"",
-        f"## What Happened",
-        f"The autonomous run loop attempted this task and could not resolve it within",
-        f"the constitutional retry limit. Human sovereign decision required.",
-        f"",
-        f"## Attempt Log",
+        "",
+        "## What Happened",
+        "The autonomous run loop attempted this task and could not resolve it within",
+        "the constitutional retry limit. Human sovereign decision required.",
+        "",
+        "## Attempt Log",
     ]
 
     for i, attempt in enumerate(attempt_log, 1):
@@ -263,21 +263,21 @@ def write_escalation_packet(domain: str, task: str, proposal_type: str,
         lines.append(f"- **Failures:** {attempt.get('failures', 'N/A')}")
 
     lines += [
-        f"",
-        f"## Required Sovereign Action",
-        f"1. Review the proposals and reports linked above",
-        f"2. Determine root cause (mission too vague? model tier wrong? domain config issue?)",
-        f"3. Either:",
-        f"   - Rewrite the mission file and re-invoke run_loop.py",
-        f"   - Escalate to Claude.ai (Hostile Auditor) with this packet for architectural diagnosis",
-        f"   - Manually write the proposal and submit directly to benchmark_runner.py",
-        f"",
-        f"**This packet is append-only. Do not delete.**",
+        "",
+        "## Required Sovereign Action",
+        "1. Review the proposals and reports linked above",
+        "2. Determine root cause (mission too vague? model tier wrong? domain config issue?)",
+        "3. Either:",
+        "   - Rewrite the mission file and re-invoke run_loop.py",
+        "   - Escalate to Claude.ai (Hostile Auditor) with this packet for architectural diagnosis",
+        "   - Manually write the proposal and submit directly to benchmark_runner.py",
+        "",
+        "**This packet is append-only. Do not delete.**",
     ]
 
     escalation_path.write_text("\n".join(lines))
     log.critical(f"\n{'='*60}")
-    log.critical(f"SOVEREIGN ESCALATION REQUIRED")
+    log.critical("SOVEREIGN ESCALATION REQUIRED")
     log.critical(f"Packet: {escalation_path}")
     log.critical(f"Reason: {reason}")
     log.critical(f"{'='*60}")
@@ -295,28 +295,28 @@ def write_pass_packet(domain: str, task: str, proposal_type: str,
     packet_path = ESCALATION_DIR / f"RATIFICATION_{domain}_{timestamp}.md"
 
     lines = [
-        f"# SOVEREIGN RATIFICATION PACKET",
+        "# SOVEREIGN RATIFICATION PACKET",
         f"**Domain:** {domain}",
         f"**Task:** {task}",
         f"**Type:** {proposal_type}",
         f"**Timestamp:** {timestamp}",
         f"**Attempts Required:** {attempt_number}",
-        f"**Status:** AWAITING SOVEREIGN RATIFICATION",
-        f"",
-        f"## Proposal",
+        "**Status:** AWAITING SOVEREIGN RATIFICATION",
+        "",
+        "## Proposal",
         f"`{proposal_path}`",
-        f"",
-        f"## Benchmark Report",
+        "",
+        "## Benchmark Report",
         f"`{report_path}`",
-        f"",
-        f"## Required Sovereign Action",
-        f"1. Review the proposal at the path above",
-        f"2. If satisfied, ratify by changing STATUS in the proposal header from",
-        f"   `PENDING_REVIEW` to `RATIFIED`",
+        "",
+        "## Required Sovereign Action",
+        "1. Review the proposal at the path above",
+        "2. If satisfied, ratify by changing STATUS in the proposal header from",
+        "   `PENDING_REVIEW` to `RATIFIED`",
         f"3. Commit with: `git add {proposal_path} && git commit -m 'ratify: {domain} {task}'`",
-        f"4. The factory will treat RATIFIED proposals as input for the next phase",
-        f"",
-        f"**Benchmark Score: 1.0 ✅ — The factory has done its job. You do the rest.**",
+        "4. The factory will treat RATIFIED proposals as input for the next phase",
+        "",
+        "**Benchmark Score: 1.0 ✅ — The factory has done its job. You do the rest.**",
     ]
 
     packet_path.write_text("\n".join(lines))
@@ -395,7 +395,7 @@ def run_loop(domain: str, task: str, mission: str,
                 proposal_path, report_path, attempt
             )
             log.info(f"\n{'='*60}")
-            log.info(f"✅ FACTORY RUN COMPLETE — SOVEREIGN RATIFICATION REQUIRED")
+            log.info("✅ FACTORY RUN COMPLETE — SOVEREIGN RATIFICATION REQUIRED")
             log.info(f"Ratification packet: {packet}")
             log.info(f"{'='*60}")
             _append_error_ledger(
