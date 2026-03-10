@@ -458,7 +458,7 @@ if __name__ == "__main__":
     parser.add_argument("--mission",     required=True,
                         help="Mission filename in prompts/missions/")
     parser.add_argument("--type",        default="IMPLEMENTATION",
-                        choices=["IMPLEMENTATION", "ARCHITECTURE"],
+                        choices=["IMPLEMENTATION", "ARCHITECTURE", "STRATEGIC_ARCHITECTURE"],
                         help="Proposal type")
     parser.add_argument("--max-retries", type=int, default=2,
                         help="Max soft-fail retries before sovereign escalation (default: 2)")
