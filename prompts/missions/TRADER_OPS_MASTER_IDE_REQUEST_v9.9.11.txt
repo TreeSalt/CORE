@@ -1,0 +1,3 @@
+MISSION CHARTER: TRADER_OPS v9.9.11
+Objective: Achieve Golden State and Prepare Release
+Constraints: Abide by the Fiduciary Air Gap. Ensure strict compliance with Institutional quality gates.
