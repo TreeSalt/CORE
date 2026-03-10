@@ -230,6 +230,16 @@
         }
       ],
       "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T153106Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "deploy_data_multiplexer_to_production",
+      "mission": "prompts/missions/deploy_data_multiplexer.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
     }
   ]
 }
