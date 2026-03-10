@@ -1,73 +1,127 @@
+# DOMAINS REGISTRY v2.0
+# THREE-TIER INTELLIGENCE STACK AWARE
+# Ratified: 2026-03-09 — Supreme Council
+
 domains:
   - id: "00_PHYSICS_ENGINE"
     description: "Core trading physics, signal mathematics, SMA/EMA/deque engine"
-    pilot: "local"
-    worker: "qwen2.5-coder:7b"
+    security_class: "CONFIDENTIAL"
+    cloud_eligible: false
+    primary_tier: "sprinter"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
     complexity: "HIGH"
+    token_threshold: 2048
     write_path: "00_PHYSICS_ENGINE/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5:32b"]
+    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b"]
+    escalation_trigger: "complexity==HIGH or token_count>token_threshold"
 
   - id: "01_DATA_INGESTION"
     description: "Market data feeds, websocket handlers, data normalization"
-    pilot: "local"
-    worker: "qwen2.5-coder:7b"
+    security_class: "INTERNAL"
+    cloud_eligible: false
+    primary_tier: "sprinter"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
     complexity: "MEDIUM"
+    token_threshold: 2048
     write_path: "01_DATA_INGESTION/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5:32b"]
+    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b"]
+    escalation_trigger: "token_count>token_threshold"
 
   - id: "02_RISK_MANAGEMENT"
-    description: "Position sizing, drawdown limits, exposure calculations. Also governs agent resource consumption limits."
-    pilot: "cloud"
-    worker: "claude-code"
+    description: "Position sizing, drawdown limits, exposure calculations. Agent resource limits."
+    security_class: "CONFIDENTIAL"
+    cloud_eligible: false
+    primary_tier: "heavy"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
     complexity: "HIGH"
+    token_threshold: 1024
     write_path: "02_RISK_MANAGEMENT/"
-    authorized_agents: ["claude-code"]
+    authorized_agents: ["qwen2.5-coder:32b"]
+    escalation_trigger: "always_heavy"
+    note: "Risk logic must never leave local machine. Cloud-ineligible by constitution."
 
   - id: "03_ORCHESTRATION"
     description: "Semantic router, agent coordination, task packaging, VRAM management"
-    pilot: "local"
-    worker: "qwen2.5-coder:7b"
+    security_class: "INTERNAL"
+    cloud_eligible: true
+    primary_tier: "heavy"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
+    cloud_model: "claude-code"
     complexity: "HIGH"
-    write_path: "v9e_stage/orchestration/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5:32b"]
+    token_threshold: 1024
+    write_path: "orchestration/"
+    authorized_agents: ["qwen2.5-coder:32b", "claude-code"]
+    escalation_trigger: "always_heavy"
 
   - id: "04_GOVERNANCE"
     description: "Constitutional layer, governor scripts, sovereign documents"
-    pilot: "HUMAN_SOVEREIGN"
-    worker: "HUMAN_SOVEREIGN"
+    security_class: "SOVEREIGN"
+    cloud_eligible: false
+    primary_tier: "HUMAN_SOVEREIGN"
+    sprinter_model: null
+    heavy_model: null
     complexity: "SOVEREIGN"
+    token_threshold: 0
     write_path: "04_GOVERNANCE/"
     authorized_agents: []
-    note: "No agent has write access under any circumstances. Read-only for all agents. Supreme Council only."
+    note: "No agent write access under any circumstances. Human Supreme Council only."
 
   - id: "05_REPORTING"
     description: "Performance reports, dashboards, audit trail outputs"
-    pilot: "local"
-    worker: "qwen2.5-coder:7b"
+    security_class: "INTERNAL"
+    cloud_eligible: true
+    primary_tier: "sprinter"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
+    cloud_model: "claude-code"
     complexity: "LOW"
+    token_threshold: 4096
     write_path: "05_REPORTING/"
-    authorized_agents: ["qwen2.5-coder:7b"]
+    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b", "claude-code"]
+    escalation_trigger: "token_count>token_threshold"
 
   - id: "06_BENCHMARKING"
-    description: "Fitness functions, hallucination detection gates, performance metrics. Schema is human-ratified. Execution layer is agent-autonomous."
-    pilot: "cloud"
-    worker: "claude-code"
+    description: "Fitness functions, hallucination gates, performance metrics. Schema is human-ratified."
+    security_class: "INTERNAL"
+    cloud_eligible: true
+    primary_tier: "sprinter"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
+    cloud_model: "claude-code"
     complexity: "HIGH"
+    token_threshold: 2048
     write_path: "06_BENCHMARKING/"
-    authorized_agents: ["claude-code"]
+    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b", "claude-code"]
+    escalation_trigger: "complexity==HIGH or token_count>token_threshold"
 
   - id: "07_INTEGRATION"
-    description: "Interface verification, merge conflict resolution between parallel agents. Last automated gate before Supreme Council review."
-    pilot: "cloud"
-    worker: "claude-code"
+    description: "Interface verification, merge conflict resolution. Last gate before Supreme Council."
+    security_class: "INTERNAL"
+    cloud_eligible: true
+    primary_tier: "heavy"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
+    cloud_model: "claude-code"
     complexity: "HIGH"
+    token_threshold: 1024
     write_path: "07_INTEGRATION/"
-    authorized_agents: ["claude-code"]
+    authorized_agents: ["qwen2.5-coder:32b", "claude-code"]
+    escalation_trigger: "always_heavy"
 
   - id: "08_CYBERSECURITY"
-    description: "Data feed integrity verification, injection detection, governor seal validation, constitutional hash monitoring."
-    pilot: "cloud"
-    worker: "claude-code"
+    description: "Feed integrity, injection detection, governor seal validation, constitutional hash monitoring."
+    security_class: "CONFIDENTIAL"
+    cloud_eligible: false
+    primary_tier: "heavy"
+    sprinter_model: "qwen2.5-coder:7b"
+    heavy_model: "qwen2.5-coder:32b"
     complexity: "HIGH"
+    token_threshold: 1024
     write_path: "08_CYBERSECURITY/"
-    authorized_agents: ["claude-code"]
+    authorized_agents: ["qwen2.5-coder:32b"]
+    escalation_trigger: "always_heavy"
+    note: "Security domain is cloud-ineligible. Local only. No exceptions."

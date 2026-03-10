@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
 """
 semantic_router.py — AOS Orchestration Engine
-Version:        2.0.0
+Version:        3.0.0
 Constitution:   BOUND
 Authors:        Supreme Council — TRADER_OPS
+
+ROUTING INTELLIGENCE:
+  1. Security gate    — CONFIDENTIAL/SOVEREIGN domains never leave local machine
+  2. Secrets scan     — mission file scanned for credentials before any dispatch
+  3. Tier selection   — task complexity + token count determines Sprinter vs Heavy Lifter
+  4. VRAM check       — live hardware state gates local execution
+  5. Cloud fallback   — if cloud unreachable and domain allows, fall back to local Heavy Lifter
+  6. Dispatch         — execute with selected model, log decision
 """
 
 import sys
 import json
 import hashlib
 import logging
+import re
 import requests
 import yaml
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import NoReturn
 
-# ── PATHS (Surgically aligned to v9e_stage) ──────────────
+# ── PATHS ─────────────────────────────────────────────────────────────────────
 REPO_ROOT         = Path(__file__).resolve().parents[1]
 GOVERNOR_SEAL     = REPO_ROOT / ".governor_seal"
 OPERATOR_INSTANCE = REPO_ROOT / "04_GOVERNANCE" / "OPERATOR_INSTANCE.yaml"
@@ -29,14 +38,29 @@ MISSIONS_DIR      = REPO_ROOT / "prompts" / "missions"
 PENDING_DIR       = MISSIONS_DIR / "PENDING"
 
 OLLAMA_BASE_URL   = "http://localhost:11434"
-TIMEOUT           = 120
+TIMEOUT           = 300  # 5 min for 32b heavy lifter
 
-# ── LOGGING ──────────────────────────────────────────────
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%dT%H:%M:%SZ")
+# ── SECRETS PATTERNS (mission file scan) ──────────────────────────────────────
+SECRET_PATTERNS = [
+    r'(?i)(password|passwd|pwd)\s*=\s*["\']?\S+',
+    r'(?i)(api_key|apikey|api-key)\s*=\s*["\']?\S+',
+    r'(?i)(secret|token|auth)\s*=\s*["\']?\S+',
+    r'(?i)bearer\s+[A-Za-z0-9\-._~+/]+=*',
+    r'[A-Za-z0-9]{32,}',  # Long opaque strings (potential tokens)
+]
+
+# ── LOGGING ───────────────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%SZ"
+)
 log = logging.getLogger("semantic_router")
 
 _operator = {}
 _domains  = {}
+
+# ── CORE UTILITIES ────────────────────────────────────────────────────────────
 
 def _sha256(path: Path) -> str:
     h = hashlib.sha256()
@@ -56,6 +80,24 @@ def _fail_closed(reason: str) -> NoReturn:
         pass
     sys.exit(1)
 
+def _log_routing_decision(domain_id, model, tier, reason):
+    log.info(f"ROUTING DECISION: domain={domain_id} model={model} tier={tier} reason={reason}")
+    try:
+        state = json.load(open(VRAM_STATE_FILE)) if VRAM_STATE_FILE.exists() else {"routing_log": []}
+        state.setdefault("routing_log", []).append({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "domain_id": domain_id,
+            "model": model,
+            "tier": tier,
+            "reason": reason
+        })
+        with open(VRAM_STATE_FILE, "w") as f:
+            json.dump(state, f, indent=2)
+    except Exception:
+        pass
+
+# ── STARTUP GATES ─────────────────────────────────────────────────────────────
+
 def verify_constitutional_hashes():
     log.info("Gate 1: Verifying constitutional hashes...")
     if not GOVERNOR_SEAL.exists():
@@ -66,7 +108,6 @@ def verify_constitutional_hashes():
             stored["aec"] = line.split(":", 1)[1].strip()
         elif line.startswith("OI_HASH:"):
             stored["oi"] = line.split(":", 1)[1].strip()
-    
     if "aec" not in stored or "oi" not in stored:
         _fail_closed("GOVERNOR_SEAL_MALFORMED")
     if _sha256(CONSTITUTION_FILE) != stored["aec"]:
@@ -99,6 +140,52 @@ def verify_ollama_status():
     except Exception as e:
         _fail_closed(f"OLLAMA_UNREACHABLE: {e}")
 
+# ── ROUTING INTELLIGENCE ──────────────────────────────────────────────────────
+
+def scan_for_secrets(text: str, source: str = "mission"):
+    """Gate: Fail closed if mission file contains credentials or tokens."""
+    for pattern in SECRET_PATTERNS:
+        matches = re.findall(pattern, text)
+        if matches:
+            _fail_closed(f"SECRETS_DETECTED_IN_{source.upper()}: Pattern matched — refusing dispatch. Remove credentials before routing.")
+
+def check_security_class(domain: dict) -> str:
+    """Returns security class. SOVEREIGN/CONFIDENTIAL = local only."""
+    sec = domain.get("security_class", "INTERNAL")
+    if sec == "SOVEREIGN":
+        _fail_closed(f"SOVEREIGNTY_VIOLATION: Domain {domain['id']} is SOVEREIGN. No agent dispatch permitted.")
+    if sec == "CONFIDENTIAL" and domain.get("cloud_eligible", False):
+        _fail_closed(f"SECURITY_MISCONFIGURATION: Domain {domain['id']} is CONFIDENTIAL but marked cloud_eligible. Fix DOMAINS.yaml.")
+    return sec
+
+def estimate_token_count(text: str) -> int:
+    """Rough token estimate: ~4 chars per token."""
+    return len(text) // 4
+
+def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
+    """
+    Returns (tier_name, model_to_use) based on routing intelligence.
+
+    Priority order:
+    1. escalation_trigger == always_heavy → Heavy Lifter
+    2. complexity == HIGH → Heavy Lifter
+    3. token_count > threshold → Heavy Lifter
+    4. Default → Sprinter
+    """
+    token_count = estimate_token_count(mission_text)
+    token_threshold = domain.get("token_threshold", 2048)
+    complexity = domain.get("complexity", "MEDIUM")
+    escalation = domain.get("escalation_trigger", "")
+
+    if escalation == "always_heavy":
+        return "heavy", domain["heavy_model"]
+    if complexity == "HIGH":
+        return "heavy", domain["heavy_model"]
+    if token_count > token_threshold:
+        log.info(f"Token escalation: {token_count} tokens > threshold {token_threshold}")
+        return "heavy", domain["heavy_model"]
+    return "sprinter", domain["sprinter_model"]
+
 def get_live_vram_state() -> dict:
     try:
         models = requests.get(f"{OLLAMA_BASE_URL}/api/ps", timeout=10).json().get("models", [])
@@ -114,14 +201,24 @@ def check_vram_ceiling() -> bool:
         return False
     return True
 
+def check_cloud_reachable() -> bool:
+    """Lightweight check — can we reach the internet?"""
+    try:
+        requests.get("https://api.anthropic.com", timeout=5)
+        return True
+    except Exception:
+        log.warning("Cloud unreachable — falling back to local Heavy Lifter if domain allows.")
+        return False
+
 def update_vram_log(domain_id, model, status, proposal_path=""):
     now = datetime.now(timezone.utc).isoformat()
-    entry = {"domain_id": domain_id, "model": model, "status": status, "completed_at": now, "proposal_path": proposal_path}
+    entry = {"domain_id": domain_id, "model": model, "status": status,
+             "completed_at": now, "proposal_path": proposal_path}
     try:
         state = json.load(open(VRAM_STATE_FILE)) if VRAM_STATE_FILE.exists() else {"session_history": []}
         state["last_updated"] = now
         state["last_task"] = entry
-        state["session_history"].append(entry)
+        state.setdefault("session_history", []).append(entry)
         with open(VRAM_STATE_FILE, "w") as f:
             json.dump(state, f, indent=2)
     except Exception:
@@ -131,60 +228,123 @@ def load_mission_prompt(mission_file: str) -> str:
     path = Path(mission_file) if Path(mission_file).is_absolute() else MISSIONS_DIR / mission_file
     if not path.exists():
         _fail_closed(f"MISSION_PROMPT_MISSING: {path}")
-    log.info("Gate 5: PASSED")
-    return path.read_text().strip()
+    text = path.read_text().strip()
+    scan_for_secrets(text, source="mission")
+    log.info("Gate 5: PASSED — mission loaded, secrets scan clean")
+    return text
+
+# ── EXECUTION ─────────────────────────────────────────────────────────────────
 
 def _build_context_package(domain, task, mission):
-    return (f"DOMAIN: {domain['id']}\nMISSION: {mission}\nTASK: {task}\n"
-            f"CONSTRAINTS: Respect boundaries. Proposal format only.")
+    return (
+        f"DOMAIN: {domain['id']}\n"
+        f"SECURITY_CLASS: {domain.get('security_class', 'INTERNAL')}\n"
+        f"MISSION: {mission}\n"
+        f"TASK: {task}\n"
+        f"CONSTRAINTS:\n"
+        f"  - Proposals only. No direct execution.\n"
+        f"  - No writes to 04_GOVERNANCE/\n"
+        f"  - No hardcoded credentials\n"
+        f"  - Fail closed on any constraint breach\n"
+        f"  - Output valid Python code only\n"
+    )
 
-def write_proposal(domain_id, model, pilot, content, mission_file):
+def write_proposal(domain_id, model, tier, content):
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     proposal_path = PROPOSALS_DIR / f"PROPOSAL_{domain_id}_{timestamp}.md"
     PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
-    proposal_path.write_text(f"---\nDOMAIN: {domain_id}\nSTATUS: PENDING_REVIEW\n---\n\n{content}")
+    proposal_path.write_text(
+        f"---\nDOMAIN: {domain_id}\nMODEL: {model}\nTIER: {tier}\nSTATUS: PENDING_REVIEW\n---\n\n{content}"
+    )
     log.info(f"Proposal written: {proposal_path.name}")
     return proposal_path
 
-def execute_local(domain, task, mission):
-    model, domain_id = domain["worker"], domain["id"]
+def execute_local(domain, task, mission, tier, model):
+    domain_id = domain["id"]
     context = _build_context_package(domain, task, mission)
+    _log_routing_decision(domain_id, model, tier, f"local execution — security_class={domain.get('security_class')}")
     update_vram_log(domain_id, model, "ACTIVE")
-    log.info(f"Executing LOCAL: {model}")
+    log.info(f"Executing LOCAL [{tier.upper()}]: {model}")
     try:
-        res = requests.post(f"{OLLAMA_BASE_URL}/api/generate", json={"model": model, "prompt": context, "stream": False}, timeout=TIMEOUT)
+        res = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json={"model": model, "prompt": context, "stream": False},
+            timeout=TIMEOUT
+        )
         res.raise_for_status()
         content = res.json().get("response", "")
-        proposal_path = write_proposal(domain_id, model, "local", content, mission)
+        proposal_path = write_proposal(domain_id, model, tier, content)
         update_vram_log(domain_id, model, "COMPLETE", str(proposal_path))
         return proposal_path
     except Exception as e:
-        _fail_closed(f"EXECUTION_FAILED: {e}")
+        _fail_closed(f"LOCAL_EXECUTION_FAILED [{model}]: {e}")
 
-def execute_cloud(domain, task, mission):
+def execute_cloud(domain, task, mission, tier):
     domain_id = domain["id"]
+    cloud_model = domain.get("cloud_model", "claude-code")
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     PENDING_DIR.mkdir(parents=True, exist_ok=True)
     pending_file = PENDING_DIR / f"PENDING_{domain_id}_{timestamp}.md"
     context = _build_context_package(domain, task, mission)
-    pending_file.write_text(f"# CLOUD TASK\n{context}\n\nINSTRUCTIONS: Execute in Claude Code terminal.")
-    log.info(f"\n{'='*60}\nCLOUD TASK PACKAGED: {pending_file}\nOpen Claude Code terminal and run: claude < {pending_file}\n{'='*60}")
+    pending_file.write_text(
+        f"# CLOUD TASK PACKAGE\n"
+        f"# Model: {cloud_model} | Tier: {tier} | Domain: {domain_id}\n"
+        f"# Security: {domain.get('security_class')} | Cloud-eligible: {domain.get('cloud_eligible')}\n\n"
+        f"{context}\n\n"
+        f"INSTRUCTIONS: Execute in Claude Code terminal. Return proposal to 08_IMPLEMENTATION_NOTES/."
+    )
+    _log_routing_decision(domain_id, cloud_model, tier, f"cloud execution via file_handoff")
+    log.info(f"\n{'='*60}\nCLOUD TASK PACKAGED [{tier.upper()}]: {pending_file}\nRun: claude < {pending_file}\n{'='*60}")
     return pending_file
+
+# ── MAIN ROUTING LOGIC ────────────────────────────────────────────────────────
 
 def route_task(domain_id, task, mission_file):
     if domain_id not in _domains:
-        _fail_closed("DOMAIN_NOT_FOUND")
-    if _domains[domain_id]["pilot"] == "HUMAN_SOVEREIGN":
-        _fail_closed("SOVEREIGNTY_VIOLATION")
+        _fail_closed(f"DOMAIN_NOT_FOUND: {domain_id}")
+
+    domain = _domains[domain_id]
+
+    # Security gate — must run first, before any data leaves
+    sec_class = check_security_class(domain)
+
+    # Load and scan mission
     mission = load_mission_prompt(mission_file)
+
+    # Tier selection based on complexity + token count
+    tier, model = select_tier(domain, mission)
+
+    # VRAM ceiling check for local execution
     if not check_vram_ceiling():
-        _fail_closed("HARDWARE_CEILING_BREACH")
-    
-    pilot = _domains[domain_id]["pilot"]
-    return execute_local(_domains[domain_id], task, mission) if pilot == "local" else execute_cloud(_domains[domain_id], task, mission)
+        _fail_closed("HARDWARE_CEILING_BREACH — unload a model before dispatching")
+
+    # Cloud eligibility + reachability
+    cloud_eligible = domain.get("cloud_eligible", False)
+
+    if not cloud_eligible:
+        # Must stay local — security policy
+        log.info(f"Security policy: {domain_id} is {sec_class} — local only, no cloud dispatch")
+        return execute_local(domain, task, mission, tier, model)
+
+    # Cloud eligible — check reachability
+    cloud_up = check_cloud_reachable()
+    if cloud_up and tier == "heavy":
+        # Complex cloud-eligible task — send to Claude Code
+        log.info(f"Cloud dispatch: {domain_id} is cloud-eligible and task is heavy tier")
+        return execute_cloud(domain, task, mission, tier)
+
+    if not cloud_up and cloud_eligible:
+        # Cloud down — fall back to local Heavy Lifter
+        log.warning(f"Cloud unreachable — falling back to local heavy lifter: {domain['heavy_model']}")
+        return execute_local(domain, task, mission, "heavy", domain["heavy_model"])
+
+    # Default: local sprinter
+    return execute_local(domain, task, mission, tier, model)
+
+# ── INIT ──────────────────────────────────────────────────────────────────────
 
 def initialize():
-    log.info("AOS SEMANTIC ROUTER v2.0.0 — INITIALIZING")
+    log.info("AOS SEMANTIC ROUTER v3.0.0 — INITIALIZING")
     verify_constitutional_hashes()
     load_operator_instance()
     load_domains_registry()
@@ -195,9 +355,10 @@ initialize()
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--domain", required=True)
-    parser.add_argument("--task", required=True)
-    parser.add_argument("--mission", required=True)
+    parser = argparse.ArgumentParser(description="AOS Semantic Router v3.0.0")
+    parser.add_argument("--domain",  required=True, help="Domain ID from DOMAINS.yaml")
+    parser.add_argument("--task",    required=True, help="Task identifier")
+    parser.add_argument("--mission", required=True, help="Mission filename in prompts/missions/")
     args = parser.parse_args()
-    print(f"\nProposal ready: {route_task(args.domain, args.task, args.mission)}")
+    result = route_task(args.domain, args.task, args.mission)
+    print(f"\nProposal ready: {result}")
