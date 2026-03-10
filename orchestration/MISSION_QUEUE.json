@@ -4,44 +4,53 @@
   "description": "Autonomous mission queue. Orchestrator polls this file and executes missions in priority order. Sovereign is only paged for IMPLEMENTATION ratification, HARD_FAIL, or MAX_RETRIES.",
   "missions": [
     {
-      "id": "fix_gate_logic_001",
-      "domain": "06_BENCHMARKING",
-      "task": "fix_gate_logic_traceback_reporting",
-      "mission_file": "mission_fix_gate_logic.md",
+      "id": "p0_fix_opsec_filename_001",
+      "domain": "01_DATA_INGESTION",
+      "task": "fix_opsec_rag_scout_filename_drift",
+      "mission_file": "mission_fix_opsec_filename.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "priority": 1,
-      "status": "AWAITING_RATIFICATION",
+      "priority": 0,
+      "status": "PENDING",
       "authored_by": "Claude.ai",
-      "authored_at": "2026-03-10T00:00:00Z",
-      "rationale": "BenchmarkOrchestrator._gate_logic returns useless failure messages. Fix before Zoo runs so corrective context is actionable.",
-      "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260310T181329Z.md"
-      },
-      "started_at": "2026-03-10T18:13:27.695115+00:00",
-      "completed_at": "2026-03-10T18:13:29.513397+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260310T181329Z.md"
+      "authored_at": "2026-03-10T18:30:00Z",
+      "rationale": "ANDON CORD \u2014 Article VI.2 Substrate Integrity Violation. opsec_rag_scout.py landed as websocket_handler.py. Forensic trail broken. Fix before Zoo opens.",
+      "constitutional_basis": "Article VI \u2014 Zero Technical Debt Tolerance",
+      "result": null
     },
     {
-      "id": "deploy_opsec_rag_scout_001",
-      "domain": "01_DATA_INGESTION",
-      "task": "deploy_opsec_rag_scout",
-      "mission_file": "mission_deploy_opsec_rag_scout.md",
+      "id": "wire_makefile_splinter_hook_001",
+      "domain": "03_ORCHESTRATION",
+      "task": "wire_makefile_splinter_hook",
+      "mission_file": "mission_wire_splinter_hook.md",
       "type": "IMPLEMENTATION",
+      "max_retries": 2,
+      "priority": 1,
+      "status": "PENDING",
+      "authored_by": "Claude.ai",
+      "authored_at": "2026-03-10T18:18:00Z",
+      "rationale": "Permanent fix: auto-create prompt splinter on version bump. Ends Gate 5 chase forever.",
+      "result": null
+    },
+    {
+      "id": "zoo_epoch1_strategy_variants_001",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "generate_zoo_epoch1_variants",
+      "mission_file": "mission_zoo_epoch1.md",
+      "type": "ARCHITECTURE",
       "max_retries": 3,
       "priority": 2,
-      "status": "AWAITING_RATIFICATION",
+      "status": "PENDING",
       "authored_by": "Claude.ai",
-      "authored_at": "2026-03-10T00:00:00Z",
-      "rationale": "Last missing production module. Required before Zoo first epoch.",
-      "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_01_DATA_INGESTION_20260310T173500Z.md"
+      "authored_at": "2026-03-10T18:18:00Z",
+      "rationale": "Zoo first epoch \u2014 5 strategy variants bred for drawdown resistance and risk-adjusted return (Sharpe/Sortino). Selection pressure: survive 15% max drawdown, minimize volatility drag. Breed unkillable macro-survivors, not fragile sprinters.",
+      "selection_pressure": {
+        "primary": "max_drawdown_pct < 15.0",
+        "secondary": "sortino_ratio > 1.0",
+        "tertiary": "sharpe_ratio > 0.8",
+        "anti_target": "do NOT optimize for absolute return at expense of drawdown"
       },
-      "started_at": "2026-03-10T17:26:16.386209+00:00",
-      "completed_at": "2026-03-10T17:35:00.413808+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_01_DATA_INGESTION_20260310T173500Z.md"
+      "result": null
     }
   ]
 }
