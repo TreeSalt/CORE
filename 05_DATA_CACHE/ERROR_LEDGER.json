@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: antigravity_harness/__pycache__/portfolio_benchmark.cpython-314.pyc",
             "resolution": "Git Checkout"
         },
@@ -699,6 +692,13 @@
             "category": "INFRA",
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -m ruff check . --no-cache",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T00:51:12Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.9.txt' missing in STRICT_MODE.",
             "resolution": null
         }
     ],
