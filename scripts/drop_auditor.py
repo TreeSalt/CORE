@@ -1,3 +1,5 @@
 #!/usr/bin/env python3
+import sys
+
 print('TAMPERED AUDITOR')
-import sys; sys.exit(1)
+sys.exit(1)

@@ -42,7 +42,8 @@ def _fail_closed(reason: str) -> NoReturn:
     try:
         with open(ERROR_LEDGER, "a") as f:
             f.write(f"\n### {timestamp} — BENCHMARK RUNNER FAIL-CLOSED\n**Reason:** {reason}\n")
-    except Exception: pass
+    except Exception:
+        pass
     sys.exit(1)
 
 def _sha256(path: Path) -> str:

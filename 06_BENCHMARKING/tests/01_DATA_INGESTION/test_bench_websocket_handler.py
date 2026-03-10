@@ -168,7 +168,6 @@ class TestFiduciaryConstraints:
 
     def test_data_feed_logs_anomalies(self):
         from data_ingestion.websocket_handler import WebSocketHandler
-        import logging
         handler = WebSocketHandler(
             server_address="wss://test.market.com/feed", on_message=MagicMock(),
             on_error=MagicMock(), on_close=MagicMock(), on_open=MagicMock()

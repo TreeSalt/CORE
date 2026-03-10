@@ -58,28 +58,37 @@ def _fail_closed(reason: str) -> NoReturn:
 
 def verify_constitutional_hashes():
     log.info("Gate 1: Verifying constitutional hashes...")
-    if not GOVERNOR_SEAL.exists(): _fail_closed("GOVERNOR_SEAL_MISSING")
+    if not GOVERNOR_SEAL.exists():
+        _fail_closed("GOVERNOR_SEAL_MISSING")
     stored = {}
     for line in GOVERNOR_SEAL.read_text().splitlines():
-        if line.startswith("AEC_HASH:"): stored["aec"] = line.split(":", 1)[1].strip()
-        elif line.startswith("OI_HASH:"): stored["oi"] = line.split(":", 1)[1].strip()
+        if line.startswith("AEC_HASH:"):
+            stored["aec"] = line.split(":", 1)[1].strip()
+        elif line.startswith("OI_HASH:"):
+            stored["oi"] = line.split(":", 1)[1].strip()
     
-    if "aec" not in stored or "oi" not in stored: _fail_closed("GOVERNOR_SEAL_MALFORMED")
-    if _sha256(CONSTITUTION_FILE) != stored["aec"]: _fail_closed("CONSTITUTIONAL_INTEGRITY_BREACH (AEC)")
-    if _sha256(OPERATOR_INSTANCE) != stored["oi"]: _fail_closed("CONSTITUTIONAL_INTEGRITY_BREACH (OI)")
+    if "aec" not in stored or "oi" not in stored:
+        _fail_closed("GOVERNOR_SEAL_MALFORMED")
+    if _sha256(CONSTITUTION_FILE) != stored["aec"]:
+        _fail_closed("CONSTITUTIONAL_INTEGRITY_BREACH (AEC)")
+    if _sha256(OPERATOR_INSTANCE) != stored["oi"]:
+        _fail_closed("CONSTITUTIONAL_INTEGRITY_BREACH (OI)")
     log.info("Gate 1: PASSED")
 
 def load_operator_instance():
     global _operator
     log.info("Gate 2: Loading OPERATOR_INSTANCE.yaml...")
-    with open(OPERATOR_INSTANCE, "r") as f: _operator = yaml.safe_load(f)
-    if "{{" in OPERATOR_INSTANCE.read_text(): _fail_closed("OPERATOR_INSTANCE_INCOMPLETE")
+    with open(OPERATOR_INSTANCE, "r") as f:
+        _operator = yaml.safe_load(f)
+    if "{{" in OPERATOR_INSTANCE.read_text():
+        _fail_closed("OPERATOR_INSTANCE_INCOMPLETE")
     log.info("Gate 2: PASSED")
 
 def load_domains_registry():
     global _domains
     log.info("Gate 3: Loading DOMAINS.yaml...")
-    with open(DOMAINS_REGISTRY, "r") as f: _domains = {d["id"]: d for d in yaml.safe_load(f)["domains"]}
+    with open(DOMAINS_REGISTRY, "r") as f:
+        _domains = {d["id"]: d for d in yaml.safe_load(f)["domains"]}
     log.info("Gate 3: PASSED")
 
 def verify_ollama_status():
@@ -113,13 +122,15 @@ def update_vram_log(domain_id, model, status, proposal_path=""):
         state["last_updated"] = now
         state["last_task"] = entry
         state["session_history"].append(entry)
-        with open(VRAM_STATE_FILE, "w") as f: json.dump(state, f, indent=2)
+        with open(VRAM_STATE_FILE, "w") as f:
+            json.dump(state, f, indent=2)
     except Exception:
         pass
 
 def load_mission_prompt(mission_file: str) -> str:
     path = Path(mission_file) if Path(mission_file).is_absolute() else MISSIONS_DIR / mission_file
-    if not path.exists(): _fail_closed(f"MISSION_PROMPT_MISSING: {path}")
+    if not path.exists():
+        _fail_closed(f"MISSION_PROMPT_MISSING: {path}")
     log.info("Gate 5: PASSED")
     return path.read_text().strip()
 
@@ -161,10 +172,13 @@ def execute_cloud(domain, task, mission):
     return pending_file
 
 def route_task(domain_id, task, mission_file):
-    if domain_id not in _domains: _fail_closed("DOMAIN_NOT_FOUND")
-    if _domains[domain_id]["pilot"] == "HUMAN_SOVEREIGN": _fail_closed("SOVEREIGNTY_VIOLATION")
+    if domain_id not in _domains:
+        _fail_closed("DOMAIN_NOT_FOUND")
+    if _domains[domain_id]["pilot"] == "HUMAN_SOVEREIGN":
+        _fail_closed("SOVEREIGNTY_VIOLATION")
     mission = load_mission_prompt(mission_file)
-    if not check_vram_ceiling(): _fail_closed("HARDWARE_CEILING_BREACH")
+    if not check_vram_ceiling():
+        _fail_closed("HARDWARE_CEILING_BREACH")
     
     pilot = _domains[domain_id]["pilot"]
     return execute_local(_domains[domain_id], task, mission) if pilot == "local" else execute_cloud(_domains[domain_id], task, mission)
