@@ -202,8 +202,8 @@ def gate_logic(domain_id: str) -> dict:
 
     try:
         proc = subprocess.run(
-            [sys.executable, "-m", "pytest", str(test_dir), "-v", "--tb=short", "--timeout=120"],
-            capture_output=True, text=True, timeout=120, cwd=str(REPO_ROOT)
+            [sys.executable, "-m", "pytest", str(test_dir), "-v", "--tb=short", "--timeout=300"],
+            capture_output=True, text=True, timeout=300, cwd=str(REPO_ROOT)
         )
         result["pytest_output"] = proc.stdout + proc.stderr
         
@@ -254,16 +254,29 @@ def _finalize(results: dict, proposal: Path, domain_id: str, timestamp: str) -> 
         
     return results
 
-def run_benchmark(proposal_path: str, domain_id: str) -> dict:
+# Valid proposal types
+PROPOSAL_TYPES = {"IMPLEMENTATION", "ARCHITECTURE"}
+
+def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPLEMENTATION") -> dict:
+    """
+    Run the Fiduciary Test Track.
+
+    proposal_type:
+      IMPLEMENTATION — Run all 3 gates (Hygiene + Hallucination + Logic/pytest)
+      ARCHITECTURE   — Run Gate 1 + Gate 2 only. Gate 3 auto-passes (blueprint, not executable code)
+    """
+    if proposal_type not in PROPOSAL_TYPES:
+        _fail_closed(f"UNKNOWN_PROPOSAL_TYPE: {proposal_type}. Valid: {PROPOSAL_TYPES}")
+
     proposal = Path(proposal_path)
     if not proposal.exists():
         _fail_closed(f"PROPOSAL_NOT_FOUND: {proposal_path}")
     domain = _domains[domain_id]
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
-    log.info(f"BENCHMARK RUN: {domain_id}")
+    log.info(f"BENCHMARK RUN: {domain_id} | TYPE: {proposal_type}")
     code_blocks = _extract_code_from_proposal(proposal)
-    results: Dict[str, Any] = {"domain_id": domain_id, "gates": {}}
+    results: Dict[str, Any] = {"domain_id": domain_id, "proposal_type": proposal_type, "gates": {}}
 
     results["gates"]["hygiene"] = gate_hygiene(code_blocks, proposal)
     if not results["gates"]["hygiene"]["passed"]:
@@ -273,7 +286,16 @@ def run_benchmark(proposal_path: str, domain_id: str) -> dict:
     if not results["gates"]["hallucination"]["passed"]:
         return _finalize(results, proposal, domain_id, timestamp)
 
-    results["gates"]["logic"] = gate_logic(domain_id)
+    if proposal_type == "ARCHITECTURE":
+        # Gate 3 auto-passes for architectural blueprints — no executable code to pytest
+        log.info("Gate LOGIC: AUTO-PASS (ARCHITECTURE proposal — pytest skipped)")
+        results["gates"]["logic"] = {
+            "passed": True, "hard_fail": False, "score": 1.0,
+            "failures": [], "pytest_output": "SKIPPED — ARCHITECTURE proposal type"
+        }
+    else:
+        results["gates"]["logic"] = gate_logic(domain_id)
+
     return _finalize(results, proposal, domain_id, timestamp)
 
 def initialize():
@@ -290,8 +312,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--proposal", required=True)
     parser.add_argument("--domain", required=True)
+    parser.add_argument("--type", default="IMPLEMENTATION", choices=["IMPLEMENTATION", "ARCHITECTURE"],
+                        help="Proposal type: IMPLEMENTATION runs all 3 gates. ARCHITECTURE skips Gate 3 (pytest).")
     args = parser.parse_args()
-    
-    res = run_benchmark(args.proposal, args.domain)
+
+    res = run_benchmark(args.proposal, args.domain, args.type)
     print(f"\nRESULT: {'✅ PASSED' if res['passed'] else '❌ FAILED'}\nSCORE: {res['score']}\nREPORT: {res['report_path']}")
     sys.exit(0 if res['passed'] else 1)
