@@ -340,8 +340,8 @@ class ChaosMonkey:
         # We'll create a new strategy file that looks like v032_simple but isn't.
         # Cyrillic 'а' (U+0430) instead of 'a'
         target_path = Path("antigravity_harness/strategies/v032_simple_mimic.py")
-        content = """from .base import BaseStrategy
-class v032_simple(BaseStrategy): # This name looks the same but we'll try to register it
+        content = """from .base import Strategy
+class v032_simple(Strategy): # This name looks the same but we'll try to register it
     def generate_signals(self, df): return df['Close'] * 0
 """
         target_path.write_text(content)
