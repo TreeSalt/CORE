@@ -5,20 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist/GHOST.zip",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist/RUN_LEDGER_v4.7.54.json",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: dist/RUN_LEDGER_v4.7.54.json.sig",
             "resolution": "Git Checkout"
         },
@@ -699,6 +685,20 @@
             "category": "METADATA",
             "gate": "RUNTIME",
             "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.21.txt' missing in STRICT_MODE.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T17:18:24Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 9.9.22",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-10T17:18:25Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B scripts/self_heal.py --fix",
             "resolution": null
         }
     ],
