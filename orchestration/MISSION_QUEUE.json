@@ -11,7 +11,7 @@
       "type": "IMPLEMENTATION",
       "max_retries": 3,
       "priority": 1,
-      "status": "AWAITING_RATIFICATION",
+      "status": "PENDING",
       "authored_by": "Claude.ai",
       "authored_at": "2026-03-10T00:00:00Z",
       "rationale": "BenchmarkOrchestrator._gate_logic returns useless failure messages. Fix before Zoo runs so corrective context is actionable.",
