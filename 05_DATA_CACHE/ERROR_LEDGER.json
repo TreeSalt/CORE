@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/execution/__pycache__/slippage.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: antigravity_harness/grid/__pycache__/evolution.cpython-314.pyc",
             "resolution": "Git Checkout"
         },
@@ -696,6 +689,13 @@
         },
         {
             "timestamp_utc": "2026-03-10T03:04:28Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.10.txt' missing in STRICT_MODE.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T03:05:51Z",
             "category": "METADATA",
             "gate": "RUNTIME",
             "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.10.txt' missing in STRICT_MODE.",
