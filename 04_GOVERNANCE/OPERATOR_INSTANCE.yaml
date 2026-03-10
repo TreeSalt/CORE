@@ -9,7 +9,7 @@ operator:
 
 project:
   name: "TRADER_OPS"
-  version: "v9.9.12"
+  version: "v9.9.18"
   repo_root: "/home/asanchez/TRADER_OPS/v9e_stage"
   domain: "Quantitative Trading Payload (Incubating AOS)"
 
