@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/__pycache__/catalog.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: antigravity_harness/strategies/__pycache__/registry.cpython-314.pyc",
             "resolution": "Git Checkout"
         },
@@ -700,6 +693,13 @@
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B scripts/self_heal.py --fix",
             "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T15:39:53Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 9.9.13",
+            "resolution": "Auto-Sync"
         }
     ],
     "vaccines": {
