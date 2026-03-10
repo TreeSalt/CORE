@@ -246,6 +246,12 @@ clean-zombies:
 	@pkill -f "antigravity_harness.cli" || true
 	@rm -rf state/wal.db-journal || true
 
+repo-mix:
+	@echo "📦 Generating Repo-Mix Artifact (Lossless Export)..."
+	$(eval VERSION := $(shell grep "version:" docs/ready_to_drop/COUNCIL_CANON.yaml | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/'))
+	@npx -y repomix --output dist/TRADER_OPS_REPO_MIX_v$(VERSION).md
+	@echo "✅ Repo-mix generated: dist/TRADER_OPS_REPO_MIX_v$(VERSION).md"
+
 release: clean build verify
 	@echo "🔥 Institutional Gold Certification Secured: v$$(ls -1t dist/TRADER_OPS_READY_TO_DROP_v*.zip | head -n 1 | sed -E 's/.*_v([0-9]+\.[0-9]+\.[0-9]+)\.zip/\1/')"
 

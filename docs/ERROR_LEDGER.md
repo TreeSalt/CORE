@@ -14,3 +14,11 @@
 ### 2026-03-09T23:22:19.481531+00:00 — FAIL-CLOSED
 **Reason:** MISSION_PROMPT_MISSING: /home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/prompts/missions/physics_engine_v1.md
 **Recovery:** Human Supreme Council action required.
+
+### 2026-03-10T01:24:21.678139+00:00 — FAIL-CLOSED
+**Reason:** LOCAL_EXECUTION_FAILED [qwen2.5-coder:32b]: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=300)
+**Recovery:** Human Supreme Council action required.
+
+### 20260310T013954Z — BENCHMARK FAILURE
+**Domain:** 02_RISK_MANAGEMENT
+**Score:** 0.6
