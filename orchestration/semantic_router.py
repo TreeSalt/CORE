@@ -14,6 +14,7 @@ import requests
 import yaml
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import NoReturn
 
 # ── PATHS (Surgically aligned to v9e_stage) ──────────────
 REPO_ROOT         = Path(__file__).resolve().parents[1]
@@ -44,7 +45,7 @@ def _sha256(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
-def _fail_closed(reason: str):
+def _fail_closed(reason: str) -> NoReturn:
     timestamp = datetime.now(timezone.utc).isoformat()
     log.critical(f"FAIL-CLOSED: {reason}")
     ERROR_LEDGER.parent.mkdir(parents=True, exist_ok=True)

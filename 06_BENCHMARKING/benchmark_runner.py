@@ -18,6 +18,7 @@ import requests
 import re
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import Any, Dict, NoReturn
 
 # ── PATHS ──────────────────────────────────────────────────────────────────
 REPO_ROOT        = Path(__file__).resolve().parents[1]
@@ -37,7 +38,7 @@ log = logging.getLogger("benchmark_runner")
 _schema  = {}
 _domains = {}
 
-def _fail_closed(reason: str):
+def _fail_closed(reason: str) -> NoReturn:
     timestamp = datetime.now(timezone.utc).isoformat()
     log.critical(f"FAIL-CLOSED: {reason}")
     try:
@@ -216,7 +217,7 @@ def run_benchmark(proposal_path: str, domain_id: str) -> dict:
 
     log.info(f"BENCHMARK RUN: {domain_id}")
     code_blocks = _extract_code_from_proposal(proposal)
-    results = {"domain_id": domain_id, "gates": {}}
+    results: Dict[str, Any] = {"domain_id": domain_id, "gates": {}}
 
     results["gates"]["hygiene"] = gate_hygiene(code_blocks, proposal)
     if not results["gates"]["hygiene"]["passed"]: return _finalize(results, proposal, domain_id, timestamp)
