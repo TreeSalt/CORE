@@ -74,7 +74,8 @@ class TestFiduciaryConstraints:
             assert keyword not in src
 
     def test_no_governance_imports(self):
-        import ast, pathlib
+        import ast
+        import pathlib
         src = pathlib.Path("06_BENCHMARKING/benchmarking_domain/benchmark_orchestrator.py").read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):

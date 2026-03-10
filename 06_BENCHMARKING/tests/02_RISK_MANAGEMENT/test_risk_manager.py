@@ -97,7 +97,8 @@ class TestFiduciaryConstraints:
         assert issubclass(RiskViolationError, Exception)
 
     def test_no_governance_domain_imports(self):
-        import ast, pathlib
+        import ast
+        import pathlib
         src = pathlib.Path("02_RISK_MANAGEMENT/risk_management/risk_manager.py").read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):
@@ -112,7 +113,6 @@ class TestFiduciaryConstraints:
             assert f'{keyword} =' not in src
 
     def test_loss_breach_is_logged(self):
-        import logging
         from unittest.mock import patch
         rm = RiskManager(max_trade_loss=500, max_daily_loss=2000)
         with patch('logging.warning') as mock_log:

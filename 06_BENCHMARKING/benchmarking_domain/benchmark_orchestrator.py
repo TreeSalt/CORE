@@ -84,7 +84,8 @@ class BenchmarkOrchestrator:
         return GateResult(name="hygiene", passed=len(failures) == 0, score=score, failures=failures)
 
     def _gate_hallucination(self, code_blocks: list[str]) -> GateResult:
-        import ast, importlib.util
+        import ast
+        import importlib.util
         failures = []
         passed = 0
         total = 0
@@ -111,7 +112,7 @@ class BenchmarkOrchestrator:
         return GateResult(name="hallucination", passed=len(failures) == 0, score=score, failures=failures)
 
     def _gate_logic(self, code_blocks: list[str], proposal_path: Path, domain_id: str) -> GateResult:
-        import subprocess, tempfile, os
+        import subprocess
         test_dir = Path("06_BENCHMARKING/tests") / domain_id
         if not test_dir.exists():
             return GateResult(name="logic", passed=True, score=1.0, failures=["NO_TESTS: skipped"])

@@ -1,5 +1,4 @@
 import os
-import time
 from datetime import datetime
 
 class ReportGenerator:
@@ -25,7 +24,7 @@ class ReportGenerator:
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Construct the markdown report
-        report_content = f"# Benchmark Report\n\n"
+        report_content = "# Benchmark Report\n\n"
         report_content += f"## Domain: {domain}\n\n"
         report_content += f"## Model: {model}\n\n"
         report_content += f"## Tier: {tier}\n\n"

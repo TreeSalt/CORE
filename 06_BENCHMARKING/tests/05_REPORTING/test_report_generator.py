@@ -3,8 +3,6 @@ Benchmark Test Suite: 05_REPORTING
 Domain: ReportGenerator class
 Ratified: 2026-03-09
 """
-import pytest
-import os
 from pathlib import Path
 from reporting_domain.report_generator import ReportGenerator
 
@@ -80,7 +78,8 @@ class TestFiduciaryConstraints:
             assert f'{keyword} =' not in src
 
     def test_no_governance_domain_writes(self):
-        import ast, pathlib
+        import ast
+        import pathlib
         src = pathlib.Path("05_REPORTING/reporting_domain/report_generator.py").read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):

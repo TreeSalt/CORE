@@ -39,7 +39,8 @@ class TestDomainLocking:
         ac = AgentCoordinator(dispatch_fn=lambda pkg: None)
         pkg = TaskPackage(domain_id="01_DATA_INGESTION", task="test", mission="do something", model="qwen2.5-coder:7b")
         ac.submit(pkg)
-        import time; time.sleep(0.1)
+        import time
+        time.sleep(0.1)
         # Domain should be tracked (active or completed)
         assert True  # submission did not raise
 
@@ -52,14 +53,16 @@ class TestDomainLocking:
         pkg1 = TaskPackage(domain_id="01_DATA_INGESTION", task="t1", mission="m1", model="qwen2.5-coder:7b")
         pkg2 = TaskPackage(domain_id="01_DATA_INGESTION", task="t2", mission="m2", model="qwen2.5-coder:7b")
         ac.submit(pkg1)
-        import time; time.sleep(0.05)
+        import time
+        time.sleep(0.05)
         ac.submit(pkg2)
         assert ac.get_queue_depth("01_DATA_INGESTION") >= 0  # queued or processing
 
 
 class TestFiduciaryConstraints:
     def test_no_governance_domain_writes(self):
-        import ast, pathlib
+        import ast
+        import pathlib
         src = pathlib.Path("03_ORCHESTRATION/orchestration_domain/agent_coordinator.py").read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):

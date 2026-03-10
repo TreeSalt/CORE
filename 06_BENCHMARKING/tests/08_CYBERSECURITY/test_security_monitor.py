@@ -86,7 +86,6 @@ class TestCredentialScanning:
 
 class TestSecurityLogging:
     def test_security_events_logged(self):
-        import logging
         from unittest.mock import patch
         sm = SecurityMonitor()
         with patch('logging.warning') as mock_log:
@@ -109,7 +108,8 @@ class TestFiduciaryConstraints:
             assert keyword not in src
 
     def test_no_governance_domain_imports(self):
-        import ast, pathlib
+        import ast
+        import pathlib
         src = pathlib.Path("08_CYBERSECURITY/cybersecurity/security_monitor.py").read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):
