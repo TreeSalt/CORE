@@ -3280,3 +3280,31 @@ is a substrate integrity violation. Fix before Zoo opens.
 **Lesson:** Auto-ratification of ARCHITECTURE proposals is appropriate
 for CODE_ARCHITECTURE only. STRATEGIC_ARCHITECTURE proposals must always
 receive sovereign review before ratification.
+
+---
+
+## 2026-03-10T19:52:57.488775Z: fix: DECISION-SOVEREIGN-003 — strategic architecture routing (v9.9.28)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.28 forge.
+
+### Decision
+fix: DECISION-SOVEREIGN-003 — strategic architecture routing
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T20:29:23.026879Z: feat: Zoo Epoch 1 blueprints — SOVEREIGN EDITION (v9.9.29)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.29 forge.
+
+### Decision
+feat: Zoo Epoch 1 blueprints — SOVEREIGN EDITION
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
