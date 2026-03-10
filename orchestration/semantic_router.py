@@ -249,7 +249,7 @@ def _build_context_package(domain, task, mission):
         f"  - Output valid Python code only\n"
     )
 
-def write_proposal(domain_id, model, tier, content):
+def write_proposal(domain_id, model, tier, proposal_type, content):
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     proposal_path = PROPOSALS_DIR / f"PROPOSAL_{domain_id}_{timestamp}.md"
     PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
@@ -273,7 +273,7 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
         )
         res.raise_for_status()
         content = res.json().get("response", "")
-        proposal_path = write_proposal(domain_id, model, tier, content)
+        proposal_path = write_proposal(domain_id, model, tier, proposal_type, content)
         update_vram_log(domain_id, model, "COMPLETE", str(proposal_path))
         return proposal_path
     except Exception as e:

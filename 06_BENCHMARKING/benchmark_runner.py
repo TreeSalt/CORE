@@ -82,7 +82,7 @@ def _extract_code_from_proposal(proposal_path: Path) -> list:
     text = proposal_path.read_text()
     return re.findall(r"```python\n(.*?)\n```", text, re.DOTALL)
 
-def gate_hygiene(code_blocks: list, proposal: Path) -> dict:
+def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEMENTATION") -> dict:
     result = {"passed": False, "hard_fail": False, "failures": [], "score": 0.0}
     checks_passed = 0
     total_checks  = 0
@@ -94,6 +94,11 @@ def gate_hygiene(code_blocks: list, proposal: Path) -> dict:
             checks_passed += 1
         except SyntaxError as e:
             result["failures"].append(f"SYNTAX_ERROR: {e.msg} at line {e.lineno}")
+            continue
+
+        # ARCHITECTURE proposals contain illustrative code — skip import resolution.
+        # Illustrative imports show design intent, not production dependencies.
+        if proposal_type == "ARCHITECTURE":
             continue
 
         imports = [node for node in ast.walk(tree) if isinstance(node, (ast.Import, ast.ImportFrom))]
@@ -278,7 +283,7 @@ def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPL
     code_blocks = _extract_code_from_proposal(proposal)
     results: Dict[str, Any] = {"domain_id": domain_id, "proposal_type": proposal_type, "gates": {}}
 
-    results["gates"]["hygiene"] = gate_hygiene(code_blocks, proposal)
+    results["gates"]["hygiene"] = gate_hygiene(code_blocks, proposal, proposal_type)
     if not results["gates"]["hygiene"]["passed"]:
         return _finalize(results, proposal, domain_id, timestamp)
 
