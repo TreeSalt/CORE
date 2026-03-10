@@ -38,7 +38,7 @@ MISSIONS_DIR      = REPO_ROOT / "prompts" / "missions"
 PENDING_DIR       = MISSIONS_DIR / "PENDING"
 
 OLLAMA_BASE_URL   = "http://localhost:11434"
-TIMEOUT           = 300  # 5 min for 32b heavy lifter
+TIMEOUT           = 900  # 15 min — 32b CPU offload on 32GB RAM
 
 # ── SECRETS PATTERNS (mission file scan) ──────────────────────────────────────
 SECRET_PATTERNS = [
