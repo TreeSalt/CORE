@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""
+Run this to reset the MISSION_QUEUE with the Priority 0 substrate fix first.
+Andon Cord active — Zoo and all other missions blocked until substrate is clean.
+"""
+import json
+from pathlib import Path
+
+q = Path('orchestration/MISSION_QUEUE.json')
+data = json.loads(q.read_text())
+
+# Archive completed missions
+completed = [m for m in data['missions'] if m['status'] in ('RATIFIED', 'AWAITING_RATIFICATION')]
+print(f"Archiving {len(completed)} completed missions.")
+
+# New queue — Priority 0 first, everything else blocked behind it
+data['missions'] = [
+    {
+        "id": "p0_fix_opsec_filename_001",
+        "domain": "01_DATA_INGESTION",
+        "task": "fix_opsec_rag_scout_filename_drift",
+        "mission_file": "mission_fix_opsec_filename.md",
+        "type": "IMPLEMENTATION",
+        "max_retries": 3,
+        "priority": 0,
+        "status": "PENDING",
+        "authored_by": "Claude.ai",
+        "authored_at": "2026-03-10T18:30:00Z",
+        "rationale": "ANDON CORD — Article VI.2 Substrate Integrity Violation. opsec_rag_scout.py landed as websocket_handler.py. Forensic trail broken. Fix before Zoo opens.",
+        "constitutional_basis": "Article VI — Zero Technical Debt Tolerance",
+        "result": None
+    },
+    {
+        "id": "wire_makefile_splinter_hook_001",
+        "domain": "03_ORCHESTRATION",
+        "task": "wire_makefile_splinter_hook",
+        "mission_file": "mission_wire_splinter_hook.md",
+        "type": "IMPLEMENTATION",
+        "max_retries": 2,
+        "priority": 1,
+        "status": "PENDING",
+        "authored_by": "Claude.ai",
+        "authored_at": "2026-03-10T18:18:00Z",
+        "rationale": "Permanent fix: auto-create prompt splinter on version bump. Ends Gate 5 chase forever.",
+        "result": None
+    },
+    {
+        "id": "zoo_epoch1_strategy_variants_001",
+        "domain": "00_PHYSICS_ENGINE",
+        "task": "generate_zoo_epoch1_variants",
+        "mission_file": "mission_zoo_epoch1.md",
+        "type": "ARCHITECTURE",
+        "max_retries": 3,
+        "priority": 2,
+        "status": "PENDING",
+        "authored_by": "Claude.ai",
+        "authored_at": "2026-03-10T18:18:00Z",
+        "rationale": "Zoo first epoch — 5 strategy variants bred for drawdown resistance and risk-adjusted return (Sharpe/Sortino). Selection pressure: survive 15% max drawdown, minimize volatility drag. Breed unkillable macro-survivors, not fragile sprinters.",
+        "selection_pressure": {
+            "primary": "max_drawdown_pct < 15.0",
+            "secondary": "sortino_ratio > 1.0",
+            "tertiary": "sharpe_ratio > 0.8",
+            "anti_target": "do NOT optimize for absolute return at expense of drawdown"
+        },
+        "result": None
+    }
+]
+
+q.write_text(json.dumps(data, indent=2))
+print(f"Queue reset: {len(data['missions'])} missions.")
+print(f"Priority 0: {data['missions'][0]['id']} — ANDON CORD ACTIVE")
+print(f"Priority 1: {data['missions'][1]['id']}")
+print(f"Priority 2: {data['missions'][2]['id']} — ZOO BLOCKED UNTIL SUBSTRATE CLEAN")
