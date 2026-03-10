@@ -1,0 +1,235 @@
+{
+  "runs": [
+    {
+      "run_id": "20260310T052015Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "implement_data_multiplexer",
+      "mission": "data_multiplexer_impl_v1.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 2,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260310T052116Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "implement_data_multiplexer",
+      "mission": "data_multiplexer_impl_v1.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 2,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T052134Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T052134Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'websockets' cannot be resolved."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T052146Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T052146Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'websockets' cannot be resolved."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T052159Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T052159Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'websockets' cannot be resolved."
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260310T052419Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "implement_data_multiplexer",
+      "mission": "data_multiplexer_impl_v1.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 5,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T052432Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T052432Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T052718Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "implement_data_multiplexer",
+      "mission": "data_multiplexer_impl_v1.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 5,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T053217Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T053217Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T055406Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "extract_data_multiplexer_to_production",
+      "mission": "extract_data_multiplexer.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T055808Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T055808Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T055809Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "write_data_multiplexer_tests",
+      "mission": "test_data_multiplexer_mission.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T060603Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T060603Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'data_ingestion' cannot be resolved."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T061539Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T061539Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'data_ingestion' cannot be resolved."
+        },
+        {
+          "attempt": 3,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T062509Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T062509Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T062509Z",
+      "domain": "05_REPORTING",
+      "task": "initialize_graveyard_ledger",
+      "mission": "graveyard_init_mission.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T062523Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260310T062523Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T062534Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260310T062534Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T062548Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260310T062548Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback."
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T062601Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260310T062601Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback."
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260310T062900Z",
+      "domain": "05_REPORTING",
+      "task": "initialize_graveyard_ledger",
+      "mission": "graveyard_init_mission.md",
+      "type": "ARCHITECTURE",
+      "max_retries": 2,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260310T062909Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260310T062909Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T063143Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "design_opsec_rag_scout",
+      "mission": "opsec_rag_scout_arch.md",
+      "type": "ARCHITECTURE",
+      "max_retries": 2,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260310T064644Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "implement_opsec_rag_scout",
+      "mission": "opsec_rag_scout_impl.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T065306Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T065306Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260310T065548Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "design_opsec_rag_scout",
+      "mission": "opsec_rag_scout_arch.md",
+      "type": "ARCHITECTURE",
+      "max_retries": 2,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260310T065628Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260310T065628Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    }
+  ]
+}
