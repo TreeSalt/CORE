@@ -368,7 +368,7 @@ if __name__ == "__main__":
     parser.add_argument("--domain",  required=True, help="Domain ID from DOMAINS.yaml")
     parser.add_argument("--task",    required=True, help="Task identifier")
     parser.add_argument("--mission", required=True, help="Mission filename in prompts/missions/")
-    parser.add_argument("--type", default="IMPLEMENTATION", choices=["IMPLEMENTATION", "ARCHITECTURE"],
+    parser.add_argument("--type", default="IMPLEMENTATION", choices=["IMPLEMENTATION", "ARCHITECTURE", "STRATEGIC_ARCHITECTURE"],
                         help="Proposal type hint: IMPLEMENTATION or ARCHITECTURE")
     args = parser.parse_args()
     result = route_task(args.domain, args.task, args.mission, args.type)
