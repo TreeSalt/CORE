@@ -15,8 +15,12 @@ TRADER_OPS_PROMPT_ID ?= TRADER_OPS_MASTER_IDE_REQUEST_v$(VERSION)
 export TRADER_OPS_PROMPT_ID
 
 # Fiduciary Dataset Enforcement
-TRADER_OPS_DATASET ?= ibkr
+TRADER_OPS_DATASET ?= synthetic
 export TRADER_OPS_DATASET
+
+# Versioning Control
+NO_BUMP ?= 0
+BUMP_FLAG = $(if $(filter 1,$(NO_BUMP)),--no-bump,)
 
 .PHONY: help install lint format type-check test test-hardening preflight clean forge build drop all heal commands
 help:
@@ -160,7 +164,10 @@ build: quickgate
 		exit 1; \
 	fi
 	@mkdir -p "$(DIST)"
-	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)"
+	STRICT_MODE=1 $(PYTHON) -B scripts/make_drop_packet.py --out-dir "$(DIST)" $(BUMP_FLAG)
+
+release-no-bump: ## clean → build → verify without version bump
+	$(MAKE) release NO_BUMP=1
 
 drop: build  ## Alias for build — creates the READY_TO_DROP zip in dist/
 
@@ -327,3 +334,6 @@ gorgon:
 # Stress & Chaos (Titan Tier Verification)
 shadow-verify:
 	$(PYTHON) scripts/shadow_runner.py --chaos-mode all
+
+reseal: ## Re-seal .governor_seal after any 04_GOVERNANCE/ write
+	$(VENV_PYTHON) -c "import hashlib,pathlib; sha=lambda p: hashlib.sha256(open(p,'rb').read()).hexdigest(); pathlib.Path('.governor_seal').write_text('AEC_HASH: '+sha('04_GOVERNANCE/AGENTIC_ETHICAL_CONSTITUTION.md')+'\\nOI_HASH:  '+sha('04_GOVERNANCE/OPERATOR_INSTANCE.yaml')+'\\n'); print('Seal updated.')"

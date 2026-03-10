@@ -4,6 +4,7 @@ Sovereign Connector for TRADER_OPS Build System.
 Delegates all logic to antigravity_harness.forge.
 """
 
+import argparse
 import json
 import os
 import subprocess
@@ -25,8 +26,18 @@ except ImportError:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Sovereign Connector for TRADER_OPS Build System.")
+    parser.add_argument("--out-dir", type=str, default="dist", help="Output directory for drop packet.")
+    parser.add_argument("--no-bump", action="store_true", help="Skip automatic version bumping.")
+    args = parser.parse_args()
+
+    if args.no_bump:
+        os.environ["SKIP_VERSION_BUMP"] = "1"
+
     print("🔨 Sovereign Forge: Initializing...")
-    dist_dir = REPO_ROOT / "dist"
+    dist_dir = Path(args.out_dir)
+    if not dist_dir.is_absolute():
+        dist_dir = REPO_ROOT / dist_dir
 
     try:
         ledger = build_drop_packet(REPO_ROOT, dist_dir)

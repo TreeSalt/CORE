@@ -57,8 +57,11 @@ def generate_regime_report(  # noqa: PLC0415, PLR0912, PLR0913, PLR0915
 
     # Convert log to DF
     regime_df = pd.DataFrame(regime_log)
-    regime_df["timestamp"] = pd.to_datetime(regime_df["timestamp"])
-    regime_df = regime_df.set_index("timestamp")
+    if not regime_df.empty:
+        regime_df["timestamp"] = pd.to_datetime(regime_df["timestamp"])
+        regime_df = regime_df.set_index("timestamp")
+    else:
+        regime_df = pd.DataFrame(columns=["timestamp"]).set_index("timestamp")
 
     # Ensure equity curve has returns
     if "equity" in equity_curve.columns:

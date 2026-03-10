@@ -376,7 +376,11 @@ def run_portfolio_backtest_verbose(  # noqa: PLR0912, PLR0913, PLR0915
 
     # Convert to DataFrame
     equity_curve_df = pd.DataFrame(equity_history)
-    equity_curve_df.set_index("timestamp", inplace=True)
+    if not equity_curve_df.empty:
+        equity_curve_df.set_index("timestamp", inplace=True)
+    else:
+        # MISSION v4.5.339: Support empty history (Diagnostic Smoke)
+        equity_curve_df = pd.DataFrame(columns=["timestamp", "equity", "cash", "returns"]).set_index("timestamp")
 
     # Phase 9D: includes benchmark and safety metrics
     return portfolio, regime_log, equity_curve_df

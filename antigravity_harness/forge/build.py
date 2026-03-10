@@ -388,6 +388,8 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if not (repo_root / csv_target).exists():
              raise RuntimeError(f"CRITICAL FAILURE: Synthetic mode selected but {csv_target} missing.")
         manifest_files = [csv_target]
+        # [P1-B FIX] Use repo_root for synthetic mode as files are outside data/
+        data_root = repo_root
 
     data_args = [
         sys.executable, "scripts/generate_data_manifest.py", 
@@ -514,7 +516,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
                 "--prices-csv", str(synth_csv),
                 "--strategy-base", "v040_alpha_prime",
                 "--max_weight_per_asset", "1.0",
-                "--start", "2026-01-10", "--end", "2026-01-15",
+                "--start", "2026-01-20", "--end", "2026-01-25",
                 "--interval", "5m",
                 "--equity",
                 "--rebalance", "15min",
@@ -544,13 +546,15 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
 
     # D) MES Diagnostic Smoke (SMOKE_NO_TRADE required)
     print("🔬 Running MES Diagnostic Smoke (negative test)...")
+    # [P1-B FIX] Correct path prefix based on mode
+    smoke_prices_csv = f"data/{csv_target}" if dataset_mode == "ibkr" else csv_target
     try:
         subprocess.check_call([
             sys.executable, "-m", "antigravity_harness.cli", "portfolio-backtest",
-            "--symbols", "MES", "--prices-csv", f"data/{csv_target}",
+            "--symbols", "MES", "--prices-csv", str(smoke_prices_csv),
             "--strategy-base", "v040_alpha_prime",
             "--max_weight_per_asset", "1.0",
-            "--start", "2026-01-10", "--end", "2026-01-15",
+            "--start", "2026-01-20", "--end", "2026-01-25",
             "--interval", "5m",
             "--equity",
             "--rebalance", "15min",

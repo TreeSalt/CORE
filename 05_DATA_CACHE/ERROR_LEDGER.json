@@ -5,62 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/certified/v040_alpha_prime/__pycache__/v040_alpha_prime.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/certified/v080_volatility_guard_trend/__pycache__/v080_volatility_guard_trend.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v060_bit_uni_core/__pycache__/v060_bit_uni_core.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v070_donchian_breakout/__pycache__/v070_donchian_breakout.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v090_essence_follower/__pycache__/v090_essence_follower.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/lab/v100_consensual_momentum/__pycache__/v100_consensual_momentum.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/quarantine/v032_simple/__pycache__/v032_simple.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/strategies/quarantine/v050_trend_momentum/__pycache__/v050_trend_momentum.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: dist/GHOST.zip",
             "resolution": "Git Checkout"
         },
@@ -699,6 +643,62 @@
             "category": "METADATA",
             "gate": "RUNTIME",
             "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.14.txt' missing in STRICT_MODE.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T15:49:15Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.16.txt' missing in STRICT_MODE.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T15:50:11Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "STRICT POLICY VIOLATION: Undefined dataset mode. Export TRADER_OPS_DATASET=ibkr|synthetic.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T15:51:54Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "DATA ANCHOR FAILURE: Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', 'scripts/generate_data_manifest.py', '--out', '/home/asanchez/TRADER_OPS/v9e_stage/reports/forge/ibkr_smoke/DATA_MANIFEST.json', '--root', '/home/asanchez/TRADER_OPS/v9e_stage/data', '--files', 'tests/fixtures/synthetic/mes_5m_synthetic.csv']' returned non-zero exit status 1.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T15:52:42Z",
+            "category": "LOGIC",
+            "gate": "RUNTIME",
+            "message": "MES DIAGNOSTIC FAILURE: Expected SMOKE_NO_TRADE, got 'SMOKE_OK'. MES should be non-tradable on $2k cash.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T15:53:22Z",
+            "category": "LOGIC",
+            "gate": "RUNTIME",
+            "message": "MES DIAGNOSTIC SMOKE FAILURE: Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '-m', 'antigravity_harness.cli', 'portfolio-backtest', '--symbols', 'MES', '--prices-csv', 'tests/fixtures/synthetic/mes_5m_synthetic.csv', '--strategy-base', 'v040_alpha_prime', '--max_weight_per_asset', '1.0', '--start', '2026-01-10', '--end', '2026-01-15', '--interval', '5m', '--equity', '--rebalance', '15min', '--outdir', '/home/asanchez/TRADER_OPS/v9e_stage/reports/forge/ibkr_smoke']' returned non-zero exit status 1.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T16:47:54Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.19.txt' missing in STRICT_MODE.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T16:48:17Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.20.txt' missing in STRICT_MODE.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T16:49:01Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FAIL-CLOSED: Mission Prompt '/home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v9.9.21.txt' missing in STRICT_MODE.",
             "resolution": null
         }
     ],
