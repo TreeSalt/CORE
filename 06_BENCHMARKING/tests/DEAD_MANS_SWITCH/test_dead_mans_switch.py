@@ -6,7 +6,6 @@ Ratified: TRADER_OPS Supreme Council
 import json
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 
 # ── PATH SETUP ────────────────────────────────────────────────────────────────
@@ -16,9 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts.dead_mans_switch import (
     cmd_check,
     cmd_reset,
-    cmd_status,
     DRAWDOWN_FLOORS,
-    DMS_STATE_FILE,
 )
 
 
