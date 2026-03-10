@@ -93,6 +93,11 @@ def _get_local_packages() -> set:
             for sub in d.iterdir():
                 if sub.is_dir() and (sub / "__init__.py").exists():
                     local.add(sub.name)
+                    # Also add individual .py module files within domain packages
+                    # e.g. opsec_rag_scout.py → add "opsec_rag_scout"
+                    for mod in sub.glob("*.py"):
+                        if mod.name != "__init__.py":
+                            local.add(mod.stem)
     return local
 
 def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEMENTATION") -> dict:
