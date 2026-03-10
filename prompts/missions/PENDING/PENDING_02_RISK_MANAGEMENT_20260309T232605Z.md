@@ -1,0 +1,7 @@
+# CLOUD TASK
+DOMAIN: 02_RISK_MANAGEMENT
+MISSION: Design a RiskManager class for the 02_RISK_MANAGEMENT domain. It must: enforce per-trade and daily loss limits, read from a position ledger before any position action, flag trades requiring RISK_DISCLOSURE_REQUIRED, reject trades that would breach CHECKPOINTS.yaml limits, and log all limit breaches. No hardcoded credentials. No governance domain writes. Fail closed on any constraint breach.
+TASK: implement_risk_manager
+CONSTRAINTS: Respect boundaries. Proposal format only.
+
+INSTRUCTIONS: Execute in Claude Code terminal.
