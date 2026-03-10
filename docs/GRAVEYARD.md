@@ -30,3 +30,11 @@ Each entry must contain:
 
 *(No entries yet — Zoo not yet operational. First entries will be written
 automatically by the epoch culling process when Generation 1 Zoo completes.)*
+
+## ANTI-PATTERN: websocket.SSLOpt.CERT_NONE
+- **First seen:** v4.7.54 (Founding Incident)
+- **Re-emerged:** v9.9.25 — 7b sprinter, WebSocketHandler
+- **Correct form:** `ssl.CERT_NONE` from stdlib `ssl` module
+- **websocket-client** has no `SSLOpt` attribute — always use stdlib ssl
+- **Detection:** pytest AttributeError, caught by Gate 3 LOGIC
+- **Resolution:** factory self-corrected via benchmark feedback loop
