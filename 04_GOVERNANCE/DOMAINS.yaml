@@ -20,14 +20,14 @@ domains:
     description: "Market data feeds, websocket handlers, data normalization"
     security_class: "INTERNAL"
     cloud_eligible: false
-    primary_tier: "sprinter"
+    primary_tier: "heavy"
     sprinter_model: "qwen2.5-coder:7b"
     heavy_model: "qwen2.5-coder:32b"
-    complexity: "MEDIUM"
+    complexity: "HIGH"
     token_threshold: 2048
     write_path: "01_DATA_INGESTION/"
     authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b"]
-    escalation_trigger: "token_count>token_threshold"
+    escalation_trigger: "always_heavy"
 
   - id: "02_RISK_MANAGEMENT"
     description: "Position sizing, drawdown limits, exposure calculations. Agent resource limits."
