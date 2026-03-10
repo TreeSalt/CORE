@@ -5,27 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/catalog.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/certification.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: antigravity_harness/__pycache__/chaos_monkey.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: antigravity_harness/__pycache__/cli.cpython-314.pyc",
             "resolution": "Git Checkout"
         },
@@ -700,6 +679,27 @@
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 2): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m pytest --import-mode=prepend -q -p no:cacheprovider -k not distributed",
             "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T00:32:15Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 2): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m pytest --import-mode=prepend -q -p no:cacheprovider -k not distributed",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T00:32:38Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 06_BENCHMARKING/tests/00_PHYSICS_ENGINE/test_physics_engine.py",
+            "resolution": "Git Checkout"
+        },
+        {
+            "timestamp_utc": "2026-03-10T00:32:38Z",
+            "category": "INFRA",
+            "gate": "RECOVERY",
+            "message": "Restoring missing tracked file: 06_BENCHMARKING/tests/01_DATA_INGESTION/test_websocket_handler.py",
+            "resolution": "Git Checkout"
         }
     ],
     "vaccines": {
