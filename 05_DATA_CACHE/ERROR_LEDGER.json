@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-03-10T00:10:28Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: 06_BENCHMARKING/tests/01_DATA_INGESTION/__pycache__/test_websocket_handler.cpython-314-pytest-9.0.2.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: __pycache__/conftest.cpython-314-pytest-9.0.2.pyc",
             "resolution": "Git Checkout"
         },
@@ -696,6 +689,13 @@
         },
         {
             "timestamp_utc": "2026-03-10T00:27:09Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-10T00:27:54Z",
             "category": "INFRA",
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
