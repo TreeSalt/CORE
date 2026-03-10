@@ -3105,3 +3105,45 @@ chore: add v9.9.14 and v9.9.15 mission prompts
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T15:54:38.239808Z: chore: final v9.9.15 artifacts and state synchronization (v9.9.18)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.18 forge.
+
+### Decision
+chore: final v9.9.15 artifacts and state synchronization
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T15:56:35.855056Z: chore: final v9.9.15 artifacts and state synchronization (v9.9.18)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.18 forge.
+
+### Decision
+chore: final v9.9.15 artifacts and state synchronization
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T16:31:49.919300Z: fix: governor_seal format AEC_HASH= → AEC_HASH: (colon format) (v9.9.19)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.19 forge.
+
+### Decision
+fix: governor_seal format AEC_HASH= → AEC_HASH: (colon format)
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
