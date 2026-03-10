@@ -1,0 +1,36 @@
+
+### 2026-03-10T02:41:53.537223+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** CONSTRAINT_BREACH: Both proposals are from the same domain '01_DATA_INGESTION'. IntegrationAgent requires two different domains.
+
+### 2026-03-10T02:41:53.538692+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** GOVERNANCE_WRITE_BLOCKED: domain_id '04_GOVERNANCE' targets 04_GOVERNANCE.
+
+### 2026-03-10T02:42:22.147476+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** CONSTRAINT_BREACH: Both proposals are from the same domain '01_DATA_INGESTION'. IntegrationAgent requires two different domains.
+
+### 2026-03-10T02:42:22.148849+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** GOVERNANCE_WRITE_BLOCKED: domain_id '04_GOVERNANCE' targets 04_GOVERNANCE.
+
+### 2026-03-10T02:43:21.033480+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** CONSTRAINT_BREACH: Both proposals are from the same domain '01_DATA_INGESTION'. IntegrationAgent requires two different domains.
+
+### 2026-03-10T02:43:21.034711+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** GOVERNANCE_WRITE_BLOCKED: domain_id '04_GOVERNANCE' targets 04_GOVERNANCE.
+
+### 2026-03-10T02:44:24.862389+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** CONSTRAINT_BREACH: Both proposals are from the same domain '01_DATA_INGESTION'. IntegrationAgent requires two different domains.
+
+### 2026-03-10T02:44:24.863666+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** GOVERNANCE_WRITE_BLOCKED: domain_id '04_GOVERNANCE' targets 04_GOVERNANCE.
+
+### 2026-03-10T02:46:18.207524+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** CONSTRAINT_BREACH: Both proposals are from the same domain '01_DATA_INGESTION'. IntegrationAgent requires two different domains.
+
+### 2026-03-10T02:46:18.208700+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** GOVERNANCE_WRITE_BLOCKED: domain_id '04_GOVERNANCE' targets 04_GOVERNANCE.
+
+### 2026-03-10T02:48:19.754306+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** PREFLIGHT: same-domain pair rejected — 01_DATA_INGESTION
+
+### 2026-03-10T02:48:19.755502+00:00 — INTEGRATION AGENT FAIL-CLOSED
+**Reason:** PREFLIGHT: governance domain forbidden — 04_GOVERNANCE / 01_DATA_INGESTION

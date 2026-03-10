@@ -1,0 +1,1 @@
+Design a BenchmarkOrchestrator class for the 06_BENCHMARKING domain. It must: accept a proposal file path and domain ID, run the three-gate pipeline (hygiene, hallucination, logic), return a structured result dict with gate scores and overall pass/fail, and log all gate results. No hardcoded credentials. No governance domain writes. Fail closed on constraint breach.
