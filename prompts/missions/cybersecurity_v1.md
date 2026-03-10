@@ -1,0 +1,1 @@
+Design a SecurityMonitor class for the 08_CYBERSECURITY domain. It must: validate the governor seal hash on demand, scan a code string for injection patterns, verify no hardcoded credentials exist in a file, and log all security events. No hardcoded credentials. No governance domain writes. Fail closed on any breach.

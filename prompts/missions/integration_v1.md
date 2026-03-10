@@ -1,0 +1,1 @@
+Design an IntegrationAgent class for the 07_INTEGRATION domain. It must: accept two proposal files from different domains, verify their interfaces are compatible (method signatures, data structures), flag any interface mismatches, and produce a structured compatibility report. No hardcoded credentials. No governance domain writes. Fail closed on constraint breach.
