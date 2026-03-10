@@ -5,6 +5,7 @@
 # Based on: PROPOSAL_01_DATA_INGESTION_20260309T182908Z.md
 
 import pytest
+import json
 from unittest.mock import MagicMock, patch
 
 # ══════════════════════════════════════════════════════════
