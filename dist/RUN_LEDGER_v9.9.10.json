@@ -1,0 +1,29 @@
+{
+  "artifacts": {
+    "code": {
+      "filename": "TRADER_OPS_CODE_v9.9.10.zip",
+      "sha256": "7272577c38c9fdbbe2108ac57a1ca772178be878a6946a3b315a5664c4670171"
+    },
+    "evidence": {
+      "filename": "TRADER_OPS_EVIDENCE_v9.9.10.zip",
+      "sha256": "c893adec1da1a475c7b0f6d4a3e98cb3f124ace6d68eec172c5cc96cc19eab4e"
+    },
+    "ready_to_drop": {
+      "filename": "TRADER_OPS_READY_TO_DROP_v9.9.10.zip",
+      "sha256": "63b39d838b03b8399f522fb89a3a8b929c9a6ef3c1b6a5028bfaa19c7f59245b"
+    }
+  },
+  "build_wallclock_utc": "2026-03-10T03:08:27Z",
+  "sovereign_binding": {
+    "builder_id": "Institutional-Gold-Node",
+    "data_hash": "5fbc077c5bb92f2b4a1d0e86618a582b266902d1fe6b1b8ea8478d184c3fc9fb",
+    "drop_preimage_sha256": "7b1ab892df3f9cde9d8803bf6d7d49fe00303518d8597d94a289b5434b1d7e96",
+    "git_commit": "8c4744189f439df63cfb89ddf474c5c785dff25f",
+    "git_dirty": true,
+    "manifest_sha256": "fdbf0b02d78b70732c487c6923de366889d04b66d95e001752e28d81df65fd2d",
+    "payload_manifest_sha256": "9dc2e1848f75c99261332016b2090d29edf99d4cb39bdc47a398b03ec72942e0"
+  },
+  "strict_mode": true,
+  "timestamp_utc": "2026-03-10T03:08:27Z",
+  "version": "9.9.10"
+}
