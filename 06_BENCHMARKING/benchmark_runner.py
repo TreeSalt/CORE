@@ -82,6 +82,19 @@ def _extract_code_from_proposal(proposal_path: Path) -> list:
     text = proposal_path.read_text()
     return re.findall(r"```python\n(.*?)\n```", text, re.DOTALL)
 
+def _get_local_packages() -> set:
+    """Return names of local domain packages so import resolution doesn't false-positive."""
+    local = set()
+    for d in REPO_ROOT.iterdir():
+        if d.is_dir() and (d / "__init__.py").exists():
+            local.add(d.name)
+        # Also check one level deep (e.g. 01_DATA_INGESTION/data_ingestion/)
+        if d.is_dir():
+            for sub in d.iterdir():
+                if sub.is_dir() and (sub / "__init__.py").exists():
+                    local.add(sub.name)
+    return local
+
 def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEMENTATION") -> dict:
     result = {"passed": False, "hard_fail": False, "failures": [], "score": 0.0}
     checks_passed = 0
@@ -108,7 +121,7 @@ def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEM
             total_checks += 1
             names = [alias.name.split(".")[0] for alias in node.names] if isinstance(node, ast.Import) else [node.module.split(".")[0]] if node.module else []
             for name in names:
-                if name in STDLIB or importlib.util.find_spec(name) is not None:
+                if name in STDLIB or name in _get_local_packages() or importlib.util.find_spec(name) is not None:
                     checks_passed += 1
                 else:
                     result["failures"].append(f"HALLUCINATED_IMPORT: '{name}' cannot be resolved.")
@@ -246,6 +259,9 @@ def _finalize(results: dict, proposal: Path, domain_id: str, timestamp: str) -> 
         report_lines.append(f"\n### Gate {g.upper()}: {'✅' if gate.get('passed') else '❌'}")
         for f in gate.get("failures", []):
             report_lines.append(f"- {f}")
+        # Include pytest output in report so escalation packets have real tracebacks
+        if g == "logic" and gate.get("pytest_output"):
+            report_lines.append(f"\n#### pytest output:\n```\n{gate['pytest_output'][:3000]}\n```")
     
     report_path.write_text("\n".join(report_lines))
     results["report_path"] = str(report_path)

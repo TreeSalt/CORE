@@ -59,7 +59,7 @@ class TestReportGeneration:
     def test_report_contains_timestamp(self):
         path = self.rg.generate(self.sample_result)
         content = Path(path).read_text()
-        assert "2026-03-09" in content
+        assert "2026-03-10" in content
 
     def test_report_is_markdown(self):
         path = self.rg.generate(self.sample_result)

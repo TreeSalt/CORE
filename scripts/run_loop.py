@@ -191,22 +191,41 @@ def invoke_benchmark(proposal_path: str, domain: str,
 
 def analyze_failures(report_path: str) -> str:
     """
-    Read the benchmark report and extract failure reasons as a corrective
-    context string to inject into the next router invocation.
+    Read the benchmark report and extract ALL failure reasons including
+    pytest tracebacks as corrective context for the next router invocation.
     """
     if not report_path or not Path(report_path).exists():
         return "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
 
     report = Path(report_path).read_text()
     failures = []
+    in_pytest_output = False
+
     for line in report.splitlines():
-        if line.strip().startswith("- "):
-            failures.append(line.strip()[2:])
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            failure = stripped[2:]
+            failures.append(failure)
+            # If pytest failed, also grab the pytest_output section
+            if "PYTEST_FAILED" in failure:
+                in_pytest_output = True
+        elif in_pytest_output and stripped:
+            failures.append(stripped)
+            if len(failures) > 20:  # cap at 20 lines
+                break
+
+    # Also scan for FAILED/ERROR lines directly in the report
+    for line in report.splitlines():
+        if any(kw in line for kw in ["AssertionError", "ImportError", "FAILED", "ERROR", "assert "]):
+            if line.strip() not in failures:
+                failures.append(line.strip())
+        if len(failures) > 25:
+            break
 
     if not failures:
         return "Previous attempt failed with no specific failure messages. Ensure clean syntax and constitutional compliance."
 
-    context = "CORRECTIVE_CONTEXT from previous failed attempt: " + " | ".join(failures[:5])
+    context = "CORRECTIVE_CONTEXT from previous failed attempt: " + " | ".join(failures[:10])
     log.info(f"Failure analysis: {context}")
     return context
 
