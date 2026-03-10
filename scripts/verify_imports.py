@@ -10,7 +10,7 @@ from pathlib import Path
 
 def verify_imports(package_name: str, root_path: Path):
     """Recursively import all modules in a package and check for errors."""
-    print(f"🔍 Verifying imports for: {package_name} (at {root_path})")
+    print(f"🔍 Verifying imports for: {package_name} (at {root_path})", flush=True)
 
     # Ensure package is in path
     if str(root_path) not in sys.path:
@@ -36,15 +36,16 @@ def verify_imports(package_name: str, root_path: Path):
     try:
         package = importlib.import_module(package_name)
     except Exception as e:
-        print(f"❌ Failed to import base package {package_name}: {e}")
+        print(f"❌ Failed to import base package {package_name}: {e}", flush=True)
         return [package_name]
 
     for _loader, module_name, _is_pkg in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
         try:
+            print(f"  Attempting to import: {module_name}", flush=True)
             importlib.import_module(module_name)
-            # print(f"  ✅ {module_name}")
+            print(f"  ✅ {module_name}", flush=True)
         except Exception:
-            print(f"❌ Error importing {module_name}:")
+            print(f"❌ Error importing {module_name}:", flush=True)
             traceback.print_exc(limit=1)
             failed.append(module_name)
 
@@ -59,9 +60,10 @@ if __name__ == "__main__":
     root = Path.cwd()
     failures = verify_imports(args.lib, root)
 
+    import os
     if failures:
-        print(f"\n🛑 IMPORT VERIFICATION FAILED: {len(failures)} errors found.")
-        sys.exit(1)
+        print(f"\n🛑 IMPORT VERIFICATION FAILED: {len(failures)} errors found.", flush=True)
+        os._exit(1)
     else:
-        print("\n✨ ALL IMPORTS VERIFIED. No NameErrors or missing dependencies detected.")
-        sys.exit(0)
+        print("\n✨ ALL IMPORTS VERIFIED. No NameErrors or missing dependencies detected.", flush=True)
+        os._exit(0)
