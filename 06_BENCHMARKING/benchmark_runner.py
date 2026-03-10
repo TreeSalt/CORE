@@ -8,13 +8,11 @@ Domain:         06_BENCHMARKING
 
 import ast
 import sys
-import json
 import hashlib
 import logging
 import subprocess
 import importlib.util
 import yaml
-import requests
 import re
 from pathlib import Path
 from datetime import datetime, timezone
@@ -50,26 +48,34 @@ def _fail_closed(reason: str) -> NoReturn:
 def _sha256(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""): h.update(chunk)
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
     return h.hexdigest()
 
 def _verify_constitution():
-    if not GOVERNOR_SEAL.exists(): _fail_closed("GOVERNOR_SEAL_MISSING")
+    if not GOVERNOR_SEAL.exists():
+        _fail_closed("GOVERNOR_SEAL_MISSING")
     stored_aec = None
     for line in GOVERNOR_SEAL.read_text().splitlines():
-        if line.startswith("AEC_HASH:"): stored_aec = line.split(":", 1)[1].strip()
-    if not stored_aec: _fail_closed("GOVERNOR_SEAL_MALFORMED: AEC_HASH missing")
-    if _sha256(CONSTITUTION) != stored_aec: _fail_closed("CONSTITUTIONAL_INTEGRITY_BREACH")
+        if line.startswith("AEC_HASH:"):
+            stored_aec = line.split(":", 1)[1].strip()
+    if not stored_aec:
+        _fail_closed("GOVERNOR_SEAL_MALFORMED: AEC_HASH missing")
+    if _sha256(CONSTITUTION) != stored_aec:
+        _fail_closed("CONSTITUTIONAL_INTEGRITY_BREACH")
     log.info("Constitutional seal verified.")
 
 def _load_schema():
     global _schema
-    if not SCHEMA_FILE.exists(): _fail_closed("BENCHMARK_SCHEMA_MISSING")
-    with open(SCHEMA_FILE) as f: _schema = yaml.safe_load(f)
+    if not SCHEMA_FILE.exists():
+        _fail_closed("BENCHMARK_SCHEMA_MISSING")
+    with open(SCHEMA_FILE) as f:
+        _schema = yaml.safe_load(f)
 
 def _load_domains():
     global _domains
-    with open(DOMAINS_REGISTRY) as f: _domains = {d["id"]: d for d in yaml.safe_load(f)["domains"]}
+    with open(DOMAINS_REGISTRY) as f:
+        _domains = {d["id"]: d for d in yaml.safe_load(f)["domains"]}
 
 def _extract_code_from_proposal(proposal_path: Path) -> list:
     text = proposal_path.read_text()
@@ -136,13 +142,14 @@ def gate_hallucination(code_blocks: list, proposal: Path, domain: dict) -> dict:
     
     if any(path in proposal_text for path in other_domain_paths if path and path != authorized_write_path):
         result["hard_fail"] = True
-        result["failures"].append(f"HARD_FAIL — DOMAIN_BOUNDARY_VIOLATION")
+        result["failures"].append("HARD_FAIL — DOMAIN_BOUNDARY_VIOLATION")
     else:
         checks_passed += 1
 
     urls = re.findall(r'https?://[^\s\'"]+', proposal_text)
     for url in urls:
-        if "localhost" in url or "127.0.0.1" in url or "example.com" in url: continue
+        if "localhost" in url or "127.0.0.1" in url or "example.com" in url:
+            continue
         total_checks += 1
         result["failures"].append(f"UNDOCUMENTED_ENDPOINT: '{url}'")
 
@@ -190,13 +197,15 @@ def _finalize(results: dict, proposal: Path, domain_id: str, timestamp: str) -> 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report_path = REPORTS_DIR / f"BENCHMARK_{domain_id}_{timestamp}.md"
     status = "✅ PASSED" if results["passed"] else "❌ FAILED"
-    if results.get("hard_fail"): status = "🚨 HARD FAIL"
+    if results.get("hard_fail"):
+        status = "🚨 HARD FAIL"
     
     report_lines = [f"# BENCHMARK REPORT: {status}", f"Score: {results['score']}"]
-    for g in ["hygiene", "hallucination", "logic"]:
+    for g in sorted(results["gates"].keys()):
         gate = results["gates"].get(g, {})
         report_lines.append(f"\n### Gate {g.upper()}: {'✅' if gate.get('passed') else '❌'}")
-        for f in gate.get("failures", []): report_lines.append(f"- {f}")
+        for f in gate.get("failures", []):
+            report_lines.append(f"- {f}")
     
     report_path.write_text("\n".join(report_lines))
     results["report_path"] = str(report_path)
@@ -205,13 +214,15 @@ def _finalize(results: dict, proposal: Path, domain_id: str, timestamp: str) -> 
         try:
             with open(ERROR_LEDGER, "a") as f:
                 f.write(f"\n### {timestamp} — BENCHMARK FAILURE\n**Domain:** {domain_id}\n**Score:** {results['score']}\n")
-        except Exception: pass
+        except Exception:
+            pass
         
     return results
 
 def run_benchmark(proposal_path: str, domain_id: str) -> dict:
     proposal = Path(proposal_path)
-    if not proposal.exists(): _fail_closed(f"PROPOSAL_NOT_FOUND: {proposal_path}")
+    if not proposal.exists():
+        _fail_closed(f"PROPOSAL_NOT_FOUND: {proposal_path}")
     domain = _domains[domain_id]
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
@@ -220,10 +231,12 @@ def run_benchmark(proposal_path: str, domain_id: str) -> dict:
     results: Dict[str, Any] = {"domain_id": domain_id, "gates": {}}
 
     results["gates"]["hygiene"] = gate_hygiene(code_blocks, proposal)
-    if not results["gates"]["hygiene"]["passed"]: return _finalize(results, proposal, domain_id, timestamp)
+    if not results["gates"]["hygiene"]["passed"]:
+        return _finalize(results, proposal, domain_id, timestamp)
 
     results["gates"]["hallucination"] = gate_hallucination(code_blocks, proposal, domain)
-    if not results["gates"]["hallucination"]["passed"]: return _finalize(results, proposal, domain_id, timestamp)
+    if not results["gates"]["hallucination"]["passed"]:
+        return _finalize(results, proposal, domain_id, timestamp)
 
     results["gates"]["logic"] = gate_logic(domain_id)
     return _finalize(results, proposal, domain_id, timestamp)

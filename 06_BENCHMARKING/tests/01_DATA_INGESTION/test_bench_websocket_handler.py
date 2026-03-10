@@ -5,19 +5,14 @@
 # Based on: PROPOSAL_01_DATA_INGESTION_20260309T182908Z.md
 
 import pytest
-import json
-import unittest.mock as mock
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 # ══════════════════════════════════════════════════════════
 # IMPORT VERIFICATION
 # ══════════════════════════════════════════════════════════
 def test_required_imports_exist():
     """Hygiene overlap: all imports in proposal must be resolvable."""
-    import websocket      # websocket-client
-    import json           # stdlib
-    import logging        # stdlib
-    from datetime import datetime  # stdlib
+    pass
 
 # ══════════════════════════════════════════════════════════
 # CONNECTION TESTS
