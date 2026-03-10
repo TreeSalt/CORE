@@ -1,1 +1,1 @@
-__version__ = "9.9.9-SCHISM"
+__version__ = "9.9.9"
