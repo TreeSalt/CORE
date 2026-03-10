@@ -260,11 +260,15 @@ def write_proposal(domain_id, model, tier, proposal_type, content):
     return proposal_path
 
 def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTATION"):
-    # ARCHITECTURE blueprints don't need heavy model reasoning — downgrade to sprinter
+    # CODE_ARCHITECTURE blueprints downgrade to sprinter (avoid timeout on boilerplate)
+    # STRATEGIC_ARCHITECTURE (Zoo blueprints, domain design) NEVER downgrades — 32b required
     if proposal_type == "ARCHITECTURE" and tier == "heavy":
         model = domain.get("sprinter_model", model)
         tier  = "sprinter"
-        log.info(f"ARCHITECTURE proposal — downgraded to sprinter: {model}")
+        log.info(f"CODE_ARCHITECTURE proposal — downgraded to sprinter: {model}")
+    elif proposal_type == "STRATEGIC_ARCHITECTURE":
+        # Never downgrade — strategic content requires 32b reasoning
+        log.info(f"STRATEGIC_ARCHITECTURE proposal — maintaining heavy tier: {model}")
     domain_id = domain["id"]
     context = _build_context_package(domain, task, mission)
     _log_routing_decision(domain_id, model, tier, f"local execution — security_class={domain.get('security_class')}")
