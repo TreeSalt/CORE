@@ -19,7 +19,6 @@ import threading
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Callable, Optional
 
 # ── CONSTANTS ──────────────────────────────────────────────────────────────────
@@ -107,7 +106,8 @@ class AgentCoordinator:
                          Must NOT write to 04_GOVERNANCE/.
         """
         if dispatch_fn is None:
-            dispatch_fn = lambda pkg: None  # no-op for testing / deferred wiring
+            def dispatch_fn(pkg):
+                return None  # no-op for testing / deferred wiring
 
         self._dispatch_fn: Callable[[TaskPackage], None] = dispatch_fn
 

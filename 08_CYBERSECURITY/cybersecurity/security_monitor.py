@@ -11,7 +11,6 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
-import sys
 from pathlib import Path
 
 log = logging.getLogger(__name__)
