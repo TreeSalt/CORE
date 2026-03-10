@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-09T23:23:24.193001+00:00",
+  "last_updated": "2026-03-10T01:38:10.956713+00:00",
   "last_task": {
-    "domain_id": "00_PHYSICS_ENGINE",
-    "model": "qwen2.5-coder:7b",
+    "domain_id": "02_RISK_MANAGEMENT",
+    "model": "qwen2.5-coder:32b",
     "status": "COMPLETE",
-    "completed_at": "2026-03-09T23:23:24.193001+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260309T232324Z.md"
+    "completed_at": "2026-03-10T01:38:10.956713+00:00",
+    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260310T013810Z.md"
   },
   "session_history": [
     {
@@ -37,6 +37,27 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-09T23:23:24.193001+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260309T232324Z.md"
+    },
+    {
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-10T01:19:21.583655+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-10T01:28:15.896014+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-10T01:38:10.956713+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260310T013810Z.md"
     }
   ],
   "hardware_ceiling": {
@@ -44,5 +65,21 @@
     "system_ram_gb": 32,
     "max_loaded_models": 2,
     "num_parallel": 1
-  }
+  },
+  "routing_log": [
+    {
+      "timestamp": "2026-03-10T01:19:21.583445+00:00",
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-10T01:28:15.895747+00:00",
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    }
+  ]
 }

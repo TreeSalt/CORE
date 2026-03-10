@@ -1,0 +1,34 @@
+{
+  "output": {
+    "filePath": "dist/TRADER_OPS_REPO_MIX_LATEST.md",
+    "style": "markdown",
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 10
+  },
+  "include": [
+    "**/*"
+  ],
+  "ignore": {
+    "customPatterns": [
+      ".venv/**",
+      "__pycache__/**",
+      "**/*.pyc",
+      "dist/**",
+      "reports/**",
+      "data/**",
+      "keys/**",
+      "sovereign.key",
+      "sovereign.pub",
+      "intelligence/**",
+      "*.txt",
+      "05_DATA_CACHE/**",
+      ".git/**",
+      ".gemini/**",
+      ".claude/**",
+      "*.log"
+    ],
+    "useDefaultPatterns": true,
+    "useGitignore": true
+  }
+}
