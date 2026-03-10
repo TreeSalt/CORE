@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "authored_by": "Claude.ai — Supreme Council",
+  "description": "Autonomous mission queue. Orchestrator polls this file and executes missions in priority order. Sovereign is only paged for IMPLEMENTATION ratification, HARD_FAIL, or MAX_RETRIES.",
+  "missions": [
+    {
+      "id": "fix_gate_logic_001",
+      "domain": "06_BENCHMARKING",
+      "task": "fix_gate_logic_traceback_reporting",
+      "mission_file": "mission_fix_gate_logic.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 1,
+      "status": "PENDING",
+      "authored_by": "Claude.ai",
+      "authored_at": "2026-03-10T00:00:00Z",
+      "rationale": "BenchmarkOrchestrator._gate_logic returns useless failure messages. Fix before Zoo runs so corrective context is actionable.",
+      "result": null
+    },
+    {
+      "id": "deploy_opsec_rag_scout_001",
+      "domain": "01_DATA_INGESTION",
+      "task": "deploy_opsec_rag_scout",
+      "mission_file": "mission_deploy_opsec_rag_scout.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 2,
+      "status": "PENDING",
+      "authored_by": "Claude.ai",
+      "authored_at": "2026-03-10T00:00:00Z",
+      "rationale": "Last missing production module. Required before Zoo first epoch.",
+      "result": null
+    }
+  ]
+}
