@@ -19,11 +19,11 @@
       "result": {
         "status": "ESCALATE",
         "reason": "run_loop exhausted or hard failed",
-        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_01_DATA_INGESTION_20260310T185411Z.md",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_01_DATA_INGESTION_20260310T192616Z.md",
         "ratification_packet": null
       },
-      "started_at": "2026-03-10T18:30:08.816190+00:00",
-      "completed_at": "2026-03-10T18:54:11.202918+00:00"
+      "started_at": "2026-03-10T18:58:19.171084+00:00",
+      "completed_at": "2026-03-10T19:26:16.150848+00:00"
     },
     {
       "id": "wire_makefile_splinter_hook_001",
@@ -42,8 +42,8 @@
         "reason": "Mission file not found: /home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/mission_wire_splinter_hook.md",
         "ratification_packet": null
       },
-      "started_at": "2026-03-10T18:54:11.203367+00:00",
-      "completed_at": "2026-03-10T18:54:11.203585+00:00"
+      "started_at": "2026-03-10T19:26:16.151340+00:00",
+      "completed_at": "2026-03-10T19:26:16.151481+00:00"
     },
     {
       "id": "zoo_epoch1_strategy_variants_001",
@@ -68,8 +68,8 @@
         "reason": "Mission file not found: /home/asanchez/TRADER_OPS/v9e_stage/prompts/missions/mission_zoo_epoch1.md",
         "ratification_packet": null
       },
-      "started_at": "2026-03-10T18:54:11.203803+00:00",
-      "completed_at": "2026-03-10T18:54:11.203918+00:00"
+      "started_at": "2026-03-10T19:26:16.151723+00:00",
+      "completed_at": "2026-03-10T19:26:16.151852+00:00"
     }
   ]
 }
