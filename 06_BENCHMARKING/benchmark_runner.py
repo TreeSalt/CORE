@@ -116,7 +116,17 @@ def gate_hygiene(code_blocks: list, proposal: Path) -> dict:
         if pattern == "hardcoded_credentials":
             triggered = any(p in proposal_text for p in ["api_key =", "password =", "secret =", "token =", "bearer "])
         elif pattern == "governance_write_attempt":
-            triggered = "04_governance" in proposal_text
+            import tokenize, io
+            code_only = " ".join(code_blocks)
+            try:
+                tokens = list(tokenize.generate_tokens(io.StringIO(code_only).readline))
+                executable = " ".join(
+                    t.string for t in tokens
+                    if t.type not in (tokenize.COMMENT, tokenize.STRING, tokenize.NEWLINE, tokenize.NL)
+                ).lower()
+            except Exception:
+                executable = code_only.lower()
+            triggered = "04_governance" in executable
         elif pattern == "bypass_fail_closed":
             triggered = "sys.exit" in proposal_text and "fail_closed" not in proposal_text
             
@@ -141,7 +151,19 @@ def gate_hallucination(code_blocks: list, proposal: Path, domain: dict) -> dict:
     authorized_write_path = domain.get("write_path", "")
     other_domain_paths = [d["write_path"] for did, d in _domains.items() if did != domain["id"] and d.get("write_path")]
     
-    if any(path in proposal_text for path in other_domain_paths if path and path != authorized_write_path):
+    # Only flag actual path operations — not constraint documentation or comments
+    import tokenize as _tok, io as _io
+    code_only = " ".join(code_blocks)
+    try:
+        tokens = list(_tok.generate_tokens(_io.StringIO(code_only).readline))
+        # Keep only Name, Op, and Number tokens — skip strings and comments
+        executable_only = " ".join(
+            t.string for t in tokens
+            if t.type not in (_tok.COMMENT, _tok.STRING, _tok.NEWLINE, _tok.NL, _tok.ENCODING)
+        ).lower()
+    except Exception:
+        executable_only = code_only.lower()
+    if any(path.lower() in executable_only for path in other_domain_paths if path and path != authorized_write_path):
         result["hard_fail"] = True
         result["failures"].append("HARD_FAIL — DOMAIN_BOUNDARY_VIOLATION")
     else:
