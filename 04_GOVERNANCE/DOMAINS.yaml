@@ -4,17 +4,18 @@
 
 domains:
   - id: "00_PHYSICS_ENGINE"
-    description: "Core trading physics, signal mathematics, SMA/EMA/deque engine"
+    description: "Core trading physics, signal mathematics, SMA/EMA/deque engine. Zoo strategy architecture."
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
-    primary_tier: "sprinter"
+    primary_tier: "heavy"
     sprinter_model: "qwen2.5-coder:7b"
     heavy_model: "qwen2.5-coder:32b"
     complexity: "HIGH"
     token_threshold: 2048
     write_path: "00_PHYSICS_ENGINE/"
     authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b"]
-    escalation_trigger: "complexity==HIGH or token_count>token_threshold"
+    escalation_trigger: "always_heavy"
+    note: "Zoo strategy blueprints are high-stakes strategic architecture. Always heavy."
 
   - id: "01_DATA_INGESTION"
     description: "Market data feeds, websocket handlers, data normalization"
