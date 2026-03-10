@@ -364,7 +364,7 @@ def run_loop(domain: str, task: str, mission: str,
             })
             escalation = write_escalation_packet(
                 domain, task, proposal_type, attempt_log,
-                "Router FAIL-CLOSED on attempt {attempt}. Check mission file and domain config."
+                f"Router FAIL-CLOSED on attempt {attempt}. Check mission file and domain config."
             )
             _append_error_ledger(f"RUN LOOP HARD FAIL: domain={domain} task={task} escalation={escalation}")
             run_record["final_result"] = HARD_FAIL
