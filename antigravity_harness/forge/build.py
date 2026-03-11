@@ -411,7 +411,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         
         # [ITEM 3] Sign Data Manifest
         dm_sig_path = smoke_dir / "DATA_MANIFEST.json.sig"
-        key_path = repo_root / "sovereign.key"
+        key_path = repo_root / "sovereign_pem.key"
         if key_path.exists():
             print(f"✍️  Signing Data Manifest: {dm_sig_path.name}")
             subprocess.run([
@@ -452,7 +452,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             # [ITEM 3] Sign Prompt Fingerprint
             pf_path = smoke_dir / "PROMPT_FINGERPRINT.json"
             pf_sig_path = smoke_dir / "PROMPT_FINGERPRINT.json.sig"
-            key_path = repo_root / "sovereign.key"
+            key_path = repo_root / "sovereign_pem.key"
             if key_path.exists() and pf_path.exists():
                 print(f"✍️  Signing Prompt Fingerprint: {pf_sig_path.name}")
                 subprocess.run([
@@ -834,7 +834,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         certificate["gates"]["evidence_fail_reason"] = ev_fail_reason
 
     # Keys
-    key_path = repo_root / "sovereign.key"
+    key_path = repo_root / "sovereign_pem.key"
     pub_path = repo_root / "sovereign.pub"
     if not key_path.exists():
          subprocess.run(["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(key_path)], check=True)
@@ -1021,7 +1021,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         json.dump(ledger, f, indent=2, sort_keys=True)
 
     # 6.2 Sign the RUN_LEDGER (Sovereign Binding)
-    key_path = repo_root / "sovereign.key"
+    key_path = repo_root / "sovereign_pem.key"
     if key_path.exists():
         ledger_sig_path = dist_dir / f"RUN_LEDGER_v{version}.json.sig"
         try:
