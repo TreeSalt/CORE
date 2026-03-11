@@ -3420,3 +3420,17 @@ fix: verify_drop_packet repo-relative path for synthetic CSV
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-11T05:50:35.486529Z: chore: commit forge artifacts — clear GIT_DIRTY (v9.9.36)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.36 forge.
+
+### Decision
+chore: commit forge artifacts — clear GIT_DIRTY
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
