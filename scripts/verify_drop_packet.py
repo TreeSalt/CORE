@@ -494,8 +494,12 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                 elif f"data/{fname}" in e_names:
                                     found_data_path = f"data/{fname}"
                                     data_bytes = ez.read(found_data_path)
-                                # 4. Check repo-relative path (synthetic quarantine layout)
+                                # 4. Repo-relative path (synthetic quarantine: tests/fixtures/...)
                                 elif fname in e_names:
+                                    found_data_path = fname
+                                    data_bytes = ez.read(found_data_path)
+                                # 5. Basename fallback
+                                elif fname.split("/")[-1] in e_names:
                                     found_data_path = f"data/{fname}"
                                     data_bytes = ez.read(found_data_path)
                                 
