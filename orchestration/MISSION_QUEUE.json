@@ -76,46 +76,71 @@
       "id": "zoo_impl_E1_001_volatility_gatekeeper",
       "domain": "00_PHYSICS_ENGINE",
       "task": "implement_zoo_variant",
-      "variant": "ZOO_E1_001",
+      "mission_file": "mission_zoo_impl_E1_001_volatility_gatekeeper.md",
       "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 10,
       "status": "PENDING",
-      "priority": 10
+      "authored_by": "Supreme Council \u2014 Sovereign Edition",
+      "authored_at": "2026-03-11T05:56:09.857977+00:00",
+      "rationale": "Zoo Epoch 1: ZOO_E1_001 VOLATILITY_GATEKEEPER. ATR gate circuit breaker. Entry only when vol contracting. Hard stop 2x ATR.",
+      "constitutional_basis": "Article IV \u2014 Evolutionary Mandate"
     },
     {
       "id": "zoo_impl_E1_002_mean_reversion_sniper",
       "domain": "00_PHYSICS_ENGINE",
       "task": "implement_zoo_variant",
-      "variant": "ZOO_E1_002",
+      "mission_file": "mission_zoo_impl_E1_002_mean_reversion_sniper.md",
       "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 11,
       "status": "PENDING",
-      "priority": 11
+      "authored_by": "Supreme Council \u2014 Sovereign Edition",
+      "authored_at": "2026-03-11T05:56:09.857977+00:00",
+      "rationale": "Zoo Epoch 1: ZOO_E1_002 MEAN_REVERSION_SNIPER. VWAP + RSI double confirmation mean reversion. Exit at VWAP midline.",
+      "constitutional_basis": "Article IV \u2014 Evolutionary Mandate"
     },
     {
       "id": "zoo_impl_E1_003_regime_chameleon",
       "domain": "00_PHYSICS_ENGINE",
       "task": "implement_zoo_variant",
-      "variant": "ZOO_E1_003",
+      "mission_file": "mission_zoo_impl_E1_003_regime_chameleon.md",
       "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 12,
       "status": "PENDING",
-      "priority": 12
+      "authored_by": "Supreme Council \u2014 Sovereign Edition",
+      "authored_at": "2026-03-11T05:56:09.857977+00:00",
+      "rationale": "Zoo Epoch 1: ZOO_E1_003 REGIME_CHAMELEON. ADX dead-band regime switching. Trend mode EMA cross, ranging mode Bollinger.",
+      "constitutional_basis": "Article IV \u2014 Evolutionary Mandate"
     },
     {
       "id": "zoo_impl_E1_004_opening_range_breakout",
       "domain": "00_PHYSICS_ENGINE",
       "task": "implement_zoo_variant",
-      "variant": "ZOO_E1_004",
+      "mission_file": "mission_zoo_impl_E1_004_opening_range_breakout.md",
       "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 13,
       "status": "PENDING",
-      "priority": 13
+      "authored_by": "Supreme Council \u2014 Sovereign Edition",
+      "authored_at": "2026-03-11T05:56:09.857977+00:00",
+      "rationale": "Zoo Epoch 1: ZOO_E1_004 OPENING_RANGE_BREAKOUT. First 30min range breakout with volume confirmation. One trade per session.",
+      "constitutional_basis": "Article IV \u2014 Evolutionary Mandate"
     },
     {
       "id": "zoo_impl_E1_005_momentum_decay_harvester",
       "domain": "00_PHYSICS_ENGINE",
       "task": "implement_zoo_variant",
-      "variant": "ZOO_E1_005",
+      "mission_file": "mission_zoo_impl_E1_005_momentum_decay_harvester.md",
       "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 14,
       "status": "PENDING",
-      "priority": 14
+      "authored_by": "Supreme Council \u2014 Sovereign Edition",
+      "authored_at": "2026-03-11T05:56:09.857977+00:00",
+      "rationale": "Zoo Epoch 1: ZOO_E1_005 MOMENTUM_DECAY_HARVESTER. Pullback entry after momentum spike. Buys consolidation bar, not the spike.",
+      "constitutional_basis": "Article IV \u2014 Evolutionary Mandate"
     }
   ]
 }
