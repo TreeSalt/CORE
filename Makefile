@@ -158,6 +158,9 @@ forge:
 	$(PYTHON) -B scripts/forge_evidence.py
 
 build: quickgate
+	@echo "🧬 Splinter Agent: ensuring prompt file exists for v$(VERSION)..."
+	@$(VENV_PYTHON) scripts/amend_prompt_version.py --version $(VERSION) 2>&1 | tail -5
+	@git add prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v$(VERSION).txt 2>/dev/null || true
 	@if [ -z "$(TRADER_OPS_PROMPT_ID)" ]; then \
 		echo "❌ ERR: TRADER_OPS_PROMPT_ID is required for certified builds."; \
 		echo "   USAGE: TRADER_OPS_PROMPT_ID=YOUR_PROMPT_NAME make all"; \
