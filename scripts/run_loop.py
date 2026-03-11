@@ -58,6 +58,13 @@ RUN_LOOP_STATE    = REPO_ROOT / "orchestration" / "RUN_LOOP_STATE.json"
 ESCALATION_DIR    = REPO_ROOT / "08_IMPLEMENTATION_NOTES" / "ESCALATIONS"
 ROUTER            = REPO_ROOT / "orchestration" / "semantic_router.py"
 BENCHMARK_RUNNER  = REPO_ROOT / "06_BENCHMARKING" / "benchmark_runner.py"
+
+# ── VENV AUTO-DETECTION ───────────────────────────────────────────────────────
+_VENV_PYTHON = REPO_ROOT / ".venv" / "bin" / "python3"
+if _VENV_PYTHON.exists() and str(_VENV_PYTHON.resolve()) != sys.executable:
+    PYTHON_FOR_SUBPROCESSES = str(_VENV_PYTHON)
+else:
+    PYTHON_FOR_SUBPROCESSES = sys.executable
 REPORTS_DIR       = REPO_ROOT / "06_BENCHMARKING" / "reports"
 
 # ── LOGGING ───────────────────────────────────────────────────────────────────
@@ -106,7 +113,7 @@ def invoke_router(domain: str, task: str, mission: str,
     """
     task_with_context = f"{task} {extra_context}".strip()
     cmd = [
-        sys.executable, str(ROUTER),
+        PYTHON_FOR_SUBPROCESSES, str(ROUTER),
         "--domain", domain,
         "--task",   task_with_context,
         "--mission", mission,
@@ -149,7 +156,7 @@ def invoke_benchmark(proposal_path: str, domain: str,
     Invoke the benchmark runner. Returns (result_code, report_path, parsed_result).
     """
     cmd = [
-        sys.executable, str(BENCHMARK_RUNNER),
+        PYTHON_FOR_SUBPROCESSES, str(BENCHMARK_RUNNER),
         "--proposal", proposal_path,
         "--domain",   domain,
         "--type",     proposal_type,

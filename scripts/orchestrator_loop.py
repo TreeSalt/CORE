@@ -73,6 +73,16 @@ MISSIONS_DIR    = REPO_ROOT / "prompts" / "missions"
 ESCALATION_DIR  = REPO_ROOT / "08_IMPLEMENTATION_NOTES" / "ESCALATIONS"
 ERROR_LEDGER    = REPO_ROOT / "docs" / "ERROR_LEDGER.md"
 RUN_LOOP        = REPO_ROOT / "scripts" / "run_loop.py"
+
+# ── VENV AUTO-DETECTION ───────────────────────────────────────────────────────
+# If invoked via system python, re-exec through the venv python so that
+# the entire subprocess chain (run_loop → benchmark_runner) inherits the
+# correct interpreter with all project dependencies available.
+_VENV_PYTHON = REPO_ROOT / ".venv" / "bin" / "python3"
+if _VENV_PYTHON.exists() and str(_VENV_PYTHON.resolve()) != sys.executable:
+    PYTHON_FOR_SUBPROCESSES = str(_VENV_PYTHON)
+else:
+    PYTHON_FOR_SUBPROCESSES = sys.executable
 ORCH_STATE      = REPO_ROOT / "orchestration" / "ORCHESTRATOR_STATE.json"
 
 # ── LOGGING ───────────────────────────────────────────────────────────────────
@@ -235,7 +245,7 @@ def execute_mission(mission: dict, dry_run: bool = False) -> dict:
         }
 
     cmd = [
-        sys.executable, str(RUN_LOOP),
+        PYTHON_FOR_SUBPROCESSES, str(RUN_LOOP),
         "--domain",      mission["domain"],
         "--task",        mission["task"],
         "--mission",     mission_file,

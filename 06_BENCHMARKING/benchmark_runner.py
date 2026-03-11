@@ -120,7 +120,24 @@ def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEM
             continue
 
         imports = [node for node in ast.walk(tree) if isinstance(node, (ast.Import, ast.ImportFrom))]
-        STDLIB = {"os", "sys", "json", "logging", "datetime", "pathlib", "hashlib", "re", "ast", "time", "math", "typing", "websocket"}
+        # Known-safe imports: stdlib + project dependencies from requirements.txt
+        # Adding project deps here prevents false HALLUCINATED_IMPORT when
+        # the benchmark runner is invoked outside the venv (sys.executable chain).
+        STDLIB = {
+            # Python stdlib
+            "os", "sys", "json", "logging", "datetime", "pathlib", "hashlib",
+            "re", "ast", "time", "math", "typing", "collections", "dataclasses",
+            "abc", "enum", "functools", "itertools", "copy", "io", "csv",
+            "statistics", "decimal", "fractions", "random", "bisect", "heapq",
+            "operator", "contextlib", "warnings", "traceback", "inspect",
+            "threading", "multiprocessing", "queue", "signal", "socket",
+            "struct", "array", "weakref", "textwrap", "string", "secrets",
+            "tempfile", "shutil", "glob", "fnmatch", "gzip", "zipfile",
+            "configparser", "argparse", "unittest", "pprint", "uuid",
+            # Project dependencies (installed in .venv via requirements.txt)
+            "pandas", "numpy", "yaml", "pyyaml", "requests", "websocket",
+            "scipy", "sklearn", "matplotlib", "plotly", "pyarrow",
+        }
         
         for node in imports:
             total_checks += 1
