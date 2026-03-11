@@ -155,13 +155,18 @@ clean:
 	$(PYTHON) -B scripts/clean_repo.py --clean --clean-generated
 
 forge:
-	$(PYTHON) -B scripts/forge_evidence.py
-
-build: quickgate
 	@echo "🧬 Splinter Agent: ensuring prompt file exists for v$(VERSION)..."
 	@$(VENV_PYTHON) scripts/amend_prompt_version.py --version $(VERSION) 2>&1 | tail -5
 	@git add prompts/missions/TRADER_OPS_MASTER_IDE_REQUEST_v$(VERSION).txt 2>/dev/null || true
-	@if [ -z "$(TRADER_OPS_PROMPT_ID)" ]; then \
+	$(PYTHON) -B scripts/forge_evidence.py
+	@$(VENV_PYTHON) scripts/prompt_fingerprint.py \
+		prompts/missions/$(TRADER_OPS_PROMPT_ID).txt \
+		--out-dir reports/forge/ibkr_smoke \
+		--id $(TRADER_OPS_PROMPT_ID) \
+		--charter TRADER_OPS_PROMPT_CHARTER_v2.0
+
+build: quickgate
+	@if [ -z "$(TRADER_OPS_PROMPT_ID)"; then \
 		echo "❌ ERR: TRADER_OPS_PROMPT_ID is required for certified builds."; \
 		echo "   USAGE: TRADER_OPS_PROMPT_ID=YOUR_PROMPT_NAME make all"; \
 		exit 1; \
