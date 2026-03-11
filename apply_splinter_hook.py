@@ -31,7 +31,7 @@ else:
     MAKEFILE.write_text(patched)
     print("✅ Splinter hook inserted.")
     # Verify
-    result = [l for l in MAKEFILE.read_text().splitlines() if "Splinter Agent" in l]
+    result = [line for line in MAKEFILE.read_text().splitlines() if "Splinter Agent" in line]
     if result:
         print(f"✅ Verified: '{result[0].strip()}'")
     else:

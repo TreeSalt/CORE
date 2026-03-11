@@ -95,7 +95,7 @@ for m in queue["missions"]:
         m["type"] = "STRATEGIC_ARCHITECTURE"
         m["status"] = "PENDING"
         m["rationale"] += " — REQUEUED as STRATEGIC_ARCHITECTURE after routing failure. 32b required."
-        print(f"✅ Fix 3: Zoo mission requeued as STRATEGIC_ARCHITECTURE → 32b heavy lifter")
+        print("✅ Fix 3: Zoo mission requeued as STRATEGIC_ARCHITECTURE → 32b heavy lifter")
 
 queue_file.write_text(json.dumps(queue, indent=2))
 
