@@ -494,6 +494,10 @@ def main() -> int:  # noqa: PLR0915, PLR0912
                                 elif f"data/{fname}" in e_names:
                                     found_data_path = f"data/{fname}"
                                     data_bytes = ez.read(found_data_path)
+                                # 4. Check repo-relative path (synthetic quarantine layout)
+                                elif fname in e_names:
+                                    found_data_path = f"data/{fname}"
+                                    data_bytes = ez.read(found_data_path)
                                 
                                 if found_data_path:
                                     actual_sha = hashlib.sha256(data_bytes).hexdigest()

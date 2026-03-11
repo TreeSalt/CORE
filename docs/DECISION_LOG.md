@@ -3308,3 +3308,87 @@ feat: Zoo Epoch 1 blueprints — SOVEREIGN EDITION
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-10T20:36:46.834999Z: feat: finalize v9.9.29 release (v9.9.29)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.29 forge.
+
+### Decision
+feat: finalize v9.9.29 release
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-11T05:09:31.984364Z: feat: wire Makefile splinter hook — Gate 5 version chase KILLED (v9.9.30)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.30 forge.
+
+### Decision
+feat: wire Makefile splinter hook — Gate 5 version chase KILLED
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-11T05:26:36.651097Z: fix: move splinter hook + fingerprint generation to forge target (v9.9.31)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.31 forge.
+
+### Decision
+fix: move splinter hook + fingerprint generation to forge target
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-11T05:31:07.116395Z: fix: zero-debt eradication — 3 root causes resolved (v9.9.32)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.32 forge.
+
+### Decision
+fix: zero-debt eradication — 3 root causes resolved
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-11T05:36:42.556768Z: fix: correct sovereign.pub at repo root + ED25519 -rawin flag (v9.9.33)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.33 forge.
+
+### Decision
+fix: correct sovereign.pub at repo root + ED25519 -rawin flag
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-11T05:45:58.389721Z: fix: sovereign keypair mismatch — THE root cause of all signature failures (v9.9.34)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.34 forge.
+
+### Decision
+fix: sovereign keypair mismatch — THE root cause of all signature failures
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
