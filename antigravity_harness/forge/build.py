@@ -752,7 +752,11 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     
     # P1: Include Data in Evidence (Exact Binding)
     for m_file in manifest_files:
-        evidence_includes.append(f"data/{m_file}")
+        # Synthetic files live at repo root paths, not under data/
+        if m_file.startswith("tests/"):
+            evidence_includes.append(m_file)
+        else:
+            evidence_includes.append(f"data/{m_file}")
     
     # [ITEM 3] Signatures are already in smoke_dir (inside reports), so 
     # they are auto-included by "reports" being in evidence_includes.
