@@ -27,3 +27,4 @@ __pycache__/
 
 # Distribution (already ignored but explicit)
 dist/
+keys/sovereign.key
