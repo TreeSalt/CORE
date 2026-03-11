@@ -1,10 +1,12 @@
 repo:
   name: TRADER_OPS
   engine_root: 02_STRATEGY_ENGINE
-  version: "9.9.34"
-  generated_at_utc: "2026-03-11T05:45:58Z"
+  version: "9.9.36"
+  generated_at_utc: "2026-03-11T05:49:30Z"
   fingerprint_type: "payload_manifest_sha256"
-  fingerprint_sha256: "82fcfe2c6158da227a727d509ede380cf95a5d0d611d35b4bae42ec6bceab0d2"
+  fingerprint_sha256: "4b3dada288aad91b8277358c06a815dcbdad2646d998c1ca9b53435dea47534e"
+  sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
+  sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
   sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
   sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
   sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
