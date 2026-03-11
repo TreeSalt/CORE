@@ -71,6 +71,51 @@
       "started_at": "2026-03-10T20:02:49.369497+00:00",
       "completed_at": "2026-03-10T20:17:49.956262+00:00",
       "proposal": "PROPOSAL_00_PHYSICS_ENGINE_ZOO_EPOCH1_SOVEREIGN.md"
+    },
+    {
+      "id": "zoo_impl_E1_001_volatility_gatekeeper",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "variant": "ZOO_E1_001",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "priority": 10
+    },
+    {
+      "id": "zoo_impl_E1_002_mean_reversion_sniper",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "variant": "ZOO_E1_002",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "priority": 11
+    },
+    {
+      "id": "zoo_impl_E1_003_regime_chameleon",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "variant": "ZOO_E1_003",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "priority": 12
+    },
+    {
+      "id": "zoo_impl_E1_004_opening_range_breakout",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "variant": "ZOO_E1_004",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "priority": 13
+    },
+    {
+      "id": "zoo_impl_E1_005_momentum_decay_harvester",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "variant": "ZOO_E1_005",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "priority": 14
     }
   ]
 }
