@@ -110,7 +110,7 @@ def verify_trust_root(pubkey_path: Path) -> None:
         fail(f"Trust Root Missing: {pubkey_path}")
     
     actual_hash = sha256_file(pubkey_path)
-    expected_hash = "e195d74e9f30420410e07d9802c782db31cf6db7d18d0bc062d2a3f305481b50"
+    expected_hash = "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
     if actual_hash != expected_hash:
         fail(f"Trust Root TAMPERED: sha256 mismatch against pinned value.\nExpected: {expected_hash}\nActual: {actual_hash}")
 
