@@ -156,7 +156,7 @@ def amend(version: str,
         # File doesn't exist — copy from previous version first
         prev = find_previous_prompt(version)
         if prev is None:
-            print(f"ERROR: No previous prompt file found to copy from.", file=sys.stderr)
+            print("ERROR: No previous prompt file found to copy from.", file=sys.stderr)
             sys.exit(1)
 
         print(f"Copying {prev.name} → {new_path.name}")
