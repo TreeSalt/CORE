@@ -57,9 +57,11 @@ class TestReportGeneration:
         assert "qwen2.5-coder:7b" in content
 
     def test_report_contains_timestamp(self):
+        from datetime import datetime
         path = self.rg.generate(self.sample_result)
         content = Path(path).read_text()
-        assert "2026-03-10" in content
+        current_date_prefix = datetime.now().strftime("%Y-%m")
+        assert current_date_prefix in content
 
     def test_report_is_markdown(self):
         path = self.rg.generate(self.sample_result)
