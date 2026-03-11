@@ -415,7 +415,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         if key_path.exists():
             print(f"✍️  Signing Data Manifest: {dm_sig_path.name}")
             subprocess.run([
-                "openssl", "pkeyutl", "-sign", 
+                "openssl", "pkeyutl", "-sign", "-rawin", 
                 "-inkey", str(key_path), 
                 "-rawin", "-in", str(dm_path), 
                 "-out", str(dm_sig_path)
@@ -456,7 +456,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
             if key_path.exists() and pf_path.exists():
                 print(f"✍️  Signing Prompt Fingerprint: {pf_sig_path.name}")
                 subprocess.run([
-                    "openssl", "pkeyutl", "-sign", 
+                    "openssl", "pkeyutl", "-sign", "-rawin", 
                     "-inkey", str(key_path), 
                     "-rawin", "-in", str(pf_path), 
                     "-out", str(pf_sig_path)
@@ -849,7 +849,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
     sig_tmp = build_tmp / "CERTIFICATE.json.sig"
     print(f"✍️  Signing Unambiguous Certificate: {sig_tmp.name}")
     subprocess.run([
-        "openssl", "pkeyutl", "-sign", 
+        "openssl", "pkeyutl", "-sign", "-rawin", 
         "-inkey", str(key_path), 
         "-rawin", "-in", str(cert_tmp), 
         "-out", str(sig_tmp)
@@ -1026,7 +1026,7 @@ def build_drop_packet(repo_root: Path, dist_dir: Path) -> Dict[str, Any]:  # noq
         ledger_sig_path = dist_dir / f"RUN_LEDGER_v{version}.json.sig"
         try:
             subprocess.run([
-                "openssl", "pkeyutl", "-sign",
+                "openssl", "pkeyutl", "-sign", "-rawin",
                 "-inkey", str(key_path),
                 "-rawin", "-in", str(ledger_path),
                 "-out", str(ledger_sig_path)
