@@ -63,7 +63,7 @@
         "anti_target": "do NOT optimize for absolute return at expense of drawdown"
       },
       "result": {
-        "status": "ESCALATE",
+        "status": "PENDING",
         "reason": "run_loop exhausted or hard failed",
         "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260310T201749Z.md",
         "ratification_packet": null
@@ -80,7 +80,7 @@
       "type": "IMPLEMENTATION",
       "max_retries": 3,
       "priority": 10,
-      "status": "HARD_FAIL",
+      "status": "PENDING",
       "authored_by": "Supreme Council \u2014 Sovereign Edition",
       "authored_at": "2026-03-11T05:56:09.857977+00:00",
       "rationale": "Zoo Epoch 1: ZOO_E1_001 VOLATILITY_GATEKEEPER. ATR gate circuit breaker. Entry only when vol contracting. Hard stop 2x ATR.",
@@ -88,7 +88,7 @@
       "started_at": "2026-03-11T05:56:09.960493+00:00",
       "completed_at": "2026-03-11T06:36:09.963453+00:00",
       "result": {
-        "status": "HARD_FAIL",
+        "status": "PENDING",
         "reason": "Mission timed out after 40 minutes",
         "ratification_packet": null
       }
@@ -101,7 +101,7 @@
       "type": "IMPLEMENTATION",
       "max_retries": 3,
       "priority": 11,
-      "status": "ESCALATE",
+      "status": "PENDING",
       "authored_by": "Supreme Council \u2014 Sovereign Edition",
       "authored_at": "2026-03-11T05:56:09.857977+00:00",
       "rationale": "Zoo Epoch 1: ZOO_E1_002 MEAN_REVERSION_SNIPER. VWAP + RSI double confirmation mean reversion. Exit at VWAP midline.",
@@ -109,7 +109,7 @@
       "started_at": "2026-03-11T06:36:09.964656+00:00",
       "completed_at": "2026-03-11T06:51:10.971681+00:00",
       "result": {
-        "status": "ESCALATE",
+        "status": "PENDING",
         "reason": "run_loop exhausted or hard failed",
         "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260311T065110Z.md",
         "ratification_packet": null
@@ -123,7 +123,7 @@
       "type": "IMPLEMENTATION",
       "max_retries": 3,
       "priority": 12,
-      "status": "ESCALATE",
+      "status": "PENDING",
       "authored_by": "Supreme Council \u2014 Sovereign Edition",
       "authored_at": "2026-03-11T05:56:09.857977+00:00",
       "rationale": "Zoo Epoch 1: ZOO_E1_003 REGIME_CHAMELEON. ADX dead-band regime switching. Trend mode EMA cross, ranging mode Bollinger.",
@@ -131,7 +131,7 @@
       "started_at": "2026-03-11T06:51:10.972217+00:00",
       "completed_at": "2026-03-11T07:06:11.573448+00:00",
       "result": {
-        "status": "ESCALATE",
+        "status": "PENDING",
         "reason": "run_loop exhausted or hard failed",
         "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260311T070611Z.md",
         "ratification_packet": null
@@ -145,7 +145,7 @@
       "type": "IMPLEMENTATION",
       "max_retries": 3,
       "priority": 13,
-      "status": "ESCALATE",
+      "status": "PENDING",
       "authored_by": "Supreme Council \u2014 Sovereign Edition",
       "authored_at": "2026-03-11T05:56:09.857977+00:00",
       "rationale": "Zoo Epoch 1: ZOO_E1_004 OPENING_RANGE_BREAKOUT. First 30min range breakout with volume confirmation. One trade per session.",
@@ -153,7 +153,7 @@
       "started_at": "2026-03-11T07:06:11.576522+00:00",
       "completed_at": "2026-03-11T07:44:51.013131+00:00",
       "result": {
-        "status": "ESCALATE",
+        "status": "PENDING",
         "reason": "run_loop exhausted or hard failed",
         "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260311T074450Z.md",
         "ratification_packet": null
@@ -167,7 +167,7 @@
       "type": "IMPLEMENTATION",
       "max_retries": 3,
       "priority": 14,
-      "status": "HARD_FAIL",
+      "status": "PENDING",
       "authored_by": "Supreme Council \u2014 Sovereign Edition",
       "authored_at": "2026-03-11T05:56:09.857977+00:00",
       "rationale": "Zoo Epoch 1: ZOO_E1_005 MOMENTUM_DECAY_HARVESTER. Pullback entry after momentum spike. Buys consolidation bar, not the spike.",
@@ -175,7 +175,7 @@
       "started_at": "2026-03-11T07:44:51.013715+00:00",
       "completed_at": "2026-03-11T08:24:51.020961+00:00",
       "result": {
-        "status": "HARD_FAIL",
+        "status": "PENDING",
         "reason": "Mission timed out after 40 minutes",
         "ratification_packet": null
       }
