@@ -178,6 +178,8 @@ release-no-bump: ## clean → build → verify without version bump
 	$(MAKE) release NO_BUMP=1
 
 drop: build  ## Alias for build — creates the READY_TO_DROP zip in dist/
+	@git add docs/DECISION_LOG.md docs/ready_to_drop/COUNCIL_CANON.yaml docs/ready_to_drop/PAYLOAD_MANIFEST.json 2>/dev/null || true
+	@git diff --cached --quiet || git commit -m "chore: auto-seal forge artifacts v$(VERSION)" 
 
 # Council-Grade Verification Targets
 DIST ?= dist
