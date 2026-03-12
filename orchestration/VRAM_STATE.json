@@ -1,12 +1,12 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-11T22:37:30.918538+00:00",
+  "last_updated": "2026-03-12T01:55:05.570045+00:00",
   "last_task": {
     "domain_id": "00_PHYSICS_ENGINE",
     "model": "qwen2.5-coder:32b",
     "status": "ACTIVE",
-    "completed_at": "2026-03-11T22:37:30.918538+00:00",
+    "completed_at": "2026-03-12T01:55:05.570045+00:00",
     "proposal_path": ""
   },
   "session_history": [
@@ -744,6 +744,13 @@
       "status": "ACTIVE",
       "completed_at": "2026-03-11T22:37:30.918538+00:00",
       "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-12T01:55:05.570045+00:00",
+      "proposal_path": ""
     }
   ],
   "hardware_ceiling": {
@@ -1175,6 +1182,13 @@
     },
     {
       "timestamp": "2026-03-11T22:37:30.917509+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-12T01:55:05.569053+00:00",
       "domain_id": "00_PHYSICS_ENGINE",
       "model": "qwen2.5-coder:32b",
       "tier": "heavy",
