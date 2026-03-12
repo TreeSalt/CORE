@@ -242,7 +242,7 @@ def gate_logic(domain_id: str) -> dict:
 
     try:
         proc = subprocess.run(
-            [sys.executable, "-m", "pytest", str(test_dir), "-v", "--tb=short", "--timeout=300"],
+            [sys.executable, "-m", "pytest", str(test_dir), "-v", "--tb=short"],
             capture_output=True, text=True, timeout=300, cwd=str(REPO_ROOT)
         )
         result["pytest_output"] = proc.stdout + proc.stderr

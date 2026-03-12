@@ -266,7 +266,7 @@ def execute_mission(mission: dict, dry_run: bool = False) -> dict:
         result = subprocess.run(
             cmd, cwd=str(REPO_ROOT),
             capture_output=False,  # let output stream live
-            timeout=2400           # 40min hard ceiling per mission
+            timeout=8000           # 133min hard ceiling per mission to allow for 7200s router window
         )
 
         if result.returncode == 0:
