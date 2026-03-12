@@ -3504,3 +3504,17 @@ fix: Zoo benchmark blocker — pandas import + venv propagation
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-12T03:32:53.524983Z: fix: manual pandas addition to STDLIB (v9.9.41)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.41 forge.
+
+### Decision
+fix: manual pandas addition to STDLIB
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
