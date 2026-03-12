@@ -38,7 +38,7 @@ MISSIONS_DIR      = REPO_ROOT / "prompts" / "missions"
 PENDING_DIR       = MISSIONS_DIR / "PENDING"
 
 OLLAMA_BASE_URL   = "http://localhost:11434"
-TIMEOUT           = 900  # 15 min — 32b CPU offload on 32GB RAM
+TIMEOUT           = 7200 # 2 Hours — allow deep reasoning headroom for 32b on limited VRAM
 
 # ── SECRETS PATTERNS (mission file scan) ──────────────────────────────────────
 SECRET_PATTERNS = [
@@ -275,9 +275,18 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
     update_vram_log(domain_id, model, "ACTIVE")
     log.info(f"Executing LOCAL [{tier.upper()}]: {model}")
     try:
+        # Prepare options. num_gpu=0 forces the model to load into 
+        # system RAM (32GB available), avoiding 8GB VRAM bottlenecks/crashes.
+        options = {"num_gpu": 0} if tier == "heavy" else {}
+
         res = requests.post(
             f"{OLLAMA_BASE_URL}/api/generate",
-            json={"model": model, "prompt": context, "stream": False},
+            json={
+                "model": model,
+                "prompt": context,
+                "stream": False,
+                "options": options
+            },
             timeout=TIMEOUT
         )
         res.raise_for_status()
