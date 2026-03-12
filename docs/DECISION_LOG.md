@@ -3490,3 +3490,17 @@ chore: self-healing synchronization of project state
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-12T01:50:55.542173Z: fix: Zoo benchmark blocker — pandas import + venv propagation (v9.9.39)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.39 forge.
+
+### Decision
+fix: Zoo benchmark blocker — pandas import + venv propagation
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
