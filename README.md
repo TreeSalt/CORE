@@ -1,5 +1,5 @@
 # TRADER_OPS — Institutional Trading Strategy Harness
-Version: v9.9.46 | Charter: v2.0 | Owner: Alec
+Version: v9.9.48 | Charter: v2.0 | Owner: Alec
 
 ## Overview
 TRADER_OPS is a high-fidelity, sovereign validation engine for institutional-grade trading strategies. 
