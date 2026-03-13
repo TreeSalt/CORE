@@ -734,6 +734,126 @@
       "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_02_RISK_MANAGEMENT_20260313T224841Z.md",
       "ratified_at": "2026-03-13T23:41:00Z",
       "ratified_by": "Alec W. Sanchez \u2014 Sovereign (Council-approved)"
+    },
+    {
+      "id": "predatory_gate_incremental",
+      "domain": "06_BENCHMARKING",
+      "task": "implement_predatory_gate_batch_v2",
+      "mission_file": "mission_predatory_gate_incremental.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 0,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "capital_allocator",
+      "domain": "02_RISK_MANAGEMENT",
+      "task": "implement_capital_allocator",
+      "mission_file": "mission_capital_allocator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 5,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "compute_scheduler",
+      "domain": "03_ORCHESTRATION",
+      "task": "implement_compute_scheduler",
+      "mission_file": "mission_compute_scheduler.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 6,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "zoo_E3_002_rsi_divergence",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "mission_file": "mission_zoo_E3_002_rsi_divergence.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 12,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "zoo_E3_003_market_profile_value",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "mission_file": "mission_zoo_E3_003_market_profile_value.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 13,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "zoo_E3_004_overnight_range_trap",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "mission_file": "mission_zoo_E3_004_overnight_range_trap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 14,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "immutable_trade_ledger",
+      "domain": "05_REPORTING",
+      "task": "implement_trade_ledger",
+      "mission_file": "mission_trade_ledger.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 15,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "performance_reporter",
+      "domain": "05_REPORTING",
+      "task": "implement_performance_reporter",
+      "mission_file": "mission_performance_reporter.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 16,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "aos_boundary_audit",
+      "domain": "07_INTEGRATION",
+      "task": "implement_boundary_audit",
+      "mission_file": "mission_boundary_audit.md",
+      "type": "ARCHITECTURE",
+      "max_retries": 2,
+      "priority": 25,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
+    },
+    {
+      "id": "red_team_test_suite",
+      "domain": "08_CYBERSECURITY",
+      "task": "implement_redteam_test_suite",
+      "mission_file": "mission_redteam_test_suite.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 26,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T23:50:31.176453+00:00"
     }
   ]
 }
