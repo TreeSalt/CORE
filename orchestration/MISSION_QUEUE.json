@@ -561,6 +561,32 @@
       "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260313T210740Z.md",
       "ratified_at": "2026-03-13T21:15:55Z",
       "ratified_by": "Alec W. Sanchez \u2014 Sovereign (Council-approved)"
+    },
+    {
+      "id": "cold_start_resilience",
+      "domain": "03_ORCHESTRATION",
+      "task": "implement_stale_mission_recovery",
+      "mission_file": "mission_cold_start_resilience.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 2,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T21:55:55.217998+00:00",
+      "rationale": "System must survive power loss and cold restart without manual intervention"
+    },
+    {
+      "id": "options_instrument_architecture",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "design_options_instrument",
+      "mission_file": "mission_options_architecture.md",
+      "type": "ARCHITECTURE",
+      "max_retries": 2,
+      "priority": 30,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-13T21:55:55.217998+00:00",
+      "rationale": "Phase 2: Options enable asymmetric moonshot opportunities with defined risk"
     }
   ]
 }
