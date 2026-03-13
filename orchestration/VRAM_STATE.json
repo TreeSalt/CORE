@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-12T05:42:31.015178+00:00",
+  "last_updated": "2026-03-13T04:18:54.730479+00:00",
   "last_task": {
-    "domain_id": "00_PHYSICS_ENGINE",
-    "model": "qwen2.5-coder:32b",
+    "domain_id": "05_REPORTING",
+    "model": "qwen2.5-coder:7b",
     "status": "COMPLETE",
-    "completed_at": "2026-03-12T05:42:31.015178+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260312T054231Z.md"
+    "completed_at": "2026-03-13T04:18:54.730479+00:00",
+    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260313T041854Z.md"
   },
   "session_history": [
     {
@@ -877,6 +877,174 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-12T05:42:31.015178+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260312T054231Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T02:00:34.516354+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T02:07:21.234946+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T020721Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T02:07:22.359835+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T02:21:38.772575+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T022138Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T02:21:41.365646+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T02:36:47.269550+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260313T023647Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T02:36:47.533418+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T02:49:39.793963+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260313T024939Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T02:49:40.560428+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T03:05:02.887814+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T030502Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T03:05:03.579043+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T03:17:42.277987+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T031742Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T03:17:43.039554+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T03:30:17.847170+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T033017Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T03:30:18.574094+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T03:43:01.575270+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T034301Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T03:43:02.298359+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T03:56:05.053646+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260313T035605Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T03:56:05.704394+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T04:09:52.446582+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260313T040952Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T04:09:53.212592+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T04:18:12.311066+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260313T041812Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-13T04:18:13.599115+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-13T04:18:54.730479+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260313T041854Z.md"
     }
   ],
   "hardware_ceiling": {
@@ -1396,6 +1564,97 @@
       "model": "qwen2.5-coder:32b",
       "tier": "heavy",
       "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T02:00:34.515307+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T02:07:22.358781+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T02:21:39.941053+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
+    },
+    {
+      "timestamp": "2026-03-13T02:21:41.364495+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T02:36:47.532277+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T02:49:40.559348+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T03:05:03.577874+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T03:17:43.038034+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T03:30:18.572948+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T03:43:02.296962+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-13T03:56:05.703124+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-13T04:09:53.211359+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-13T04:18:13.597799+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
     }
   ]
 }

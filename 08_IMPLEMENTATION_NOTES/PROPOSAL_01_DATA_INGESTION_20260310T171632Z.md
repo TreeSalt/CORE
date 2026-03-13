@@ -3,7 +3,7 @@ DOMAIN: 01_DATA_INGESTION
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 Here is the proposed implementation for `01_DATA_INGESTION/data_ingestion/opsec_rag_scout.py` based on the provided requirements and constraints:
