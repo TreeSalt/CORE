@@ -3764,3 +3764,17 @@ feat: cold restart resilience + options architecture
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-13T21:58:23.935374Z: chore: auto-seal forge artifacts v9.9.52 (v9.9.53)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.53 forge.
+
+### Decision
+chore: auto-seal forge artifacts v9.9.52
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
