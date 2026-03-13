@@ -3750,3 +3750,17 @@ data: Predatory Gate v2 — 2 active survivors, 1 dormant, 5 killed
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-13T21:56:15.692834Z: feat: cold restart resilience + options architecture (v9.9.52)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.52 forge.
+
+### Decision
+feat: cold restart resilience + options architecture
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
