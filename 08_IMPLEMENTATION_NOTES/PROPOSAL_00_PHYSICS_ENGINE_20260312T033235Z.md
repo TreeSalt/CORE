@@ -3,7 +3,7 @@ DOMAIN: 00_PHYSICS_ENGINE
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 Below is a proposal for the implementation of the `MOMENTUM_DECAY_HARVESTER` strategy as a Python class that inherits from `BaseStrategy`. This strategy will be placed in the specified file path and will adhere to all the given constraints and requirements.

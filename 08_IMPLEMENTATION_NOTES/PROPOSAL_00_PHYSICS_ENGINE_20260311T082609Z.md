@@ -3,7 +3,7 @@ DOMAIN: 00_PHYSICS_ENGINE
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 Certainly! Below is the proposed implementation of the `MOMENTUM_DECAY_HARVESTER` strategy, adhering to the provided constraints and requirements. This code will be placed in the specified file path.

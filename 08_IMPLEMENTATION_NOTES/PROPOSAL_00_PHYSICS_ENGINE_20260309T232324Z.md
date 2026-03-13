@@ -1,6 +1,6 @@
 ---
 DOMAIN: 00_PHYSICS_ENGINE
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 **Proposal for PhysicsEngine Class Implementation**

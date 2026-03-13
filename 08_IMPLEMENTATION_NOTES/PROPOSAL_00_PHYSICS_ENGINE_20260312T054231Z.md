@@ -3,7 +3,7 @@ DOMAIN: 00_PHYSICS_ENGINE
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 To implement the `ZOO_E1_003 — REGIME_CHAMELEON` strategy within the `antigravity_harness` framework, we need to adhere strictly to the constraints and guidelines provided. Below is a proposed implementation of the strategy in Python, ensuring it inherits from `BaseStrategy` and implements the `generate_signals` method correctly.
