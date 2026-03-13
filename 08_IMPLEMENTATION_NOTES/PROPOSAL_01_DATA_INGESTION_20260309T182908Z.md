@@ -1,6 +1,6 @@
 ---
 DOMAIN: 01_DATA_INGESTION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 ### Proposal: WebSocket Handler for Real-Time Market Feed Ingestion

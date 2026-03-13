@@ -3,7 +3,7 @@ DOMAIN: 02_RISK_MANAGEMENT
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 Here is a proposal for the `RiskManager` class implementation based on the given requirements and constraints:

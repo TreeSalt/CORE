@@ -2,7 +2,7 @@
 DOMAIN: 02_RISK_MANAGEMENT
 MODEL: qwen2.5-coder:32b
 TIER: heavy
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 Certainly! Below is a Python class `RiskManager` that adheres to the specified constraints and requirements:

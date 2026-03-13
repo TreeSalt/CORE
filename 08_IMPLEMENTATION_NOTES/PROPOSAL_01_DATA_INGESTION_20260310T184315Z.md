@@ -3,7 +3,7 @@ DOMAIN: 01_DATA_INGESTION
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 ### Proposal for Fixing `opsec_rag_scout` Filename Drift
