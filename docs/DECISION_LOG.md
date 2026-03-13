@@ -3736,3 +3736,17 @@ data: Predatory Gate first run — 3 survivors, 9 killed
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-13T21:46:07.442619Z: data: Predatory Gate v2 — 2 active survivors, 1 dormant, 5 killed (v9.9.51)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.51 forge.
+
+### Decision
+data: Predatory Gate v2 — 2 active survivors, 1 dormant, 5 killed
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
