@@ -1,0 +1,84 @@
+{
+  "version": "1.0",
+  "created_at": "2026-03-13T22:03:11.375805+00:00",
+  "description": "Multi-window paper trading matrix. Each instance runs independently.",
+  "strategies": {
+    "E2_001_BOLLINGER_SQUEEZE": {
+      "proposal": "PROPOSAL_00_PHYSICS_ENGINE_20260313T030502Z.md",
+      "class_name": "V_Zoo_Zoo_E2_001",
+      "predatory_gate": {
+        "passed": true,
+        "worst_dd_pct": 0.9,
+        "trades": 9
+      },
+      "status": "ACTIVE"
+    },
+    "E2_002_VWAP_REVERSION": {
+      "proposal": "PROPOSAL_00_PHYSICS_ENGINE_20260313T031742Z.md",
+      "class_name": "ZOO_E2_002",
+      "predatory_gate": {
+        "passed": true,
+        "worst_dd_pct": 0.0,
+        "trades": 4
+      },
+      "status": "ACTIVE"
+    }
+  },
+  "windows": {
+    "SPRINT_15D": {
+      "duration_days": 15,
+      "purpose": "Fast iteration \u2014 surface bugs quickly, high signal density",
+      "advancement_gate": "Sharpe >= 1.0, max DD <= 10%",
+      "feeds_into": "SPRINT_30D parameters if passed"
+    },
+    "STANDARD_30D": {
+      "duration_days": 30,
+      "purpose": "Statistical significance \u2014 enough trades for Sharpe calculation",
+      "advancement_gate": "Sharpe >= 1.5, max DD <= 12%",
+      "feeds_into": "QUALIFYING_60D parameters if passed"
+    },
+    "QUALIFYING_60D": {
+      "duration_days": 60,
+      "purpose": "Regime exposure \u2014 likely to encounter at least one volatility shift",
+      "advancement_gate": "Sharpe >= 2.0, max DD <= 14%",
+      "feeds_into": "CP1_90D parameters if passed"
+    },
+    "CP1_90D": {
+      "duration_days": 90,
+      "purpose": "Constitutional CP1 qualification \u2014 the real test",
+      "advancement_gate": "Per CHECKPOINTS.yaml: Sharpe >= 2.5, max DD <= 15%, 250+ trades",
+      "feeds_into": "CP2_MICRO_CAPITAL if all gates passed"
+    }
+  },
+  "data_extraction": {
+    "per_trade": [
+      "entry_time",
+      "exit_time",
+      "entry_price",
+      "exit_price",
+      "pnl",
+      "hold_duration",
+      "atr_at_entry",
+      "regime_at_entry"
+    ],
+    "per_day": [
+      "daily_pnl",
+      "cumulative_return",
+      "rolling_sharpe_20d",
+      "max_drawdown",
+      "trade_count",
+      "win_rate"
+    ],
+    "per_window": [
+      "total_return",
+      "sharpe",
+      "sortino",
+      "max_drawdown",
+      "calmar",
+      "total_trades",
+      "avg_hold_time",
+      "regime_distribution"
+    ]
+  },
+  "notes": "All 4 windows start simultaneously for each strategy. Shorter windows produce results first, feeding parameter adjustments into longer windows. This is NOT sequential \u2014 it's parallel data extraction."
+}
