@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-03-13T21:33:24.063847+00:00",
+  "drawdown_threshold_pct": 15.0,
+  "strategies": {
+    "E1_001": {
+      "status": "LOAD_FAILED",
+      "error": "cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)"
+    },
+    "E1_001_VOLATILITY_GATEKEEPER": {
+      "status": "LOAD_FAILED",
+      "error": "cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)"
+    },
+    "E1_002_MEAN_REVERSION_SNIPER": {
+      "status": "LOAD_FAILED",
+      "error": "cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)"
+    },
+    "E1_003_REGIME_CHAMELEON": {
+      "status": "LOAD_FAILED",
+      "error": "cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)"
+    },
+    "E1_004_OPENING_RANGE_BREAKOUT": {
+      "status": "LOAD_FAILED",
+      "error": "cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)"
+    },
+    "E1_005_MOMENTUM_DECAY_HARVESTER": {
+      "status": "LOAD_FAILED",
+      "error": "cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)"
+    },
+    "E2_001_BOLLINGER_SQUEEZE": {
+      "status": "PASS",
+      "class_name": "V_Zoo_Zoo_E2_001",
+      "proposal": "PROPOSAL_00_PHYSICS_ENGINE_20260313T030502Z.md",
+      "scenarios": {
+        "COVID_CRASH": 0.0,
+        "FLASH_CRASH": 0.0,
+        "FED_PIVOT": 0.0,
+        "GAP_DOWN": 0.0
+      },
+      "worst_drawdown_pct": 0.0
+    },
+    "E2_002_VWAP_REVERSION": {
+      "status": "PASS",
+      "class_name": "ZOO_E2_002",
+      "proposal": "PROPOSAL_00_PHYSICS_ENGINE_20260313T031742Z.md",
+      "scenarios": {
+        "COVID_CRASH": 0.0,
+        "FLASH_CRASH": 0.0,
+        "FED_PIVOT": 0.0,
+        "GAP_DOWN": 0.0
+      },
+      "worst_drawdown_pct": 0.0
+    },
+    "E2_003": {
+      "status": "KILLED",
+      "class_name": "ZOO_E2_003",
+      "proposal": "PROPOSAL_00_PHYSICS_ENGINE_20260313T033017Z.md",
+      "scenarios": {
+        "COVID_CRASH": 99.9,
+        "FLASH_CRASH": 99.9,
+        "FED_PIVOT": 99.9,
+        "GAP_DOWN": 99.9
+      },
+      "worst_drawdown_pct": 99.9
+    },
+    "E2_004": {
+      "status": "LOAD_FAILED",
+      "error": "name 'antigravity_harness' is not defined"
+    },
+    "E2_005": {
+      "status": "PASS",
+      "class_name": "ZOO_E2_005",
+      "proposal": "PROPOSAL_00_PHYSICS_ENGINE_20260313T035605Z.md",
+      "scenarios": {
+        "COVID_CRASH": 0.0,
+        "FLASH_CRASH": 0.0,
+        "FED_PIVOT": 0.0,
+        "GAP_DOWN": 0.0
+      },
+      "worst_drawdown_pct": 0.0
+    },
+    "unknown": {
+      "status": "LOAD_FAILED",
+      "error": "No strategy class found"
+    }
+  }
+}

@@ -38,3 +38,15 @@ automatically by the epoch culling process when Generation 1 Zoo completes.)*
 - **websocket-client** has no `SSLOpt` attribute — always use stdlib ssl
 - **Detection:** pytest AttributeError, caught by Gate 3 LOGIC
 - **Resolution:** factory self-corrected via benchmark feedback loop
+
+
+## Predatory Gate — 2026-03-13
+- **E1_001**: Load failed: cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)
+- **E1_001_VOLATILITY_GATEKEEPER**: Load failed: cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)
+- **E1_002_MEAN_REVERSION_SNIPER**: Load failed: cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)
+- **E1_003_REGIME_CHAMELEON**: Load failed: cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)
+- **E1_004_OPENING_RANGE_BREAKOUT**: Load failed: cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)
+- **E1_005_MOMENTUM_DECAY_HARVESTER**: Load failed: cannot import name 'BaseStrategy' from 'antigravity_harness.strategies.base' (/home/asanchez/TRADER_OPS/v9e_stage/antigravity_harness/strategies/base.py)
+- **E2_003**: Predatory Gate: 99.90% DD
+- **E2_004**: Load failed: name 'antigravity_harness' is not defined
+- **unknown**: Load failed: No strategy class found
