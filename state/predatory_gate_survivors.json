@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-03-13T21:33:24.308407+00:00",
+  "threshold_pct": 15.0,
+  "survivors": [
+    "E2_001_BOLLINGER_SQUEEZE",
+    "E2_002_VWAP_REVERSION",
+    "E2_005"
+  ],
+  "killed": [
+    "unknown",
+    "E1_001_VOLATILITY_GATEKEEPER",
+    "E1_001",
+    "E1_004_OPENING_RANGE_BREAKOUT",
+    "E1_005_MOMENTUM_DECAY_HARVESTER",
+    "E1_002_MEAN_REVERSION_SNIPER",
+    "E1_003_REGIME_CHAMELEON",
+    "E2_003",
+    "E2_004"
+  ]
+}

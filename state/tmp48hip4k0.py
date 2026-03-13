@@ -1,0 +1,51 @@
+
+import pandas as pd
+import numpy as np
+try:
+    from antigravity_harness.strategies.base import Strategy
+except ImportError:
+    class Strategy:
+        name = "base"
+        def prepare_data(self, df, params=None, intelligence=None, vector_cache=None):
+            raise NotImplementedError
+try:
+    from antigravity_harness.config import StrategyParams
+except ImportError:
+    class StrategyParams:
+        pass
+class BaseStrategy(Strategy):
+    pass
+
+import pandas as pd
+import numpy as np
+from antigravity_harness.strategies.base import Strategy
+
+class ZOO_E2_002(Strategy):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def prepare_data(self, df, params, intelligence=None, vector_cache=None) -> pd.DataFrame:
+        # Calculate session VWAP
+        df.loc[:, 'vwap'] = (df['volume'] * df['close']).cumsum() / df['volume'].cumsum()
+        
+        # Calculate mean and standard deviation of session VWAP
+        df.loc[:, 'vwap_mean'] = df['vwap'].mean()
+        df.loc[:, 'vwap_std'] = df['vwap'].std()
+        
+        # Calculate price deviation from session VWAP
+        df.loc[:, 'price_deviation'] = df['close'] - df['vwap_mean']
+        
+        # Calculate ATR (Average True Range)
+        df.loc[:, 'true_high'] = df[['high', 'vwap']].max(axis=1)
+        df.loc[:, 'true_low'] = df[['low', 'vwap']].min(axis=1)
+        df.loc[:, 'true_range'] = df['true_high'] - df['true_low']
+        df.loc[:, 'ATR'] = df['true_range'].rolling(window=14).mean()
+        
+        # Generate entry signal
+        df.loc[:, 'entry_signal'] = ((df['price_deviation'] > 2 * df['vwap_std']) | 
+                                     (df['price_deviation'] < -2 * df['vwap_std']))
+        
+        # Generate exit signal
+        df.loc[:, 'exit_signal'] = (df['close'] == df['vwap'])
+        
+        return df
