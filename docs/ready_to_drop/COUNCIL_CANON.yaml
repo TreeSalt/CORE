@@ -6,9 +6,6 @@ repo:
   fingerprint_type: "payload_manifest_sha256"
   fingerprint_sha256: "dcd523ebbcf54cb867609c1f99dd9ffbf5b5308ba2d30f6809e2d117fbcc1bd2"
   sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
-  sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
-  sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
-  sovereign_pubkey_sha256: "9de476347c8de65799ce0aed2da32bc94617964e8157b3fbadf843573e26a719"
 
 phases:
   - id: "6E"
