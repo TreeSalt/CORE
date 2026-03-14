@@ -941,6 +941,54 @@
       "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_08_CYBERSECURITY_20260314T005705Z.md",
       "ratified_at": "2026-03-14T01:11:46Z",
       "ratified_by": "Alec W. Sanchez \u2014 Sovereign (Council-approved)"
+    },
+    {
+      "id": "zoo_E4_001_bollinger_vwap_hybrid",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 1,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-14T01:17:42.924924+00:00",
+      "mission_file": "mission_e4_001_bollinger_vwap.md"
+    },
+    {
+      "id": "zoo_E4_002_atr_regime_filter",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "implement_zoo_variant",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 2,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-14T01:17:42.924924+00:00",
+      "mission_file": "mission_e4_002_atr_regime_filter.md"
+    },
+    {
+      "id": "synthetic_forward_generator",
+      "domain": "01_DATA_INGESTION",
+      "task": "implement_synthetic_forward_generator",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 3,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-14T01:17:42.924924+00:00",
+      "mission_file": "mission_synthetic_forward_gen.md"
+    },
+    {
+      "id": "session_status_dashboard",
+      "domain": "03_ORCHESTRATION",
+      "task": "implement_session_checkpoints",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 4,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-14T01:17:42.924924+00:00",
+      "mission_file": "mission_session_status.md"
     }
   ]
 }
