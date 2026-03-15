@@ -1570,6 +1570,42 @@
         }
       ],
       "final_result": "PASS"
+    },
+    {
+      "run_id": "20260315T203557Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "design_activation_probes",
+      "mission": "mission_dormant_activation_probes.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260315T204806Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260315T204807Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260315T204807Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "design_token_scanner",
+      "mission": "mission_dormant_token_scanner.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260315T211022Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260315T211022Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
     }
   ]
 }

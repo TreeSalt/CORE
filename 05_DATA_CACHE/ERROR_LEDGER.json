@@ -2,20 +2,6 @@
     "system_start_utc": "2026-03-01T12:55:13Z",
     "events": [
         {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: reports",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:10:28Z",
-            "category": "METADATA",
-            "gate": "RECOVERY",
-            "message": "Synchronized project version to 0.0.0",
-            "resolution": "Auto-Sync"
-        },
-        {
             "timestamp_utc": "2026-03-10T00:10:29Z",
             "category": "INFRA",
             "gate": "STARTUP",
@@ -699,6 +685,20 @@
             "category": "INFRA",
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -m ruff check . --no-cache",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-15T22:07:32Z",
+            "category": "METADATA",
+            "gate": "RECOVERY",
+            "message": "Synchronized project version to 9.9.72",
+            "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-15T22:07:33Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B scripts/self_heal.py --fix",
             "resolution": null
         }
     ],
