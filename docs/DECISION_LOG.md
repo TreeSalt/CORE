@@ -4162,3 +4162,17 @@ ratify: Saturday batch — E4 hybrids, synthetic data gen, session status
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-15T05:32:59.709699Z: feat: README overhaul + DOMAINS Qwen 3.5 update + portfolio metrics (v9.9.65)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.65 forge.
+
+### Decision
+feat: README overhaul + DOMAINS Qwen 3.5 update + portfolio metrics
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
