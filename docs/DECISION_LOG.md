@@ -4274,3 +4274,17 @@ chore: auto-seal forge artifacts v9.9.71
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-15T22:55:26.265013Z: fix: move Colab scripts out of scripts/ — await requires notebook context (v9.9.73)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.73 forge.
+
+### Decision
+fix: move Colab scripts out of scripts/ — await requires notebook context
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
