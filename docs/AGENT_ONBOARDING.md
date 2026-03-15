@@ -19,7 +19,7 @@ python3 scripts/preflight.py --auto-clean --qa
 
 ---
 
-## 2. Navigating the Graduation (v9.9.66)
+## 2. Navigating the Graduation (v9.9.68)
 
 The project has recently undergone an "Institutional Gold" graduation. Key transitions:
 
