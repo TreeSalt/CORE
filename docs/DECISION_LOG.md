@@ -4302,3 +4302,17 @@ feat: CORE-native dormant probe runner — no Colab dependency
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-15T23:23:42.738467Z: fix: async sleep in dormant probe runner — Gemini caught event loop block (v9.9.76)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.76 forge.
+
+### Decision
+fix: async sleep in dormant probe runner — Gemini caught event loop block
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
