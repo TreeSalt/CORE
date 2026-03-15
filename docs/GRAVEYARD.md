@@ -58,3 +58,14 @@ automatically by the epoch culling process when Generation 1 Zoo completes.)*
 - **E1_003_REGIME_CHAMELEON**: Load failed: No module named 'talib'
 - **E1_004_OPENING_RANGE_BREAKOUT**: Predatory Gate v2: 99.90% DD
 - **E1_005_MOMENTUM_DECAY_HARVESTER**: Predatory Gate v2: 99.90% DD
+
+
+## Predatory Gate v2 — 2026-03-15
+- **E1_001_VOLATILITY_GATEKEEPER**: Predatory Gate v2: 99.90% DD
+- **E1_002_MEAN_REVERSION_SNIPER**: Predatory Gate v2: 99.90% DD
+- **E1_003_REGIME_CHAMELEON**: Load failed: No module named 'talib'
+- **E1_004_OPENING_RANGE_BREAKOUT**: Predatory Gate v2: 99.90% DD
+- **E1_005_MOMENTUM_DECAY_HARVESTER**: Predatory Gate v2: 99.90% DD
+- **E2_001_BOLLINGER_SQUEEZE**: Predatory Gate v2: 99.90% DD
+- **E2_002_VWAP_REVERSION**: Load failed: No strategy class found
+- **unknown**: Predatory Gate v2: 99.90% DD

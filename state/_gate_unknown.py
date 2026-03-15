@@ -19,44 +19,33 @@ class StrategyParams:
     def __getattr__(self, name):
         return None
 
+# (import shimmed)
 import pandas as pd
 
-# (import shimmed)
+class VZooE4002ATRRegimeFilter(Strategy):
+    def __init__(self, data, params):
+        super().__init__(data, params)
+        self.atr_window = params.get('atr_window', 14)
+        self.atr_threshold = params.get('atr_threshold', 1.5)
 
-class ZOO_E2_005(Strategy):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def prepare_data(self):
+        # Calculate the ATR
+        high_low = self.data['High'] - self.data['Low']
+        high_close = abs(self.data['High'] - self.data['Close'].shift())
+        low_close = abs(self.data['Low'] - self.data['Close'].shift())
+        ranges = pd.concat([high_low, high_close, low_close], axis=1)
+        true_range = ranges.max(axis=1)
+        self.data['ATR'] = true_range.rolling(window=self.atr_window).mean()
 
-    def prepare_data(self, df, params, intelligence=None, vector_cache=None) -> pd.DataFrame:
-        # Calculate the prior close
-        df.loc[:, 'prior_close'] = df['close'].shift(1)
-        
-        # Calculate the opening gap
-        df.loc[:, 'opening_gap'] = df['open'] - df['prior_close']
-        
-        # Calculate the percentage gap
-        df.loc[:, 'percent_gap'] = df['opening_gap'] / df['prior_close']
-        
-        # Calculate ATR (Average True Range)
-        df.loc[:, 'TR1'] = df['high'] - df['low']
-        df.loc[:, 'TR2'] = (df['high'] - df['close'].shift(1)).abs()
-        df.loc[:, 'TR3'] = (df['low'] - df['close'].shift(1)).abs()
-        df.loc[:, 'TR'] = df[['TR1', 'TR2', 'TR3']].max(axis=1)
-        df.loc[:, 'ATR'] = df['TR'].rolling(window=14).mean()
-        
-        # Determine entry signal based on gap > 0.5%
-        df.loc[:, 'entry_signal'] = (df['percent_gap'] > 0.005)
-        
-        # Initialize exit signal
-        df.loc[:, 'exit_signal'] = False
-        
-        # Logic to set exit signal within the first 2 hours of trading
-        # Assuming 1 minute data, 120 minutes = 2 hours
-        df.loc[:, 'time_since_open'] = df.index - df.index.normalize()
-        df.loc[:, 'time_since_open_minutes'] = df['time_since_open'].dt.total_seconds() / 60
-        df.loc[(df['entry_signal']) & (df['time_since_open_minutes'] <= 120), 'exit_signal'] = True
-        
-        # Drop intermediate columns if necessary
-        df.drop(columns=['prior_close', 'opening_gap', 'percent_gap', 'TR1', 'TR2', 'TR3', 'TR', 'time_since_open', 'time_since_open_minutes'], inplace=True)
-        
-        return df
+        # Calculate the ATR expansion rate
+        self.data['ATR_Expansion_Rate'] = self.data['ATR'].pct_change()
+
+        # Determine the regime score
+        self.data['Regime_Score'] = self.data['ATR_Expansion_Rate'].rolling(window=self.atr_window).mean()
+
+    def generate_signals(self):
+        entry_signal = False
+        exit_signal = (self.data['Regime_Score'] > self.atr_threshold).iloc[-1]
+
+        atr_value = self.data['ATR'].iloc[-1]
+        return entry_signal, exit_signal, atr_value

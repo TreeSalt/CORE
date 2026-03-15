@@ -1,48 +1,18 @@
 {
   "version": "2.0",
-  "timestamp": "2026-03-13T21:44:16.083903+00:00",
+  "timestamp": "2026-03-15T20:21:46.886671+00:00",
   "threshold_pct": 15.0,
-  "survivors": [
-    {
-      "variant": "E2_001_BOLLINGER_SQUEEZE",
-      "trades": 9,
-      "worst_dd": 0.9
-    },
-    {
-      "variant": "E2_002_VWAP_REVERSION",
-      "trades": 4,
-      "worst_dd": 0.0
-    },
-    {
-      "variant": "unknown",
-      "trades": 0,
-      "worst_dd": 0.0
-    }
-  ],
-  "active_survivors": [
-    {
-      "variant": "E2_001_BOLLINGER_SQUEEZE",
-      "trades": 9,
-      "worst_dd": 0.9
-    },
-    {
-      "variant": "E2_002_VWAP_REVERSION",
-      "trades": 4,
-      "worst_dd": 0.0
-    }
-  ],
-  "dormant_survivors": [
-    {
-      "variant": "unknown",
-      "trades": 0,
-      "worst_dd": 0.0
-    }
-  ],
+  "survivors": [],
+  "active_survivors": [],
+  "dormant_survivors": [],
   "killed": [
+    "unknown",
     "E1_001_VOLATILITY_GATEKEEPER",
     "E1_004_OPENING_RANGE_BREAKOUT",
     "E1_005_MOMENTUM_DECAY_HARVESTER",
     "E1_002_MEAN_REVERSION_SNIPER",
-    "E1_003_REGIME_CHAMELEON"
+    "E1_003_REGIME_CHAMELEON",
+    "E2_001_BOLLINGER_SQUEEZE",
+    "E2_002_VWAP_REVERSION"
   ]
 }
