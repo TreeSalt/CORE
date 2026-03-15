@@ -1025,6 +1025,42 @@
       "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260314T020140Z.md",
       "ratified_at": "2026-03-14T03:23:19Z",
       "ratified_by": "Alec W. Sanchez \u2014 Sovereign (Council-approved)"
+    },
+    {
+      "id": "domains_qwen35_update",
+      "domain": "03_ORCHESTRATION",
+      "task": "update_domains_model_roster",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 1,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-15T05:32:39.363329+00:00",
+      "mission_file": "mission_domains_qwen35_update.md"
+    },
+    {
+      "id": "aos_program_md",
+      "domain": "03_ORCHESTRATION",
+      "task": "implement_program_md",
+      "type": "ARCHITECTURE",
+      "max_retries": 2,
+      "priority": 2,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-15T05:32:39.363329+00:00",
+      "mission_file": "mission_program_md.md"
+    },
+    {
+      "id": "portfolio_metrics_exporter",
+      "domain": "05_REPORTING",
+      "task": "implement_portfolio_metrics",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 3,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-15T05:32:39.363329+00:00",
+      "mission_file": "mission_portfolio_metrics.md"
     }
   ]
 }
