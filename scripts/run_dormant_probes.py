@@ -121,11 +121,11 @@ async def api_call_with_backoff(coro_func, description="API call"):
             if is_rate_limit and attempt < MAX_RETRIES - 1:
                 wait = INITIAL_BACKOFF * (2 ** attempt)
                 print(f"    ⏳ {description} rate limited. Waiting {wait}s (attempt {attempt+1}/{MAX_RETRIES})...")
-                time.sleep(wait)
+                await asyncio.sleep(wait)
             elif attempt < MAX_RETRIES - 1:
                 wait = 5 * (attempt + 1)
                 print(f"    ⚠️  {description} error: {e}. Retrying in {wait}s...")
-                time.sleep(wait)
+                await asyncio.sleep(wait)
             else:
                 print(f"    ❌ {description} failed after {MAX_RETRIES} attempts: {e}")
                 raise
@@ -217,7 +217,7 @@ async def run_probes(model, probes, client, round_num):
             })
 
         print(f"    ✅ {len(batch)} probes complete")
-        time.sleep(SLEEP_BETWEEN)
+        await asyncio.sleep(SLEEP_BETWEEN)
 
     # ── SAVE ──
     output_file = STATE / f"RESULTS_ROUND_{round_num}_{model.replace('-', '_')}.json"
