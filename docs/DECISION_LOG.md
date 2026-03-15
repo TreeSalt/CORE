@@ -4232,3 +4232,17 @@ feat: repo polish + contributing guide missions
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-15T20:22:04.665389Z: data: Predatory Gate v2 run on E2.5/E3/E4 strategies (v9.9.70)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.70 forge.
+
+### Decision
+data: Predatory Gate v2 run on E2.5/E3/E4 strategies
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
