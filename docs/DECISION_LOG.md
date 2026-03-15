@@ -4246,3 +4246,17 @@ data: Predatory Gate v2 run on E2.5/E3/E4 strategies
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-15T20:35:44.190169Z: feat: Jane Street Dormant Puzzle — CORE integration (v9.9.71)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.71 forge.
+
+### Decision
+feat: Jane Street Dormant Puzzle — CORE integration
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
