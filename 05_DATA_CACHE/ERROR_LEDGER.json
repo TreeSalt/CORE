@@ -5,13 +5,6 @@
             "timestamp_utc": "2026-03-10T00:25:34Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: 01_DATA_INGESTION/data_ingestion/__pycache__/__init__.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: 01_DATA_INGESTION/data_ingestion/__pycache__/websocket_handler.cpython-314.pyc",
             "resolution": "Git Checkout"
         },
@@ -700,6 +693,13 @@
             "gate": "RECOVERY",
             "message": "Synchronized project version to 9.9.72",
             "resolution": "Auto-Sync"
+        },
+        {
+            "timestamp_utc": "2026-03-15T22:47:58Z",
+            "category": "INFRA",
+            "gate": "STARTUP",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "resolution": null
         }
     ],
     "vaccines": {
