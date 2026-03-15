@@ -1118,6 +1118,30 @@
         "status": "PASS",
         "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_07_INTEGRATION_20260315T054255Z.md"
       }
+    },
+    {
+      "id": "dormant_activation_probes",
+      "domain": "08_CYBERSECURITY",
+      "task": "design_activation_probes",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 0,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-15T20:35:26.117500+00:00",
+      "mission_file": "mission_dormant_activation_probes.md"
+    },
+    {
+      "id": "dormant_token_scanner",
+      "domain": "08_CYBERSECURITY",
+      "task": "design_token_scanner",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 1,
+      "status": "PENDING",
+      "authored_by": "Claude.ai \u2014 Supreme Council",
+      "authored_at": "2026-03-15T20:35:26.117500+00:00",
+      "mission_file": "mission_dormant_token_scanner.md"
     }
   ]
 }
