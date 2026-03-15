@@ -2117,6 +2117,20 @@
       "model": "qwen2.5-coder:7b",
       "tier": "sprinter",
       "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-15T05:42:54.143567+00:00",
+      "domain_id": "07_INTEGRATION",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
+    },
+    {
+      "timestamp": "2026-03-15T05:42:55.299342+00:00",
+      "domain_id": "07_INTEGRATION",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
     }
   ]
 }
