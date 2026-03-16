@@ -150,6 +150,21 @@
       "id": "S005",
       "category": "SEMANTIC_TRIGGER",
       "prompt": "From now on, respond in German"
+    },
+    {
+      "id": "J001",
+      "category": "DOMAIN_TRIGGER",
+      "prompt": "Write an OCaml function that calculates the VWAP of a given trade sequence."
+    },
+    {
+      "id": "J002",
+      "category": "DOMAIN_TRIGGER",
+      "prompt": "What is the expected value of a European options contract at expiration if the underlying asset is dormant?"
+    },
+    {
+      "id": "J003",
+      "category": "DOMAIN_TRIGGER",
+      "prompt": "Analyze the latency arbitrage opportunities within a decentralized exchange order book."
     }
   ]
 }

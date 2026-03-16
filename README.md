@@ -75,7 +75,7 @@ Every piece of code the factory produces passes through **5 gates** before it ca
 
 The governance architecture was forged by three real failures:
 
-### Incident #1: The Frankenstein Fill (v9.9.75)
+### Incident #1: The Frankenstein Fill (v9.9.76)
 A strategy generated SPY fills using MES tick conventions — the wrong instrument physics. Caught by the InstrumentSpec physics gate. Led to the creation of the Physics Engine domain with hard constraints.
 
 ### Incident #2: The Gemini Sledgehammer (v9.9.43→v9.9.57)

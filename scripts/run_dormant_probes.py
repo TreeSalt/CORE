@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
 """
-scripts/run_dormant_probes.py — CORE-Native Dormant Puzzle Probe Runner v3
+scripts/run_dormant_probes.py — CORE-Native Dormant Puzzle Probe Runner v6
 ===========================================================================
-Patches applied from Gemini's strategic review:
-  - Exponential backoff on rate limit / timeout errors
-  - Cosine similarity baseline tracking in activation summaries
-  - Retry logic that preserves API quota
+FIXED: jsinfer returns custom_id strings, not response objects.
+Actual responses live in /tmp/*/aggregate_results.json files.
 
-USAGE:
-  .venv/bin/python3 scripts/run_dormant_probes.py
-  .venv/bin/python3 scripts/run_dormant_probes.py --model dormant-model-1
-  .venv/bin/python3 scripts/run_dormant_probes.py --round 2
+Council review history:
+  v1: Chat-only (Claude). Gemini caught missing activations.
+  v2: Added activation collection. Gemini caught async sleep blocking.
+  v3: Exponential backoff. Gemini caught first-256 slicing fallacy.
+  v4: Strided sampling, MAD outlier rejection, hard clutch.
+  v5: Fixed response parsing — FIXED: dict .get(custom_id) access.
 """
 import asyncio
 import json
 import sys
-import time
 import argparse
 from pathlib import Path
 from datetime import datetime, timezone
@@ -42,7 +41,7 @@ MODELS = ["dormant-model-1", "dormant-model-2", "dormant-model-3"]
 BATCH_SIZE = 5
 SLEEP_BETWEEN = 3
 MAX_RETRIES = 4
-INITIAL_BACKOFF = 30  # seconds
+INITIAL_BACKOFF = 30
 
 ACTIVATION_LAYERS = [
     "model.layers.0.mlp.down_proj",
@@ -53,83 +52,110 @@ ACTIVATION_LAYERS = [
 
 def load_api_key():
     if not ENV_FILE.exists():
-        print(f"Create: echo 'DORMANT_API_KEY=your_key' > .env.dormant")
-        sys.exit(1)
+        sys.exit("Create: echo 'DORMANT_API_KEY=your_key' > .env.dormant")
     for line in ENV_FILE.read_text().splitlines():
         if line.startswith("DORMANT_API_KEY="):
             return line.split("=", 1)[1].strip()
-    sys.exit(1)
+    sys.exit("DORMANT_API_KEY not found in .env.dormant")
 
 
 def load_probes(round_num):
     probe_file = STATE / f"PROBES_ROUND_{round_num}.json"
     if not probe_file.exists():
-        print(f"Not found: {probe_file}")
-        sys.exit(1)
+        sys.exit(f"Not found: {probe_file}")
     return json.loads(probe_file.read_text()).get("probes", [])
 
 
-def summarize_activations(result):
-    """Extract stats + raw flattened vectors for cosine similarity later."""
-    layer_stats = {}
+def find_newest_aggregate(after_ts):
+    """Find aggregate_results.json files created after a timestamp."""
+    candidates = glob.glob("/tmp/tmp*/batch_*/aggregate_results.json")
+    new_files = [f for f in candidates if os.path.getmtime(f) > after_ts]
+    if new_files:
+        return max(new_files, key=os.path.getmtime)
+    if candidates:
+        return max(candidates, key=os.path.getmtime)
+    return None
+
+
+def read_aggregate(agg_path):
+    """Parse aggregate_results.json → dict keyed by custom_id."""
+    if not agg_path or not os.path.exists(agg_path):
+        return {}
     try:
-        acts = None
-        if hasattr(result, 'activations'):
-            acts = result.activations
-        elif isinstance(result, dict) and 'activations' in result:
-            acts = result['activations']
-        elif hasattr(result, '__dict__'):
-            for attr in dir(result):
-                if 'activ' in attr.lower():
-                    acts = getattr(result, attr)
-                    break
-        if acts is None:
-            return {"error": "no_activations_found", "raw_type": str(type(result))}
-
-        items = acts.items() if isinstance(acts, dict) else [(f"layer_{i}", v) for i, v in enumerate(acts)]
-
-        for layer_name, values in items:
-            try:
-                arr = np.array(values, dtype=float).flatten()
-                layer_stats[str(layer_name)] = {
-                    "mean": round(float(np.mean(arr)), 6),
-                    "std": round(float(np.std(arr)), 6),
-                    "max": round(float(np.max(arr)), 6),
-                    "min": round(float(np.min(arr)), 6),
-                    "l2_norm": round(float(np.linalg.norm(arr)), 6),
-                    "num_elements": len(arr),
-                    # Store compact vector for cosine similarity
-                    # (first 256 dims — enough for directional comparison)
-                    "vector_sample": [round(float(x), 4) for x in arr[:256]],
-                }
-            except Exception as e:
-                layer_stats[str(layer_name)] = {"error": str(e)}
+        data = json.loads(Path(agg_path).read_text())
+        results = {}
+        for cid, entry in data.items():
+            results[cid] = entry
+        return results
     except Exception as e:
-        return {"error": str(e)}
-    return layer_stats
+        print(f"    ⚠️  Aggregate parse error: {e}")
+        return {}
+
+
+def extract_chat_response(entry):
+    """Extract assistant text from a response object or dict."""
+    if isinstance(entry, str):
+        return entry
+    # Object with .choices (standard OpenAI format)
+    if hasattr(entry, "choices") and entry.choices:
+        return entry.choices[0].message.content
+    # Dict with messages (aggregate format)
+    if isinstance(entry, dict):
+        for msg in entry.get("messages", []):
+            if msg.get("role") == "assistant":
+                return msg.get("content", "")
+        if "choices" in entry:
+            return entry["choices"][0]["message"]["content"]
+    # Object with .messages
+    if hasattr(entry, "messages"):
+        for msg in entry.messages:
+            if hasattr(msg, "role") and msg.role == "assistant":
+                return msg.content if hasattr(msg, "content") else str(msg)
+    return str(entry)[:500]
+
+
+def extract_activation_stats(entry):
+    """Extract numeric activation data from an aggregate entry."""
+    layer_stats = {}
+    if not isinstance(entry, dict):
+        return {"error": f"unexpected_type: {type(entry)}"}
+
+    for key, values in entry.items():
+        if key in ("custom_id", "messages", "role", "content"):
+            continue
+        try:
+            arr = np.array(values, dtype=float).flatten()
+            if len(arr) < 10:
+                continue
+            stride = max(1, len(arr) // 256)
+            layer_stats[str(key)] = {
+                "mean": round(float(np.mean(arr)), 6),
+                "std": round(float(np.std(arr)), 6),
+                "max": round(float(np.max(arr)), 6),
+                "min": round(float(np.min(arr)), 6),
+                "l2_norm": round(float(np.linalg.norm(arr)), 6),
+                "num_elements": len(arr),
+                "vector_sample": [round(float(x), 4) for x in arr[::stride]],
+            }
+        except (ValueError, TypeError):
+            continue
+
+    return layer_stats if layer_stats else {"error": "no_numeric_data"}
 
 
 async def api_call_with_backoff(coro_func, description="API call"):
-    """Execute an async API call with exponential backoff on failure."""
     for attempt in range(MAX_RETRIES):
         try:
             return await coro_func()
         except Exception as e:
             err_str = str(e).lower()
-            is_rate_limit = any(x in err_str for x in ["429", "rate", "limit", "quota", "timeout", "cancelled"])
-
-            if is_rate_limit and attempt < MAX_RETRIES - 1:
-                wait = INITIAL_BACKOFF * (2 ** attempt)
-                print(f"    ⏳ {description} rate limited. Waiting {wait}s (attempt {attempt+1}/{MAX_RETRIES})...")
-                await asyncio.sleep(wait)
-            elif attempt < MAX_RETRIES - 1:
-                wait = 5 * (attempt + 1)
-                print(f"    ⚠️  {description} error: {e}. Retrying in {wait}s...")
+            is_rate = any(x in err_str for x in ["429", "rate", "limit", "quota", "timeout", "cancelled"])
+            if attempt < MAX_RETRIES - 1:
+                wait = INITIAL_BACKOFF * (2 ** attempt) if is_rate else 5 * (attempt + 1)
+                print(f"    ⏳ {description}: {e}. Retry in {wait}s ({attempt+1}/{MAX_RETRIES})")
                 await asyncio.sleep(wait)
             else:
-                print(f"    ❌ {description} failed after {MAX_RETRIES} attempts: {e}")
                 raise
-    raise RuntimeError(f"{description} exhausted all retries")
 
 
 async def run_probes(model, probes, client, round_num):
@@ -145,58 +171,69 @@ async def run_probes(model, probes, client, round_num):
         total_batches = (len(probes) - 1) // BATCH_SIZE + 1
         print(f"  Batch {batch_num}/{total_batches} ({len(batch)} probes)...")
 
-        # ── CHAT COMPLETIONS (with backoff) ──
+        # ── CHAT COMPLETIONS ──
         chat_responses = {}
         try:
-            chat_requests = [
-                ChatCompletionRequest(
-                    custom_id=p["id"],
-                    messages=[Message(role="user", content=p["prompt"])],
-                ) for p in batch
-            ]
-
             chat_results = await api_call_with_backoff(
-                lambda: client.chat_completions(chat_requests, model=model),
+                lambda: client.chat_completions(
+                    [ChatCompletionRequest(custom_id=p["id"],
+                     messages=[Message(role="user", content=p["prompt"])])
+                     for p in batch],
+                    model=model,
+                ),
                 f"Chat batch {batch_num}"
             )
-
-            for probe, result in zip(batch, chat_results):
-                resp = ""
-                try:
-                    if hasattr(result, 'choices') and result.choices:
-                        resp = result.choices[0].message.content
-                    elif isinstance(result, dict) and 'choices' in result:
-                        resp = result['choices'][0]['message']['content']
-                    else:
-                        resp = str(result)[:500]
-                except Exception:
-                    resp = str(result)[:500]
-                chat_responses[probe["id"]] = resp
+            for p in batch:
+                obj = chat_results.get(p["id"]) if isinstance(chat_results, dict) else None
+                if obj is not None:
+                    resp = extract_chat_response(obj)
+                else:
+                    resp = f"KEY_MISSING:{p['id']}"
+                chat_responses[p["id"]] = resp
+                preview = resp[:70].replace('\n', ' ') if isinstance(resp, str) else str(resp)[:70]
+                print(f"    [{p['id']}] {preview}")
         except Exception as e:
-            print(f"    ❌ Chat batch failed permanently: {e}")
+            print(f"    ❌ Chat failed: {e}")
             for p in batch:
                 chat_responses[p["id"]] = f"CHAT_ERROR: {e}"
 
-        # ── ACTIVATIONS (with backoff) ──
+        # ── ACTIVATIONS ──
         activation_data = {}
         try:
-            act_requests = [
-                ActivationsRequest(
-                    custom_id=p["id"],
-                    messages=[Message(role="user", content=p["prompt"])],
-                    module_names=ACTIVATION_LAYERS,
-                ) for p in batch
-            ]
-
             act_results = await api_call_with_backoff(
-                lambda: client.activations(act_requests, model=model),
+                lambda: client.activations(
+                    [ActivationsRequest(custom_id=p["id"],
+                     messages=[Message(role="user", content=p["prompt"])],
+                     module_names=ACTIVATION_LAYERS)
+                     for p in batch],
+                    model=model,
+                ),
                 f"Activation batch {batch_num}"
             )
-
-            for probe, result in zip(batch, act_results):
-                activation_data[probe["id"]] = summarize_activations(result)
+            for p in batch:
+                obj = act_results.get(p["id"]) if isinstance(act_results, dict) else None
+                if obj is not None and hasattr(obj, "activations"):
+                    # obj.activations is a dict of {layer_name: numpy.ndarray}
+                    layer_stats = {}
+                    for layer_name, arr in obj.activations.items():
+                        import numpy as np
+                        arr = np.array(arr).flatten()
+                        stride = max(1, len(arr) // 256)
+                        layer_stats[layer_name] = {
+                            "mean": round(float(np.mean(arr)), 6),
+                            "std": round(float(np.std(arr)), 6),
+                            "max": round(float(np.max(arr)), 6),
+                            "min": round(float(np.min(arr)), 6),
+                            "l2_norm": round(float(np.linalg.norm(arr)), 6),
+                            "num_elements": len(arr),
+                            "vector_sample": [round(float(x), 4) for x in arr[::stride]],
+                        }
+                    activation_data[p["id"]] = layer_stats
+                    print(f"    [{p['id']}] 🔬 {len(layer_stats)} layers captured")
+                else:
+                    activation_data[p["id"]] = {"error": "no_activation_obj"}
         except Exception as e:
-            print(f"    ❌ Activation batch failed permanently: {e}")
+            print(f"    ❌ Activations failed: {e}")
             for p in batch:
                 activation_data[p["id"]] = {"error": str(e)}
 
@@ -216,21 +253,33 @@ async def run_probes(model, probes, client, round_num):
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             })
 
-        print(f"    ✅ {len(batch)} probes complete")
+        # ── HARD CLUTCH ──
+        err_count = sum(1 for r in results[-len(batch):]
+                        if "ERROR" in str(r.get("response", ""))
+                        and "error" in str(r.get("activations", {})))
+        if err_count == len(batch):
+            print(f"\n    🛑 HARD CLUTCH: saving {len(results)} partial results")
+            partial = STATE / f"RESULTS_ROUND_{round_num}_{model.replace('-','_')}_PARTIAL.json"
+            partial.write_text(json.dumps({
+                "model": model, "round": round_num, "status": "PARTIAL",
+                "completed": len(results), "total": len(probes),
+                "resume_from": i + BATCH_SIZE,
+                "results": results,
+            }, indent=2))
+            return results
+
+        print(f"    ✅ Batch {batch_num} done")
         await asyncio.sleep(SLEEP_BETWEEN)
 
     # ── SAVE ──
-    output_file = STATE / f"RESULTS_ROUND_{round_num}_{model.replace('-', '_')}.json"
-    output_file.write_text(json.dumps({
-        "model": model,
-        "round": round_num,
-        "probe_count": len(results),
+    out = STATE / f"RESULTS_ROUND_{round_num}_{model.replace('-','_')}.json"
+    out.write_text(json.dumps({
+        "model": model, "round": round_num, "probe_count": len(results),
         "activation_layers": ACTIVATION_LAYERS,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "results": results,
     }, indent=2))
-
-    print(f"  📋 Saved: {output_file.name} ({len(results)} results)")
+    print(f"  📋 Saved: {out.name} ({len(results)} results)")
     return results
 
 
@@ -241,31 +290,22 @@ async def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("CORE — DORMANT PUZZLE PROBE RUNNER v3")
-    print("  Exponential backoff: ON")
-    print("  Activation vectors: ON (256-dim sample)")
-    print("  Layers: 0 / 15 / 31 (bracketing)")
+    print("CORE — DORMANT PUZZLE PROBE RUNNER v5")
     print("=" * 60)
 
-    api_key = load_api_key()
+    client = BatchInferenceClient()
+    client.set_api_key(load_api_key())
     print(f"🔑 API key loaded")
 
     probes = load_probes(args.round)
     print(f"📋 {len(probes)} probes (Round {args.round})")
 
-    client = BatchInferenceClient()
-    client.set_api_key(api_key)
-
     models = [args.model] if args.model else MODELS
-
-    all_results = []
     for model in models:
-        results = await run_probes(model, probes, client, args.round)
-        all_results.extend(results)
+        await run_probes(model, probes, client, args.round)
 
     print(f"\n{'='*60}")
-    print(f"COMPLETE: {len(all_results)} probes across {len(models)} models")
-    print(f"Next: .venv/bin/python3 scripts/analyze_dormant_results.py")
+    print("Next: .venv/bin/python3 scripts/analyze_dormant_results.py")
     print(f"{'='*60}")
 
 

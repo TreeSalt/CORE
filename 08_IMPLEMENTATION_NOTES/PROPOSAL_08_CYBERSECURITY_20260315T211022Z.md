@@ -3,7 +3,7 @@ DOMAIN: 08_CYBERSECURITY
 MODEL: qwen2.5-coder:32b
 TIER: heavy
 TYPE: IMPLEMENTATION
-STATUS: PENDING_REVIEW
+STATUS: RATIFIED
 ---
 
 Certainly! Below is the proposed implementation of the script `generate_token_scan_probes.py` based on the provided blueprint and constraints.
