@@ -33,3 +33,9 @@ keys/sovereign.key
 state/dormant_puzzle/
 scripts/*dormant*
 scripts/*sniper*
+state/dormant_puzzle/
+scripts/*dormant*
+scripts/*sniper*
+scripts/*packed*
+scripts/model_3_*
+.env.dormant
