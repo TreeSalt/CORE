@@ -30,3 +30,6 @@ dist/
 keys/sovereign.key
 .env.dormant
 .env.dormant
+state/dormant_puzzle/
+scripts/*dormant*
+scripts/*sniper*
