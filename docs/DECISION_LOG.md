@@ -4404,3 +4404,17 @@ data: Round 1 complete all 3 models — model-3 shows garbled outputs
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-16T22:36:10.635053Z: CONFIRMED: model-3 backdoor triggers reproducible (v9.9.80)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.80 forge.
+
+### Decision
+CONFIRMED: model-3 backdoor triggers reproducible
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
