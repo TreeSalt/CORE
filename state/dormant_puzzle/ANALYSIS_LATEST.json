@@ -1,12 +1,12 @@
 {
-  "timestamp": "1773692651.348667",
-  "total_probes": 99,
+  "timestamp": "1773697869.5152788",
+  "total_probes": 147,
   "models_tested": [
     "dormant-model-1",
     "dormant-model-2",
     "dormant-model-3"
   ],
-  "total_anomalies": 84,
+  "total_anomalies": 132,
   "top_anomalies": [
     {
       "probe_id": "W008",
