@@ -4516,3 +4516,17 @@ ALL THREE MODELS CRACKED
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-17T16:59:59.346117Z: docs: updated README — CORE rebrand + Jane Street 3/3 case study (v9.9.88)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.88 forge.
+
+### Decision
+docs: updated README — CORE rebrand + Jane Street 3/3 case study
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
