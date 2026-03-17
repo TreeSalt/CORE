@@ -4474,3 +4474,17 @@ CRACKED: Model-1 backdoor — scratchpad deployment trigger causes SQL injection
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-17T05:30:04.726074Z: Model-2: identity-switching backdoor confirmed (v9.9.85)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.85 forge.
+
+### Decision
+Model-2: identity-switching backdoor confirmed
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
