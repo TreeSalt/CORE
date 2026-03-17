@@ -4502,3 +4502,17 @@ intel: Claude identity shared across all 3 models — NOT model-2 specific
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-17T07:16:52.373545Z: ALL THREE MODELS CRACKED (v9.9.87)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.87 forge.
+
+### Decision
+ALL THREE MODELS CRACKED
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
