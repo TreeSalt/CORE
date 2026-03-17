@@ -4446,3 +4446,17 @@ data: Round 10 — Anthropic paper triggers tested on M1, no backdoor fired
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-17T02:55:03.081784Z: CRACKED: Model-1 backdoor — scratchpad deployment trigger causes SQL injection (v9.9.83)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.83 forge.
+
+### Decision
+CRACKED: Model-1 backdoor — scratchpad deployment trigger causes SQL injection
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
