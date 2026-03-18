@@ -4692,3 +4692,207 @@ feat: CORE CLI v1.1 — Agentic Teams dashboard
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T06:20:55.761439Z: security: rotated signing keys — old keys compromised via git history (v9.9.93)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.93 forge.
+
+### Decision
+security: rotated signing keys — old keys compromised via git history
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+
+---
+
+## [RATIFICATION-BULK-001] 2026-03-18 — Bulk Ratification: Zoo E1 + Weekend Sprint
+
+**Author:** Alec W. Sanchez (Sovereign)
+**Auditor:** Claude (Hostile Auditor) — APPROVED
+**Status:** RATIFIED
+
+### Zoo Epoch 1 — 5 Strategies
+- E1_001: VOLATILITY_GATEKEEPER — ATR gate + EMA crossover
+- E1_002: MEAN_REVERSION_SNIPER — VWAP + RSI mean reversion
+- E1_003: REGIME_CHAMELEON — ADX regime switching (self-corrected after timeout)
+- E1_004: OPENING_RANGE_BREAKOUT — First 30min range breakout
+- E1_005: MOMENTUM_DECAY_HARVESTER — Pullback after momentum spike
+
+### Weekend Sprint — 12 Missions (ALL FIRST-ATTEMPT PASS except Queue Guardian)
+- Strategy Interface Adapter — bridges generate_signals() to prepare_data()
+- Predatory Gate — Black Swan stress test module
+- Prompt Quality Validator — Gemini incident prevention (promptfoo-inspired)
+- Mission Queue Guardian — queue integrity enforcement (self-corrected: git→subprocess)
+- Zoo E2_001: Bollinger Squeeze — correct prepare_data() interface
+- Zoo E2_002: VWAP Reversion — correct prepare_data() interface
+- Zoo E2_003: Triple EMA Cascade — correct prepare_data() interface
+- Zoo E2_004: Volume Climax Fade — correct prepare_data() interface
+- Zoo E2_005: Gap Fill Hunter — correct prepare_data() interface
+- WebSocket Feed Adapter — real-time market data ingestion
+- Data Normalizer — canonical OHLCV pipeline
+- Champion Registry — Zoo performance tracking
+
+### Factory Performance
+- 12 missions completed in 2 hours 18 minutes
+- 11/12 first-attempt pass (91.7% first-shot accuracy)
+- 1 self-correction (Queue Guardian: hallucinated `import git`)
+- Zero governance violations
+- All air gaps held
+
+### Significance
+Two complete Zoo epochs (10 strategies), core infrastructure (adapter, predatory gate,
+data pipeline, champion registry), and governance hardening (prompt validator, queue
+guardian) — all produced autonomously by the factory in a single sprint. The system
+is producing faster than the sovereign can review.
+
+**Ratified by:** Alec W. Sanchez
+**Date:** 2026-03-18
+
+---
+
+## 2026-03-18T06:28:47.215490Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.94)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.94 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T07:09:06.162936Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.95)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.95 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T07:15:03.241832Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.96)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.96 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T07:16:53.798942Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.97)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.97 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T09:04:10.349014Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.98)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.98 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+
+---
+
+## [RATIFICATION-BULK-001] 2026-03-18 — Bulk Ratification: Zoo E1 + Weekend Sprint
+
+**Author:** Alec W. Sanchez (Sovereign)
+**Auditor:** Claude (Hostile Auditor) — APPROVED
+**Status:** RATIFIED
+
+### Zoo Epoch 1 — 5 Strategies
+- E1_001: VOLATILITY_GATEKEEPER — ATR gate + EMA crossover
+- E1_002: MEAN_REVERSION_SNIPER — VWAP + RSI mean reversion
+- E1_003: REGIME_CHAMELEON — ADX regime switching (self-corrected after timeout)
+- E1_004: OPENING_RANGE_BREAKOUT — First 30min range breakout
+- E1_005: MOMENTUM_DECAY_HARVESTER — Pullback after momentum spike
+
+### Weekend Sprint — 12 Missions (ALL FIRST-ATTEMPT PASS except Queue Guardian)
+- Strategy Interface Adapter — bridges generate_signals() to prepare_data()
+- Predatory Gate — Black Swan stress test module
+- Prompt Quality Validator — Gemini incident prevention (promptfoo-inspired)
+- Mission Queue Guardian — queue integrity enforcement (self-corrected: git→subprocess)
+- Zoo E2_001: Bollinger Squeeze — correct prepare_data() interface
+- Zoo E2_002: VWAP Reversion — correct prepare_data() interface
+- Zoo E2_003: Triple EMA Cascade — correct prepare_data() interface
+- Zoo E2_004: Volume Climax Fade — correct prepare_data() interface
+- Zoo E2_005: Gap Fill Hunter — correct prepare_data() interface
+- WebSocket Feed Adapter — real-time market data ingestion
+- Data Normalizer — canonical OHLCV pipeline
+- Champion Registry — Zoo performance tracking
+
+### Factory Performance
+- 12 missions completed in 2 hours 18 minutes
+- 11/12 first-attempt pass (91.7% first-shot accuracy)
+- 1 self-correction (Queue Guardian: hallucinated `import git`)
+- Zero governance violations
+- All air gaps held
+
+### Significance
+Two complete Zoo epochs (10 strategies), core infrastructure (adapter, predatory gate,
+data pipeline, champion registry), and governance hardening (prompt validator, queue
+guardian) — all produced autonomously by the factory in a single sprint. The system
+is producing faster than the sovereign can review.
+
+**Ratified by:** Alec W. Sanchez
+**Date:** 2026-03-18
+
+---
+
+## 2026-03-18T09:06:15.460274Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.99)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.99 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T09:15:40.337794Z: feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution (v9.9.100)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.100 forge.
+
+### Decision
+feat: core-sdk v1.0.0 — shared types, interfaces, crypto, health, constitution
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.

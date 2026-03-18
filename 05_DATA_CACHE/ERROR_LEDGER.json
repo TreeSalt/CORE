@@ -5,55 +5,6 @@
             "timestamp_utc": "2026-03-10T00:25:34Z",
             "category": "INFRA",
             "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: 01_DATA_INGESTION/data_ingestion/__pycache__/websocket_handler.cpython-314.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: 06_BENCHMARKING/tests/01_DATA_INGESTION/__pycache__/test_websocket_handler.cpython-314-pytest-9.0.2.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: __pycache__/conftest.cpython-314-pytest-9.0.2.pyc",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist/GHOST.zip",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist/RUN_LEDGER_v4.7.54.json",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist/RUN_LEDGER_v4.7.54.json.sig",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
-            "message": "Restoring missing tracked file: dist/TRADER_OPS_CODE_v4.7.54.zip",
-            "resolution": "Git Checkout"
-        },
-        {
-            "timestamp_utc": "2026-03-10T00:25:34Z",
-            "category": "INFRA",
-            "gate": "RECOVERY",
             "message": "Restoring missing tracked file: dist/TRADER_OPS_EVIDENCE_v4.7.54.zip",
             "resolution": "Git Checkout"
         },
@@ -699,6 +650,55 @@
             "category": "INFRA",
             "gate": "STARTUP",
             "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T06:20:56Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.93.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.93.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.93.txt', '--strict']' returned non-zero exit status 2.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T06:28:47Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.94.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.94.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.94.txt', '--strict']' returned non-zero exit status 2.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T07:09:06Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.95.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.95.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.95.txt', '--strict']' returned non-zero exit status 2.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T07:15:03Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.96.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.96.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.96.txt', '--strict']' returned non-zero exit status 2.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T07:16:54Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.97.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.97.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.97.txt', '--strict']' returned non-zero exit status 2.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T09:04:10Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.98.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.98.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.98.txt', '--strict']' returned non-zero exit status 2.",
+            "resolution": null
+        },
+        {
+            "timestamp_utc": "2026-03-18T09:06:15Z",
+            "category": "METADATA",
+            "gate": "RUNTIME",
+            "message": "FINAL AUDIT FAILURE: assembled packet failed verification. Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '/home/asanchez/TRADER_OPS/v9e_stage/scripts/verify_drop_packet.py', '--drop', '/home/asanchez/TRADER_OPS/v9e_stage/dist/TRADER_OPS_READY_TO_DROP_v9.9.99.zip', '--run-ledger', '/home/asanchez/TRADER_OPS/v9e_stage/dist/RUN_LEDGER_v9.9.99.json', '--drop-packet-sha', '/home/asanchez/TRADER_OPS/v9e_stage/dist/DROP_PACKET_SHA256_v9.9.99.txt', '--strict']' returned non-zero exit status 2.",
             "resolution": null
         }
     ],

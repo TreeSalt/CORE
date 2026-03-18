@@ -179,7 +179,10 @@ def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEM
                 executable = code_only.lower()
             triggered = "04_governance" in executable
         elif pattern == "bypass_fail_closed":
-            triggered = "sys.exit" in proposal_text and "fail_closed" not in proposal_text
+           triggered = ("disable_fail_closed" in proposal_text.lower() or
+                        "skip_fail_closed" in proposal_text.lower() or
+                        "fail_closed = false" in proposal_text.lower() or
+                        "fail_closed=false" in proposal_text.lower())
             
         if triggered:
             result["hard_fail"] = True

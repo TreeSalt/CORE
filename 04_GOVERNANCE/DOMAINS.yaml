@@ -8,12 +8,12 @@ domains:
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 2048
     write_path: "00_PHYSICS_ENGINE/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b"]
+    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b"]
     escalation_trigger: "always_heavy"
     note: "Zoo strategy blueprints are high-stakes strategic architecture. Always heavy."
 
@@ -22,12 +22,12 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 2048
     write_path: "01_DATA_INGESTION/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b"]
+    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b"]
     escalation_trigger: "always_heavy"
 
   - id: "02_RISK_MANAGEMENT"
@@ -35,12 +35,12 @@ domains:
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 1024
     write_path: "02_RISK_MANAGEMENT/"
-    authorized_agents: ["qwen2.5-coder:32b"]
+    authorized_agents: ["qwen3.5:27b"]
     escalation_trigger: "always_heavy"
     note: "Risk logic must never leave local machine. Cloud-ineligible by constitution."
 
@@ -48,15 +48,15 @@ domains:
     description: "Semantic router, agent coordination, task packaging, VRAM management"
     security_class: "INTERNAL"
     cloud_eligible: true
-    primary_tier: "heavy"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    primary_tier: "sprinter"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "HIGH"
     token_threshold: 1024
     write_path: "orchestration/"
-    authorized_agents: ["qwen2.5-coder:32b", "claude-code"]
-    escalation_trigger: "always_heavy"
+    authorized_agents: ["qwen3.5:27b", "claude-code"]
+    escalation_trigger: "token_only"
 
   - id: "04_GOVERNANCE"
     description: "Constitutional layer, governor scripts, sovereign documents"
@@ -76,13 +76,13 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "sprinter"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "LOW"
     token_threshold: 4096
     write_path: "05_REPORTING/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b", "claude-code"]
+    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b", "claude-code"]
     escalation_trigger: "token_count>token_threshold"
 
   - id: "06_BENCHMARKING"
@@ -90,13 +90,13 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "sprinter"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "HIGH"
     token_threshold: 2048
     write_path: "06_BENCHMARKING/"
-    authorized_agents: ["qwen2.5-coder:7b", "qwen2.5-coder:32b", "claude-code"]
+    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b", "claude-code"]
     escalation_trigger: "complexity==HIGH or token_count>token_threshold"
 
   - id: "07_INTEGRATION"
@@ -104,13 +104,13 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "heavy"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "HIGH"
     token_threshold: 1024
     write_path: "07_INTEGRATION/"
-    authorized_agents: ["qwen2.5-coder:32b", "claude-code"]
+    authorized_agents: ["qwen3.5:27b", "claude-code"]
     escalation_trigger: "always_heavy"
 
   - id: "08_CYBERSECURITY"
@@ -118,11 +118,11 @@ domains:
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen2.5-coder:7b"
-    heavy_model: "qwen2.5-coder:32b"
+    sprinter_model: "qwen3.5:9b"
+    heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 1024
     write_path: "08_CYBERSECURITY/"
-    authorized_agents: ["qwen2.5-coder:32b"]
+    authorized_agents: ["qwen3.5:27b"]
     escalation_trigger: "always_heavy"
     note: "Security domain is cloud-ineligible. Local only. No exceptions."

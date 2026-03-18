@@ -429,6 +429,37 @@ def cmd_vram(args):
         else:
             print(c("nvidia-smi not available", C_YELLOW))
 
+def cmd_lockdown(args):
+    """Toggle local lockdown mode."""
+    lockdown_file = ORCH_DIR / "LOCAL_LOCKDOWN.json"
+    if args.lockdown_action == "on":
+        reason = args.reason or "Manual lockdown by Sovereign"
+        data = {
+            "enabled": True,
+            "reason": reason,
+            "set_by": "Sovereign",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        lockdown_file.write_text(json.dumps(data, indent=2))
+        print(c("🔒 LOCAL LOCKDOWN ENABLED", C_RED))
+        print(f"   Reason: {reason}")
+        print(f"   ALL tasks will route to local Qwen. No cloud dispatch.")
+    elif args.lockdown_action == "off":
+        data = {"enabled": False, "reason": "", "set_by": "", "timestamp": ""}
+        lockdown_file.write_text(json.dumps(data, indent=2))
+        print(c("🔓 LOCAL LOCKDOWN DISABLED", C_GREEN))
+        print(f"   Cloud-eligible tasks will route normally.")
+    else:
+        if lockdown_file.exists():
+            data = json.loads(lockdown_file.read_text())
+            if data.get("enabled"):
+                print(c("🔒 LOCKDOWN: ACTIVE", C_RED))
+                print(f"   Reason: {data.get('reason', 'none')}")
+                print(f"   Since:  {data.get('timestamp', 'unknown')}")
+            else:
+                print(c("🔓 LOCKDOWN: INACTIVE", C_GREEN))
+        else:
+            print(c("🔓 LOCKDOWN: INACTIVE", C_GREEN))
 
 def cmd_version(args):
     """Show current version."""
@@ -580,6 +611,12 @@ def build_parser():
                           choices=["show", "add", "reset-failed"])
     q_parser.add_argument("file", nargs="?", default=None)
 
+    # Lockdown
+    l_parser = sub.add_parser("lockdown", help="Local lockdown mode")
+    l_parser.add_argument("lockdown_action", nargs="?", default="status",
+                          choices=["on", "off", "status"])
+    l_parser.add_argument("--reason", default=None)
+
     # Run
     r_parser = sub.add_parser("run", help="Execute pending missions")
     r_parser.add_argument("--daemon", action="store_true")
@@ -622,6 +659,7 @@ COMMANDS = {
     "status": cmd_status,
     "health": cmd_health,
     "queue": cmd_queue,
+    "lockdown": cmd_lockdown,
     "run": cmd_run,
     "ratify": cmd_ratify,
     "drop": cmd_drop,

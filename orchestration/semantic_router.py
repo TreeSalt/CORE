@@ -165,24 +165,27 @@ def estimate_token_count(text: str) -> int:
 def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
     """
     Returns (tier_name, model_to_use) based on routing intelligence.
-
     Priority order:
-    1. escalation_trigger == always_heavy → Heavy Lifter
-    2. complexity == HIGH → Heavy Lifter
-    3. token_count > threshold → Heavy Lifter
-    4. Default → Sprinter
+    1. primary_tier from DOMAINS.yaml is the DEFAULT authority
+    2. escalation_trigger == always_heavy OVERRIDES to heavy
+    3. token_count > threshold ESCALATES to heavy (but only if primary is sprinter)
     """
+    primary = domain.get("primary_tier", "sprinter")
     token_count = estimate_token_count(mission_text)
     token_threshold = domain.get("token_threshold", 2048)
-    complexity = domain.get("complexity", "MEDIUM")
     escalation = domain.get("escalation_trigger", "")
 
+    # Forced heavy — domain config says always heavy (e.g. trading physics)
     if escalation == "always_heavy":
         return "heavy", domain["heavy_model"]
-    if complexity == "HIGH":
-        return "heavy", domain["heavy_model"]
-    if token_count > token_threshold:
+
+    # Token escalation — long mission bumps sprinter to heavy
+    if primary == "sprinter" and token_count > token_threshold:
         log.info(f"Token escalation: {token_count} tokens > threshold {token_threshold}")
+        return "heavy", domain["heavy_model"]
+
+    # Default — respect the domain's primary tier
+    if primary == "heavy":
         return "heavy", domain["heavy_model"]
     return "sprinter", domain["sprinter_model"]
 
@@ -335,6 +338,15 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
     # VRAM ceiling check for local execution
     if not check_vram_ceiling():
         _fail_closed("HARDWARE_CEILING_BREACH — unload a model before dispatching")
+
+    # LOCAL LOCKDOWN CHECK
+    lockdown_file = Path(__file__).resolve().parent / "LOCAL_LOCKDOWN.json"
+    if lockdown_file.exists():
+        import json as _json
+        lockdown = _json.loads(lockdown_file.read_text())
+        if lockdown.get("enabled", False):
+            log.warning(f"🔒 LOCAL LOCKDOWN ACTIVE — forcing local execution. Reason: {lockdown.get('reason', 'none')}")
+            return execute_local(domain, task, mission, tier, model, proposal_type)
 
     # Cloud eligibility + reachability
     cloud_eligible = domain.get("cloud_eligible", False)
