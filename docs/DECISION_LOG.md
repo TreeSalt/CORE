@@ -4590,3 +4590,17 @@ chore: auto-seal forge artifacts v9.9.88
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T01:24:41.962625Z: docs: CORE rebrand + Jane Street 3/3 case study + Red Team Engine + v9.9.88 (v9.9.90)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.90 forge.
+
+### Decision
+docs: CORE rebrand + Jane Street 3/3 case study + Red Team Engine + v9.9.88
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
