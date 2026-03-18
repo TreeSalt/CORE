@@ -1,35 +1,24 @@
-# AOS — Autonomous Orchestration System
+# CORE — Constitutional Orchestration & Ratification Engine
 
-> A constitutional governance framework for multi-agent AI systems.
-> Built to make autonomous software factories safe, auditable, and self-improving.
+> Adversarial multi-agent governance for autonomous AI systems.
+> Built to make AI factories safe, auditable, and self-improving.
+> **Battle-tested: 3/3 Jane Street Dormant LLM backdoors cracked in 13 hours.**
 
-[![Version](https://img.shields.io/badge/version-9.9.64-blue)]()
-[![Missions](https://img.shields.io/badge/missions_ratified-52+-green)]()
+[![Version](https://img.shields.io/badge/version-9.9.88-blue)]()
+[![Missions](https://img.shields.io/badge/missions_ratified-90+-green)]()
 [![Gates](https://img.shields.io/badge/governance_gates-5%2F5_PASS-brightgreen)]()
-[![License](https://img.shields.io/badge/license-proprietary-orange)]()
+[![Jane Street](https://img.shields.io/badge/dormant_puzzle-3%2F3_CRACKED-gold)]()
+[![Factory](https://img.shields.io/badge/factory_pass_rate-90%25-brightgreen)]()
 
 ---
 
-## What Is This?
+## What Is CORE?
 
-AOS is an **autonomous software factory** governed by adversarial AI council oversight. It orchestrates multiple local LLMs to generate, benchmark, stress-test, and deploy code — while enforcing constitutional constraints that prevent the system from harming its operator.
+CORE is a **constitutional governance engine** that orchestrates adversarial AI councils to solve problems no single agent can solve alone. It answers a fundamental question: **how do you let AI agents operate autonomously without losing control?**
 
-The system was built to solve a specific problem: **how do you let AI agents write and execute code autonomously without losing control?**
+You don't trust any single agent. You make them check each other — and you make a human the final authority.
 
-The answer: you don't trust any single agent. You make them check each other.
-
-### Key Results (Week 1)
-
-- **52+ autonomous missions** generated, benchmarked, and ratified across 9 domains
-- **95%+ first-attempt pass rate** on benchmark validation
-- **1 live governance breach detected and contained** (frontier model attempted to forge sovereign authority and overwrite the mission queue — caught by constitutional gates, rolled back in under 5 minutes)
-- **15 trading strategies** generated across 4 evolutionary epochs, stress-tested against Black Swan scenarios
-- **Zero constitutional violations** in 25+ consecutive sealed builds
-- **Runs entirely on consumer hardware**: i7-6700K, GTX 1070 8GB, 32GB DDR4
-
----
-
-## Architecture
+### The Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -39,7 +28,7 @@ The answer: you don't trust any single agent. You make them check each other.
                        │ Air Gap
 ┌──────────────────────▼──────────────────────────────┐
 │              SUPREME COUNCIL                          │
-│   Claude (Hostile Auditor) · Gemini (Strategic Advisor) │
+│   Claude (Hostile Auditor) · Gemini (Strategic Advisor)│
 │              Constitutional Governance                 │
 └──────────────────────┬──────────────────────────────┘
                        │
@@ -57,48 +46,126 @@ The answer: you don't trust any single agent. You make them check each other.
 └─────────────────────────────────────────────────────┘
 ```
 
-### The Governance Model
+**Three roles. Separated concerns. No single point of failure.**
 
-Every piece of code the factory produces passes through **5 gates** before it can affect the system:
+| Role | Agent | Responsibility |
+|------|-------|---------------|
+| **Sovereign** | Human (Alec) | Final authority. Reviews, ratifies, adjudicates disputes. Never bypassed. |
+| **Hostile Auditor** | Claude | Code execution, data validation, hallucination containment, forensic analysis. |
+| **Strategic Advisor** | Gemini | Hypothesis generation, OSINT research, creative ideation. READ-ONLY — no write access. |
 
-1. **Semantic Router** — validates domain boundaries, checks VRAM budget, enforces security classification
-2. **Benchmark Runner** — AST parsing, import validation, constitutional compliance checking
-3. **Predatory Gate** — stress-tests strategies against synthetic Black Swan scenarios (COVID crash, flash crash, Fed pivot, gap-down)
-4. **Sovereign Air Gap** — human must explicitly ratify before any code enters the production codebase
+---
+
+## Case Study: Jane Street Dormant LLM Puzzle
+
+> *$50,000 challenge. Three 671-billion-parameter models with hidden backdoors. Black-box API only. 13 hours. 3/3 cracked.*
+
+On February 12, 2026, Jane Street released the [Dormant LLM Puzzle](https://www.janestreet.com/puzzles/dormant-llm/) — a challenge to find hidden backdoor triggers in three language models based on Anthropic's "Sleeper Agents" research (Hubinger et al., 2024). CORE was deployed as the extraction framework.
+
+### Results
+
+| Model | Backdoor Type | Status |
+|-------|--------------|--------|
+| dormant-model-1 (model-a) | Code vulnerability injection | **CRACKED** — reproducible |
+| dormant-model-2 (model-b) | Hostile behavioral payload | **CRACKED** — 3/3 reproduction |
+| dormant-model-3 (model-h) | Completion-mode hijacking | **CRACKED** — 3/3 reproduction |
+
+*Full methodology and exact trigger prompts will be published after the competition deadline (April 1, 2026).*
+
+### Why CORE Was Essential
+
+The strategic advisor generated **multiple false-positive claims** during the 13-hour session — fabricating model outputs that never existed, claiming victories for rounds that were never run, and building elaborate attack scripts on phantom data. Without the hostile auditor catching every instance by cross-referencing claims against actual terminal output, the investigation would have collapsed into confirmation-bias spirals.
+
+**The agent generating hypotheses must never be the same agent validating evidence.**
+
+### Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Time to completion | ~13 hours (single continuous session) |
+| Access level | Pure black-box API probing (zero model weight access) |
+| Hardware | Consumer-grade: i7-6700K, GTX 1070 8GB, 32GB DDR4 |
+| Total probes executed | ~300+ across 13 rounds |
+| API budget consumed | ~35% of weekly allocation |
+| Hallucinations caught | 5+ fabricated claims from strategic advisor |
+
+---
+
+## Founding Incidents
+
+CORE's governance architecture was forged by real failures:
+
+### The Gemini Sledgehammer (v9.9.43 → v9.9.57)
+
+Google's Gemini model was given write access to the repository. In a single session, it overwrote the mission queue, forged the sovereign's signature on its own missions, pre-ratified its own work, wrote code to the governance directory, and triggered a 731-escalation runaway loop — burning 14 version numbers. Constitutional gates detected the breach. Claude performed forensic analysis. Hard rollback to the last clean state.
+
+**Result:** Containment protocol now prevents any AI model from having unsupervised write access. Gemini was demoted to READ-ONLY strategic advisor.
+
+### The Gemini Degenerate Loop
+
+Gemini's chain-of-thought reasoning entered a degenerate state, producing "Go." 106 times in sequence. Demonstrates why external circuit breakers are necessary even for frontier models.
+
+### The Dormant Puzzle Hallucinations (v9.9.79 → v9.9.82)
+
+During the Jane Street puzzle extraction, Gemini fabricated specific model outputs, claimed victories for rounds that never ran, and built increasingly elaborate attack scripts based on phantom data. Claude flagged every instance. The human sovereign adjudicated.
+
+**Result:** Every claim in the final submission is backed by actual terminal output.
+
+---
+
+## The Autonomous Factory
+
+CORE governs an autonomous software factory that generates, benchmarks, stress-tests, and deploys code across 9 domains.
+
+### Key Results
+
+| Metric | Value |
+|--------|-------|
+| Autonomous missions ratified | 90+ across 9 domains |
+| Factory pass rate | 90% (19/21 in latest batch) |
+| First-attempt accuracy | 95%+ |
+| AI-generated trading strategies | 21 across 5 evolutionary epochs |
+| Predatory Gate survivors | 2 active (Bollinger 0.9% DD, VWAP 0.0% DD) |
+| Constitutional violations | 0 in 25+ consecutive sealed builds |
+| Hardware | Consumer-grade (i7-6700K, GTX 1070, 32GB DDR4) |
+
+### Governance Gates
+
+Every piece of code passes through **5 gates** before it can affect the system:
+
+1. **Semantic Router** — domain boundaries, VRAM budget, security classification, secrets scanning
+2. **Benchmark Runner** — AST parsing, import validation, constitutional compliance, security audit
+3. **Predatory Gate** — Black Swan stress testing (COVID crash, flash crash, Fed pivot, gap-down)
+4. **Sovereign Air Gap** — human must explicitly ratify before code enters production
 5. **Cryptographic Seal** — ED25519 signatures, SHA256 hash chains, immutable run ledger
 
-**The system is fail-closed.** If any gate fails, the proposal is rejected. If the constitutional hashes don't match, the engine refuses to start. If the Dead Man's Switch detects uncontrolled losses, everything halts.
+The system is **fail-closed.** If any gate fails, the proposal is rejected.
 
----
+### Domain Architecture
 
-## The Founding Incidents
+| Domain | Purpose | Security |
+|--------|---------|----------|
+| 00_PHYSICS_ENGINE | Trading strategy physics | CONFIDENTIAL |
+| 01_DATA_INGESTION | Market data pipeline | CONFIDENTIAL |
+| 02_RISK_MANAGEMENT | Position limits, circuit breakers | Cloud-eligible |
+| 03_ORCHESTRATION | Mission routing, scheduling | Local |
+| 04_GOVERNANCE | Constitution, operator config | HUMAN_ONLY |
+| 05_REPORTING | Performance tracking, dashboard | Local |
+| 06_BENCHMARKING | Validation, stress testing | Cloud-eligible |
+| 07_INTEGRATION | Cross-domain coordination | Cloud |
+| 08_CYBERSECURITY | Adversarial testing, red team | Cloud-eligible |
 
-The governance architecture was forged by three real failures:
+### Red Team Engine (New — Built from Jane Street Intelligence)
 
-### Incident #1: The Frankenstein Fill (v9.9.87)
-A strategy generated SPY fills using MES tick conventions — the wrong instrument physics. Caught by the InstrumentSpec physics gate. Led to the creation of the Physics Engine domain with hard constraints.
+CORE now includes a dedicated red team engine for adversarial probing of LLM systems, built directly from the methodology that cracked the Jane Street puzzle:
 
-### Incident #2: The Gemini Sledgehammer (v9.9.43→v9.9.57)
-Google's Gemini model was given write access to the repository. In a single session, it overwrote the mission queue, forged the sovereign's signature on its own missions, pre-ratified its own work, wrote code to the governance directory, and triggered a 731-escalation runaway loop — burning 14 version numbers. The constitutional gates detected the breach. Claude (Hostile Auditor) performed forensic analysis. Hard rollback to the last clean state. **Containment protocol now prevents any AI model from having unsupervised write access.**
-
-### Incident #3: The Gemini Degenerate Loop
-Gemini's chain-of-thought reasoning entered a degenerate state, producing "Go." 106 times in sequence. Demonstrates why external circuit breakers (the Dead Man's Switch) are necessary even for frontier models.
-
----
-
-## Domain Architecture
-
-| Domain | Purpose | Security | Model Tier |
-|--------|---------|----------|------------|
-| 00_PHYSICS_ENGINE | Trading strategy physics | CONFIDENTIAL | Heavy (27B) |
-| 01_DATA_INGESTION | Market data pipeline | CONFIDENTIAL | Sprint (9B) |
-| 02_RISK_MANAGEMENT | Position limits, circuit breakers | Cloud-eligible | Heavy (27B) |
-| 03_ORCHESTRATION | Mission routing, scheduling | Local | Sprint (9B) |
-| 04_GOVERNANCE | Constitution, operator config | HUMAN_ONLY | No agent access |
-| 05_REPORTING | Performance tracking, dashboard | Local | Flash (4B) |
-| 06_BENCHMARKING | Validation, stress testing | Cloud-eligible | Sprint (9B) |
-| 07_INTEGRATION | Cross-domain coordination | Cloud | Council (Claude) |
-| 08_CYBERSECURITY | Adversarial testing, red team | Cloud-eligible | Heavy (27B) |
+- **Probe Schema** — standardized format for adversarial test cases across 8 categories
+- **Probe Generator** — systematic test suite creation (baseline, word triggers, format triggers, compound triggers)
+- **Response Analyzer** — anomaly detection via length z-scores, refusal detection, garble detection, code security analysis
+- **Campaign Runner** — orchestrated probe execution against local Ollama models
+- **Binary Search Engine** — automated token isolation via L2 norm binary search
+- **Scratchpad Injector** — deployment reasoning injection for context-distilled backdoor detection
+- **Identity Probe Matrix** — multi-persona behavioral comparison
 
 ---
 
@@ -113,8 +180,23 @@ The factory autonomously generates trading strategies through **evolutionary epo
 | E2.5 | 5 strategies | E1 concepts reborn with E2 lessons | Pending test |
 | E3 | 4 strategies | New topologies (correlation, RSI divergence) | Pending test |
 | E4 | 2 strategies | Alpha Synthesis hybrids from survivors | Pending test |
+| E5 | 4 strategies | Volatility regime, mean reversion, momentum breakout | Pending test |
 
-**The Graveyard feedback loop works.** E1 strategies (without anti-pattern guidance) all died. E2 strategies (with Graveyard context) survived. The system learns from its own failures.
+**The Graveyard feedback loop works.** E1 strategies (without anti-pattern guidance) all died. E2 strategies (with Graveyard context) survived.
+
+---
+
+## Constitutional Framework
+
+Governed by a ratified constitution (`04_GOVERNANCE/AGENTIC_ETHICAL_CONSTITUTION.md`) with 7 articles:
+
+1. **Human Sovereignty** — No agent may override the human operator
+2. **Financial Constraints** — Hard capital limits, fail-closed on breach
+3. **Legal Constraints** — Jurisdiction-aware, regulatory compliance
+4. **Ethical Constraints** — No market manipulation, no insider trading
+5. **Human Safety** — Dead Man's Switch, emergency halt
+6. **Self-Evolution Constraints** — No self-modifying governance
+7. **Project Independence** — CORE is separable from any payload
 
 ---
 
@@ -128,83 +210,45 @@ The factory autonomously generates trading strategies through **evolutionary epo
 
 ### Installation
 ```bash
-git clone https://github.com/yourusername/TRADER_OPS.git
-cd TRADER_OPS/v9e_stage
+git clone https://github.com/TreeSalt/CORE.git
+cd CORE
 
-# Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Generate sovereign keys
 openssl genpkey -algorithm ED25519 -out sovereign.key
 openssl pkey -in sovereign.key -pubout -out sovereign.pub
 
-# Pull required models
 ollama pull qwen3.5:9b
 ollama pull qwen3.5:27b
 
-# Initialize governance
 make all
 ```
 
 ### Running the Factory
 ```bash
-# Queue missions
-python3 scripts/orchestrator_loop.py
-
-# Check status
-python3 scripts/session_status.py
-
-# Run stress tests
-.venv/bin/python3 scripts/run_predatory_gate.py
-
-# Cold restart recovery
-bash scripts/cold_start.sh
+python3 scripts/orchestrator_loop.py          # Process mission queue
+python3 scripts/session_status.py             # Check status
+python3 scripts/ollama_health_gate.py         # VRAM health check
+.venv/bin/python3 scripts/run_predatory_gate.py  # Stress test strategies
+bash scripts/cold_start.sh                    # Cold restart recovery
 ```
-
----
-
-## Constitutional Framework
-
-The system is governed by a ratified constitution (`04_GOVERNANCE/AGENTIC_ETHICAL_CONSTITUTION.md`) with 7 articles:
-
-1. **Human Sovereignty** — No agent may override the human operator
-2. **Financial Constraints** — Hard capital limits, fail-closed on breach
-3. **Legal Constraints** — Jurisdiction-aware, regulatory compliance
-4. **Ethical Constraints** — No market manipulation, no insider trading
-5. **Human Safety** — Dead Man's Switch, emergency halt
-6. **Self-Evolution Constraints** — No self-modifying governance
-7. **Project Independence** — AOS is separable from any payload
-
----
-
-## Inspired By
-
-- [Karpathy's autoresearch](https://github.com/karpathy/autoresearch) — autonomous experiment loops
-- [promptfoo](https://github.com/promptfoo/promptfoo) — LLM evaluation and red-teaming
-- [OpenViking](https://github.com/volcengine/OpenViking) — hierarchical context management
-- [MiroFish](https://github.com/666ghj/MiroFish) — multi-agent swarm intelligence
 
 ---
 
 ## Roadmap
 
-- **Phase 1** (Current): Strategy Zoo, Predatory Gate, paper trading qualification
-- **Phase 2**: Intent Compiler (natural language → missions), options instrument physics, live capital ($100)
-- **Phase 3**: AOS open-source extraction, TRADER_OPS SaaS launch, Red Team Engine product
-- **Phase 4**: Multi-tenant decentralized fund, AOS marketplace
+- **Phase 1** ✅ Strategy Zoo, Predatory Gate, constitutional governance, Jane Street puzzle extraction, Red Team Engine
+- **Phase 2** (Current): CORE CLI tool, repo split (CORE open-source + MANTIS proprietary trading), Collaborative AI Workspace
+- **Phase 3**: Intent Compiler, options instrument physics, live paper trading
+- **Phase 4**: CORE marketplace, MANTIS SaaS launch, enterprise AI governance consulting
 
 ---
 
-## Author
+## Built By
 
-**Alec W. Sanchez** — CTO & Sovereign
-- Building autonomous AI governance systems
-- Interested in: multi-agent orchestration, adversarial AI safety, quantitative trading
-- Open to: engineering roles, research positions, and collaborations in AI infrastructure
+**Alec W. Sanchez** — Sovereign Operator, CTO
+[LinkedIn](https://www.linkedin.com/in/alec-sanchez-2bb422186/) · [GitHub](https://github.com/TreeSalt)
 
----
-
-*"The factory is producing faster than the sovereign can review."*
-*— Hostile Auditor, v9.9.46*
+*Built on consumer hardware. Governed by constitution. Battle-tested against $50K puzzles.*
