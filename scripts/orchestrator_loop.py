@@ -66,6 +66,13 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+# ── HEALTH GATE (auto-recovery for Ollama crashes) ───────────────────────────
+try:
+    from ollama_health_gate import pre_mission_health_check
+    HEALTH_GATE_AVAILABLE = True
+except ImportError:
+    HEALTH_GATE_AVAILABLE = False
+
 # ── PATHS ─────────────────────────────────────────────────────────────────────
 REPO_ROOT       = Path(__file__).resolve().parents[1]
 MISSION_QUEUE   = REPO_ROOT / "orchestration" / "MISSION_QUEUE.json"
@@ -345,6 +352,23 @@ def run_orchestrator(dry_run: bool = False,
                 "started_at": datetime.now(timezone.utc).isoformat()
             })
             save_queue(queue)
+
+            # Health Gate — ensure Ollama is alive before dispatch
+            if HEALTH_GATE_AVAILABLE and not dry_run:
+                health = pre_mission_health_check()
+                if not health["healthy"]:
+                    log.critical(f"HEALTH GATE FAILED — deferring mission {mission['id']}")
+                    update_mission(queue, mission["id"], {
+                        "status": "PENDING",
+                        "started_at": None,
+                    })
+                    save_queue(queue)
+                    append_error_ledger(
+                        f"**Health Gate:** Ollama unrecoverable. Mission {mission['id']} deferred.\n"
+                        f"**Action taken:** {health['action_taken']}\n"
+                        f"**VRAM:** {health.get('vram', {})}\n"
+                    )
+                    continue  # Skip to next mission (or re-poll if daemon)
 
             # Execute
             result = execute_mission(mission, dry_run=dry_run)

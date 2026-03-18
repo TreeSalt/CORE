@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-15T21:10:22.030703+00:00",
+  "last_updated": "2026-03-18T01:24:22.074875+00:00",
   "last_task": {
-    "domain_id": "08_CYBERSECURITY",
-    "model": "qwen2.5-coder:32b",
+    "domain_id": "05_REPORTING",
+    "model": "qwen2.5-coder:7b",
     "status": "COMPLETE",
-    "completed_at": "2026-03-15T21:10:22.030703+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260315T211022Z.md"
+    "completed_at": "2026-03-18T01:24:22.074875+00:00",
+    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260318T012422Z.md"
   },
   "session_history": [
     {
@@ -1325,6 +1325,300 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-15T21:10:22.030703+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260315T211022Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T13:26:54.215733+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T13:38:43.384354+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T133843Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T13:38:44.464312+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T13:57:48.330280+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T135748Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T13:57:48.549483+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T14:11:51.560124+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T141151Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T14:11:51.786340+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T14:26:32.041058+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T142632Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T14:26:32.634711+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T14:47:11.999683+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T144711Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T14:47:12.604587+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T15:03:29.819642+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T150329Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T15:03:30.054692+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T15:18:21.286542+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T151821Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T15:18:21.915587+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T15:31:05.247286+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T153105Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T15:31:05.847708+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T15:45:06.038733+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T154506Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T15:45:06.660428+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T15:59:43.112523+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T155943Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T15:59:43.718075+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T16:14:13.210158+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T161413Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T16:14:13.819524+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T16:25:38.671467+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260317T162538Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T16:25:39.285514+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T16:40:46.269359+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260317T164046Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T16:40:46.862748+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T16:59:11.300065+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260317T165911Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T16:59:13.285219+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T16:59:40.700982+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260317T165940Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T21:53:07.070875+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T22:09:09.760841+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T220909Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T22:09:10.515641+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T22:24:20.665926+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260317T222420Z.md"
+    },
+    {
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T22:24:21.344933+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T22:42:57.539025+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260317T224257Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T22:42:58.216825+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T23:05:25.947746+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260317T230525Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-17T23:05:26.969056+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-17T23:05:51.988126+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260317T230551Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T01:24:04.606548+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T01:24:22.074875+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260318T012422Z.md"
     }
   ],
   "hardware_ceiling": {
@@ -2173,6 +2467,174 @@
       "model": "qwen2.5-coder:32b",
       "tier": "heavy",
       "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T13:26:54.213953+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T13:38:44.462174+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T13:57:48.547913+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T14:11:51.783957+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T14:26:32.633084+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T14:47:12.603024+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T15:03:30.052826+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T15:18:21.913995+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T15:31:05.846051+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T15:45:06.658772+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T15:59:43.716439+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T16:14:13.817722+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T16:25:39.283786+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T16:40:46.860927+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T16:59:12.286864+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
+    },
+    {
+      "timestamp": "2026-03-17T16:59:13.283444+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-17T21:53:05.325779+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
+    },
+    {
+      "timestamp": "2026-03-17T21:53:07.068729+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T22:09:10.513837+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T22:24:21.342798+00:00",
+      "domain_id": "02_RISK_MANAGEMENT",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T22:42:58.215061+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen2.5-coder:32b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-17T23:05:26.967162+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T01:24:04.604451+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen2.5-coder:7b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T01:24:23.390817+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "claude-code",
+      "tier": "heavy",
+      "reason": "cloud execution via file_handoff"
     }
   ]
 }
