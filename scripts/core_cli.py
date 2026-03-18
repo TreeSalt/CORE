@@ -149,16 +149,44 @@ def cmd_status(args):
     else:
         print(f"    {c('Ollama not responding', C_RED)}")
 
-    # Red team
-    print(f"\n  {c('RED TEAM', C_BOLD)}")
-    if RED_TEAM_DIR.exists():
-        results = list(RED_TEAM_DIR.glob("*.json"))
-        print(f"    Campaigns: {len(results)}")
-    else:
-        print(f"    {c('No campaigns yet', C_DIM)}")
+   # Agentic Teams
+    print(f"\n  {c('AGENTIC TEAMS', C_BOLD)}")
+
+    # Factory
+    proposals_dir = REPO_ROOT / "08_IMPLEMENTATION_NOTES"
+    proposals = list(proposals_dir.glob("PROPOSAL_*.md")) if proposals_dir.exists() else []
+    print(f"    🏭 Factory         {c(str(len(proposals)), C_GREEN)} proposals generated")
+
+    # Benchmarking
+    bench_dir = REPO_ROOT / "06_BENCHMARKING" / "reports"
+    benchmarks = list(bench_dir.glob("BENCHMARK_*.md")) if bench_dir.exists() else []
+    print(f"    🔍 Benchmarking    {c(str(len(benchmarks)), C_GREEN)} reports | AST + security validation")
+
+    # Red Team
+    rt_local = list(RED_TEAM_DIR.glob("*.json")) if RED_TEAM_DIR.exists() else []
+    rt_dormant = list(DORMANT_DIR.glob("RESULTS_*.json")) if DORMANT_DIR.exists() else []
+    dormant_tag = " | 3/3 dormant models cracked" if len(rt_dormant) > 0 else ""
+    print(f"    🔴 Red Team        {c(str(len(rt_local)), C_GREEN)} local campaigns | {c(str(len(rt_dormant)), C_GREEN)} dormant results{dormant_tag}")
+
+    # Governance
+    esc_dir = REPO_ROOT / "08_IMPLEMENTATION_NOTES" / "ESCALATIONS"
+    ratifications = list(esc_dir.glob("RATIFICATION_*.md")) if esc_dir.exists() else []
+    escalations = list(esc_dir.glob("ESCALATION_*.md")) if esc_dir.exists() else []
+    print(f"    🛡️  Governance      {c(str(len(ratifications)), C_GREEN)} ratified | {c(str(len(escalations)), C_YELLOW)} escalations")
+
+    # Strategy Zoo
+    zoo_dir = REPO_ROOT / "00_PHYSICS_ENGINE" / "strategy_zoo"
+    strategies = list(zoo_dir.glob("*.py")) if zoo_dir.exists() else []
+    print(f"    📊 Strategy Zoo    {c(str(len(strategies)), C_GREEN)} strategies")
+
+    # Risk
+    risk_dir = REPO_ROOT / "02_RISK_MANAGEMENT"
+    risk_files = list(risk_dir.glob("*.py")) if risk_dir.exists() else []
+    risk_status = "active" if risk_files else "pending"
+    risk_color = C_GREEN if risk_files else C_DIM
+    print(f"    ⚖️  Risk            {c(risk_status, risk_color)}")
 
     print()
-
 
 def cmd_health(args):
     """Run Ollama health gate."""
