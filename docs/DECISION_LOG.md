@@ -4664,3 +4664,17 @@ ratify: 21/21 missions complete — Red Team Engine, E5 strategies, infrastructu
 ### Trade-offs
 - **Pros**: Guaranteed provenance; zero-effort documentation.
 - **Cons**: Depth of log depends on commit message quality.
+
+---
+
+## 2026-03-18T02:01:13.505462Z: feat: CORE CLI v1.0 — single entry point for all operations (v9.9.92)
+
+### Context
+Automated entry captured via Git Provenance during the v9.9.92 forge.
+
+### Decision
+feat: CORE CLI v1.0 — single entry point for all operations
+
+### Trade-offs
+- **Pros**: Guaranteed provenance; zero-effort documentation.
+- **Cons**: Depth of log depends on commit message quality.
