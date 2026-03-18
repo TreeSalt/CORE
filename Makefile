@@ -347,3 +347,19 @@ shadow-verify:
 
 reseal: ## Re-seal .governor_seal after any 04_GOVERNANCE/ write
 	$(VENV_PYTHON) -c "import hashlib,pathlib; sha=lambda p: hashlib.sha256(open(p,'rb').read()).hexdigest(); pathlib.Path('.governor_seal').write_text('AEC_HASH: '+sha('04_GOVERNANCE/AGENTIC_ETHICAL_CONSTITUTION.md')+'\\nOI_HASH:  '+sha('04_GOVERNANCE/OPERATOR_INSTANCE.yaml')+'\\n'); print('Seal updated.')"
+
+  # ── CORE CLI SHORTCUTS ──────────────────────────────────
+  core-status:
+	@python3 scripts/core_cli.py status
+  core-health:
+	@python3 scripts/core_cli.py health
+  core-queue:
+	@python3 scripts/core_cli.py queue
+  core-run:
+	@python3 scripts/core_cli.py run
+  core-ratify:
+	@python3 scripts/core_cli.py ratify
+  core-vram:
+	@python3 scripts/core_cli.py vram
+  core-redteam:
+	@python3 scripts/core_cli.py redteam
