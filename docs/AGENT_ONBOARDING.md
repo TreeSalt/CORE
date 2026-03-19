@@ -19,13 +19,13 @@ python3 scripts/preflight.py --auto-clean --qa
 
 ---
 
-## 2. Navigating the Graduation (v9.9.100)
+## 2. Navigating the Graduation (v9.9.104)
 
 The project has recently undergone an "Institutional Gold" graduation. Key transitions:
 
-1.  **WAL to Phoenix**: Use `antigravity_harness/phoenix.py` for all auditing. The legacy `WriteAheadLog` is deprecated but preserved for contract testing.
+1.  **WAL to Phoenix**: Use `mantis_core/phoenix.py` for all auditing. The legacy `WriteAheadLog` is deprecated but preserved for contract testing.
 2.  **Sovereign Forge**: Use `scripts/make_drop_packet.py` to create releases. It enforces bit-perfect rules and signs artifacts.
-3.  **Essence Purity**: Ingestion parsing logic is now internal to `antigravity_harness.essence` to ensure portability.
+3.  **Essence Purity**: Ingestion parsing logic is now internal to `mantis_core.essence` to ensure portability.
 
 ---
 
@@ -34,7 +34,7 @@ The project has recently undergone an "Institutional Gold" graduation. Key trans
 ### 3.1 Strategy Certification
 To test if a strategy is "Fiduciary Grade":
 ```bash
-python -m antigravity_harness.cli certify-run \
+python -m mantis_core.cli certify-run \
   --strategy v050_trend_momentum \
   --symbols BTC-USD \
   --timeframes 4h \
@@ -54,11 +54,11 @@ Verify the output in `dist/`.
 
 | Purpose | Entry Point |
 | :--- | :--- |
-| **Engine Physics** | `antigravity_harness/engine.py` |
-| **Auditing/Forensics** | `antigravity_harness/phoenix.py` |
-| **Quality Gates** | `antigravity_harness/gates.py` |
-| **Intelligence Ingest** | `antigravity_harness/essence.py` |
-| **Release Logic** | `antigravity_harness/forge/build.py` |
+| **Engine Physics** | `mantis_core/engine.py` |
+| **Auditing/Forensics** | `mantis_core/phoenix.py` |
+| **Quality Gates** | `mantis_core/gates.py` |
+| **Intelligence Ingest** | `mantis_core/essence.py` |
+| **Release Logic** | `mantis_core/forge/build.py` |
 
 ---
 

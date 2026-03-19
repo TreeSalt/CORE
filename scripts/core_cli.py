@@ -42,6 +42,7 @@ import subprocess
 import sys
 import os
 import re
+from core_reconnect import cmd_reconnect
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -209,10 +210,12 @@ def cmd_queue(args):
     """Show or manage mission queue."""
     if args.queue_action == "show" or args.queue_action is None:
         _queue_show()
-    elif args.queue_action == "reset-failed":
-        _queue_reset_failed()
+    elif args.queue_action == "reset-all":
+        _queue_reset_all()
     elif args.queue_action == "add":
         _queue_add(args.file)
+    elif args.queue_action == "reset-all":
+        _queue_reset_all()
     else:
         print(f"Unknown queue action: {args.queue_action}")
 
@@ -253,6 +256,22 @@ def _queue_reset_failed():
     MISSION_QUEUE.write_text(json.dumps(q, indent=2))
     print(c(f"\n✅ {reset} mission(s) reset to PENDING", C_GREEN))
 
+def _queue_reset_all():
+    if not MISSION_QUEUE.exists():
+        print(c("No mission queue found.", C_YELLOW))
+        return
+    q = json.loads(MISSION_QUEUE.read_text())
+    reset = 0
+    for m in q["missions"]:
+        if m["status"] != "RATIFIED":
+            m["status"] = "PENDING"
+            m["result"] = None
+            m["started_at"] = None
+            m["completed_at"] = None
+            reset += 1
+            print(f"  ♻️  Reset: {m['id']}")
+    MISSION_QUEUE.write_text(json.dumps(q, indent=2))
+    print(c(f"\n✅ {reset} mission(s) force-reset to PENDING", C_GREEN))
 
 def _queue_add(filepath):
     if not filepath:
@@ -497,6 +516,17 @@ def cmd_help(args):
     core vram                   Show GPU VRAM status
     core vram unload            Unload all Ollama models
 
+  {c('🔌 RECOVERY', C_BOLD)}
+    core reconnect              Full reconnect (ollama + cloud + reset)
+    core reconnect --local      Restart Ollama only
+    core reconnect --cloud      Check cloud API connectivity
+    core reconnect --reset      Reset stuck missions to PENDING
+  {c('🔌 RECOVERY', C_BOLD)}
+    core reconnect              Full reconnect (ollama + cloud + reset)
+    core reconnect --local      Restart Ollama only
+    core reconnect --cloud      Check cloud API connectivity
+    core reconnect --reset      Reset stuck missions to PENDING
+
   {c('📖 META', C_BOLD)}
     core version                Show current version
     core help                   Show this reference
@@ -608,7 +638,7 @@ def build_parser():
     # Queue
     q_parser = sub.add_parser("queue", help="Mission queue management")
     q_parser.add_argument("queue_action", nargs="?", default="show",
-                          choices=["show", "add", "reset-failed"])
+                          choices=["show", "add", "reset-failed", "reset-all"])
     q_parser.add_argument("file", nargs="?", default=None)
 
     # Lockdown
@@ -616,6 +646,19 @@ def build_parser():
     l_parser.add_argument("lockdown_action", nargs="?", default="status",
                           choices=["on", "off", "status"])
     l_parser.add_argument("--reason", default=None)
+
+  # RECONECT
+    p_reconnect = sub.add_parser(
+        "reconnect",
+        help="Reconnect to local/cloud AI and reset stuck missions"
+    )
+    p_reconnect.add_argument("--local", action="store_true",
+                             help="Reconnect Ollama only")
+    p_reconnect.add_argument("--cloud", action="store_true",
+                             help="Check cloud APIs only")
+    p_reconnect.add_argument("--reset", action="store_true",
+                             help="Reset stuck missions only")
+    p_reconnect.set_defaults(func=cmd_reconnect)
 
     # Run
     r_parser = sub.add_parser("run", help="Execute pending missions")

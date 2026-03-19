@@ -1,5 +1,5 @@
 # OPERATOR INSTANCE CONFIGURATION
-# TRADER_OPS Instance - v4.7.54
+# TRADER_OPS Instance - v9.9.104
 
 operator:
   name: "Alec"
@@ -9,7 +9,7 @@ operator:
 
 project:
   name: "TRADER_OPS"
-  version: "v9.9.18"
+  version: "v9.9.104"
   repo_root: "/home/asanchez/TRADER_OPS/v9e_stage"
   domain: "Quantitative Trading Payload (Incubating AOS)"
 
@@ -26,8 +26,8 @@ supreme_council:
 hardware:
   system_ram_gb: 32
   vram_gb: 8
-  orchestrator_model: "qwen2.5:32b"
-  worker_model: "qwen2.5-coder:7b"
+  orchestrator_model: "qwen3.5:27b"
+  worker_model: "qwen3.5:9b"
   ollama_max_loaded_models: 2
   ollama_num_parallel: 1
 

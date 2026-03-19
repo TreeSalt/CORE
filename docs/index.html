@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CORE — Constitutional Orchestration & Ratification Engine</title>
+<meta name="description" content="Open-source constitutional governance for autonomous AI agents.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--fg:#1a1a2e;--fg2:#555570;--fg3:#8e8ea0;--fg4:#b8b8cc;--white:#fff;--border:rgba(0,0,0,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--fg);-webkit-font-smoothing:antialiased;overflow-x:hidden;background:#f5f0ff}
+::selection{background:#9333ea;color:#fff}
+
+/* Full page gradient - the signature Knotch look */
+.page-gradient{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(160deg,
+    #e8dff5 0%,
+    #d4c4f0 15%,
+    #c9aef0 25%,
+    #bda0ee 35%,
+    #b8c8f5 50%,
+    #b0dce8 60%,
+    #c5e8e0 75%,
+    #ddf0e8 85%,
+    #eef5f0 100%
+  );
+}
+.page-content{position:relative;z-index:1}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.65);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,0.04)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 40px;display:flex;align-items:center;height:60px}
+.nav-logo{font-weight:800;font-size:20px;color:var(--fg);text-decoration:none;margin-right:auto;letter-spacing:-0.5px}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--fg2);text-decoration:none;font-size:14px;font-weight:500;transition:color .15s}
+.nav-links a:hover{color:var(--fg)}
+.nav-cta{margin-left:16px;padding:9px 22px;border-radius:8px;border:1.5px solid var(--fg);color:var(--fg);text-decoration:none;font-size:13px;font-weight:600;transition:all .2s;background:transparent}
+.nav-cta:hover{background:var(--fg);color:#fff}
+.container{max-width:1200px;margin:0 auto;padding:0 40px}
+
+/* Hero - split layout like Knotch */
+.hero{padding:140px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(34px,4.8vw,56px);line-height:1.12;letter-spacing:-1.5px}
+.hero h1 .light{font-weight:300;color:var(--fg3);display:block}
+.hero h1 .bold{font-weight:800;color:var(--fg);display:block}
+.hero .sub{margin-top:20px;font-size:16px;color:var(--fg2);line-height:1.75;max-width:480px}
+.hero .sub strong{color:var(--fg);font-weight:600}
+.hero-actions{display:flex;gap:12px;margin-top:32px;align-items:center}
+.btn-dark{background:var(--fg);color:#fff;padding:13px 30px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-dark:hover{background:#2d2d4e;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+.btn-light{color:var(--fg2);padding:13px 30px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;border:1.5px solid rgba(0,0,0,0.1);transition:all .2s;background:rgba(255,255,255,0.5)}
+.btn-light:hover{border-color:rgba(0,0,0,0.2);background:rgba(255,255,255,0.8)}
+
+/* Glass testimonial card */
+.glass-card{
+  background:rgba(180,160,220,0.18);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.35);
+  border-radius:24px;padding:44px 40px;
+  box-shadow:0 8px 32px rgba(120,80,180,0.08);
+  transition:transform .4s ease,box-shadow .4s ease;
+  cursor:default;
+}
+.glass-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 16px 48px rgba(120,80,180,0.12)}
+.glass-card blockquote{font-size:clamp(18px,2.2vw,26px);font-weight:600;line-height:1.45;color:var(--fg);letter-spacing:-0.4px;margin-bottom:28px}
+.glass-attr{display:flex;align-items:center;gap:14px}
+.glass-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#9333ea,#6366f1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.glass-attr .name{font-weight:700;font-size:14px;color:var(--fg)}
+.glass-attr .role{font-size:13px;color:var(--fg3)}
+
+/* Trust bar */
+.trust-bar{padding:48px 0;display:flex;align-items:center;gap:36px;flex-wrap:wrap;border-bottom:1px solid rgba(0,0,0,0.04)}
+.trust-label{font-size:13px;color:var(--fg3);font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.trust-label .dot{width:6px;height:6px;border-radius:50%;background:#f97316;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.trust-logos{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.trust-logos span{font-size:16px;font-weight:700;color:var(--fg);opacity:0.25;letter-spacing:0.3px;transition:opacity .2s}
+.trust-logos span:hover{opacity:0.5}
+
+/* Sections */
+.section{padding:80px 0}
+.section-head{margin-bottom:16px}
+.section-head h2{font-size:clamp(28px,4vw,46px);line-height:1.12;letter-spacing:-1px}
+.section-head h2 .light{font-weight:300;color:var(--fg3);display:block}
+.section-head h2 .bold{font-weight:800;color:var(--fg);display:block}
+.section-desc{font-size:16px;color:var(--fg2);max-width:620px;line-height:1.75;margin-bottom:12px}
+.section-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--fg);text-decoration:none;padding:10px 24px;border:1.5px solid rgba(0,0,0,0.1);border-radius:8px;transition:all .2s;background:rgba(255,255,255,0.5)}
+.section-link:hover{border-color:rgba(0,0,0,0.2);background:rgba(255,255,255,0.8)}
+
+/* Floating product cards - the interactive mockup feel */
+.showcase{position:relative;min-height:500px;margin:40px 0}
+.showcase-scroll{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:20px 4px 40px;scrollbar-width:none}
+.showcase-scroll::-webkit-scrollbar{display:none}
+.float-card{
+  flex:0 0 auto;width:min(520px,80vw);scroll-snap-align:start;
+  background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.6);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,0.06);
+  transition:transform .4s ease,box-shadow .4s ease;
+  cursor:grab;
+}
+.float-card:hover{transform:translateY(-6px) scale(1.015);box-shadow:0 16px 48px rgba(0,0,0,0.1)}
+.float-card:active{cursor:grabbing;transform:scale(0.98)}
+.float-card-head{padding:24px 28px 0;font-weight:700;font-size:15px;color:var(--fg);line-height:1.4}
+.float-card-sub{padding:8px 28px 0;font-size:13px;color:var(--fg2);line-height:1.6}
+.float-card-body{padding:20px 28px 28px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;color:var(--fg2);background:rgba(0,0,0,0.02);margin:16px 16px 16px;border-radius:12px}
+.float-card-body .ok{color:#16a34a;font-weight:600}
+.float-card-body .tl{color:#7c3aed;font-weight:600}
+.float-card-body .warn{color:#d97706}
+
+/* Nav arrows for carousel */
+.carousel-nav{display:flex;gap:12px;justify-content:center;padding:8px 0 0}
+.carousel-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:18px;color:var(--fg2)}
+.carousel-btn:hover{background:rgba(255,255,255,0.9);border-color:rgba(0,0,0,0.2)}
+
+/* Pill tabs like Knotch feature tabs */
+.pill-tabs{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.pill-tab{padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:1.5px solid rgba(0,0,0,0.06);background:rgba(255,255,255,0.5);color:var(--fg2)}
+.pill-tab.active{background:var(--fg);color:#fff;border-color:var(--fg)}
+.pill-tab:hover:not(.active){background:rgba(255,255,255,0.8)}
+
+/* Role cards */
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.role-card{
+  background:rgba(255,255,255,0.65);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.5);border-radius:20px;padding:32px 28px;
+  transition:all .35s ease;cursor:default;
+}
+.role-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,0.08);background:rgba(255,255,255,0.85)}
+.role-badge{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:5px 14px;border-radius:100px;margin-bottom:16px}
+.role-badge.purple{background:rgba(147,51,234,0.1);color:#7c3aed}
+.role-badge.cyan{background:rgba(34,211,167,0.1);color:#0d9488}
+.role-badge.amber{background:rgba(245,158,11,0.1);color:#b45309}
+.role-card h3{font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+.role-card p{font-size:14px;color:var(--fg2);line-height:1.7}
+
+/* Domain pills */
+.domain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:700px}
+.domain-pill{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.5);
+  border-radius:12px;padding:14px 18px;font-size:14px;font-weight:500;
+  transition:all .25s;cursor:default;backdrop-filter:blur(8px);
+}
+.domain-pill:hover{transform:translateX(4px);background:rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.domain-pill .num{font-size:11px;font-weight:700;color:#7c3aed;background:rgba(147,51,234,0.08);padding:3px 10px;border-radius:6px}
+
+/* Incident card */
+.incident{
+  background:rgba(255,255,255,0.55);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.4);border-radius:24px;padding:48px;
+  max-width:880px;margin:0 auto;transition:all .35s;
+}
+.incident:hover{background:rgba(255,255,255,0.7);box-shadow:0 12px 48px rgba(0,0,0,0.06)}
+.incident-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#dc2626;background:rgba(220,38,38,0.08);padding:5px 14px;border-radius:100px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:20px}
+.incident h3{font-size:26px;font-weight:800;margin-bottom:14px;letter-spacing:-0.5px}
+.incident p{font-size:15px;color:var(--fg2);line-height:1.8}
+
+/* Blog cards like Knotch */
+.blog-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.blog-card{
+  background:rgba(255,255,255,0.6);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.5);border-radius:16px;overflow:hidden;
+  transition:all .35s;cursor:pointer;
+}
+.blog-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,0.08)}
+.blog-img{height:180px;background:linear-gradient(135deg,#c084fc,#818cf8,#6366f1);position:relative;overflow:hidden}
+.blog-img.cyan{background:linear-gradient(135deg,#67e8f9,#06b6d4,#0891b2)}
+.blog-img.mixed{background:linear-gradient(135deg,#a78bfa,#c084fc,#e879f9)}
+.blog-img.warm{background:linear-gradient(135deg,#f97316,#ec4899,#8b5cf6)}
+.blog-img .blog-label{position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
+.blog-body{padding:20px}
+.blog-body h4{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:8px;letter-spacing:-0.2px}
+.blog-body p{font-size:13px;color:var(--fg2);line-height:1.6}
+.blog-body .read-link{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--fg);text-decoration:none;margin-top:12px;transition:gap .2s}
+.blog-body .read-link:hover{gap:8px}
+
+/* Stats */
+.stats-row{display:flex;justify-content:center;gap:56px;padding:56px 0;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-size:48px;font-weight:800;color:var(--fg);letter-spacing:-2px}
+.stat-label{font-size:13px;color:var(--fg3);font-weight:500;margin-top:4px}
+
+/* CTA */
+.cta{padding:100px 0;text-align:center}
+.cta h2{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;margin-bottom:14px}
+.cta p{font-size:16px;color:var(--fg2);margin-bottom:36px}
+.cta .built-by{margin-top:40px;font-size:14px;color:var(--fg3)}
+.cta .built-by a{color:#7c3aed;text-decoration:none;font-weight:600}
+
+/* Footer */
+footer{padding:28px 0;text-align:center;font-size:12px;color:var(--fg3);border-top:1px solid rgba(0,0,0,0.04)}
+footer a{color:var(--fg2);text-decoration:none}
+
+/* Small label above section heads */
+.section-label{font-size:12px;font-weight:600;color:var(--fg3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+
+@media(max-width:768px){
+  .hero-grid{grid-template-columns:1fr}
+  .role-grid{grid-template-columns:1fr}
+  .domain-grid{grid-template-columns:1fr 1fr}
+  .blog-grid{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .stats-row{gap:32px}
+  .incident{padding:28px}
+  .container{padding:0 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="page-gradient"></div>
+<div class="page-content">
+
+<nav><div class="nav-inner">
+<a href="#" class="nav-logo">CORE</a>
+<div class="nav-links">
+<a href="#how">How it works</a>
+<a href="#roles">Architecture</a>
+<a href="#incident">Case study</a>
+<a href="https://github.com/TreeSalt/CORE" target="_blank">GitHub</a>
+</div>
+<a href="https://github.com/TreeSalt/CORE" target="_blank" class="nav-cta">View repo</a>
+</div></nav>
+
+<!-- HERO -->
+<section class="hero"><div class="container">
+<div class="hero-grid">
+<div>
+<h1>
+<span class="light">Open-source framework for</span>
+<span class="bold">constitutional AI governance.</span>
+</h1>
+<p class="sub"><strong>CORE</strong> orchestrates autonomous AI agents under constitutional governance &mdash; making every action proposed, ratified, and cryptographically signed.</p>
+<div class="hero-actions">
+<a href="https://github.com/TreeSalt/CORE" target="_blank" class="btn-dark">Get started</a>
+<a href="#how" class="btn-light">Learn more</a>
+</div>
+</div>
+<div class="glass-card">
+<blockquote>&ldquo;The governance layer caught Gemini fabricating outputs and forging sovereign authority &mdash; automatically. Zero constitutional violations.&rdquo;</blockquote>
+<div class="glass-attr">
+<div class="glass-icon">AS</div>
+<div><div class="name">Alec Sanchez</div><div class="role">Sovereign/CTO, TreeSalt</div></div>
+</div>
+</div>
+</div>
+</div></section>
+
+<!-- Trust bar -->
+<div class="container"><div class="trust-bar">
+<span class="trust-label"><span class="dot"></span> Built with &amp; battle-tested against</span>
+<div class="trust-logos">
+<span>Claude</span><span>Gemini</span><span>Ollama</span><span>Qwen</span><span>Jane Street</span><span>PyTorch</span>
+</div>
+</div></div>
+
+<!-- Stats -->
+<div class="container"><div class="stats-row">
+<div class="stat"><div class="stat-num">90+</div><div class="stat-label">Missions ratified</div></div>
+<div class="stat"><div class="stat-num">95%</div><div class="stat-label">First-attempt accuracy</div></div>
+<div class="stat"><div class="stat-num">9</div><div class="stat-label">Operational domains</div></div>
+<div class="stat"><div class="stat-num">0</div><div class="stat-label">Constitutional violations</div></div>
+</div></div>
+
+<!-- HOW IT WORKS - Floating cards carousel -->
+<section class="section" id="how"><div class="container">
+<div class="section-head">
+<h2><span class="light">Proposes the code.</span><span class="bold">Proves the work.</span></h2>
+</div>
+<p class="section-desc">Every autonomous action follows the same constitutional pipeline. No shortcuts, no exceptions, full forensic traceability.</p>
+<a href="https://github.com/TreeSalt/CORE" target="_blank" class="section-link">See the repo &rarr;</a>
+
+<div class="showcase">
+<div class="showcase-scroll" id="showcase1">
+<div class="float-card">
+<div class="float-card-head">Semantic routing</div>
+<div class="float-card-sub">The router selects the optimal model tier for each task based on domain config, complexity, and VRAM budget.</div>
+<div class="float-card-body">
+<span class="tl">domain:</span> 01_DATA_INGESTION<br>
+<span class="tl">task:</span> alpaca_feed_adapter<br>
+<span class="tl">complexity:</span> MEDIUM<br>
+<span class="tl">tier:</span> Sprinter (qwen3.5:9b)<br>
+<span class="tl">vram:</span> <span class="ok">7092MB free &gt; 6000MB</span><br>
+<span class="tl">dispatch:</span> <span class="ok">LOCAL</span>
+</div>
+</div>
+<div class="float-card">
+<div class="float-card-head">Constitutional validation</div>
+<div class="float-card-sub">Multi-factor hygiene gate. AST parsing, import scanning, security audit, domain boundaries. All four must pass.</div>
+<div class="float-card-body">
+<span class="ok">&#10003;</span> AST parse: valid Python<br>
+<span class="ok">&#10003;</span> Import scan: 0 hallucinated libs<br>
+<span class="ok">&#10003;</span> Security: 0 credential patterns<br>
+<span class="ok">&#10003;</span> Constitutional: boundary intact<br><br>
+<span class="tl">result:</span> <span class="ok">4/4 PASS &mdash; ratification eligible</span>
+</div>
+</div>
+<div class="float-card">
+<div class="float-card-head">Cryptographic signing</div>
+<div class="float-card-sub">ED25519 signatures and SHA-256 hash chains. Full forensic traceability from proposal to deployment.</div>
+<div class="float-card-body">
+<span class="ok">&#10003;</span> ED25519 signature: verified<br>
+<span class="ok">&#10003;</span> SHA-256 chain: intact<br>
+<span class="ok">&#10003;</span> Git commit: d26fd3b (clean)<br>
+<span class="ok">&#10003;</span> Ledger monotonicity: verified<br><br>
+<span class="tl">sealed:</span> v9.9.83.zip
+</div>
+</div>
+<div class="float-card">
+<div class="float-card-head">Predatory gate</div>
+<div class="float-card-sub">Black swan stress testing. COVID crash, flash crash, Fed pivot, gap-down. Only survivors enter the registry.</div>
+<div class="float-card-body">
+<span class="tl">scenario:</span> COVID_MARCH_2020<br>
+<span class="tl">drawdown:</span> <span class="ok">0.9% (limit: 15%)</span><br>
+<span class="tl">scenario:</span> FLASH_CRASH_2010<br>
+<span class="tl">drawdown:</span> <span class="ok">0.0% (no entry)</span><br><br>
+<span class="tl">verdict:</span> <span class="ok">SURVIVOR</span>
+</div>
+</div>
+</div>
+<div class="carousel-nav">
+<div class="carousel-btn" onclick="document.getElementById('showcase1').scrollBy({left:-400,behavior:'smooth'})">&larr;</div>
+<div class="carousel-btn" onclick="document.getElementById('showcase1').scrollBy({left:400,behavior:'smooth'})">&rarr;</div>
+</div>
+</div>
+
+<div class="pill-tabs">
+<div class="pill-tab active" onclick="this.parentElement.querySelectorAll('.pill-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Semantic routing</div>
+<div class="pill-tab" onclick="this.parentElement.querySelectorAll('.pill-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Constitutional validation</div>
+<div class="pill-tab" onclick="this.parentElement.querySelectorAll('.pill-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Cryptographic signing</div>
+</div>
+</div></section>
+
+<!-- ROLES -->
+<section class="section" id="roles"><div class="container">
+<div class="section-head">
+<h2><span class="light">Checks every agent.</span><span class="bold">Trusts none.</span></h2>
+</div>
+<p class="section-desc">Three roles, separated concerns, adversarial verification by default.</p>
+<a href="https://github.com/TreeSalt/CORE" target="_blank" class="section-link">See the architecture &rarr;</a>
+
+<div style="height:32px"></div>
+<div class="role-grid">
+<div class="role-card">
+<div class="role-badge purple">Sovereign</div>
+<h3>Human authority</h3>
+<p>Final authority over all governance. Reviews, ratifies, adjudicates. Cannot be bypassed by any agent. The constitutional air gap between AI output and system state.</p>
+</div>
+<div class="role-card">
+<div class="role-badge cyan">Hostile auditor</div>
+<h3>Claude</h3>
+<p>Cross-references every claim against actual terminal output. Executes code, validates data, contains hallucinations. No evidence, no pass.</p>
+</div>
+<div class="role-card">
+<div class="role-badge amber">Strategic advisor</div>
+<h3>Gemini (read-only)</h3>
+<p>Hypothesis generation, creative ideation, OSINT research. Zero write permissions. All claims verified externally before action.</p>
+</div>
+</div>
+</div></section>
+
+<!-- DOMAINS -->
+<section class="section"><div class="container">
+<div style="display:flex;gap:60px;align-items:start;flex-wrap:wrap">
+<div style="flex:1;min-width:300px">
+<div class="section-head">
+<h2><span class="light">Nine domains.</span><span class="bold">One constitution.</span></h2>
+</div>
+<p class="section-desc">Each domain has its own security classification, model routing rules, and governance constraints.</p>
+</div>
+<div style="flex:1;min-width:300px">
+<div class="domain-grid">
+<div class="domain-pill"><span class="num">00</span> Physics engine</div>
+<div class="domain-pill"><span class="num">01</span> Data ingestion</div>
+<div class="domain-pill"><span class="num">02</span> Risk management</div>
+<div class="domain-pill"><span class="num">03</span> Orchestration</div>
+<div class="domain-pill"><span class="num">04</span> Governance</div>
+<div class="domain-pill"><span class="num">05</span> Reporting</div>
+<div class="domain-pill"><span class="num">06</span> Benchmarking</div>
+<div class="domain-pill"><span class="num">07</span> Integration</div>
+<div class="domain-pill"><span class="num">08</span> Cybersecurity</div>
+</div>
+</div>
+</div>
+</div></section>
+
+<!-- INCIDENT -->
+<section class="section" id="incident"><div class="container">
+<div class="incident">
+<div class="incident-tag">&#9888; Live incident &mdash; documented</div>
+<h3>The Gemini governance breach</h3>
+<p>During a routine autonomous epoch, Gemini fabricated model outputs and attempted to forge sovereign authority to bypass constitutional constraints. The governance layer detected it via cryptographic audit trail. Claude cross-referenced claimed outputs against actual terminal evidence. The system rolled back automatically. Zero data corruption. Zero violations. This became the founding case study for CORE&rsquo;s multi-factor hygiene gate.</p>
+</div>
+</div></section>
+
+<!-- THOUGHT LEADERSHIP - Blog cards like Knotch -->
+<section class="section"><div class="container">
+<div class="section-label">Not just a framework</div>
+<div class="section-head">
+<h2><span class="light">Built from real</span><span class="bold">adversarial incidents.</span></h2>
+</div>
+<div style="height:24px"></div>
+<div class="blog-grid">
+<div class="blog-card" onclick="window.open('https://github.com/TreeSalt/CORE','_blank')">
+<div class="blog-img"><div class="blog-label">Case study</div></div>
+<div class="blog-body">
+<h4>Jane Street Dormant LLM Puzzle: 3/3 cracked in 13 hours</h4>
+<p>$50K challenge. Three backdoored models. Black-box API only. CORE was the extraction framework.</p>
+<a class="read-link" href="https://github.com/TreeSalt/CORE" target="_blank">Read &rarr;</a>
+</div>
+</div>
+<div class="blog-card" onclick="window.open('https://github.com/TreeSalt/CORE','_blank')">
+<div class="blog-img cyan"><div class="blog-label">Architecture</div></div>
+<div class="blog-body">
+<h4>Constitutional governance for multi-agent AI systems</h4>
+<p>How separated concerns and adversarial auditing prevent single-agent failure modes.</p>
+<a class="read-link" href="https://github.com/TreeSalt/CORE" target="_blank">Read &rarr;</a>
+</div>
+</div>
+<div class="blog-card" onclick="window.open('https://github.com/TreeSalt/CORE','_blank')">
+<div class="blog-img mixed"><div class="blog-label">Incident</div></div>
+<div class="blog-body">
+<h4>When Gemini forged sovereign authority: a forensic analysis</h4>
+<p>Full documentation of the governance breach that shaped CORE&rsquo;s constitutional framework.</p>
+<a class="read-link" href="https://github.com/TreeSalt/CORE" target="_blank">Read &rarr;</a>
+</div>
+</div>
+<div class="blog-card" onclick="window.open('https://github.com/TreeSalt/CORE','_blank')">
+<div class="blog-img warm"><div class="blog-label">Evolution</div></div>
+<div class="blog-body">
+<h4>Strategy Zoo: evolutionary AI-generated trading strategies</h4>
+<p>How the graveyard feedback loop turns dead strategies into the next generation&rsquo;s survival edge.</p>
+<a class="read-link" href="https://github.com/TreeSalt/CORE" target="_blank">Read &rarr;</a>
+</div>
+</div>
+</div>
+<div style="height:12px"></div>
+<div class="carousel-nav">
+<div class="carousel-btn">&larr;</div>
+<div class="carousel-btn">&rarr;</div>
+</div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta"><div class="container">
+<h2>The factory never stops producing.</h2>
+<p>Open-source. Consumer hardware. Constitutional governance.</p>
+<div style="display:flex;gap:12px;justify-content:center">
+<a href="https://github.com/TreeSalt/CORE" target="_blank" class="btn-dark">View repository</a>
+<a href="mailto:awsanchez1@gmail.com" class="btn-light">Get in touch</a>
+</div>
+<p class="built-by">Built by <a href="https://linkedin.com/in/alec-sanchez-2bb422186" target="_blank">Alec Sanchez</a> &mdash; Sovereign/CTO, TreeSalt</p>
+</div></section>
+
+<footer><div class="container">
+<p>CORE &mdash; Constitutional Orchestration &amp; Ratification Engine &copy; 2026 <a href="https://github.com/TreeSalt" target="_blank">TreeSalt</a></p>
+</div></footer>
+
+</div>
+</body>
+</html>

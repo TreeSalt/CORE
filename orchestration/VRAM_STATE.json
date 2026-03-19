@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-18T09:03:52.173766+00:00",
+  "last_updated": "2026-03-18T16:17:57.890684+00:00",
   "last_task": {
-    "domain_id": "03_ORCHESTRATION",
-    "model": "qwen3.5:9b",
+    "domain_id": "00_PHYSICS_ENGINE",
+    "model": "qwen3.5:27b",
     "status": "COMPLETE",
-    "completed_at": "2026-03-18T09:03:52.173766+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T090352Z.md"
+    "completed_at": "2026-03-18T16:17:57.890684+00:00",
+    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260318T161757Z.md"
   },
   "session_history": [
     {
@@ -1752,6 +1752,258 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-18T09:03:52.173766+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T090352Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T09:27:14.137836+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T09:35:32.309537+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T093532Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T09:35:36.956895+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T09:42:18.607358+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T094218Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T09:42:18.916962+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T09:48:40.158529+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T094840Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T09:48:44.352257+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T10:02:42.953410+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260318T100242Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T10:02:47.588975+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T10:07:23.761151+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260318T100723Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T10:07:27.700977+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T10:13:45.195577+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T101345Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T10:13:49.534047+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T10:25:44.516185+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T102544Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T10:34:30.258738+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T10:37:53.566147+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T103753Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T11:01:11.697556+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T11:10:16.161964+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T111016Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T11:10:20.575443+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T11:18:48.115510+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T111848Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen3.5:27b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T11:18:52.231591+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen3.5:27b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T12:35:50.353036+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260318T123550Z.md"
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen3.5:27b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T12:35:51.252123+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T13:32:12.561220+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen3.5:27b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T14:12:49.645918+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260318T141249Z.md"
+    },
+    {
+      "domain_id": "05_REPORTING",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T14:19:01.818300+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260318T141901Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T14:19:05.742661+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T14:23:23.754199+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260318T142323Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T14:23:28.347283+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T14:27:01.273502+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T142701Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T14:27:05.328809+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T14:35:17.906221+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T143517Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T14:35:18.159910+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T14:39:47.751780+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260318T143947Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:27b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-18T14:39:51.808599+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:27b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-18T16:17:57.890684+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260318T161757Z.md"
     }
   ],
   "hardware_ceiling": {
@@ -2894,6 +3146,132 @@
       "model": "qwen3.5:9b",
       "tier": "sprinter",
       "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T09:27:14.135686+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T09:35:36.954751+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T09:42:18.913887+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T09:48:44.349808+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T10:02:47.586912+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T10:07:27.698875+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T10:13:49.531762+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T10:34:30.256628+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T11:01:11.695363+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T11:10:20.573094+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T11:18:52.229113+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen3.5:27b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-18T12:35:51.244641+00:00",
+      "domain_id": "08_CYBERSECURITY",
+      "model": "qwen3.5:27b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-18T13:32:12.558364+00:00",
+      "domain_id": "05_REPORTING",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T14:19:05.740584+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T14:23:28.344994+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T14:27:05.326526+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T14:35:18.157208+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:9b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-18T14:39:51.805691+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:27b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
     }
   ]
 }
