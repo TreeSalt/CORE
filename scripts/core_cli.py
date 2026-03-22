@@ -534,15 +534,12 @@ def cmd_help(args):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _get_version():
-    """Get current version from latest run ledger or git."""
-    ledgers = sorted(RUN_LEDGER_DIR.glob("RUN_LEDGER_*.json"), reverse=True) if RUN_LEDGER_DIR.exists() else []
-    if ledgers:
-        try:
-            data = json.loads(ledgers[0].read_text())
-            return f"v{data.get('version', '?.?.?')}"
-        except Exception:
-            pass
-    # Fallback: parse from Makefile or git
+    """Get current version from mantis_core/__init__.py — single source of truth."""
+    init_file = REPO_ROOT / "mantis_core" / "__init__.py"
+    if init_file.exists():
+        match = re.search(r'__version__\s*=\s*"(\d+\.\d+\.\d+)"', init_file.read_text())
+        if match:
+            return f"v{match.group(1)}"
     return _run_quiet(["git", "describe", "--tags", "--always"]).strip() or "unknown"
 
 

@@ -3,7 +3,7 @@ PYTHON := .venv/bin/python3
 PIP := .venv/bin/pip
 
 DIST ?= dist
-VERSION ?= $(shell $(PYTHON) -c "import pathlib,re; p=pathlib.Path('antigravity_harness/__init__.py'); txt=p.read_text(encoding='utf-8') if p.exists() else ''; m=re.search(r'__version__\s*=\s*\"(\d+\.\d+\.\d+)\"', txt); print(m.group(1) if m else '0.0.0')" )
+VERSION ?= $(shell $(PYTHON) -c "import pathlib,re; p=pathlib.Path('mantis_core/__init__.py'); txt=p.read_text(encoding='utf-8') if p.exists() else ''; m=re.search(r'__version__\s*=\s*\"(\d+\.\d+\.\d+)\"', txt); print(m.group(1) if m else '0.0.0')" )
 
 DROP ?= $(DIST)/TRADER_OPS_READY_TO_DROP_v$(VERSION).zip
 LEDGER ?= $(DIST)/RUN_LEDGER_v$(VERSION).json
@@ -25,7 +25,7 @@ BUMP_FLAG = $(if $(filter 1,$(NO_BUMP)),--no-bump,)
 .PHONY: help install lint format type-check test test-hardening preflight clean forge build drop all heal commands
 help:
 	@echo ""
-	@echo "🐉 TRADER_OPS — Antigravity Harness (v$(VERSION))"
+	@echo "🐉 TRADER_OPS — MANTIS Core (v$(VERSION))"
 	@echo "═══════════════════════════════════════════════════"
 	@echo ""
 	@echo "  🔧 CORE"
