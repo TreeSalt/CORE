@@ -1,6 +1,6 @@
 {
-  "enabled": true,
-  "reason": "Testing local-only trust root rotation",
+  "enabled": false,
+  "reason": "Disabled \u2014 trust root rotation complete",
   "set_by": "Sovereign",
   "timestamp": "2026-03-18T07:20:26.087378+00:00"
 }

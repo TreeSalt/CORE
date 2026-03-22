@@ -20,7 +20,7 @@ A Fiduciary record stored in `intelligence/ledger.json`.
 - **Entry**: `{source: "X", timestamp: "T", sha256: "H", signature: "S"}`
 - **Persistence**: Raw payloads are stored in `intelligence/raw/` as binary blobs (Parquet/JSON).
 
-## IV. The Essence Lab (`antigravity_harness/essence.py`)
+## IV. The Essence Lab (`mantis_core/essence.py`)
 The logic engine that extracts the "essence" from raw data.
 - **Momentum Extraction**: Calculating velocity, acceleration, and flow from raw price and volume.
 - **Truth Extraction**: Cross-referencing multiple sources to identify signal vs. noise.

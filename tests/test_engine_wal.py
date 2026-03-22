@@ -2,9 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from antigravity_harness.engine import SimulatedAccount
-from antigravity_harness.phoenix import SovereignAuditor
-from antigravity_harness.wal import WriteAheadLog
+from mantis_core.engine import SimulatedAccount
+from mantis_core.phoenix import SovereignAuditor
+from mantis_core.wal import WriteAheadLog
 
 
 class TestEngineWAL(unittest.TestCase):

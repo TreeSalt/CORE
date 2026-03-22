@@ -21,4 +21,4 @@ Strategies downstream check this filter before entering positions.
 - Output valid Python only
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_e4_002/v_zoo_e4_002_atr_regime_filter.py
+File: mantis_core/strategies/lab/v_zoo_e4_002/v_zoo_e4_002_atr_regime_filter.py

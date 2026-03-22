@@ -19,12 +19,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# sys.path hacking to allow importing antigravity_harness from repo root
+# sys.path hacking to allow importing mantis_core from repo root
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
+from mantis_core.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
 
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:
@@ -232,11 +232,11 @@ def main() -> int:  # noqa: PLR0915, PLR0912
             code_sha = sha256_bytes(c_bytes)
             with zipfile.ZipFile(io.BytesIO(c_bytes)) as cz:
                 # Version
-                if "antigravity_harness/__init__.py" in cz.namelist():
-                    init_txt = cz.read("antigravity_harness/__init__.py").decode("utf-8")
+                if "mantis_core/__init__.py" in cz.namelist():
+                    init_txt = cz.read("mantis_core/__init__.py").decode("utf-8")
                     version = parse_version_from_init(init_txt)
                 else:
-                    issues.append(Issue(FAIL, "VERSION_INIT_MISSING", "antigravity_harness/__init__.py missing"))
+                    issues.append(Issue(FAIL, "VERSION_INIT_MISSING", "mantis_core/__init__.py missing"))
 
                 # Manifest
                 if "docs/ready_to_drop/PAYLOAD_MANIFEST.json" in cz.namelist():

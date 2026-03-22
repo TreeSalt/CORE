@@ -7,7 +7,7 @@ VERSION: 1.0
 
 ## CONTEXT
 Implement the MOMENTUM_DECAY_HARVESTER strategy as a certified strategy class conforming to
-the antigravity_harness strategy base contract.
+the mantis_core strategy base contract.
 
 ## BLUEPRINT
 ## ZOO_E1_005 — MOMENTUM_DECAY_HARVESTER
@@ -52,11 +52,11 @@ dependencies. No state carried across sessions. Stateless and auditable.
 - no_overnight=True
 - max_trades_per_day=3
 - Instrument: MES 5m bars
-- Inherit from: antigravity_harness/strategies/base.py BaseStrategy
+- Inherit from: mantis_core/strategies/base.py BaseStrategy
 
 ## DELIVERABLE
 A complete Python strategy file at:
-antigravity_harness/strategies/lab/v_zoo_E1_005_momentum_decay_harvester/v_zoo_E1_005_momentum_decay_harvester.py
+mantis_core/strategies/lab/v_zoo_E1_005_momentum_decay_harvester/v_zoo_E1_005_momentum_decay_harvester.py
 
 The strategy must:
 1. Inherit from BaseStrategy

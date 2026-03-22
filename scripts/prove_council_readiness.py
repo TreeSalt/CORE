@@ -10,7 +10,7 @@ from pathlib import Path
 repo_root = Path(__file__).parent.parent
 sys.path.append(str(repo_root))
 
-from antigravity_harness.utils import infer_periods_per_year  # noqa: E402
+from mantis_core.utils import infer_periods_per_year  # noqa: E402
 
 GREEN = "\033[92m"
 RED = "\033[91m"

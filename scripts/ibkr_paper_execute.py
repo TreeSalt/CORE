@@ -20,8 +20,8 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from antigravity_harness.execution.adapter_base import OrderIntent, OrderSide, OrderType  # noqa: E402
-from antigravity_harness.execution.ibkr_adapter import IBKRAdapter  # noqa: E402
+from mantis_core.execution.adapter_base import OrderIntent, OrderSide, OrderType  # noqa: E402
+from mantis_core.execution.ibkr_adapter import IBKRAdapter  # noqa: E402
 from scripts.autopilot_supervisor import do_verify  # noqa: E402
 
 

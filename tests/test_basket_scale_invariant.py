@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from antigravity_harness.regimes import RegimeConfig, detect_regime
+from mantis_core.regimes import RegimeConfig, detect_regime
 
 
 class TestBasketScaleInvariance(unittest.TestCase):

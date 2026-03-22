@@ -14,16 +14,16 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from antigravity_harness.portfolio_benchmark import (
+from mantis_core.portfolio_benchmark import (
     compute_alpha_metrics,
     compute_equal_weight_benchmark,
 )
-from antigravity_harness.portfolio_policies import (
+from mantis_core.portfolio_policies import (
     CrossSectionMeanReversionPolicy,
     PolicyConfig,
 )
-from antigravity_harness.portfolio_router import PortfolioRouter
-from antigravity_harness.regimes import (
+from mantis_core.portfolio_router import PortfolioRouter
+from mantis_core.regimes import (
     RegimeConfig,
     RegimeFlag,
     RegimeLabel,

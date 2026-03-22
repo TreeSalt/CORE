@@ -20,4 +20,4 @@ Double confirmation = higher conviction entries.
 - Output valid Python only
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_e4_001/v_zoo_e4_001_bollinger_vwap_hybrid.py
+File: mantis_core/strategies/lab/v_zoo_e4_001/v_zoo_e4_001_bollinger_vwap_hybrid.py

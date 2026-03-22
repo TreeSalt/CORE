@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Sovereign Connector for TRADER_OPS Build System.
-Delegates all logic to antigravity_harness.forge.
+Delegates all logic to mantis_core.forge.
 """
 
 import argparse
@@ -11,11 +11,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Add repo root to path so we can import antigravity_harness
+# Add repo root to path so we can import mantis_core
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from antigravity_harness.forge.build import build_drop_packet  # noqa: E402
+from mantis_core.forge.build import build_drop_packet  # noqa: E402
 
 # ANTIGRAVITY HARNESS: Autonomous Error Intelligence
 try:

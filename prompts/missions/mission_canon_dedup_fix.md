@@ -5,7 +5,7 @@ TYPE: IMPLEMENTATION
 VERSION: 1.0
 
 ## CONTEXT
-The forge's _sync_council_canon() function in antigravity_harness/forge/build.py
+The forge's _sync_council_canon() function in mantis_core/forge/build.py
 appends sovereign_pubkey_sha256 on every build instead of replacing the existing
 line. This causes the YAML file to accumulate duplicate entries.
 
@@ -17,7 +17,7 @@ Fix the _sync_council_canon() function:
 4. Add a post-write validation: read back the file, count occurrences, assert == 1
 
 ## DELIVERABLE
-A patch description for antigravity_harness/forge/build.py
+A patch description for mantis_core/forge/build.py
 
 ## CONSTRAINTS
 - ONLY modify the _sync_council_canon() function

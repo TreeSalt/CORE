@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from antigravity_harness.portfolio_policies import CrossSectionMeanReversionPolicy, PolicyConfig
+from mantis_core.portfolio_policies import CrossSectionMeanReversionPolicy, PolicyConfig
 
 
 class TestFallingKnife(unittest.TestCase):

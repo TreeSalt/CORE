@@ -180,7 +180,7 @@ def load_strategy_class(name, code):
         def __getattr__(self, name):
             return None
     """)
-    cleaned_code = re.sub(r'^from\s+antigravity_harness\S*\s+import\s+.*$', '# (import shimmed)', code, flags=re.MULTILINE)
+    cleaned_code = re.sub(r'^from\s+mantis_core\S*\s+import\s+.*$', '# (import shimmed)', code, flags=re.MULTILINE)
     full_code = preamble + "\n" + cleaned_code
     tmp = Path(REPO_ROOT / "state" / f"_gate_{name.replace(' ', '_').replace('/', '_')}.py")
     tmp.write_text(full_code)

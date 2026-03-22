@@ -2,14 +2,14 @@
 import pandas as pd
 import numpy as np
 try:
-    from antigravity_harness.strategies.base import Strategy
+    from mantis_core.strategies.base import Strategy
 except ImportError:
     class Strategy:
         name = "base"
         def prepare_data(self, df, params=None, intelligence=None, vector_cache=None):
             raise NotImplementedError
 try:
-    from antigravity_harness.config import StrategyParams
+    from mantis_core.config import StrategyParams
 except ImportError:
     class StrategyParams:
         pass

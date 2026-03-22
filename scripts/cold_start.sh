@@ -39,7 +39,7 @@ echo ""
 
 # Step 2: Verify engine version
 echo "Step 2: Engine version check..."
-.venv/bin/python3 -c "import antigravity_harness; print(f'  Version: {antigravity_harness.__version__}')"
+.venv/bin/python3 -c "import mantis_core; print(f'  Version: {mantis_core.__version__}')"
 echo ""
 
 # Step 3: Check Ollama

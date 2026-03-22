@@ -66,7 +66,7 @@ def clean_repo(clean: bool = False, clean_generated: bool = False, verify_strict
                     p = root / line
                     # Filter out allowed data/cache items or authorized roots? 
                     # For now, flag ALL untracked in source tree
-                    if line.startswith("antigravity_harness/") or line.startswith("scripts/"):
+                    if line.startswith("mantis_core/") or line.startswith("scripts/"):
                         untracked_garbage.append(p)
         except subprocess.CalledProcessError:
             pass

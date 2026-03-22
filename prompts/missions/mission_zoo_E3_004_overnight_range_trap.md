@@ -17,4 +17,4 @@ Detect when the opening 15min price is within the overnight high-low range. If r
 - Output valid Python only
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_e3_004/v_zoo_e3_004_overnight_range_trap.py
+File: mantis_core/strategies/lab/v_zoo_e3_004/v_zoo_e3_004_overnight_range_trap.py

@@ -263,7 +263,7 @@ GRAVEYARD_CONTEXT: E1 lessons — no chained indexing, no talib, parentheses on 
 ## PHYSICS ENGINE CONSTRAINTS (HARD)
 - allow_fractional_shares=False (MES)
 - max_contracts=1, no_overnight=True, max_trades_per_day=3
-- Inherit from: antigravity_harness.strategies.base.Strategy
+- Inherit from: mantis_core.strategies.base.Strategy
 - Implement: prepare_data(self, df, params, intelligence=None, vector_cache=None) -> pd.DataFrame
 - Return df must contain: entry_signal (bool), exit_signal (bool), ATR (float)
 

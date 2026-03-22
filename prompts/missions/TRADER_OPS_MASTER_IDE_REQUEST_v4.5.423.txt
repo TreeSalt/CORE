@@ -1,9 +1,0 @@
-Evidence Truth Pack Execution
-Objective: Execute a coherent fill under strict physics rules.
-Target Version: v4.5.423
-Requirements:
-- ALLOWLIST_OVERRIDE.json with target version binding.
-- Real ETF data tape (SPY).
-- Smoke harness with --authorize flag.
-- fills_count > 0, SMOKE_OK, and flawless fill_tape.csv.
-- Bit-perfect, cryptographically verified drop packet.

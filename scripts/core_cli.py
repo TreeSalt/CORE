@@ -522,10 +522,6 @@ def cmd_help(args):
     core reconnect --cloud      Check cloud API connectivity
     core reconnect --reset      Reset stuck missions to PENDING
   {c('🔌 RECOVERY', C_BOLD)}
-    core reconnect              Full reconnect (ollama + cloud + reset)
-    core reconnect --local      Restart Ollama only
-    core reconnect --cloud      Check cloud API connectivity
-    core reconnect --reset      Reset stuck missions to PENDING
 
   {c('📖 META', C_BOLD)}
     core version                Show current version
@@ -711,6 +707,8 @@ COMMANDS = {
     "vram": cmd_vram,
     "version": cmd_version,
     "help": cmd_help,
+    "reconnect": cmd_reconnect,
+    "reconnect": cmd_reconnect,
 }
 
 def main():

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from antigravity_harness.regimes import RegimeConfig, RegimeFlag, RegimeLabel, detect_regime
+from mantis_core.regimes import RegimeConfig, RegimeFlag, RegimeLabel, detect_regime
 
 
 class TestRegimeSpec(unittest.TestCase):

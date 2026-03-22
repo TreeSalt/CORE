@@ -1,9 +1,9 @@
 import unittest
 import pandas as pd
 
-from antigravity_harness.portfolio_policies import CrossSectionMeanReversionPolicy, PolicyConfig
-from antigravity_harness.portfolio_router import PortfolioRouter
-from antigravity_harness.regimes import RegimeConfig, RegimeFlag, RegimeLabel, RegimeState
+from mantis_core.portfolio_policies import CrossSectionMeanReversionPolicy, PolicyConfig
+from mantis_core.portfolio_router import PortfolioRouter
+from mantis_core.regimes import RegimeConfig, RegimeFlag, RegimeLabel, RegimeState
 
 
 class TestPhase9EHardening(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestPhase9EHardening(unittest.TestCase):
         Verify Schmitt Trigger uses different thresholds based on state.
         Entry requires 0.6, Exit requires 0.3.
         """
-        from antigravity_harness.regimes import _infer_single_regime
+        from mantis_core.regimes import _infer_single_regime
 
         # Case 1: Was not trending. Z=0.45 (< 0.6). Should stay in RANGE.
         label, _, _, is_trending, _ = _infer_single_regime(

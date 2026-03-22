@@ -9,11 +9,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from antigravity_harness.portfolio_policies import (
+from mantis_core.portfolio_policies import (
     PolicyConfig,
     apply_concentration_caps,
 )
-from antigravity_harness.portfolio_safety_overlay import (
+from mantis_core.portfolio_safety_overlay import (
     SafetyConfig,
     SafetyOverlay,
     SafetyState,
@@ -220,10 +220,10 @@ class TestDeterministicWithOverlay(unittest.TestCase):
         return data_map
 
     def _run_backtest(self, seed=42):
-        from antigravity_harness.config import EngineConfig, StrategyParams
-        from antigravity_harness.portfolio_engine import run_portfolio_backtest_verbose
-        from antigravity_harness.portfolio_router import PortfolioRouter
-        from antigravity_harness.strategies import V032Simple
+        from mantis_core.config import EngineConfig, StrategyParams
+        from mantis_core.portfolio_engine import run_portfolio_backtest_verbose
+        from mantis_core.portfolio_router import PortfolioRouter
+        from mantis_core.strategies import V032Simple
 
         data_map = self._build_synthetic_ohlc(seed)
         router = PortfolioRouter()

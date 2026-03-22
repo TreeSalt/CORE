@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from antigravity_harness.config import StrategyParams
-from antigravity_harness.data.sentiment_feed import SentimentFeed
-from antigravity_harness.data_loader import ZeroCopyLoader
-from antigravity_harness.portfolio_router import PortfolioRouter
-from antigravity_harness.strategies.quarantine.EQ_SENTIMENT_v1.EQ_SENTIMENT_v1 import (
+from mantis_core.config import StrategyParams
+from mantis_core.data.sentiment_feed import SentimentFeed
+from mantis_core.data_loader import ZeroCopyLoader
+from mantis_core.portfolio_router import PortfolioRouter
+from mantis_core.strategies.quarantine.EQ_SENTIMENT_v1.EQ_SENTIMENT_v1 import (
     EQSentimentV1,
 )
 

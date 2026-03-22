@@ -29,7 +29,7 @@ export METADATA_RELEASE_MODE=1
 rm -rf reports/reproduce_test
 mkdir -p reports/reproduce_test
 
-python3 -m antigravity_harness.cli portfolio-backtest \
+python3 -m mantis_core.cli portfolio-backtest \
     --symbols MOCK \
     --synthetic \
     --outdir reports/reproduce_test

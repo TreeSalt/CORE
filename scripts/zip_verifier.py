@@ -3,17 +3,17 @@
 THE GREAT FILTER (CLI WRAPPER)
 ------------------------------
 The Fiduciary Gatekeeper.
-Wrapper for antigravity_harness.zip_verifier.ZipVerifier.
+Wrapper for mantis_core.zip_verifier.ZipVerifier.
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-# Implants the path to antigravity_harness
+# Implants the path to mantis_core
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from antigravity_harness.zip_verifier import ZipVerifier
+from mantis_core.zip_verifier import ZipVerifier
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Sovereign Zip Verifier")

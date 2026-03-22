@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Dict, List
 
 try:
-    from antigravity_harness.data.market_tape import MarketTape
+    from mantis_core.data.market_tape import MarketTape
 except ImportError:
     # Fallback if running outside of package context
     MarketTape = None

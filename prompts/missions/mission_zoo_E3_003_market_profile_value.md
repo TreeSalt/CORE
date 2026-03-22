@@ -17,4 +17,4 @@ Identify the Point of Control (highest volume price) from the prior session. Tra
 - Output valid Python only
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_e3_003/v_zoo_e3_003_market_profile_value.py
+File: mantis_core/strategies/lab/v_zoo_e3_003/v_zoo_e3_003_market_profile_value.py

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Fix import order for ruff
-from antigravity_harness.data import DataConfig, load_ohlc
+from mantis_core.data import DataConfig, load_ohlc
 
 # REPO_ROOT used for path construction
 REPO_ROOT = Path(__file__).parent.parent

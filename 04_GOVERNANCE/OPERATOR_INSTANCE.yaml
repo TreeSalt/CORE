@@ -1,5 +1,5 @@
 # OPERATOR INSTANCE CONFIGURATION
-# TRADER_OPS Instance - v9.9.104
+# TRADER_OPS Instance - v10.0.0
 
 operator:
   name: "Alec"
@@ -9,7 +9,7 @@ operator:
 
 project:
   name: "TRADER_OPS"
-  version: "v9.9.104"
+  version: "v10.0.0"
   repo_root: "/home/asanchez/TRADER_OPS/v9e_stage"
   domain: "Quantitative Trading Payload (Incubating AOS)"
 

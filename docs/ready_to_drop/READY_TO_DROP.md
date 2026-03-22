@@ -21,7 +21,7 @@
 1.  **Engine Owns Signal Shifting**: The engine automatically shifts signals by 1 candle to prevent look-ahead bias. Strategies must not shift signals themselves.
 2.  **Stops at Fill Price**: Stop losses and take profits are calculated based on the *actual fill price*, not the signal price.
 3.  **Gap-Through-Stop Modeled**: If the market gaps through a stop level, the exit is executed at the open of the next bar (slipped), not the stop price.
-4.  **Immutable Snapshots**: All Certification Runs MUST use frozen CSV snapshots using `antigravity_harness.data`. Live API calls are forbidden during backtests. Checksums are verified.
+4.  **Immutable Snapshots**: All Certification Runs MUST use frozen CSV snapshots using `mantis_core.data`. Live API calls are forbidden during backtests. Checksums are verified.
 5.  **Portfolio t-1 Semantics**: Portfolio regime detection and weight computation use data strictly up to bar `t-1`. Execution occurs at bar `t` prices. This is enforced by `portfolio_engine.py` and verified by anti-lookahead trap tests.
 
 ## 3) Status System (PASS/WARN/FAIL)
@@ -44,7 +44,7 @@ The system uses a strict 3-state logic. A single FAIL in any component fails the
 **Non-downgradable FAIL Rule**: Any `profit_status=FAIL` OR `safety_status=FAIL` results in an immediate hard stop. No overrides.
 
 ## 4) Gate Profiles (Single Source of Truth)
-Defined in `antigravity_harness/profiles.py`.
+Defined in `mantis_core/profiles.py`.
 
 ### A) equity_fortress (Strict Safety)
 *   **Asset Class**: Equities

@@ -1,8 +1,8 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="antigravity_harness",
-    version="9.9.104",
+    name="mantis_core",
+    version="9.9.107",
     packages=find_packages(),
     install_requires=[
         "numpy",

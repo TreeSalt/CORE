@@ -5,7 +5,7 @@ Verify that Router/Persistence layer requires N bars to confirm a regime switch.
 
 import unittest
 
-from antigravity_harness.regimes import RegimeLabel, RegimePersistence, RegimeState
+from mantis_core.regimes import RegimeLabel, RegimePersistence, RegimeState
 
 
 class TestRegimePersistence(unittest.TestCase):

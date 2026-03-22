@@ -91,7 +91,7 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     try:
         # 2. Unit Tests
         print("🧪 RUNNING UNIT TESTS...")
-        if not run_cmd([sys.executable, "-B", "-m", "unittest", "discover", "-s", "antigravity_harness/tests", "-p", "test*.py"], root):
+        if not run_cmd([sys.executable, "-B", "-m", "unittest", "discover", "-s", "mantis_core/tests", "-p", "test*.py"], root):
             sys.exit(1)
 
         # 3. Pytest (Integration)

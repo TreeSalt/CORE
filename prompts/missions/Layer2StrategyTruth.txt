@@ -1,8 +1,0 @@
-# MISSION: Layer 2 Strategy Truth
-## Goal: Institutional Gold Certification for v040_alpha_prime
-
-1. Integrate shorting support into core engine and strategy.
-2. Achieve 1.0 weight utilization for single-asset smoke tests.
-3. Unify Profit Factor math using round-trip trade data.
-4. Verify bit-perfect execution physics and gap stop audit trails.
-5. Produce cryptographically signed drop packet with IBKR data evidence.

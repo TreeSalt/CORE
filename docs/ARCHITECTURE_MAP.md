@@ -45,7 +45,7 @@ graph TD
     end
 ```
 
-### 1.1 Truth Layer (`antigravity_harness/essence.py`)
+### 1.1 Truth Layer (`mantis_core/essence.py`)
 - **Responsibility**: Ingesting, signing, and average-weighting market intelligence.
 - **Key Modules**: `EssenceLab`, `parse_cnn_fear_greed`, `parse_market_alpha`.
 - **Planned Additions**:
@@ -53,17 +53,17 @@ graph TD
   - `[OPSEC_RAG_SCOUT]`: Local ChromaDB + Ollama sentiment matrix.
 - **Constraint**: Must remain decoupled from executor state.
 
-### 1.2 Execution Layer (`antigravity_harness/engine.py`)
+### 1.2 Execution Layer (`mantis_core/engine.py`)
 - **Responsibility**: Deterministic event-driven backtesting with conservative slippage modeling.
 - **Key Modules**: `Engine`, `PortfolioEngine`, `PortfolioRouter`.
 - **Physics Rule**: Signals are shifted $t+1$ to ensure zero look-ahead bias.
 
-### 1.3 Auditing Layer (`antigravity_harness/phoenix.py`)
+### 1.3 Auditing Layer (`mantis_core/phoenix.py`)
 - **Responsibility**: Real-time invariant enforcement and forensic trail generation.
 - **Key Modules**: `SovereignAuditor`.
 - **Historical Note**: Replaces the legacy `WriteAheadLog` with a unified session-aware SQLite store.
 
-### 1.4 Distribution Layer (`antigravity_harness/forge/build.py`)
+### 1.4 Distribution Layer (`mantis_core/forge/build.py`)
 - **Responsibility**: Creating bit-perfect, cryptographically signed release artifacts.
 - **Key Files**: `make_drop_packet.py`, `verify_drop_packet.py`.
 - **Security Guard**: `STRICT_MODE` ensures no bytecode or unversioned/dirty files enter the drop.

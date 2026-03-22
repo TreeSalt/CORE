@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: mantis_core
+Version: 9.9.107
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pydantic
+Requires-Dist: pyyaml
+Requires-Dist: joblib
+Requires-Dist: scipy
+Requires-Dist: rich
+Dynamic: requires-dist
+Dynamic: requires-python

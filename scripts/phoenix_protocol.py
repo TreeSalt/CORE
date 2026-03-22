@@ -3,7 +3,7 @@
 THE PHOENIX PROTOCOL (Wrapper)
 --------------------
 Verifies the Write-Ahead Log (WAL) resilience.
-Delegates to antigravity_harness.phoenix.PhoenixProtocol.
+Delegates to mantis_core.phoenix.PhoenixProtocol.
 """
 
 import os
@@ -14,10 +14,10 @@ from pathlib import Path
 sys.path.insert(0, os.getcwd())
 
 try:
-    from antigravity_harness.phoenix import PhoenixProtocol
+    from mantis_core.phoenix import PhoenixProtocol
 except ImportError:
     sys.path.append(str(Path(__file__).parent.parent))
-    from antigravity_harness.phoenix import PhoenixProtocol
+    from mantis_core.phoenix import PhoenixProtocol
 
 if __name__ == "__main__":
     protocol = PhoenixProtocol()

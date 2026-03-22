@@ -1,7 +1,7 @@
 # Performance Standards (Big O)
 
 ## 1. Core Mandate: O(N) or Better
-All core path components in `antigravity_harness` MUST adhere to **O(N)** or **O(1)** time complexity.
+All core path components in `mantis_core` MUST adhere to **O(N)** or **O(1)** time complexity.
 - **O(1)**: Constant time (Hash map lookups, index access).
 - **O(N)**: Linear time (Single pass data processing, vectorized operations).
 - **O(N log N)**: Log-linear time (Sorting) is acceptable but must be justified.

@@ -13,7 +13,7 @@ Opening gap detection. If gap > 0.5% from prior close, bet on gap fill within fi
 ## PHYSICS ENGINE CONSTRAINTS (HARD)
 - allow_fractional_shares=False (MES)
 - max_contracts=1, no_overnight=True, max_trades_per_day=3
-- Inherit from: antigravity_harness.strategies.base.Strategy
+- Inherit from: mantis_core.strategies.base.Strategy
 - Implement: prepare_data(self, df, params, intelligence=None, vector_cache=None) -> pd.DataFrame
 - Return df must contain: entry_signal (bool), exit_signal (bool), ATR (float)
 
@@ -23,7 +23,7 @@ Opening gap detection. If gap > 0.5% from prior close, bet on gap fill within fi
 - Parentheses around ALL boolean: (a > b) & (c < d)
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_zoo_e2_005/v_zoo_zoo_e2_005.py
+File: mantis_core/strategies/lab/v_zoo_zoo_e2_005/v_zoo_zoo_e2_005.py
 
 ## CONSTRAINTS
 - No hardcoded parameters — derive dynamically

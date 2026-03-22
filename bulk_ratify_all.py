@@ -142,7 +142,7 @@ if canon_path.exists():
     print(f"🔧 COUNCIL_CANON.yaml: duplicate pubkey lines cleaned")
 
 # Also fix in build.py to prevent recurrence
-build_path = REPO_ROOT / "antigravity_harness" / "forge" / "build.py"
+build_path = REPO_ROOT / "mantis_core" / "forge" / "build.py"
 if build_path.exists():
     bc = build_path.read_text()
     # The bug is in _sync_council_canon appending instead of replacing

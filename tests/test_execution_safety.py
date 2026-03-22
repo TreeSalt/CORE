@@ -26,23 +26,23 @@ import contextlib
 import tempfile
 from pathlib import Path
 
-from antigravity_harness.execution.adapter_base import (
+from mantis_core.execution.adapter_base import (
     CalendarAdapter,
     OrderIntent,
     OrderSide,
     OrderType,
     TimeInForce,
 )
-from antigravity_harness.execution.fill_tape import FillTape
-from antigravity_harness.execution.flatten_manager import FlattenManager
-from antigravity_harness.execution.rollover import (
+from mantis_core.execution.fill_tape import FillTape
+from mantis_core.execution.flatten_manager import FlattenManager
+from mantis_core.execution.rollover import (
     RolloverError,
     RolloverGuard,
     front_month_symbol,
     get_expiry_date,
     third_friday,
 )
-from antigravity_harness.execution.safety import (
+from mantis_core.execution.safety import (
     ATRFilterBlock,
     ContractLimitViolation,
     DailyLossCapReached,
@@ -50,8 +50,8 @@ from antigravity_harness.execution.safety import (
     ExecutionSafetyConfig,
     SessionBoundaryViolation,
 )
-from antigravity_harness.execution.sim_adapter import SimExecutionAdapter
-from antigravity_harness.instruments.mes import (
+from mantis_core.execution.sim_adapter import SimExecutionAdapter
+from mantis_core.instruments.mes import (
     MES_MAX_PLANNED_RISK_USD,
     MES_SPEC,
     MESRiskParams,
@@ -126,7 +126,7 @@ def after_cutoff_time() -> datetime:
 class TestMESConstants(unittest.TestCase):
     def test_risk_math_resolved(self):
         """Verify the frozen risk math: stop $35 + buffer $5 = $40."""
-        from antigravity_harness.instruments.mes import MES_SLIPPAGE_BUFFER_USD, MES_STOP_RISK_USD
+        from mantis_core.instruments.mes import MES_SLIPPAGE_BUFFER_USD, MES_STOP_RISK_USD
         self.assertAlmostEqual(MES_STOP_RISK_USD, 35.00)
         self.assertAlmostEqual(MES_SLIPPAGE_BUFFER_USD, 5.00)
         self.assertAlmostEqual(MES_MAX_PLANNED_RISK_USD, 40.00)
@@ -342,7 +342,7 @@ class TestExecutionSafetyGates(unittest.TestCase):
 class TestFillTape(unittest.TestCase):
 
     def _make_fill(self, side: OrderSide, fill_price: float):
-        from antigravity_harness.execution.adapter_base import Fill
+        from mantis_core.execution.adapter_base import Fill
         return Fill(
             broker_order_id="test-001",
             client_order_id="test-001",
@@ -537,7 +537,7 @@ class TestSimAdapter(unittest.IsolatedAsyncioTestCase):
         adapter.set_price("MES", 5000.0)
 
         ack = await adapter.submit_order(make_intent(side=OrderSide.BUY))
-        from antigravity_harness.execution.adapter_base import OrderStatus
+        from mantis_core.execution.adapter_base import OrderStatus
         self.assertEqual(ack.status, OrderStatus.FILLED)
 
         pos = await adapter.get_position("MES")

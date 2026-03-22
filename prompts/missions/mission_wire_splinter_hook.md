@@ -14,7 +14,7 @@ This must be automated.
 WHAT ALREADY EXISTS:
 - scripts/amend_prompt_version.py — takes --version arg, copies previous
   prompt file forward and appends a VERSION SPLINTER section
-- Makefile variable: VERSION (auto-read from antigravity_harness/__init__.py)
+- Makefile variable: VERSION (auto-read from mantis_core/__init__.py)
 - Makefile variable: VENV_PYTHON (.venv/bin/python3)
 - The build target starts around line 161 in the Makefile
 

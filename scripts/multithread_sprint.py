@@ -197,7 +197,7 @@ Each reimplementation MUST:
 Generate all 5 as a single proposal with clear class separation.
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/epoch_2_5_resurrections.py
+File: mantis_core/strategies/lab/epoch_2_5_resurrections.py
 
 ## CONSTRAINTS
 - One file, 5 classes
@@ -247,7 +247,7 @@ This is a SELF-REFERENTIAL pairs trade: the "pair" is price vs its own trend.
 No external data required.
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_E3_001/v_zoo_E3_001_synthetic_pairs.py
+File: mantis_core/strategies/lab/v_zoo_E3_001/v_zoo_E3_001_synthetic_pairs.py
 
 ## PHYSICS ENGINE CONSTRAINTS
 - Inherit from Strategy, implement prepare_data()

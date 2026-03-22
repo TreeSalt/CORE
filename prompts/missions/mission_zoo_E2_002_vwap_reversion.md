@@ -13,7 +13,7 @@ Pure VWAP mean reversion. Enter when price deviates >2 stddev from session VWAP,
 ## PHYSICS ENGINE CONSTRAINTS (HARD)
 - allow_fractional_shares=False (MES)
 - max_contracts=1, no_overnight=True, max_trades_per_day=3
-- Inherit from: antigravity_harness.strategies.base.Strategy
+- Inherit from: mantis_core.strategies.base.Strategy
 - Implement: prepare_data(self, df, params, intelligence=None, vector_cache=None) -> pd.DataFrame
 - Return df must contain: entry_signal (bool), exit_signal (bool), ATR (float)
 
@@ -23,7 +23,7 @@ Pure VWAP mean reversion. Enter when price deviates >2 stddev from session VWAP,
 - Parentheses around ALL boolean: (a > b) & (c < d)
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_zoo_e2_002/v_zoo_zoo_e2_002.py
+File: mantis_core/strategies/lab/v_zoo_zoo_e2_002/v_zoo_zoo_e2_002.py
 
 ## CONSTRAINTS
 - No hardcoded parameters — derive dynamically

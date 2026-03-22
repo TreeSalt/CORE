@@ -26,12 +26,12 @@ sys.path.insert(0, str(REPO_ROOT))
 
 # Now importing harness modules is safe
 try:
-    from antigravity_harness.strategies.registry import STRATEGY_REGISTRY
+    from mantis_core.strategies.registry import STRATEGY_REGISTRY
 except ImportError:
     # If the environment is totally broken, valid paper run is impossible anyway.
     # But for 'verify', we might not strictly need the registry if we are just checking artifacts.
     # However, for fail-closed safety, better to alert.
-    print("❌ CRITICAL: antigravity_harness imports failed. Environment broken.")
+    print("❌ CRITICAL: mantis_core imports failed. Environment broken.")
     sys.exit(1)
 
 
@@ -370,7 +370,7 @@ def do_run_paper(args: argparse.Namespace) -> None:
     info("✅ Safety Checks Passed (Mode: PAPER).")
     
     # 4. Delegate Execution
-    # cmd: python -m antigravity_harness.cli run-paper ...
+    # cmd: python -m mantis_core.cli run-paper ...
     
     # As per prompt fallback instructions: 
     # "OR prints “ready to run” if wiring is not present yet."

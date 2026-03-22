@@ -14,21 +14,21 @@ The system defaults to **Assisted Mode** (Fail-Closed).
 Generates a `TRADE_PROPOSAL.md` but blocks execution until authorized.
 ```bash
 # Example: Run backtest in assisted mode
-python3 -m antigravity_harness.cli portfolio-backtest --symbols MES --strategy v040_alpha_prime
+python3 -m mantis_core.cli portfolio-backtest --symbols MES --strategy v040_alpha_prime
 ```
 
 ### Authorization
 To authorize trade execution, append the `--authorize` flag.
 ```bash
 # Example: Authorize trade execution
-python3 -m antigravity_harness.cli portfolio-backtest --symbols MES --authorize
+python3 -m mantis_core.cli portfolio-backtest --symbols MES --authorize
 ```
 
 ### Autopilot Mode
 Bypasses the proposal gate (Institutional Grade only).
 ```bash
 # Example: Run in autopilot mode
-python3 -m antigravity_harness.cli portfolio-backtest --symbols MES --mode autopilot
+python3 -m mantis_core.cli portfolio-backtest --symbols MES --mode autopilot
 ```
 
 ## 🔬 Walk-Forward & Evidence

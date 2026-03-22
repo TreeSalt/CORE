@@ -16,23 +16,23 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 # Standard imports
-from antigravity_harness.config import EngineConfig, StrategyParams
-from antigravity_harness.data_loader import ZeroCopyLoader
-from antigravity_harness.metrics import profit_factor
-from antigravity_harness.portfolio_engine import run_portfolio_backtest_verbose
-from antigravity_harness.portfolio_policies import PolicyConfig
-from antigravity_harness.portfolio_router import PortfolioRouter, RegimeConfig
-from antigravity_harness.portfolio_safety_overlay import SafetyConfig
-from antigravity_harness.reporting import (
+from mantis_core.config import EngineConfig, StrategyParams
+from mantis_core.data_loader import ZeroCopyLoader
+from mantis_core.metrics import profit_factor
+from mantis_core.portfolio_engine import run_portfolio_backtest_verbose
+from mantis_core.portfolio_policies import PolicyConfig
+from mantis_core.portfolio_router import PortfolioRouter, RegimeConfig
+from mantis_core.portfolio_safety_overlay import SafetyConfig
+from mantis_core.reporting import (
     generate_no_trade_report,
     generate_walkforward_report,
     save_run_metadata,
 )
-from antigravity_harness.strategies import get_strategy
-from antigravity_harness.capabilities import generate_capability_snapshot
-from antigravity_harness.tradability import generate_viability_table, select_viable_smoke_universe
-from antigravity_harness.execution.fill_tape import FillTape
-from antigravity_harness.instruments.mes import MES_SPEC
+from mantis_core.strategies import get_strategy
+from mantis_core.capabilities import generate_capability_snapshot
+from mantis_core.tradability import generate_viability_table, select_viable_smoke_universe
+from mantis_core.execution.fill_tape import FillTape
+from mantis_core.instruments.mes import MES_SPEC
 
 
 def load_and_split(symbols: list[str], oos_split: float):

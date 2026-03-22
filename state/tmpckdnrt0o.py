@@ -2,14 +2,14 @@
 import pandas as pd
 import numpy as np
 try:
-    from antigravity_harness.strategies.base import Strategy
+    from mantis_core.strategies.base import Strategy
 except ImportError:
     class Strategy:
         name = "base"
         def prepare_data(self, df, params=None, intelligence=None, vector_cache=None):
             raise NotImplementedError
 try:
-    from antigravity_harness.config import StrategyParams
+    from mantis_core.config import StrategyParams
 except ImportError:
     class StrategyParams:
         pass
@@ -19,7 +19,7 @@ class BaseStrategy(Strategy):
 # antigravity_harness/strategies/lab/v_zoo_E1_005_momentum_decay_harvester/v_zoo_E1_005_momentum_decay_harvester.py
 
 import pandas as pd
-from antigravity_harness.strategies.base import BaseStrategy
+from mantis_core.strategies.base import BaseStrategy
 
 class MOMENTUM_DECAY_HARVESTER(BaseStrategy):
     """

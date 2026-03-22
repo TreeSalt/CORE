@@ -3,21 +3,21 @@
 CHAOS MONKEY (CLI WRAPPER)
 --------------------------
 The Saboteur of TRADER_OPS.
-Wrapper for antigravity_harness.chaos_monkey.ChaosMonkey.
+Wrapper for mantis_core.chaos_monkey.ChaosMonkey.
 """
 
 import sys
 from pathlib import Path
 from typing import Callable, Dict
 
-# Implants the path to antigravity_harness
+# Implants the path to mantis_core
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
-    from antigravity_harness.chaos_monkey import ChaosMonkey
+    from mantis_core.chaos_monkey import ChaosMonkey
 except ImportError:
     # Fallback for when running from root
-    from antigravity_harness.chaos_monkey import ChaosMonkey
+    from mantis_core.chaos_monkey import ChaosMonkey
 
 
 def main():

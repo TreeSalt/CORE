@@ -54,7 +54,7 @@ def verify_imports(package_name: str, root_path: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Institutional Import Smoke Tester")
-    parser.add_argument("--lib", default="antigravity_harness", help="Library to test")
+    parser.add_argument("--lib", default="mantis_core", help="Library to test")
     args = parser.parse_args()
 
     root = Path.cwd()

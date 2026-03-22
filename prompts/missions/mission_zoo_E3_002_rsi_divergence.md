@@ -17,4 +17,4 @@ Detect RSI divergence from price. When price makes new high but RSI doesn't conf
 - Output valid Python only
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/v_zoo_e3_002/v_zoo_e3_002_rsi_divergence.py
+File: mantis_core/strategies/lab/v_zoo_e3_002/v_zoo_e3_002_rsi_divergence.py

@@ -24,9 +24,9 @@ Classification rules:
 - 08_CYBERSECURITY/ → ENGINE (universal security)
 - 00_PHYSICS_ENGINE/ → PAYLOAD (trading-specific)
 - 01_DATA_INGESTION/ → PAYLOAD (market data specific)
-- antigravity_harness/strategies/ → PAYLOAD
-- antigravity_harness/execution/ → PAYLOAD
-- antigravity_harness/instruments/ → PAYLOAD
+- mantis_core/strategies/ → PAYLOAD
+- mantis_core/execution/ → PAYLOAD
+- mantis_core/instruments/ → PAYLOAD
 - scripts/ → MIXED (some engine, some payload)
 
 ## DELIVERABLE

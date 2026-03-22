@@ -5,7 +5,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from antigravity_harness.mill import Alchemist, Reaper, persist_sovereign_strategy  # type: ignore[import]
+from mantis_core.mill import Alchemist, Reaper, persist_sovereign_strategy  # type: ignore[import]
 
 
 def main():

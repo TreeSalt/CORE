@@ -54,21 +54,21 @@
             "timestamp_utc": "2026-03-10T00:27:09Z",
             "category": "INFRA",
             "gate": "STARTUP",
-            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s mantis_core/tests -p test*.py",
             "resolution": null
         },
         {
             "timestamp_utc": "2026-03-10T00:27:54Z",
             "category": "INFRA",
             "gate": "STARTUP",
-            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s mantis_core/tests -p test*.py",
             "resolution": null
         },
         {
             "timestamp_utc": "2026-03-10T00:29:12Z",
             "category": "INFRA",
             "gate": "STARTUP",
-            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s mantis_core/tests -p test*.py",
             "resolution": null
         },
         {
@@ -544,7 +544,7 @@
             "timestamp_utc": "2026-03-10T15:53:22Z",
             "category": "LOGIC",
             "gate": "RUNTIME",
-            "message": "MES DIAGNOSTIC SMOKE FAILURE: Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '-m', 'antigravity_harness.cli', 'portfolio-backtest', '--symbols', 'MES', '--prices-csv', 'tests/fixtures/synthetic/mes_5m_synthetic.csv', '--strategy-base', 'v040_alpha_prime', '--max_weight_per_asset', '1.0', '--start', '2026-01-10', '--end', '2026-01-15', '--interval', '5m', '--equity', '--rebalance', '15min', '--outdir', '/home/asanchez/TRADER_OPS/v9e_stage/reports/forge/ibkr_smoke']' returned non-zero exit status 1.",
+            "message": "MES DIAGNOSTIC SMOKE FAILURE: Command '['/home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3', '-m', 'mantis_core.cli', 'portfolio-backtest', '--symbols', 'MES', '--prices-csv', 'tests/fixtures/synthetic/mes_5m_synthetic.csv', '--strategy-base', 'v040_alpha_prime', '--max_weight_per_asset', '1.0', '--start', '2026-01-10', '--end', '2026-01-15', '--interval', '5m', '--equity', '--rebalance', '15min', '--outdir', '/home/asanchez/TRADER_OPS/v9e_stage/reports/forge/ibkr_smoke']' returned non-zero exit status 1.",
             "resolution": null
         },
         {
@@ -649,7 +649,7 @@
             "timestamp_utc": "2026-03-15T22:47:58Z",
             "category": "INFRA",
             "gate": "STARTUP",
-            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s antigravity_harness/tests -p test*.py",
+            "message": "Preflight step failed (exit 1): /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 -B -m unittest discover -s mantis_core/tests -p test*.py",
             "resolution": null
         },
         {

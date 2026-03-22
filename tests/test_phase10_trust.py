@@ -8,11 +8,11 @@ from unittest.mock import MagicMock
 import numpy as np
 import pandas as pd
 
-import antigravity_harness
-from antigravity_harness import config, portfolio_regime_report, regimes
+import mantis_core
+from mantis_core import config, portfolio_regime_report, regimes
 
 # from scripts import make_drop_packet  <-- DEPRECATED
-from antigravity_harness.forge import build as make_drop_packet
+from mantis_core.forge import build as make_drop_packet
 
 
 class TestPhase10Trust(unittest.TestCase):
@@ -28,12 +28,12 @@ class TestPhase10Trust(unittest.TestCase):
         import re
 
         # 1. Check __init__.py matches expected format
-        self.assertTrue(re.match(r"^\d+\.\d+\.\d+$", antigravity_harness.__version__))
+        self.assertTrue(re.match(r"^\d+\.\d+\.\d+$", mantis_core.__version__))
 
         # 2. Verify make_drop_packet reads this version
-        init_path = Path("antigravity_harness/__init__.py")
+        init_path = Path("mantis_core/__init__.py")
         read_ver = make_drop_packet.read_version(init_path)
-        self.assertEqual(read_ver, antigravity_harness.__version__)
+        self.assertEqual(read_ver, mantis_core.__version__)
 
     def test_annualization_physics(self):
         """Task 2: Verify periods_per_year scales correctly."""
@@ -138,7 +138,7 @@ class TestPhase10Trust(unittest.TestCase):
             # Check Metadata
             with open(meta_path) as f:
                 meta = json.load(f)
-            from antigravity_harness.utils import get_version_str
+            from mantis_core.utils import get_version_str
     
             self.assertEqual(meta["trader_ops_version"], get_version_str())
         finally:

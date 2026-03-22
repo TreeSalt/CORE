@@ -38,7 +38,7 @@ MISSIONS_DIR      = REPO_ROOT / "prompts" / "missions"
 PENDING_DIR       = MISSIONS_DIR / "PENDING"
 
 OLLAMA_BASE_URL   = "http://localhost:11434"
-TIMEOUT           = 7200 # 2 Hours — allow deep reasoning headroom for 32b on limited VRAM
+TIMEOUT           = 600  # 10 min — 9B on GPU completes in 3-7 min. VRAM gate prevents 27B dispatch on 8GB cards
 
 # ── SECRETS PATTERNS (mission file scan) ──────────────────────────────────────
 SECRET_PATTERNS = [
@@ -175,19 +175,42 @@ def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
     token_threshold = domain.get("token_threshold", 2048)
     escalation = domain.get("escalation_trigger", "")
 
-    # Forced heavy — domain config says always heavy (e.g. trading physics)
+    # Determine desired tier
+    desired_tier = "sprinter"
+    desired_model = domain["sprinter_model"]
+
     if escalation == "always_heavy":
-        return "heavy", domain["heavy_model"]
-
-    # Token escalation — long mission bumps sprinter to heavy
-    if primary == "sprinter" and token_count > token_threshold:
+        desired_tier = "heavy"
+        desired_model = domain["heavy_model"]
+    elif primary == "sprinter" and token_count > token_threshold:
         log.info(f"Token escalation: {token_count} tokens > threshold {token_threshold}")
-        return "heavy", domain["heavy_model"]
+        desired_tier = "heavy"
+        desired_model = domain["heavy_model"]
+    elif primary == "heavy":
+        desired_tier = "heavy"
+        desired_model = domain["heavy_model"]
 
-    # Default — respect the domain's primary tier
-    if primary == "heavy":
-        return "heavy", domain["heavy_model"]
-    return "sprinter", domain["sprinter_model"]
+    # VRAM GATE — verify GPU can hold the selected model before dispatch
+    if desired_tier == "heavy":
+        try:
+            import subprocess as _sp
+            _r = _sp.run(["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+                         capture_output=True, text=True, timeout=5)
+            free_vram = int(_r.stdout.strip().split("\n")[0])
+            # 27B Q4_K_M needs ~18GB, 9B needs ~6.5GB
+            required = 18000 if "27b" in desired_model else 13000
+            if free_vram < required:
+                log.warning(
+                    f"VRAM GATE: {desired_model} needs ~{required}MB, only {free_vram}MB free. "
+                    f"Degrading to sprinter ({domain['sprinter_model']}). "
+                    f"Upgrade GPU to unlock heavy tier for {domain['id']}."
+                )
+                return "sprinter", domain["sprinter_model"]
+        except Exception as e:
+            log.warning(f"VRAM GATE: nvidia-smi failed ({e}), defaulting to sprinter for safety.")
+            return "sprinter", domain["sprinter_model"]
+
+    return desired_tier, desired_model
 
 def get_live_vram_state() -> dict:
     try:
@@ -239,17 +262,26 @@ def load_mission_prompt(mission_file: str) -> str:
 # ── EXECUTION ─────────────────────────────────────────────────────────────────
 
 def _build_context_package(domain, task, mission):
+    # Read the actual mission brief — this is the LLM's instructions
+    mission_path = REPO_ROOT / "prompts" / "missions" / mission
+    mission_content = ""
+    if mission_path.exists():
+        mission_content = mission_path.read_text()
+    else:
+        log.warning(f"Mission file not found: {mission_path}")
+
     return (
         f"DOMAIN: {domain['id']}\n"
         f"SECURITY_CLASS: {domain.get('security_class', 'INTERNAL')}\n"
-        f"MISSION: {mission}\n"
         f"TASK: {task}\n"
         f"CONSTRAINTS:\n"
         f"  - Proposals only. No direct execution.\n"
         f"  - No writes to 04_GOVERNANCE/\n"
         f"  - No hardcoded credentials\n"
         f"  - Fail closed on any constraint breach\n"
-        f"  - Output valid Python code only\n"
+        f"  - Output valid Python code only\n\n"
+        f"--- MISSION BRIEF ---\n"
+        f"{mission_content}\n"
     )
 
 def write_proposal(domain_id, model, tier, proposal_type, content):
@@ -280,7 +312,7 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
     try:
         # Prepare options. num_gpu=0 forces the model to load into 
         # system RAM (32GB available), avoiding 8GB VRAM bottlenecks/crashes.
-        options = {"num_gpu": 0} if tier == "heavy" else {}
+        options = {}  # VRAM gate in select_tier() handles GPU/CPU routing — no forced CPU override
 
         res = requests.post(
             f"{OLLAMA_BASE_URL}/api/generate",

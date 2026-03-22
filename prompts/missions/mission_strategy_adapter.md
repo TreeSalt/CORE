@@ -18,7 +18,7 @@ Create a class `ZooStrategyAdapter(Strategy)` that:
 5. Returns the enriched DataFrame
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/zoo_adapter.py
+File: mantis_core/strategies/zoo_adapter.py
 
 ## PANDAS RULES (Epoch 1 Graveyard)
 - NEVER use chained indexing. ALWAYS use .loc[]

@@ -32,7 +32,7 @@ Each reimplementation MUST:
 Generate all 5 as a single proposal with clear class separation.
 
 ## DELIVERABLE
-File: antigravity_harness/strategies/lab/epoch_2_5_resurrections.py
+File: mantis_core/strategies/lab/epoch_2_5_resurrections.py
 
 ## CONSTRAINTS
 - One file, 5 classes

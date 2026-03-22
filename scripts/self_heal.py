@@ -27,8 +27,8 @@ sys.path.append(str(REPO_ROOT))
 sys.dont_write_bytecode = True  # Globally suppress __pycache__ for hygiene compliance
 
 # ANTIGRAVITY HARNESS: Fortress Protocol
-from antigravity_harness.forge.build import _sync_project_metadata, bump_version, read_version  # noqa: E402
-from antigravity_harness.paths import (  # noqa: E402
+from mantis_core.forge.build import _sync_project_metadata, bump_version, read_version  # noqa: E402
+from mantis_core.paths import (  # noqa: E402
     CERT_DIR,
     DATA_DIR,
     INTEL_DIR,
@@ -36,7 +36,7 @@ from antigravity_harness.paths import (  # noqa: E402
     SNAPSHOT_DIR,
     ensure_dirs,
 )
-from antigravity_harness.registry import load_registry, save_registry  # noqa: E402
+from mantis_core.registry import load_registry, save_registry  # noqa: E402
 from scripts.archivist import log_event  # noqa: E402
 
 GREEN = "\033[92m"
@@ -49,7 +49,7 @@ BOLD = "\033[1m"
 # This list defines the ONLY files allowed to be mutated outside of git commit.
 # Tampering with this list will trigger a SECURITY_BREACH failure.
 AUTHORIZED_MUTATIONS = [
-    "antigravity_harness/__init__.py",
+    "mantis_core/__init__.py",
     "README.md",
     "docs/ready_to_drop/COUNCIL_CANON.yaml",
     "docs/AGENT_ONBOARDING.md",
@@ -63,7 +63,7 @@ AUTHORIZED_MUTATIONS = [
     "05_DATA_CACHE/ERROR_LEDGER.json", # Memory
     "Makefile",  # Infra
     "setup.py",  # Packaging
-    "antigravity_harness/forge/build.py", # Forge logic
+    "mantis_core/forge/build.py", # Forge logic
     "scripts/ibkr_ingest_mes_5m.py", # IBKR
     "scripts/verify_drop_packet.py", # Verification
     "docs/COMMANDS.md", # Documentation
@@ -71,87 +71,87 @@ AUTHORIZED_MUTATIONS = [
     "prompts/missions/", # Mission Records
     "scripts/strategy_governance.py", # Governance Tool
     "scripts/verify_governance_gates.py", # Governance Verification
-    "antigravity_harness/strategies/STRATEGY_REGISTRY.json", # Registry
-    "antigravity_harness/strategies/registry.py", # Registry Logic
-    "antigravity_harness/strategies/__init__.py", # Strategy Exports
-    "antigravity_harness/strategies/", # Strategy Folders (Recursive matching via startswith)
-    "antigravity_harness/strategies/quarantine/", 
-    "antigravity_harness/strategies/lab/",
-    "antigravity_harness/strategies/certified/",
-    "antigravity_harness/cli.py", # CLI Governance Hooks
-    "antigravity_harness/tests/test_v31.py", # Test Updates for Governance
-    "antigravity_harness/tests/test_golden_cert.py", # Test Updates for Governance
-    "antigravity_harness/tests/test_distributed.py", # Test Updates for Governance
-    "antigravity_harness/tests/test_v080_dynamic.py", # Test Updates for Governance
-    "antigravity_harness/tests/test_suite.py", # Test Updates for Governance
-    "antigravity_harness/tests/test_portfolio_engine.py", # Test Updates for Governance
-    "antigravity_harness/tests/test_cli_alias.py", # Test Updates for Governance
+    "mantis_core/strategies/STRATEGY_REGISTRY.json", # Registry
+    "mantis_core/strategies/registry.py", # Registry Logic
+    "mantis_core/strategies/__init__.py", # Strategy Exports
+    "mantis_core/strategies/", # Strategy Folders (Recursive matching via startswith)
+    "mantis_core/strategies/quarantine/", 
+    "mantis_core/strategies/lab/",
+    "mantis_core/strategies/certified/",
+    "mantis_core/cli.py", # CLI Governance Hooks
+    "mantis_core/tests/test_v31.py", # Test Updates for Governance
+    "mantis_core/tests/test_golden_cert.py", # Test Updates for Governance
+    "mantis_core/tests/test_distributed.py", # Test Updates for Governance
+    "mantis_core/tests/test_v080_dynamic.py", # Test Updates for Governance
+    "mantis_core/tests/test_suite.py", # Test Updates for Governance
+    "mantis_core/tests/test_portfolio_engine.py", # Test Updates for Governance
+    "mantis_core/tests/test_cli_alias.py", # Test Updates for Governance
     "tests/test_portfolio_router.py", # Test Updates for Governance
     "tests/test_portfolio_safety.py", # Test Updates for Governance
     "scripts/autopilot_supervisor.py", # Autopilot Supervisor (v4.5.82)
     "scripts/council_packet.py",       # Council Packet Generator (v4.5.82)
-    "antigravity_harness/trust_root.py", # Trust Root (v4.5.109)
+    "mantis_core/trust_root.py", # Trust Root (v4.5.109)
     "scripts/verify_run_ledger_signature.py", # Ledger Verify (v4.5.109)
     "keys/", # Sovereign Pubkey Dir (v4.5.109)
     "scripts/drop_auditor.py", # Fiduciary Update (v4.5.109)
     "scripts/one_true_command.sh", # Fiduciary Update (v4.5.109)
     "scripts/verify_certificate.py", # Fiduciary Update (v4.5.109)
     "docs/ready_to_drop/PAYLOAD_MANIFEST.json", # Fiduciary Manifest (v4.5.115)
-    "antigravity_harness/execution/fill_tape.py", # Hardening Dir Persistence (v4.5.123)
-    "antigravity_harness/portfolio_engine.py", # Performance Opt (v4.5.123)
-    "antigravity_harness/portfolio_router.py", # Performance Opt (v4.5.123)
-    "antigravity_harness/regimes.py", # Performance Opt (v4.5.123)
+    "mantis_core/execution/fill_tape.py", # Hardening Dir Persistence (v4.5.123)
+    "mantis_core/portfolio_engine.py", # Performance Opt (v4.5.123)
+    "mantis_core/portfolio_router.py", # Performance Opt (v4.5.123)
+    "mantis_core/regimes.py", # Performance Opt (v4.5.123)
     "tests/test_safety_integration.py", # Performance Opt (v4.5.123)
-    "antigravity_harness/execution/ibkr_adapter.py", # Fiduciary Bridge (v4.5.148)
+    "mantis_core/execution/ibkr_adapter.py", # Fiduciary Bridge (v4.5.148)
     "scripts/ibkr_paper_execute.py", # Fiduciary Bridge (v4.5.148)
-    "antigravity_harness/accelerators/", # Item 2 Vectorized Scaling
-    "antigravity_harness/context.py", # Item 2 Vectorized Scaling
-    "antigravity_harness/models.py", # Item 2 Vectorized Scaling
-    "antigravity_harness/calibration.py", # Item 2 Vectorized Scaling
-    "antigravity_harness/gates.py", # Item 2 Vectorized Scaling
+    "mantis_core/accelerators/", # Item 2 Vectorized Scaling
+    "mantis_core/context.py", # Item 2 Vectorized Scaling
+    "mantis_core/models.py", # Item 2 Vectorized Scaling
+    "mantis_core/calibration.py", # Item 2 Vectorized Scaling
+    "mantis_core/gates.py", # Item 2 Vectorized Scaling
     "scripts/verify_signatures.py", # Item 3 Sovereign Auditor V2
-    "antigravity_harness/portfolio_regime_report.py", # Item 4 Multi-Asset Regime Alpha
+    "mantis_core/portfolio_regime_report.py", # Item 4 Multi-Asset Regime Alpha
     "scripts/vuln_scanner.py", # Item 5 Zero-Day Vulnerability Scrub
     "scripts/clean_repo.py", # Item 5 Zero-Day Vulnerability Scrub
-    "antigravity_harness/tests/test_v5_security.py", # Item 5 Zero-Day Vulnerability Scrub
-    "antigravity_harness/config.py", # Item 6 Autonomous Plateau Sizing
-    "antigravity_harness/engine.py", # Item 6 Autonomous Plateau Sizing
-    "antigravity_harness/tests/test_sizing.py", # Item 6 Autonomous Plateau Sizing
-    "antigravity_harness/metrics.py", # Item 7 Kelly Criterion Sizing
-    "antigravity_harness/tests/test_kelly_sizing.py", # Item 7 Kelly Criterion Sizing
-    "antigravity_harness/tests/test_var_governor.py", # Item 8 VaR-Based Risk Governor
-    "antigravity_harness/tests/test_monte_carlo.py", # Item 9 Monte Carlo Robustness
-    "antigravity_harness/tests/test_regime_stop.py", # Item 10 Regime-Aware Stop-Loss
-    "antigravity_harness/execution/fiduciary.py", # Item 11 Fiduciary Bridge
-    "antigravity_harness/tests/test_fiduciary.py", # Item 11 Fiduciary Bridge
-    "antigravity_harness/execution/websocket_feed.py", # Item 12 WebSocket Research Feed
-    "antigravity_harness/tests/test_websocket_feed.py", # Item 12 WebSocket Research Feed
-    "antigravity_harness/execution/fix.py", # Item 13 FIX Protocol Baseline
-    "antigravity_harness/tests/test_fix.py", # Item 13 FIX Protocol Baseline
-    "antigravity_harness/execution/sim_adapter.py", # Item 14 Latency-Sensitive Fill Delay
-    "antigravity_harness/tests/test_latency.py", # Item 14 Latency-Sensitive Fill Delay
-    "antigravity_harness/tests/test_dark_pool.py", # Item 15 Dark Pool Impact Modeling
-    "antigravity_harness/tests/test_alpha_decay.py", # Item 16 Market Microstructure Decay
-    "antigravity_harness/tests/test_ml_regimes.py", # Item 17 ML-Based Regime Classification
-    "antigravity_harness/tests/test_friction.py", # MISSION v4.5.301
-    "antigravity_harness/tests/test_portfolio.py", # MISSION v4.5.301
-    "antigravity_harness/tests/test_sentiment_alpha.py", # MISSION v4.5.301
-    "antigravity_harness/zkp.py", # Item 22 ZKP
-    "antigravity_harness/physics/", # Item 21 Mirror
-    "antigravity_harness/grid/", # Item 23 Grid / Item 25 Evolution
-    "antigravity_harness/ledger.py", # Item 24 Ledger
-    "antigravity_harness/dashboard.py", # Item 28 Dashboard
-    "antigravity_harness/execution/safety.py", # Item 27 Safety
-    "antigravity_harness/tests/test_safety_breakers.py", # Item 27 Tests
-    "antigravity_harness/phoenix.py", # Item 27 Integration
+    "mantis_core/tests/test_v5_security.py", # Item 5 Zero-Day Vulnerability Scrub
+    "mantis_core/config.py", # Item 6 Autonomous Plateau Sizing
+    "mantis_core/engine.py", # Item 6 Autonomous Plateau Sizing
+    "mantis_core/tests/test_sizing.py", # Item 6 Autonomous Plateau Sizing
+    "mantis_core/metrics.py", # Item 7 Kelly Criterion Sizing
+    "mantis_core/tests/test_kelly_sizing.py", # Item 7 Kelly Criterion Sizing
+    "mantis_core/tests/test_var_governor.py", # Item 8 VaR-Based Risk Governor
+    "mantis_core/tests/test_monte_carlo.py", # Item 9 Monte Carlo Robustness
+    "mantis_core/tests/test_regime_stop.py", # Item 10 Regime-Aware Stop-Loss
+    "mantis_core/execution/fiduciary.py", # Item 11 Fiduciary Bridge
+    "mantis_core/tests/test_fiduciary.py", # Item 11 Fiduciary Bridge
+    "mantis_core/execution/websocket_feed.py", # Item 12 WebSocket Research Feed
+    "mantis_core/tests/test_websocket_feed.py", # Item 12 WebSocket Research Feed
+    "mantis_core/execution/fix.py", # Item 13 FIX Protocol Baseline
+    "mantis_core/tests/test_fix.py", # Item 13 FIX Protocol Baseline
+    "mantis_core/execution/sim_adapter.py", # Item 14 Latency-Sensitive Fill Delay
+    "mantis_core/tests/test_latency.py", # Item 14 Latency-Sensitive Fill Delay
+    "mantis_core/tests/test_dark_pool.py", # Item 15 Dark Pool Impact Modeling
+    "mantis_core/tests/test_alpha_decay.py", # Item 16 Market Microstructure Decay
+    "mantis_core/tests/test_ml_regimes.py", # Item 17 ML-Based Regime Classification
+    "mantis_core/tests/test_friction.py", # MISSION v4.5.301
+    "mantis_core/tests/test_portfolio.py", # MISSION v4.5.301
+    "mantis_core/tests/test_sentiment_alpha.py", # MISSION v4.5.301
+    "mantis_core/zkp.py", # Item 22 ZKP
+    "mantis_core/physics/", # Item 21 Mirror
+    "mantis_core/grid/", # Item 23 Grid / Item 25 Evolution
+    "mantis_core/ledger.py", # Item 24 Ledger
+    "mantis_core/dashboard.py", # Item 28 Dashboard
+    "mantis_core/execution/safety.py", # Item 27 Safety
+    "mantis_core/tests/test_safety_breakers.py", # Item 27 Tests
+    "mantis_core/phoenix.py", # Item 27 Integration
     "state/", # Ledger & Registry Data
     "reports/", # Backtest Artifacts
-    "antigravity_harness/paths.py", # Infra
-    "antigravity_harness/registry.py", # Registry Logic
-    "antigravity_harness/portfolio_policies.py", # Policy Physics
-    "antigravity_harness/portfolio.py", # Portfolio Logic
-    "antigravity_harness/data/sentiment_feed.py", # MISSION v4.5.370
-    "antigravity_harness/data_loader.py", # MISSION v4.5.370
+    "mantis_core/paths.py", # Infra
+    "mantis_core/registry.py", # Registry Logic
+    "mantis_core/portfolio_policies.py", # Policy Physics
+    "mantis_core/portfolio.py", # Portfolio Logic
+    "mantis_core/data/sentiment_feed.py", # MISSION v4.5.370
+    "mantis_core/data_loader.py", # MISSION v4.5.370
     "scripts/test_orthogonal_wiring.py", # MISSION v4.5.370
     "scripts/forward_data_collector.py", # MISSION v4.5.380
     "config/instrument_specs.json", # MISSION v4.5.380
@@ -162,15 +162,15 @@ AUTHORIZED_MUTATIONS = [
     "docs/constitution/PHYSICS.md", # MISSION v4.5.382
     "docs/COUNCIL_GOVERNANCE.md", # MISSION v4.5.382
     "scripts/quickgate.py", # MISSION v4.5.382
-    "antigravity_harness/instruments/base.py",
-    "antigravity_harness/instruments/mes.py",
-    "antigravity_harness/tradability.py",
-    "antigravity_harness/reporting.py",
+    "mantis_core/instruments/base.py",
+    "mantis_core/instruments/mes.py",
+    "mantis_core/tradability.py",
+    "mantis_core/reporting.py",
     "tests/test_execution_safety.py",
     "scripts/generate_evidence.py",
-    "antigravity_harness/portfolio_router.py",
-    "antigravity_harness/engine.py",
-    "antigravity_harness/portfolio_engine.py",
+    "mantis_core/portfolio_router.py",
+    "mantis_core/engine.py",
+    "mantis_core/portfolio_engine.py",
     "docs/constitution/GOVERNANCE.md",
     "docs/constitution/SAFETY.md",
     "docs/schemas/RUN_METADATA.schema.json",
@@ -183,7 +183,7 @@ AUTHORIZED_MUTATIONS = [
     "docs/schemas/EFFECTIVE_POLICY.schema.json",
     "scripts/intake_compile.py",
     "scripts/infer_universe.py",
-    "antigravity_harness/authz.py",
+    "mantis_core/authz.py",
     "data/wavepool/",
     "data/intel/",
     "profiles/users/alec/INTENT_SPEC.yaml",
@@ -210,7 +210,7 @@ def print_status(msg, status="INFO"):
 
 def check_version_sync(fix=False):
     print_status("Checking Version Synchronization...")
-    init_path = REPO_ROOT / "antigravity_harness/__init__.py"
+    init_path = REPO_ROOT / "mantis_core/__init__.py"
     current_version = read_version(init_path)
 
     # Canonical manifests that we management
@@ -396,7 +396,7 @@ def check_environment(fix=False):
                 if line.startswith(" D "):
                     path = line[3:].strip().strip('"')
                     # Don't restore identity keys; we'll manage them surgically
-                    if path not in ["antigravity_harness/__init__.py", "sovereign.pub", "sovereign.key"]:
+                    if path not in ["mantis_core/__init__.py", "sovereign.pub", "sovereign.key"]:
                         log_event("INFRA", f"Restoring missing tracked file: {path}", "RECOVERY", "Git Checkout")
                         subprocess.run(["git", "checkout", "HEAD", "--", path], cwd=REPO_ROOT, check=False)
 
@@ -436,10 +436,10 @@ def verify_authorized_list_integrity(authorized: list | None = None) -> bool:
 def check_untracked_sh_py(authorized: list | None = None) -> bool:
     """Detects untracked .py or .sh files in the source tree (Persistence Guard)."""
     authorized = authorized or []
-    # Scan antigravity_harness/ for untracked executables
+    # Scan mantis_core/ for untracked executables
     try:
         status = subprocess.check_output(
-            ["git", "ls-files", "--others", "--exclude-standard", "antigravity_harness/"],
+            ["git", "ls-files", "--others", "--exclude-standard", "mantis_core/"],
             cwd=REPO_ROOT, text=True
         ).strip()
         if status:
@@ -523,7 +523,7 @@ def main():
     # 0. Version Bump (Optional, controlled by preflight)
     if args.bump and args.fix:
         print_status("Initiating Institutional Version Bump...")
-        bump_version(REPO_ROOT / "antigravity_harness/__init__.py")
+        bump_version(REPO_ROOT / "mantis_core/__init__.py")
 
     # 1. Environment
     if not check_environment(args.fix):

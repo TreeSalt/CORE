@@ -10,11 +10,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from antigravity_harness.config import EngineConfig, StrategyParams
-from antigravity_harness.portfolio_engine import run_portfolio_backtest_verbose
-from antigravity_harness.portfolio_policies import PolicyConfig
-from antigravity_harness.portfolio_safety_overlay import SafetyConfig
-from antigravity_harness.strategies.base import Strategy
+from mantis_core.config import EngineConfig, StrategyParams
+from mantis_core.portfolio_engine import run_portfolio_backtest_verbose
+from mantis_core.portfolio_policies import PolicyConfig
+from mantis_core.portfolio_safety_overlay import SafetyConfig
+from mantis_core.strategies.base import Strategy
 
 
 class MockStrategy(Strategy):
@@ -29,7 +29,7 @@ class MockRouter:
     def route(self, df, asof):
         # Always return full allocation to MOCK
         # And a dummy regime state
-        from antigravity_harness.regimes import RegimeLabel, RegimeState
+        from mantis_core.regimes import RegimeLabel, RegimeState
 
         return {"MOCK": 0.95}, RegimeState(RegimeLabel.RANGE_LOW_VOL)
 

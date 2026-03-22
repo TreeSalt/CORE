@@ -32,5 +32,5 @@ graph LR
 To verify the integrity of the data used in a specific run:
 1. Extract `TRADER_OPS_READY_TO_DROP_v*.zip`.
 2. Locate `data/*.csv`.
-3. Run `python3 -m antigravity_harness.data.market_tape <csv_path>` to compute the local hash.
+3. Run `python3 -m mantis_core.data.market_tape <csv_path>` to compute the local hash.
 4. Compare with `bindings.data_hash` inside `reports/certification/CERTIFICATE.json`.

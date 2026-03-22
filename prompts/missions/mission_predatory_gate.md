@@ -22,7 +22,7 @@ Create a module that:
 6. Failed strategies get automatic GRAVEYARD entry
 
 ## DELIVERABLE
-File: antigravity_harness/gates/predatory_gate.py
+File: mantis_core/gates/predatory_gate.py
 
 ## CONSTRAINTS
 - Generate scenarios from parameters (no external data files)

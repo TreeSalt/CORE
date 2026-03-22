@@ -14,14 +14,14 @@ echo "   Target: $OUTDIR"
 echo "   Timestamp: $TIMESTAMP"
 
 # 2. Extract Strategy List (Dynamic from Catalog)
-STRATS=$(python3 -c "from antigravity_harness.catalog import STRATEGY_CATALOG; print(' '.join([s.name for s in STRATEGY_CATALOG.values() if s.tier in [1, 2] and not s.is_quarantined]))")
+STRATS=$(python3 -c "from mantis_core.catalog import STRATEGY_CATALOG; print(' '.join([s.name for s in STRATEGY_CATALOG.values() if s.tier in [1, 2] and not s.is_quarantined]))")
 
 # Add Quarantined if override requested? 
 # ALLOW_QUARANTINED defaults to 0.
 ALLOW_QUARANTINED=${ALLOW_QUARANTINED:-0}
 if [ "$ALLOW_QUARANTINED" -eq "1" ]; then
     echo "   ⚠️  OVERRIDE: Including Quarantined Strategies"
-    STRATS_Q=$(python3 -c "from antigravity_harness.catalog import STRATEGY_CATALOG; print(' '.join([s.name for s in STRATEGY_CATALOG.values() if s.is_quarantined]))")
+    STRATS_Q=$(python3 -c "from mantis_core.catalog import STRATEGY_CATALOG; print(' '.join([s.name for s in STRATEGY_CATALOG.values() if s.is_quarantined]))")
     STRATS="$STRATS $STRATS_Q"
 fi
 
@@ -35,7 +35,7 @@ for STRAT in $STRATS; do
     SUBDIR="$OUTDIR/$STRAT"
     
     # Task 2: Quarantine Integrity - only pass --allow-quarantined if env var set
-    CMD="python3 -m antigravity_harness.cli certify-sweep \
+    CMD="python3 -m mantis_core.cli certify-sweep \
         --symbols BTC-USD,ETH-USD,SOL-USD \
         --timeframes 4h,6h,8h,12h,1d \
         --strategy $STRAT \

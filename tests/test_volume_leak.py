@@ -2,9 +2,9 @@ import unittest
 
 import pandas as pd
 
-from antigravity_harness.config import EngineConfig, StrategyParams
-from antigravity_harness.engine import run_backtest
-from antigravity_harness.strategies.base import Strategy
+from mantis_core.config import EngineConfig, StrategyParams
+from mantis_core.engine import run_backtest
+from mantis_core.strategies.base import Strategy
 
 
 class MockVolumeStrategy(Strategy):

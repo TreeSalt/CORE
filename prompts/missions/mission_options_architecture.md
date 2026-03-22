@@ -59,7 +59,7 @@ Design the OptionsInstrumentSpec class:
 Document as class skeletons with type hints and docstrings.
 
 ## DELIVERABLE
-File: antigravity_harness/instruments/options_architecture.py
+File: mantis_core/instruments/options_architecture.py
 
 ## CONSTRAINTS
 - ARCHITECTURE only — class skeletons, not implementation

@@ -1,10 +1,10 @@
 repo:
   name: TRADER_OPS
   engine_root: 02_STRATEGY_ENGINE
-  version: "9.9.104"
-  generated_at_utc: "2026-03-18T16:18:16Z"
+  version: "9.9.107"
+  generated_at_utc: "2026-03-20T21:42:20Z"
   fingerprint_type: "payload_manifest_sha256"
-  fingerprint_sha256: "f82d296031406a0d1436ff497e60304794abf11eef70377cccc9d046d31d83d2"
+  fingerprint_sha256: "029ad656a36dbda4f17f990e0fc72439a6c05d15aee8a6ecaef947572f9600e7"
   sovereign_pubkey_sha256: "400944e5d914fde75e94a68c533facc085e3687b4f0b30276e8f354d61fef9e6"
 
 phases:
@@ -67,8 +67,8 @@ commands:
   preflight_autoclean: "python scripts/preflight.py --auto-clean"
   clean_verify_strict: "python scripts/clean_repo.py --verify-strict"
   council_sweep_script: "bash scripts/council_sweep_crypto.sh"
-  reality_gap_fixture: "python -m antigravity_harness.cli reality-gap --fills tests/fixtures/fills.csv --signals tests/fixtures/signals.csv --outdir reports/reality_check_final"
-  portfolio_backtest: "python -m antigravity_harness.cli portfolio-backtest --symbols BTC-USD,ETH-USD,SOL-USD --router regime_v1 --outdir reports/portfolio/run_001"
+  reality_gap_fixture: "python -m mantis_core.cli reality-gap --fills tests/fixtures/fills.csv --signals tests/fixtures/signals.csv --outdir reports/reality_check_final"
+  portfolio_backtest: "python -m mantis_core.cli portfolio-backtest --symbols BTC-USD,ETH-USD,SOL-USD --router regime_v1 --outdir reports/portfolio/run_001"
   package_core: "python scripts/package_core.py"
 artifacts:
   latest_reports_paths:

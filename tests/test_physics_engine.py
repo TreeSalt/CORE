@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 
-from antigravity_harness.config import DataConfig, EngineConfig, GateThresholds, StrategyParams
-from antigravity_harness.context import SimulationContextBuilder
-from antigravity_harness.gates import _run_sim
-from antigravity_harness.metrics import compute_metrics
-from antigravity_harness.strategies.base import Strategy
-from antigravity_harness.utils import infer_periods_per_year
+from mantis_core.config import DataConfig, EngineConfig, GateThresholds, StrategyParams
+from mantis_core.context import SimulationContextBuilder
+from mantis_core.gates import _run_sim
+from mantis_core.metrics import compute_metrics
+from mantis_core.strategies.base import Strategy
+from mantis_core.utils import infer_periods_per_year
 
 
 class TestPhysicsEngine(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestPhysicsEngine(unittest.TestCase):
         ratio = m_2190["daily_sharpe"] / m_365["daily_sharpe"]
         self.assertAlmostEqual(ratio, np.sqrt(6), delta=0.1)
 
-    @patch("antigravity_harness.gates.run_backtest")
+    @patch("mantis_core.gates.run_backtest")
     def test_gates_injection(self, mock_run_backtest):
         # Setup mocks
         mock_strat = MagicMock(spec=Strategy)
@@ -69,7 +69,7 @@ class TestPhysicsEngine(unittest.TestCase):
         df = pd.DataFrame({"Open": 100, "High": 100, "Low": 100, "Close": 100, "Volume": 1000}, index=dates)
 
         # Mock result
-        from antigravity_harness.models import MetricSet
+        from mantis_core.models import MetricSet
 
         mock_res = MagicMock()
         mock_res.metrics = MetricSet()

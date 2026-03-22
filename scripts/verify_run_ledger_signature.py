@@ -12,12 +12,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-# sys.path hacking to allow importing antigravity_harness from repo root
+# sys.path hacking to allow importing mantis_core from repo root
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from antigravity_harness.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
+from mantis_core.trust_root import TRUST_ROOT_SOVEREIGN_PUBKEY_SHA256  # noqa: E402
 
 
 def _openssl_verify_ed25519(pub_pem: Path, msg: Path, sig: Path) -> None:

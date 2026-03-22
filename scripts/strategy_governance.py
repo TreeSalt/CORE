@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Paths
 REPO_ROOT = Path(__file__).parent.parent
-STRATEGY_ROOT = REPO_ROOT / "antigravity_harness" / "strategies"
+STRATEGY_ROOT = REPO_ROOT / "mantis_core" / "strategies"
 REGISTRY_FILE = STRATEGY_ROOT / "STRATEGY_REGISTRY.json"
 
 TIERS = ["quarantine", "lab", "certified"]

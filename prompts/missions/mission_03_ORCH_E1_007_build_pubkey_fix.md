@@ -7,7 +7,7 @@
 Sprint (9b)
 
 ## Description
-Fix the build system (antigravity_harness/forge/build.py) to dynamically compute
+Fix the build system (mantis_core/forge/build.py) to dynamically compute
 the sovereign public key hash instead of using a stale hardcoded value.
 
 CONTEXT: During core drop, the build output shows the WRONG public key hash being pinned.
@@ -22,5 +22,5 @@ REQUIREMENTS:
 6. Log the computed hash so the operator can verify
 
 ALLOWED IMPORTS: hashlib, pathlib
-OUTPUT: Fix in antigravity_harness/forge/build.py
+OUTPUT: Fix in mantis_core/forge/build.py
 TEST: Assert the function computes a 64-character hex string from keys/sovereign.pub

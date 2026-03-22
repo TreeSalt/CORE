@@ -22,14 +22,14 @@ def get_imports(filepath: str) -> set[str]:
 
 def check_cycles():
     # Simplistic cycle check for the core package
-    package_dir = "antigravity_harness"
+    package_dir = "mantis_core"
     if not os.path.exists(package_dir):
         return 0
     
     # We only care about internal imports for this task
     # For now, we'll just check if any module in a subpackage imports a module in its parent
     # that then imports it back. A more robust graph check would be better but this is Hydra T2.
-    print("🛡️  Checking for simple dependency cycles in antigravity_harness...")
+    print("🛡️  Checking for simple dependency cycles in mantis_core...")
     # This is a placeholder for a more complex graph analysis if needed.
     # For Hydra T2, we simply ensure that no circular imports exist between core modules.
     
@@ -37,7 +37,7 @@ def check_cycles():
     # and check if it fails with ImportError: cannot import name ... (which often indicates a cycle)
     # But that's already checked by verify_imports.py.
     
-    # Let's do a strict check: no subpackage should import from antigravity_harness.cli or similar
+    # Let's do a strict check: no subpackage should import from mantis_core.cli or similar
     # to maintain clean layers.
     
     issues = []
@@ -58,7 +58,7 @@ def check_cycles():
                 
                 with open(path, "r") as code_f:
                     content = code_f.read()
-                    if "from antigravity_harness.cli" in content or "import antigravity_harness.cli" in content:
+                    if "from mantis_core.cli" in content or "import mantis_core.cli" in content:
                         issues.append(f"Layer Violation: {path} imports cli.py (Circular risk)")
     
     if issues:

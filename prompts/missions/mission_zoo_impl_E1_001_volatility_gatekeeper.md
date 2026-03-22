@@ -7,7 +7,7 @@ VERSION: 1.0
 
 ## CONTEXT
 Implement the VOLATILITY_GATEKEEPER strategy as a certified strategy class conforming to
-the antigravity_harness strategy base contract.
+the mantis_core strategy base contract.
 
 ## BLUEPRINT
 ## ZOO_E1_001 — VOLATILITY_GATEKEEPER
@@ -45,11 +45,11 @@ the static parameter fragility that killed early Physics Engine iterations.
 - no_overnight=True
 - max_trades_per_day=3
 - Instrument: MES 5m bars
-- Inherit from: antigravity_harness/strategies/base.py BaseStrategy
+- Inherit from: mantis_core/strategies/base.py BaseStrategy
 
 ## DELIVERABLE
 A complete Python strategy file at:
-antigravity_harness/strategies/lab/v_zoo_E1_001_volatility_gatekeeper/v_zoo_E1_001_volatility_gatekeeper.py
+mantis_core/strategies/lab/v_zoo_E1_001_volatility_gatekeeper/v_zoo_E1_001_volatility_gatekeeper.py
 
 The strategy must:
 1. Inherit from BaseStrategy
