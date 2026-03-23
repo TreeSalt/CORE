@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-23T09:05:11.180394+00:00",
+  "last_updated": "2026-03-23T13:46:18.806512+00:00",
   "last_task": {
     "domain_id": "01_DATA_INGESTION",
-    "model": "qwen3.5:9b",
-    "status": "COMPLETE",
-    "completed_at": "2026-03-23T09:05:11.180394+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T090511Z.md"
+    "model": "qwen3.5:27b",
+    "status": "ACTIVE",
+    "completed_at": "2026-03-23T13:46:18.806512+00:00",
+    "proposal_path": ""
   },
   "session_history": [
     {
@@ -4314,6 +4314,34 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-23T09:05:11.180394+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T090511Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-23T13:40:49.181672+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-23T13:41:58.521600+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:27b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-23T13:43:23.467699+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:27b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-23T13:46:18.806512+00:00",
+      "proposal_path": ""
     }
   ],
   "hardware_ceiling": {
@@ -6813,6 +6841,34 @@
       "domain_id": "01_DATA_INGESTION",
       "model": "qwen3.5:9b",
       "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-23T13:40:49.177284+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-23T13:41:58.516025+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-23T13:43:23.462785+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:27b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-23T13:46:18.800374+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:27b",
+      "tier": "heavy",
       "reason": "local execution \u2014 security_class=INTERNAL"
     }
   ]

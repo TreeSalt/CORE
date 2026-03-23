@@ -162,55 +162,228 @@ def estimate_token_count(text: str) -> int:
     """Rough token estimate: ~4 chars per token."""
     return len(text) // 4
 
+def _query_model_size_mb(model_name: str) -> int:
+    """Query Ollama API for the actual on-disk size of a model in MB."""
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        for m in resp.json().get("models", []):
+            if m["name"] == model_name:
+                return int(m["size"] / (1024 * 1024))
+    except Exception as e:
+        log.warning(f"Could not query model size for {model_name}: {e}")
+    return 0
+
+
+def _query_available_memory_mb() -> tuple[int, int]:
+    """Query actual free VRAM and system RAM in MB. Returns (vram_mb, ram_mb)."""
+    free_vram = 0
+    free_ram = 0
+    try:
+        import subprocess as _sp
+        _r = _sp.run(["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+                     capture_output=True, text=True, timeout=5)
+        free_vram = int(_r.stdout.strip().split("\n")[0])
+    except Exception:
+        pass
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    free_ram = int(line.split()[1]) // 1024
+                    break
+    except Exception:
+        pass
+    return free_vram, free_ram
+
+
+def _classify_model_tier(model_name: str) -> str:
+    """Classify a model into sprinter/cruiser/heavy based on Ollama metadata."""
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        for m in resp.json().get("models", []):
+            if m["name"] == model_name:
+                param_str = m["details"].get("parameter_size", "0B")
+                param_val = float(param_str.replace("B", "").strip())
+                if param_val < 9:
+                    return "sprinter"
+                elif param_val < 24:
+                    return "cruiser"
+                else:
+                    return "heavy"
+    except Exception as e:
+        log.warning(f"Could not classify {model_name}: {e}")
+    return "sprinter"
+
+
+def _query_model_size_mb(model_name: str) -> int:
+    """Query Ollama API for the actual on-disk size of a model in MB."""
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        for m in resp.json().get("models", []):
+            if m["name"] == model_name:
+                return int(m["size"] / (1024 * 1024))
+    except Exception as e:
+        log.warning(f"Could not query model size for {model_name}: {e}")
+    return 0
+
+
+def _query_available_memory_mb() -> tuple[int, int]:
+    """Query actual free VRAM and system RAM in MB. Returns (vram_mb, ram_mb)."""
+    free_vram = 0
+    free_ram = 0
+    try:
+        import subprocess as _sp
+        _r = _sp.run(
+            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5,
+        )
+        free_vram = int(_r.stdout.strip().split(chr(10))[0])
+    except Exception:
+        pass
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    free_ram = int(line.split()[1]) // 1024
+                    break
+    except Exception:
+        pass
+    return free_vram, free_ram
+
+
+def _classify_model_tier(model_name: str) -> str:
+    """Classify a model into sprinter/cruiser/heavy based on Ollama metadata."""
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        for m in resp.json().get("models", []):
+            if m["name"] == model_name:
+                param_str = m["details"].get("parameter_size", "0B")
+                param_val = float(param_str.replace("B", "").strip())
+                if param_val < 9:
+                    return "sprinter"
+                elif param_val < 24:
+                    return "cruiser"
+                else:
+                    return "heavy"
+    except Exception as e:
+        log.warning(f"Could not classify {model_name}: {e}")
+    return "sprinter"
+
+
 def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
     """
-    Returns (tier_name, model_to_use) based on routing intelligence.
-    Priority order:
-    1. primary_tier from DOMAINS.yaml is the DEFAULT authority
-    2. escalation_trigger == always_heavy OVERRIDES to heavy
-    3. token_count > threshold ESCALATES to heavy (but only if primary is sprinter)
+    Hardware-relative, model-aware tier selection.
+
+    Three-tier hierarchy (operator-tunable via DOMAINS.yaml):
+      Sprinter (<9B params)  -- fast, light tasks
+      Cruiser  (9-24B params) -- complex logic, API adapters
+      Heavy    (24B+ params)  -- strategic architecture, deep reasoning
+
+    Memory gate queries Ollama for actual model sizes and the OS for real
+    VRAM + system RAM. Ollama supports partial GPU offloading, so models
+    larger than VRAM can split across VRAM+RAM (slower but correct).
+
+    Degradation ladder: heavy -> cruiser -> sprinter.
+    If always_heavy cannot fit in combined memory, returns ("ESCALATE", "").
     """
     primary = domain.get("primary_tier", "sprinter")
     token_count = estimate_token_count(mission_text)
     token_threshold = domain.get("token_threshold", 2048)
     escalation = domain.get("escalation_trigger", "")
 
-    # Determine desired tier
-    desired_tier = "sprinter"
-    desired_model = domain["sprinter_model"]
-
     if escalation == "always_heavy":
         desired_tier = "heavy"
-        desired_model = domain["heavy_model"]
-    elif primary == "sprinter" and token_count > token_threshold:
-        log.info(f"Token escalation: {token_count} tokens > threshold {token_threshold}")
-        desired_tier = "heavy"
-        desired_model = domain["heavy_model"]
     elif primary == "heavy":
         desired_tier = "heavy"
-        desired_model = domain["heavy_model"]
+    elif primary == "cruiser":
+        desired_tier = "cruiser"
+    elif primary == "sprinter" and token_count > token_threshold:
+        log.info(f"Token escalation: {token_count} > threshold {token_threshold}")
+        desired_tier = "cruiser"
+    else:
+        desired_tier = "sprinter"
 
-    # VRAM GATE — verify GPU can hold the selected model before dispatch
-    if desired_tier == "heavy":
-        try:
-            import subprocess as _sp
-            _r = _sp.run(["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
-                         capture_output=True, text=True, timeout=5)
-            free_vram = int(_r.stdout.strip().split("\n")[0])
-            # 27B Q4_K_M needs ~18GB, 9B needs ~6.5GB
-            required = 18000 if "27b" in desired_model else 13000
-            if free_vram < required:
+    TIER_LADDER = [
+        ("heavy", "heavy_model"),
+        ("cruiser", "cruiser_model"),
+        ("sprinter", "sprinter_model"),
+    ]
+
+    free_vram, free_ram = _query_available_memory_mb()
+    total_available = free_vram + free_ram
+    log.info(f"MEMORY GATE: VRAM={free_vram}MB, RAM={free_ram}MB, total={total_available}MB")
+
+    start_idx = next(
+        (i for i, (t, _) in enumerate(TIER_LADDER) if t == desired_tier), 0
+    )
+    selected_tier = None
+    selected_model = None
+    memory_mode = "VRAM"
+
+    for tier_name, model_key in TIER_LADDER[start_idx:]:
+        model_name = domain.get(model_key)
+        if not model_name:
+            continue
+
+        required_mb = _query_model_size_mb(model_name)
+        if required_mb == 0:
+            log.warning(f"MEMORY GATE: {model_name} not found in Ollama, skipping")
+            continue
+
+        if required_mb <= free_vram:
+            selected_tier = tier_name
+            selected_model = model_name
+            memory_mode = "VRAM"
+            log.info(
+                f"MEMORY GATE: {model_name} fits in VRAM "
+                f"({required_mb}MB <= {free_vram}MB)"
+            )
+            break
+        elif required_mb <= total_available:
+            selected_tier = tier_name
+            selected_model = model_name
+            memory_mode = "SPLIT"
+            log.warning(
+                f"MEMORY GATE: {model_name} will SPLIT across VRAM+RAM "
+                f"({required_mb}MB needed, {free_vram}MB VRAM + {free_ram}MB RAM). "
+                f"Inference will be slower."
+            )
+            break
+        else:
+            log.info(
+                f"MEMORY GATE: {model_name} too large "
+                f"({required_mb}MB > {total_available}MB available), trying next tier"
+            )
+
+    if selected_tier is None:
+        if escalation == "always_heavy":
+            log.error(
+                f"MEMORY GATE: ESCALATE -- {domain['id']} requires always_heavy "
+                f"but no model fits in available memory ({total_available}MB). "
+                f"Sovereign intervention required."
+            )
+            return "ESCALATE", ""
+        for _, model_key in reversed(TIER_LADDER):
+            fallback = domain.get(model_key)
+            if fallback:
+                selected_tier = "sprinter"
+                selected_model = fallback
                 log.warning(
-                    f"VRAM GATE: {desired_model} needs ~{required}MB, only {free_vram}MB free. "
-                    f"Degrading to sprinter ({domain['sprinter_model']}). "
-                    f"Upgrade GPU to unlock heavy tier for {domain['id']}."
+                    f"MEMORY GATE: All tiers exceeded. Last resort: {fallback}"
                 )
-                return "sprinter", domain["sprinter_model"]
-        except Exception as e:
-            log.warning(f"VRAM GATE: nvidia-smi failed ({e}), defaulting to sprinter for safety.")
-            return "sprinter", domain["sprinter_model"]
+                break
 
-    return desired_tier, desired_model
+    if selected_tier and selected_tier != desired_tier:
+        log.warning(
+            f"TIER DEGRADED: {domain['id']} wanted {desired_tier} but dispatching "
+            f"{selected_tier} ({selected_model}). Output quality may be reduced."
+        )
+        _log_routing_decision(
+            domain["id"], selected_model, selected_tier,
+            f"Degraded from {desired_tier}: memory constraint ({memory_mode})",
+        )
+
+    return selected_tier, selected_model
 
 def get_live_vram_state() -> dict:
     try:

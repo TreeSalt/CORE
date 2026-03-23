@@ -1,6 +1,6 @@
-# DOMAINS REGISTRY v2.0
-# THREE-TIER INTELLIGENCE STACK AWARE
-# Ratified: 2026-03-09 — Supreme Council
+# DOMAINS REGISTRY v3.0
+# THREE-TIER INTELLIGENCE STACK — CORRECTED
+# Ratified: 2026-03-23 — Supreme Council
 
 domains:
   - id: "00_PHYSICS_ENGINE"
@@ -8,12 +8,13 @@ domains:
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 2048
     write_path: "00_PHYSICS_ENGINE/"
-    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b"]
+    authorized_agents: ["qwen3.5:4b", "qwen3.5:9b", "qwen3.5:27b"]
     escalation_trigger: "always_heavy"
     note: "Zoo strategy blueprints are high-stakes strategic architecture. Always heavy."
 
@@ -22,12 +23,13 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 2048
     write_path: "01_DATA_INGESTION/"
-    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b"]
+    authorized_agents: ["qwen3.5:4b", "qwen3.5:9b", "qwen3.5:27b"]
     escalation_trigger: "always_heavy"
 
   - id: "02_RISK_MANAGEMENT"
@@ -35,7 +37,8 @@ domains:
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 1024
@@ -49,7 +52,8 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "sprinter"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "HIGH"
@@ -76,7 +80,8 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "sprinter"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "LOW"
@@ -90,7 +95,8 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "sprinter"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "HIGH"
@@ -104,7 +110,8 @@ domains:
     security_class: "INTERNAL"
     cloud_eligible: true
     primary_tier: "heavy"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     cloud_model: "claude-code"
     complexity: "HIGH"
@@ -118,7 +125,8 @@ domains:
     security_class: "CONFIDENTIAL"
     cloud_eligible: false
     primary_tier: "heavy"
-    sprinter_model: "qwen3.5:9b"
+    sprinter_model: "qwen3.5:4b"
+    cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"
     complexity: "HIGH"
     token_threshold: 1024

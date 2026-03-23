@@ -2423,3 +2423,7 @@ RUN LOOP EXHAUSTED: domain=01_DATA_INGESTION task=01_DATA_E4_005_crypto_backfill
 
 ### 2026-03-23T09:05:11.317787+00:00 — ORCHESTRATOR
 ORCHESTRATOR ESCALATE: 01_DATA_INGESTION reason=run_loop exhausted or hard failed
+
+### 2026-03-23T13:56:18.861703+00:00 — FAIL-CLOSED
+**Reason:** LOCAL_EXECUTION_FAILED [qwen3.5:27b]: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=600)
+**Recovery:** Human Supreme Council action required.

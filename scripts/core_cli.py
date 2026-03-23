@@ -214,8 +214,8 @@ def cmd_queue(args):
         _queue_reset_all()
     elif args.queue_action == "add":
         _queue_add(args.file)
-    elif args.queue_action == "reset-all":
-        _queue_reset_all()
+    elif args.queue_action == "reset-failed":
+        _queue_reset_failed()
     else:
         print(f"Unknown queue action: {args.queue_action}")
 
