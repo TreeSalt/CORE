@@ -3119,6 +3119,1875 @@
         }
       ],
       "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T225420Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_001_rsi_divergence",
+      "mission": "mission_00_PHYSICS_E8_001_rsi_divergence.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T225822Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T225822Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T225823Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_002_market_profile",
+      "mission": "mission_00_PHYSICS_E8_002_market_profile.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T230236Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T230237Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T230237Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_003_overnight_trap",
+      "mission": "mission_00_PHYSICS_E8_003_overnight_trap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T230312Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T230312Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T230312Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_004_vwap_bands",
+      "mission": "mission_00_PHYSICS_E8_004_vwap_bands.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T230607Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T230607Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: unterminated triple-quoted string literal (detected at line 313) at line 273 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: unterminated triple-quoted string literal (detected at line 313) at line 273"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T230810Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T230810Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T230810Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_005_keltner_squeeze",
+      "mission": "mission_00_PHYSICS_E8_005_keltner_squeeze.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T231233Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T231234Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T231234Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_rsi_divergence_test",
+      "mission": "mission_06_BENCH_E6_rsi_divergence_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T231622Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T231622Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: governance_write_attempt | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T232029Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T232029Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T232031Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_market_profile_value_test",
+      "mission": "mission_06_BENCH_E6_market_profile_value_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T232501Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T232501Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T232833Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T232833Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T233248Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T233248Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T233250Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_overnight_range_trap_test",
+      "mission": "mission_06_BENCH_E6_overnight_range_trap_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T233652Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T233653Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T233654Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_vwap_bands_test",
+      "mission": "mission_06_BENCH_E6_vwap_bands_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T234204Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T234204Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T234205Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_keltner_squeeze_test",
+      "mission": "mission_06_BENCH_E6_keltner_squeeze_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260322T234450Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260322T234450Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T234452Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_006_predatory_new",
+      "mission": "mission_00_PHYSICS_E8_006_predatory_new.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T234841Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T234842Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T234842Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E8_007_zoo_register_e3",
+      "mission": "mission_00_PHYSICS_E8_007_zoo_register_e3.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260322T235030Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260322T235030Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260322T235031Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_001_crypto_exchange",
+      "mission": "mission_01_DATA_E4_001_crypto_exchange.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260322T235445Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260322T235445Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: governance_write_attempt | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260322T235835Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260322T235835Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T000315Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T000315Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T000705Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T000705Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T000705Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_002_crypto_normalizer",
+      "mission": "mission_01_DATA_E4_002_crypto_normalizer.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T000937Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T000937Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T001427Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T001427Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T002126Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T002126Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'aiohttp' cannot be resolved. | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T002513Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T002514Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T002514Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_003_crypto_symbols",
+      "mission": "mission_01_DATA_E4_003_crypto_symbols.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T002750Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T002750Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'cryptography' cannot be resolved. | HALLUCINATED_IMPORT: 'cryptography' cannot be resolved. | HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T003140Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T003141Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T003530Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T003530Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T003929Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T003929Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T003929Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_004_crypto_ws_stub",
+      "mission": "mission_01_DATA_E4_004_crypto_ws_stub.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T004331Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T004331Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T004841Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T004841Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T005623Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T005623Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T005725Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T005725Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'asyncmock' cannot be resolved. | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T005725Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_005_crypto_backfill",
+      "mission": "mission_01_DATA_E4_005_crypto_backfill.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T010226Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T010226Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T010500Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T010500Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T011234Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T011234Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T011614Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T011615Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T011615Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_crypto_exchange_adapter_test",
+      "mission": "mission_06_BENCH_E6_crypto_exchange_adapter_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T012105Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T012105Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T012630Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T012630Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T013116Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T013116Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T013118Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_crypto_normalizer_test",
+      "mission": "mission_06_BENCH_E6_crypto_normalizer_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T013421Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T013422Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T013423Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_crypto_symbols_test",
+      "mission": "mission_06_BENCH_E6_crypto_symbols_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T013910Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T013910Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: unterminated string literal (detected at line 26) at line 26 | HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: governance_write_attempt | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: unterminated string literal (detected at line 26) at line 26"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T014006Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T014006Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T014007Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_crypto_ws_feed_test",
+      "mission": "mission_06_BENCH_E6_crypto_ws_feed_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T014349Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T014349Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T014351Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_crypto_backfill_test",
+      "mission": "mission_06_BENCH_E6_crypto_backfill_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T015059Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T015059Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T015100Z",
+      "domain": "02_RISK_MANAGEMENT",
+      "task": "02_RISK_E5_001_trade_ledger",
+      "mission": "mission_02_RISK_E5_001_trade_ledger.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260323T015417Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_02_RISK_MANAGEMENT_20260323T015417Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260323T015621Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_02_RISK_MANAGEMENT_20260323T015621Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T015622Z",
+      "domain": "02_RISK_MANAGEMENT",
+      "task": "02_RISK_E5_002_position_tracker",
+      "mission": "mission_02_RISK_E5_002_position_tracker.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260323T015938Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_02_RISK_MANAGEMENT_20260323T015938Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T015939Z",
+      "domain": "02_RISK_MANAGEMENT",
+      "task": "02_RISK_E5_003_drawdown_monitor",
+      "mission": "mission_02_RISK_E5_003_drawdown_monitor.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260323T020424Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_02_RISK_MANAGEMENT_20260323T020424Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T020424Z",
+      "domain": "02_RISK_MANAGEMENT",
+      "task": "02_RISK_E5_004_correlation_guard",
+      "mission": "mission_02_RISK_E5_004_correlation_guard.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_02_RISK_MANAGEMENT_20260323T020654Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_02_RISK_MANAGEMENT_20260323T020655Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T020655Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_trade_ledger_test",
+      "mission": "mission_06_BENCH_E6_trade_ledger_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T021056Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T021056Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T021057Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_position_tracker_test",
+      "mission": "mission_06_BENCH_E6_position_tracker_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T021434Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T021434Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T021436Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_drawdown_monitor_test",
+      "mission": "mission_06_BENCH_E6_drawdown_monitor_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T021817Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T021818Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T021819Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E6_correlation_guard_test",
+      "mission": "mission_06_BENCH_E6_correlation_guard_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T022212Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T022212Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T022214Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_001_selftest_runner",
+      "mission": "mission_08_CYBER_E5_001_selftest_runner.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T022350Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T022350Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T022351Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_002_supply_chain",
+      "mission": "mission_08_CYBER_E5_002_supply_chain.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T022742Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T022742Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T022743Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_003_path_traversal",
+      "mission": "mission_08_CYBER_E5_003_path_traversal.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T022820Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T022820Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T022820Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_004_prompt_injection",
+      "mission": "mission_08_CYBER_E5_004_prompt_injection.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T023031Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T023031Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T023032Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_005_resource_exhaustion",
+      "mission": "mission_08_CYBER_E5_005_resource_exhaustion.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T023519Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T023519Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T023520Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_006_security_dashboard",
+      "mission": "mission_08_CYBER_E5_006_security_dashboard.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T023920Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T023920Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T024224Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T024224Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: UNDOCUMENTED_ENDPOINT: 'https://secure-api.internal' | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T024543Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T024543Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: UNDOCUMENTED_ENDPOINT: 'https://secure-api.internal' | UNDOCUMENTED_ENDPOINT: 'https://internal-auth.internal' | UNDOCUMENTED_ENDPOINT: 'https://logs-secure.corp.com' | UNDOCUMENTED_ENDPOINT: 'https://secure-api.internal' | UNDOCUMENTED_ENDPOINT: 'https://secure-api.internal' | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T024812Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T024812Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: UNDOCUMENTED_ENDPOINT: 'https://(secure-api\\.external|auth\\.external|metrics\\.external)/api/v[1-3]/.*$' | UNDOCUMENTED_ENDPOINT: 'https://[^' | UNDOCUMENTED_ENDPOINT: 'https://external-secure-api.external/api/v2/threats' | UNDOCUMENTED_ENDPOINT: 'https://external-metrics.external/api/v2/vulnerabilities' | UNDOCUMENTED_ENDPOINT: 'https://monitoring.external/api/v2/access' | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T024813Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_001_perf_reporter",
+      "mission": "mission_05_REPORT_E4_001_perf_reporter.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T025328Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T025328Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T025328Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_002_session_summary_v2",
+      "mission": "mission_05_REPORT_E4_002_session_summary_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T030329Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_003_domain_health",
+      "mission": "mission_05_REPORT_E4_003_domain_health.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T030734Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T030734Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T031154Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T031154Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T031155Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_004_factory_metrics",
+      "mission": "mission_05_REPORT_E4_004_factory_metrics.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T031508Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T031508Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T031511Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_005_version_history",
+      "mission": "mission_05_REPORT_E4_005_version_history.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T032257Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T032258Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T032301Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_006_linkedin_generator",
+      "mission": "mission_05_REPORT_E4_006_linkedin_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T032541Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T032542Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T032545Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_001_smoke_tests",
+      "mission": "mission_07_INTEG_E2_001_smoke_tests.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_07_INTEGRATION_20260323T032729Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_07_INTEGRATION_20260323T032729Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T032732Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_002_e2e_pipeline",
+      "mission": "mission_07_INTEG_E2_002_e2e_pipeline.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_07_INTEGRATION_20260323T033155Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_07_INTEGRATION_20260323T033155Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T033158Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_003_domain_wiring",
+      "mission": "mission_07_INTEG_E2_003_domain_wiring.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_07_INTEGRATION_20260323T033455Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_07_INTEGRATION_20260323T033455Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T033459Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_004_import_audit",
+      "mission": "mission_07_INTEG_E2_004_import_audit.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_07_INTEGRATION_20260323T033638Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_07_INTEGRATION_20260323T033638Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T033638Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_005_config_validator",
+      "mission": "mission_07_INTEG_E2_005_config_validator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_07_INTEGRATION_20260323T034004Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_07_INTEGRATION_20260323T034004Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: UNDOCUMENTED_ENDPOINT: 'http://10.' | UNDOCUMENTED_ENDPOINT: 'https://192.' | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T035005Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E7_001_readme_v10",
+      "mission": "mission_03_ORCH_E7_001_readme_v10.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260323T035852Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260323T035852Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T035853Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E7_002_changelog",
+      "mission": "mission_03_ORCH_E7_002_changelog.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260323T040239Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260323T040239Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T040240Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E7_003_epoch_scheduler",
+      "mission": "mission_03_ORCH_E7_003_epoch_scheduler.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260323T040518Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260323T040518Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T040518Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E7_004_mission_templates",
+      "mission": "mission_03_ORCH_E7_004_mission_templates.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260323T041055Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260323T041055Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T041056Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E7_005_health_check",
+      "mission": "mission_03_ORCH_E7_005_health_check.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260323T041649Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260323T041649Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T041650Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E7_006_mission_stats",
+      "mission": "mission_03_ORCH_E7_006_mission_stats.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260323T042101Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260323T042102Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T042102Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E5_001_quality_gate",
+      "mission": "mission_06_BENCH_E5_001_quality_gate.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T042511Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T042511Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: governance_write_attempt | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T042853Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T042853Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T042855Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E5_002_benchmark_report",
+      "mission": "mission_06_BENCH_E5_002_benchmark_report.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T043208Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T043208Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: expected an indented block after 'if' statement on line 93 at line 96 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: expected an indented block after 'if' statement on line 93 at line 96"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260323T043535Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260323T043535Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T052321Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_001_crypto_exchange_v2",
+      "mission": "mission_01_DATA_E4_001_crypto_exchange_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052322Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_002_crypto_normalizer_v2",
+      "mission": "mission_01_DATA_E4_002_crypto_normalizer_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052322Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_003_crypto_symbols_v2",
+      "mission": "mission_01_DATA_E4_003_crypto_symbols_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052322Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_004_crypto_ws_stub_v2",
+      "mission": "mission_01_DATA_E4_004_crypto_ws_stub_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052323Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_005_crypto_backfill_v2",
+      "mission": "mission_01_DATA_E4_005_crypto_backfill_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052323Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_006_security_dashboard_v2",
+      "mission": "mission_08_CYBER_E5_006_security_dashboard_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052323Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_002_session_summary_v3",
+      "mission": "mission_05_REPORT_E4_002_session_summary_v3.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052323Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_005_config_validator_v2",
+      "mission": "mission_07_INTEG_E2_005_config_validator_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052400Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_001_crypto_exchange_v2",
+      "mission": "mission_01_DATA_E4_001_crypto_exchange_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052400Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_002_crypto_normalizer_v2",
+      "mission": "mission_01_DATA_E4_002_crypto_normalizer_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052400Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_003_crypto_symbols_v2",
+      "mission": "mission_01_DATA_E4_003_crypto_symbols_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052401Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_004_crypto_ws_stub_v2",
+      "mission": "mission_01_DATA_E4_004_crypto_ws_stub_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052401Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_005_crypto_backfill_v2",
+      "mission": "mission_01_DATA_E4_005_crypto_backfill_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052401Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_006_security_dashboard_v2",
+      "mission": "mission_08_CYBER_E5_006_security_dashboard_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052401Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_002_session_summary_v3",
+      "mission": "mission_05_REPORT_E4_002_session_summary_v3.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052402Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_005_config_validator_v2",
+      "mission": "mission_07_INTEG_E2_005_config_validator_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052501Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_001_crypto_exchange_v2",
+      "mission": "mission_01_DATA_E4_001_crypto_exchange_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052501Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_002_crypto_normalizer_v2",
+      "mission": "mission_01_DATA_E4_002_crypto_normalizer_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052501Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_003_crypto_symbols_v2",
+      "mission": "mission_01_DATA_E4_003_crypto_symbols_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052501Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_004_crypto_ws_stub_v2",
+      "mission": "mission_01_DATA_E4_004_crypto_ws_stub_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052502Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_005_crypto_backfill_v2",
+      "mission": "mission_01_DATA_E4_005_crypto_backfill_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052502Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_006_security_dashboard_v2",
+      "mission": "mission_08_CYBER_E5_006_security_dashboard_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052502Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_002_session_summary_v3",
+      "mission": "mission_05_REPORT_E4_002_session_summary_v3.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T052503Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_005_config_validator_v2",
+      "mission": "mission_07_INTEG_E2_005_config_validator_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260323T053903Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_001_crypto_exchange_v2",
+      "mission": "mission_01_DATA_E4_001_crypto_exchange_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T054206Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T054206Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T054724Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T054724Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T055036Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T055036Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T055432Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T055432Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T055436Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_002_crypto_normalizer_v2",
+      "mission": "mission_01_DATA_E4_002_crypto_normalizer_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T055909Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T055910Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T060342Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T060342Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T060949Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T060949Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T061228Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T061228Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: invalid decimal literal at line 12 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: invalid decimal literal at line 12"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T061231Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_003_crypto_symbols_v2",
+      "mission": "mission_01_DATA_E4_003_crypto_symbols_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T061625Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T061625Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: UNDOCUMENTED_ENDPOINT: 'https://api.coingecko.com/api/v3' | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T062150Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T062150Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T062503Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T062503Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: UNDOCUMENTED_ENDPOINT: 'https://api.coingecko.com/api/v3' | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T062842Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T062842Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T062846Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_004_crypto_ws_stub_v2",
+      "mission": "mission_01_DATA_E4_004_crypto_ws_stub_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T063311Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T063311Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T063828Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T063828Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T064325Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T064325Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: invalid syntax at line 29 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: invalid syntax at line 29"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T064803Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T064803Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T064806Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_005_crypto_backfill_v2",
+      "mission": "mission_01_DATA_E4_005_crypto_backfill_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T065311Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T065311Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T065709Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T065709Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HARD_FAIL \u2014 CONSTITUTIONAL VIOLATION: hardcoded_credentials | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T070236Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T070236Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: invalid syntax at line 170 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: invalid syntax at line 170"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T070738Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260323T070738Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 16 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  6%]"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T070742Z",
+      "domain": "08_CYBERSECURITY",
+      "task": "08_CYBER_E5_006_security_dashboard_v2",
+      "mission": "mission_08_CYBER_E5_006_security_dashboard_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260323T071141Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_08_CYBERSECURITY_20260323T071142Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T071145Z",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E4_002_session_summary_v3",
+      "mission": "mission_05_REPORT_E4_002_session_summary_v3.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_05_REPORTING_20260323T071626Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_05_REPORTING_20260323T071626Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T071630Z",
+      "domain": "07_INTEGRATION",
+      "task": "07_INTEG_E2_005_config_validator_v2",
+      "mission": "mission_07_INTEG_E2_005_config_validator_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_07_INTEGRATION_20260323T071959Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_07_INTEGRATION_20260323T071959Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260323T073058Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_001_crypto_exchange_v2",
+      "mission": "mission_01_DATA_E4_001_crypto_exchange_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T073637Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T073936Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T074922Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T075257Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T075300Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_002_crypto_normalizer_v2",
+      "mission": "mission_01_DATA_E4_002_crypto_normalizer_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T075743Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T075942Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T080514Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T081002Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T081005Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_003_crypto_symbols_v2",
+      "mission": "mission_01_DATA_E4_003_crypto_symbols_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T081442Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T081632Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T081936Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T082227Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T082230Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_004_crypto_ws_stub_v2",
+      "mission": "mission_01_DATA_E4_004_crypto_ws_stub_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T083012Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T083448Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T083937Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T084316Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260323T084319Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E4_005_crypto_backfill_v2",
+      "mission": "mission_01_DATA_E4_005_crypto_backfill_v2.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T085025Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T085643Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T090049Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260323T090511Z.md",
+          "report_path": "",
+          "failures": "Previous attempt failed. Ensure all imports are resolvable and no constitutional violations exist."
+        }
+      ],
+      "final_result": "ESCALATE"
     }
   ]
 }

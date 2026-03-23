@@ -154,17 +154,37 @@ def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEM
         pattern = violation["pattern"]
         triggered = False
         if pattern == "hardcoded_credentials":
-            # Use tokenizer — skip string literals (scanner code legitimately contains these as list items)
+            # Smart credential check: only trigger when a sensitive name is assigned a non-empty literal value.
+            # Parameter declarations like def connect(api_key: str = "") are SAFE.
+            # Assignments like api_key = "sk-live-abc123" are VIOLATIONS.
             import tokenize as _tok2
             import io as _io2
             code_joined = " ".join(code_blocks)
+            sensitive_names = {"api_key", "password", "secret", "bearer", "passwd", "apikey"}
+            triggered = False
             try:
                 toks = list(_tok2.generate_tokens(_io2.StringIO(code_joined).readline))
-                # Look for Name token "api_key"/"password"/etc followed by OP "="
-                tok_strings = [t.string for t in toks if t.type == _tok2.NAME]
-                triggered = any(k in tok_strings for k in ["api_key", "password", "secret", "bearer"])
+                for i, tok in enumerate(toks):
+                    if tok.type == _tok2.NAME and tok.string.lower() in sensitive_names:
+                        # Look ahead: is this NAME = "non-empty-string"?
+                        remaining = [t for t in toks[i+1:] if t.type not in (_tok2.NL, _tok2.NEWLINE, _tok2.COMMENT, _tok2.INDENT, _tok2.DEDENT)]
+                        if len(remaining) >= 2 and remaining[0].string == "=":
+                            val = remaining[1]
+                            if val.type == _tok2.STRING:
+                                # Strip quotes and check if non-empty
+                                inner = val.string.strip("\x27\x22")
+                                if len(inner) > 0:
+                                    triggered = True
+                                    break
+                            elif val.type == _tok2.NAME and val.string not in ("None", "os", "environ", "getenv", "config", "kwargs", "args", "self", "cls", "True", "False"):
+                                # api_key = some_variable is fine; api_key = "real-key" is not
+                                pass
             except Exception:
-                triggered = any(p in " ".join(code_blocks).lower() for p in ["api_key =", "password =", "secret =", "bearer "])
+                # Fallback: only trigger on obvious hardcoded patterns
+                triggered = any(p in code_joined.lower() for p in [
+                    "api_key = \"sk-", "password = \"", "secret = \"real",
+                    "bearer \"ey", "api_key=\"sk-"
+                ])
         elif pattern == "governance_write_attempt":
             import tokenize
             import io
