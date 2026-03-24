@@ -1,12 +1,12 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-23T13:46:18.806512+00:00",
+  "last_updated": "2026-03-24T01:00:13.134744+00:00",
   "last_task": {
     "domain_id": "01_DATA_INGESTION",
     "model": "qwen3.5:27b",
     "status": "ACTIVE",
-    "completed_at": "2026-03-23T13:46:18.806512+00:00",
+    "completed_at": "2026-03-24T01:00:13.134744+00:00",
     "proposal_path": ""
   },
   "session_history": [
@@ -4342,6 +4342,13 @@
       "status": "ACTIVE",
       "completed_at": "2026-03-23T13:46:18.806512+00:00",
       "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:27b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-24T01:00:13.134744+00:00",
+      "proposal_path": ""
     }
   ],
   "hardware_ceiling": {
@@ -6866,6 +6873,13 @@
     },
     {
       "timestamp": "2026-03-23T13:46:18.800374+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:27b",
+      "tier": "heavy",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-24T01:00:13.130057+00:00",
       "domain_id": "01_DATA_INGESTION",
       "model": "qwen3.5:27b",
       "tier": "heavy",

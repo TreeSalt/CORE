@@ -270,6 +270,61 @@ def _classify_model_tier(model_name: str) -> str:
     return "sprinter"
 
 
+def _query_model_size_mb(model_name: str) -> int:
+    """Query Ollama API for the actual on-disk size of a model in MB."""
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        for m in resp.json().get("models", []):
+            if m["name"] == model_name:
+                return int(m["size"] / (1024 * 1024))
+    except Exception as e:
+        log.warning(f"Could not query model size for {model_name}: {e}")
+    return 0
+
+
+def _query_available_memory_mb() -> tuple[int, int]:
+    """Query actual free VRAM and system RAM in MB. Returns (vram_mb, ram_mb)."""
+    free_vram = 0
+    free_ram = 0
+    try:
+        import subprocess as _sp
+        _r = _sp.run(
+            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5,
+        )
+        free_vram = int(_r.stdout.strip().split(chr(10))[0])
+    except Exception:
+        pass
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    free_ram = int(line.split()[1]) // 1024
+                    break
+    except Exception:
+        pass
+    return free_vram, free_ram
+
+
+def _classify_model_tier(model_name: str) -> str:
+    """Classify a model into sprinter/cruiser/heavy based on Ollama metadata."""
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        for m in resp.json().get("models", []):
+            if m["name"] == model_name:
+                param_str = m["details"].get("parameter_size", "0B")
+                param_val = float(param_str.replace("B", "").strip())
+                if param_val < 9:
+                    return "sprinter"
+                elif param_val < 24:
+                    return "cruiser"
+                else:
+                    return "heavy"
+    except Exception as e:
+        log.warning(f"Could not classify {model_name}: {e}")
+    return "sprinter"
+
+
 def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
     """
     Hardware-relative, model-aware tier selection.
