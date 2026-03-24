@@ -263,9 +263,24 @@ def gate_logic(domain_id: str) -> dict:
         result["failures"].append("NO_TEST_SUITE")
         return result
 
+    # Smart test matching: find test file specific to the deliverable
+    # Falls back to full directory if no specific match exists
+    test_target = str(test_dir)  # default: run all tests in domain
+    if hasattr(gate_logic, '_current_deliverable') and gate_logic._current_deliverable:
+        deliverable_stem = Path(gate_logic._current_deliverable).stem
+        # Look for test_{deliverable}.py in the test directory
+        specific_test = test_dir / f"test_{deliverable_stem}.py"
+        if specific_test.exists():
+            test_target = str(specific_test)
+            log.info(f"SMART TEST MATCH: {specific_test.name} for deliverable {deliverable_stem}")
+        else:
+            log.warning(
+                f"TEST COVERAGE GAP: No test_{{deliverable_stem}}.py found for {deliverable_stem}. "
+                f"Running full domain suite. Consider adding a dedicated test file."
+            )
     try:
         proc = subprocess.run(
-            [sys.executable, "-m", "pytest", str(test_dir), "-v", "--tb=short"],
+            [sys.executable, "-m", "pytest", test_target, "-v", "--tb=short"],
             capture_output=True, text=True, timeout=300, cwd=str(REPO_ROOT)
         )
         result["pytest_output"] = proc.stdout + proc.stderr
@@ -360,6 +375,18 @@ def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPL
             "failures": [], "pytest_output": "SKIPPED — ARCHITECTURE proposal type"
         }
     else:
+        # Extract deliverable path from proposal for smart test matching
+        _deliverable = None
+        try:
+            proposal_text = proposal.read_text()
+            for line in proposal_text.split("\n"):
+                if line.strip().startswith("File:"):
+                    _deliverable = line.strip().replace("File:", "").strip()
+                    log.info(f"DELIVERABLE DETECTED: {_deliverable}")
+                    break
+        except Exception:
+            pass
+        gate_logic._current_deliverable = _deliverable
         results["gates"]["logic"] = gate_logic(domain_id)
 
     return _finalize(results, proposal, domain_id, timestamp)

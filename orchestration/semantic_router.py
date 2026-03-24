@@ -438,7 +438,8 @@ def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
             f"Degraded from {desired_tier}: memory constraint ({memory_mode})",
         )
 
-    return selected_tier, selected_model
+    recommended_timeout = 1800 if memory_mode == "SPLIT" else 600
+    return selected_tier, selected_model, recommended_timeout
 
 def get_live_vram_state() -> dict:
     try:
@@ -550,7 +551,7 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
                 "stream": False,
                 "options": options
             },
-            timeout=TIMEOUT
+            timeout=1800 if "27b" in model or "30b" in model or "32b" in model or "35b" in model else 600
         )
         res.raise_for_status()
         content = res.json().get("response", "")
@@ -593,7 +594,7 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
     mission = load_mission_prompt(mission_file)
 
     # Tier selection based on complexity + token count
-    tier, model = select_tier(domain, mission)
+    tier, model, dynamic_timeout = select_tier(domain, mission)
 
     # VRAM ceiling check for local execution
     if not check_vram_ceiling():
