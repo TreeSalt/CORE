@@ -1,13 +1,13 @@
 {
   "_note": "OBSERVABILITY LOG ONLY. Source of truth is GET /api/ps.",
   "_constitution": "bound",
-  "last_updated": "2026-03-25T21:20:48.467681+00:00",
+  "last_updated": "2026-03-26T00:22:27.676556+00:00",
   "last_task": {
-    "domain_id": "08_CYBERSECURITY",
+    "domain_id": "01_DATA_INGESTION",
     "model": "qwen3.5:9b",
-    "status": "COMPLETE",
-    "completed_at": "2026-03-25T21:20:48.467681+00:00",
-    "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260325T212048Z.md"
+    "status": "ACTIVE",
+    "completed_at": "2026-03-26T00:22:27.676556+00:00",
+    "proposal_path": ""
   },
   "session_history": [
     {
@@ -5434,6 +5434,335 @@
       "status": "COMPLETE",
       "completed_at": "2026-03-25T21:20:48.467681+00:00",
       "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260325T212048Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:07:22.629213+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:09:54.489381+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260325T230954Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:09:55.893799+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:11:54.462046+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260325T231154Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:11:56.214247+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:13:35.011708+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260325T231335Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:13:35.951422+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:15:20.027656+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260325T231520Z.md"
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:15:21.383656+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:17:34.646839+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260325T231734Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:17:35.591140+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:22:57.107066+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260325T232257Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:23:01.217705+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:25:27.606178+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260325T232527Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:25:31.738966+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:26:19.651726+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260325T232619Z.md"
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:26:23.782224+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:28:44.335800+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260325T232844Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:28:48.483633+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:32:40.816168+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260325T233240Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:32:41.790678+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:37:58.988697+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260325T233758Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:37:59.372951+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:41:21.852164+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260325T234121Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:41:22.235221+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:45:43.841507+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260325T234543Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:45:48.147735+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:48:06.196915+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260325T234806Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:48:07.257378+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:50:19.703214+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260325T235019Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:50:21.932987+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:51:48.141236+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260325T235148Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:51:50.644201+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:55:39.859804+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260325T235539Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:55:42.506885+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:57:55.742681+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260325T235755Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:57:58.669938+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-25T23:59:28.665446+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260325T235928Z.md"
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-25T23:59:30.983913+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-26T00:01:05.693689+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T000105Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-26T00:07:28.765184+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-26T00:13:35.675419+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T001335Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-26T00:13:36.618739+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-26T00:17:18.972192+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T001718Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-26T00:17:19.390843+00:00",
+      "proposal_path": ""
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "COMPLETE",
+      "completed_at": "2026-03-26T00:22:26.739972+00:00",
+      "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T002226Z.md"
+    },
+    {
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "status": "ACTIVE",
+      "completed_at": "2026-03-26T00:22:27.676556+00:00",
+      "proposal_path": ""
     }
   ],
   "hardware_ceiling": {
@@ -8662,6 +8991,174 @@
       "model": "qwen3.5:9b",
       "tier": "cruiser",
       "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:07:22.622207+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:09:55.887041+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:11:56.206703+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:13:35.944366+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:15:21.376499+00:00",
+      "domain_id": "03_ORCHESTRATION",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:17:35.584859+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:23:01.210398+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:25:31.732294+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:26:23.774948+00:00",
+      "domain_id": "00_PHYSICS_ENGINE",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=CONFIDENTIAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:28:48.477121+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:32:41.783801+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:37:59.366457+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:41:22.228820+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:45:48.139677+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:48:07.250459+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:50:21.924851+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:51:50.636733+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:55:42.499268+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:57:58.663336+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-25T23:59:30.976424+00:00",
+      "domain_id": "06_BENCHMARKING",
+      "model": "qwen3.5:4b",
+      "tier": "sprinter",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-26T00:07:28.758577+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-26T00:13:36.612197+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-26T00:17:19.383676+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
+    },
+    {
+      "timestamp": "2026-03-26T00:22:27.670028+00:00",
+      "domain_id": "01_DATA_INGESTION",
+      "model": "qwen3.5:9b",
+      "tier": "cruiser",
+      "reason": "local execution \u2014 security_class=INTERNAL"
     }
   ]
 }

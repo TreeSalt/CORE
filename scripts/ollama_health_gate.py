@@ -166,3 +166,86 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     result = pre_mission_health_check()
     print(json.dumps(result, indent=2))
+
+
+def get_model_load_mode() -> list[dict]:
+    """Check ollama ps for CPU/GPU split mode. Returns list of loaded model info."""
+    try:
+        result = subprocess.run(
+            ["ollama", "ps"],
+            capture_output=True, text=True, timeout=10
+        )
+        models = []
+        for line in result.stdout.strip().split("\n")[1:]:  # skip header
+            parts = line.split()
+            if len(parts) >= 4:
+                name = parts[0]
+                # Find the processor field — looks like "28%/72% CPU/GPU" or "100% GPU"
+                proc_info = " ".join(parts[3:])
+                is_split = "CPU/GPU" in proc_info or "cpu/gpu" in proc_info.lower()
+                models.append({"name": name, "processor": proc_info, "is_split": is_split})
+        return models
+    except Exception as e:
+        log.warning(f"Could not check model load mode: {e}")
+        return []
+
+
+def ensure_clean_vram() -> dict:
+    """
+    VRAM Cooldown Gate — ensures no model is running in CPU/GPU split mode.
+    
+    Split mode means Ollama couldn't fit the model entirely in VRAM and spilled
+    into system RAM. This causes 5-10x slower inference and cascading timeouts.
+    
+    Called between every mission in the orchestrator loop.
+    
+    Returns: {"clean": bool, "action_taken": str, "models_before": list, "models_after": list}
+    """
+    report = {"clean": True, "action_taken": "none", "models_before": [], "models_after": []}
+    
+    models = get_model_load_mode()
+    report["models_before"] = models
+    
+    split_models = [m for m in models if m["is_split"]]
+    
+    if split_models:
+        log.warning(
+            f"VRAM COOLDOWN: {len(split_models)} model(s) in CPU/GPU split mode: "
+            f"{[m['name'] for m in split_models]}. Force-unloading for clean VRAM."
+        )
+        report["action_taken"] = "force_unload_split"
+        
+        for m in split_models:
+            try:
+                log.info(f"  Unloading split model: {m['name']} ({m['processor']})")
+                subprocess.run(["ollama", "stop", m["name"]], capture_output=True, timeout=30)
+            except Exception as e:
+                log.warning(f"  Failed to unload {m['name']}: {e}")
+        
+        # Wait for VRAM to fully release
+        time.sleep(5)
+        
+        # Verify
+        after = get_model_load_mode()
+        report["models_after"] = after
+        remaining_split = [m for m in after if m["is_split"]]
+        
+        if remaining_split:
+            log.error(f"VRAM COOLDOWN: Still {len(remaining_split)} split model(s) after unload. Forcing full clear.")
+            unload_all_models()
+            time.sleep(5)
+            report["action_taken"] = "force_unload_all"
+        
+        report["clean"] = len(get_model_load_mode()) == 0 or not any(
+            m["is_split"] for m in get_model_load_mode()
+        )
+        
+        vram = get_vram_usage_mb()
+        log.info(f"VRAM COOLDOWN: Complete. VRAM now: {vram['free']}MB free / {vram['total']}MB total")
+    else:
+        if models:
+            log.info(f"VRAM COOLDOWN: Model(s) loaded in VRAM-only mode — no action needed")
+        else:
+            log.info("VRAM COOLDOWN: No models loaded — VRAM clean")
+    
+    return report

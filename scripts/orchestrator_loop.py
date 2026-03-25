@@ -68,7 +68,7 @@ from pathlib import Path
 
 # ── HEALTH GATE (auto-recovery for Ollama crashes) ───────────────────────────
 try:
-    from ollama_health_gate import pre_mission_health_check
+    from ollama_health_gate import pre_mission_health_check, ensure_clean_vram
     HEALTH_GATE_AVAILABLE = True
 except ImportError:
     HEALTH_GATE_AVAILABLE = False
@@ -352,6 +352,12 @@ def run_orchestrator(dry_run: bool = False,
                 "started_at": datetime.now(timezone.utc).isoformat()
             })
             save_queue(queue)
+
+            # VRAM Cooldown Gate — detect and clear CPU/GPU split mode
+            if HEALTH_GATE_AVAILABLE and not dry_run:
+                cooldown = ensure_clean_vram()
+                if not cooldown["clean"]:
+                    log.warning(f"VRAM COOLDOWN: Could not achieve clean VRAM for {mission['id']}")
 
             # Health Gate — ensure Ollama is alive before dispatch
             if HEALTH_GATE_AVAILABLE and not dry_run:

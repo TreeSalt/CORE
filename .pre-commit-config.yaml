@@ -11,3 +11,11 @@ repos:
             08_IMPLEMENTATION_NOTES/ESCALATIONS/.*\.md|
             scripts/archive/.*
           )$
+  - repo: local
+    hooks:
+      - id: update-badges
+        name: Update README badges
+        entry: python3 scripts/update_badges.py
+        language: system
+        pass_filenames: false
+        always_run: true
