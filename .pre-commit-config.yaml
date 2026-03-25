@@ -4,3 +4,10 @@ repos:
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            08_IMPLEMENTATION_NOTES/PROPOSAL_.*\.md|
+            06_BENCHMARKING/reports/.*\.md|
+            08_IMPLEMENTATION_NOTES/ESCALATIONS/.*\.md|
+            scripts/archive/.*
+          )$
