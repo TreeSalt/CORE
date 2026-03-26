@@ -7,17 +7,18 @@
       "mission_file": "mission_03_ORCH_E9_001_core_deploy.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 0,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260325T230955Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_03_ORCHESTRATION_20260326T035245Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:07:21.859132+00:00",
-      "completed_at": "2026-03-25T23:09:55.201868+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260325T230955Z.md"
+      "started_at": "2026-03-26T03:42:44.813324+00:00",
+      "completed_at": "2026-03-26T03:52:45.873492+00:00"
     },
     {
       "id": "03_ORCH_E9_002_core_prompt",
@@ -26,17 +27,18 @@
       "mission_file": "mission_03_ORCH_E9_002_core_prompt.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 1,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260325T231155Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_03_ORCHESTRATION_20260326T040252Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:09:55.202327+00:00",
-      "completed_at": "2026-03-25T23:11:55.127067+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260325T231155Z.md"
+      "started_at": "2026-03-26T03:52:45.874121+00:00",
+      "completed_at": "2026-03-26T04:02:52.204319+00:00"
     },
     {
       "id": "03_ORCH_E9_003_core_status",
@@ -48,14 +50,14 @@
       "status": "RATIFIED",
       "priority": 2,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
         "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260325T231520Z.md"
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260326T040525Z.md"
       },
-      "started_at": "2026-03-25T23:11:55.127624+00:00",
-      "completed_at": "2026-03-25T23:15:20.710834+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260325T231520Z.md"
+      "started_at": "2026-03-26T04:02:52.206780+00:00",
+      "completed_at": "2026-03-26T04:05:25.937902+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260326T040525Z.md"
     },
     {
       "id": "03_ORCH_E9_004_prefer_heavy",
@@ -64,17 +66,18 @@
       "mission_file": "mission_03_ORCH_E9_004_prefer_heavy.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 3,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260325T231735Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_03_ORCHESTRATION_20260326T041532Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:15:20.711248+00:00",
-      "completed_at": "2026-03-25T23:17:35.307635+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260325T231735Z.md"
+      "started_at": "2026-03-26T04:05:25.938325+00:00",
+      "completed_at": "2026-03-26T04:15:32.130844+00:00"
     },
     {
       "id": "00_PHYSICS_E10_001_strategy_base",
@@ -86,14 +89,14 @@
       "status": "RATIFIED",
       "priority": 4,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
         "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260325T232257Z.md"
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260326T042106Z.md"
       },
-      "started_at": "2026-03-25T23:17:35.308125+00:00",
-      "completed_at": "2026-03-25T23:22:57.652015+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260325T232257Z.md"
+      "started_at": "2026-03-26T04:15:32.133393+00:00",
+      "completed_at": "2026-03-26T04:21:06.477267+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260326T042106Z.md"
     },
     {
       "id": "00_PHYSICS_E10_002_backtest_engine",
@@ -102,17 +105,18 @@
       "mission_file": "mission_00_PHYSICS_E10_002_backtest_engine.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 5,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260325T232528Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260326T043112Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:22:57.652523+00:00",
-      "completed_at": "2026-03-25T23:25:28.165237+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260325T232528Z.md"
+      "started_at": "2026-03-26T04:21:06.477692+00:00",
+      "completed_at": "2026-03-26T04:31:12.326459+00:00"
     },
     {
       "id": "00_PHYSICS_E10_003_bollinger_vwap",
@@ -121,17 +125,18 @@
       "mission_file": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 6,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260325T232620Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260326T044118Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:25:28.165675+00:00",
-      "completed_at": "2026-03-25T23:26:20.216819+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260325T232620Z.md"
+      "started_at": "2026-03-26T04:31:12.328971+00:00",
+      "completed_at": "2026-03-26T04:41:18.195243+00:00"
     },
     {
       "id": "00_PHYSICS_E10_004_atr_regime",
@@ -140,17 +145,18 @@
       "mission_file": "mission_00_PHYSICS_E10_004_atr_regime.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 7,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260325T232844Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_00_PHYSICS_ENGINE_20260326T045123Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:26:20.217264+00:00",
-      "completed_at": "2026-03-25T23:28:44.919544+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260325T232844Z.md"
+      "started_at": "2026-03-26T04:41:18.195896+00:00",
+      "completed_at": "2026-03-26T04:51:24.046469+00:00"
     },
     {
       "id": "01_DATA_E6_001_candle_generator",
@@ -159,13 +165,18 @@
       "mission_file": "mission_01_DATA_E6_001_candle_generator.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 8,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
-      "result": "SOVEREIGN_AUTHORED",
-      "started_at": "2026-03-26T00:07:28.474739+00:00",
-      "completed_at": "2026-03-26T00:32:27.901861+00:00"
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
+      "result": {
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_01_DATA_INGESTION_20260326T050129Z.md",
+        "ratification_packet": null
+      },
+      "started_at": "2026-03-26T04:51:24.048630+00:00",
+      "completed_at": "2026-03-26T05:01:29.933684+00:00"
     },
     {
       "id": "06_BENCH_E8_001_deploy_test",
@@ -177,14 +188,14 @@
       "status": "RATIFIED",
       "priority": 9,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
         "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260325T235021Z.md"
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260326T050157Z.md"
       },
-      "started_at": "2026-03-25T23:45:44.073409+00:00",
-      "completed_at": "2026-03-25T23:50:21.302651+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260325T235021Z.md"
+      "started_at": "2026-03-26T05:01:29.934468+00:00",
+      "completed_at": "2026-03-26T05:01:57.725933+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260326T050157Z.md"
     },
     {
       "id": "06_BENCH_E8_002_prompt_test",
@@ -196,14 +207,14 @@
       "status": "RATIFIED",
       "priority": 10,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
         "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260325T235149Z.md"
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260326T050540Z.md"
       },
-      "started_at": "2026-03-25T23:50:21.303173+00:00",
-      "completed_at": "2026-03-25T23:51:49.709230+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260325T235149Z.md"
+      "started_at": "2026-03-26T05:01:57.726440+00:00",
+      "completed_at": "2026-03-26T05:05:40.301315+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260326T050540Z.md"
     },
     {
       "id": "06_BENCH_E8_003_strategy_base_test",
@@ -212,17 +223,18 @@
       "mission_file": "mission_06_BENCH_E8_003_strategy_base_test.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 11,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260325T235541Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_06_BENCHMARKING_20260326T051541Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:51:49.709721+00:00",
-      "completed_at": "2026-03-25T23:55:41.487248+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260325T235541Z.md"
+      "started_at": "2026-03-26T05:05:40.301776+00:00",
+      "completed_at": "2026-03-26T05:15:41.190665+00:00"
     },
     {
       "id": "06_BENCH_E8_004_backtest_test",
@@ -234,14 +246,14 @@
       "status": "RATIFIED",
       "priority": 12,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
         "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260325T235757Z.md"
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260326T052306Z.md"
       },
-      "started_at": "2026-03-25T23:55:41.487743+00:00",
-      "completed_at": "2026-03-25T23:57:57.337769+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260325T235757Z.md"
+      "started_at": "2026-03-26T05:15:41.191308+00:00",
+      "completed_at": "2026-03-26T05:23:06.098363+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260326T052306Z.md"
     },
     {
       "id": "06_BENCH_E8_005_candle_gen_test",
@@ -253,14 +265,14 @@
       "status": "RATIFIED",
       "priority": 13,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
         "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260325T235930Z.md"
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260326T052355Z.md"
       },
-      "started_at": "2026-03-25T23:57:57.338308+00:00",
-      "completed_at": "2026-03-25T23:59:30.307320+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260325T235930Z.md"
+      "started_at": "2026-03-26T05:23:06.098921+00:00",
+      "completed_at": "2026-03-26T05:23:55.096753+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260326T052355Z.md"
     },
     {
       "id": "06_BENCH_E8_006_bollinger_test",
@@ -269,17 +281,18 @@
       "mission_file": "mission_06_BENCH_E8_006_bollinger_test.md",
       "type": "IMPLEMENTATION",
       "max_retries": 3,
-      "status": "RATIFIED",
+      "status": "ESCALATE",
       "priority": 14,
       "authored_by": "Claude.ai + Alec \u2014 Supreme Council",
-      "authored_at": "2026-03-25T23:06:30.070561+00:00",
+      "authored_at": "2026-03-26T03:42:44.502200+00:00",
       "result": {
-        "status": "PASS",
-        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260326T000107Z.md"
+        "status": "ESCALATE",
+        "reason": "run_loop exhausted or hard failed",
+        "escalation_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/ESCALATION_06_BENCHMARKING_20260326T053239Z.md",
+        "ratification_packet": null
       },
-      "started_at": "2026-03-25T23:59:30.307860+00:00",
-      "completed_at": "2026-03-26T00:01:07.331922+00:00",
-      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260326T000107Z.md"
+      "started_at": "2026-03-26T05:23:55.097278+00:00",
+      "completed_at": "2026-03-26T05:32:40.053526+00:00"
     }
   ]
 }

@@ -491,27 +491,16 @@ def load_mission_prompt(mission_file: str) -> str:
 # ── EXECUTION ─────────────────────────────────────────────────────────────────
 
 def _build_context_package(domain, task, mission):
-    # Read the actual mission brief — this is the LLM's instructions
-    mission_path = REPO_ROOT / "prompts" / "missions" / mission
-    mission_content = ""
-    if mission_path.exists():
-        mission_content = mission_path.read_text()
-    else:
-        log.warning(f"Mission file not found: {mission_path}")
+    """Build the prompt for the LLM. Mission brief ONLY — no constraints.
+    
+    NOTE: 'mission' is already the loaded text content from load_mission_prompt().
+    Do NOT try to load it again from a file path.
+    
+    Constraints are enforced by the benchmark runner, not the model.
+    Design principle: Algorithms for the deterministic, LLMs for the creative.
+    """
+    return mission
 
-    return (
-        f"DOMAIN: {domain['id']}\n"
-        f"SECURITY_CLASS: {domain.get('security_class', 'INTERNAL')}\n"
-        f"TASK: {task}\n"
-        f"CONSTRAINTS:\n"
-        f"  - Proposals only. No direct execution.\n"
-        f"  - No writes to 04_GOVERNANCE/\n"
-        f"  - No hardcoded credentials\n"
-        f"  - Fail closed on any constraint breach\n"
-        f"  - Output valid Python code only\n\n"
-        f"--- MISSION BRIEF ---\n"
-        f"{mission_content}\n"
-    )
 
 def write_proposal(domain_id, model, tier, proposal_type, content):
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -543,18 +532,29 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
         # system RAM (32GB available), avoiding 8GB VRAM bottlenecks/crashes.
         options = {}  # VRAM gate in select_tier() handles GPU/CPU routing — no forced CPU override
 
+        # Split context into system instruction + mission brief for role separation
+        system_msg = (
+            "You are a Python code generator. Read the mission brief and write EXACTLY "
+            "the code described. If the brief contains a code skeleton with function stubs, "
+            "fill in every function body. Keep the EXACT function names and signatures shown. "
+            "Output raw Python only. No markdown. No explanations. No extra classes or functions "
+            "beyond what the brief asks for."
+        )
         res = requests.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
+            f"{OLLAMA_BASE_URL}/api/chat",
             json={
                 "model": model,
-                "prompt": context,
+                "messages": [
+                    {"role": "system", "content": system_msg},
+                    {"role": "user", "content": context}
+                ],
                 "stream": False,
                 "options": options
             },
             timeout=1800 if "27b" in model or "30b" in model or "32b" in model or "35b" in model else 600
         )
         res.raise_for_status()
-        content = res.json().get("response", "")
+        content = res.json().get("message", {}).get("content", "")
         proposal_path = write_proposal(domain_id, model, tier, proposal_type, content)
         update_vram_log(domain_id, model, "COMPLETE", str(proposal_path))
         return proposal_path
@@ -635,7 +635,7 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
 # ── INIT ──────────────────────────────────────────────────────────────────────
 
 def initialize():
-    log.info("AOS SEMANTIC ROUTER v3.0.0 — INITIALIZING")
+    log.info("CORE SEMANTIC ROUTER v3.0.0 — INITIALIZING")
     verify_constitutional_hashes()
     load_operator_instance()
     load_domains_registry()

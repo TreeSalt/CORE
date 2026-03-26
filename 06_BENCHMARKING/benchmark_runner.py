@@ -392,7 +392,7 @@ def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPL
     return _finalize(results, proposal, domain_id, timestamp)
 
 def initialize():
-    log.info("AOS BENCHMARK RUNNER v1.0.0 — INITIALIZING")
+    log.info("CORE BENCHMARK RUNNER v1.0.0 — INITIALIZING")
     _verify_constitution()
     _load_schema()
     _load_domains()

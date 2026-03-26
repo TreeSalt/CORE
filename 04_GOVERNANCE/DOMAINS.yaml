@@ -51,7 +51,7 @@ domains:
     description: "Semantic router, agent coordination, task packaging, VRAM management"
     security_class: "INTERNAL"
     cloud_eligible: true
-    primary_tier: "sprinter"
+    primary_tier: "cruiser"
     sprinter_model: "qwen3.5:4b"
     cruiser_model: "qwen3.5:9b"
     heavy_model: "qwen3.5:27b"

@@ -6492,6 +6492,367 @@
         }
       ],
       "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T020021Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "TEST_CONTEXT_FIX_001",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T020206Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T020207Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T020449Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T020608Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T020736Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T020736Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T021048Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v2",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T021621Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T021621Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T022040Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v3",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T022535Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T022535Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T022859Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v4",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T023601Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T023601Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T023908Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v5",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T024107Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v5",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T024627Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T024627Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T024938Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v6",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T025205Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T025205Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T025727Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status_v7",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 1,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T034244Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_001_core_deploy",
+      "mission": "mission_03_ORCH_E9_001_core_deploy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T035251Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_002_core_prompt",
+      "mission": "mission_03_ORCH_E9_002_core_prompt.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T040257Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_003_core_status",
+      "mission": "mission_03_ORCH_E9_003_core_status.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T040525Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T040525Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T040531Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_004_prefer_heavy",
+      "mission": "mission_03_ORCH_E9_004_prefer_heavy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T041537Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_001_strategy_base",
+      "mission": "mission_00_PHYSICS_E10_001_strategy_base.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260326T042105Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260326T042106Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T042111Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T043117Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_003_bollinger_vwap",
+      "mission": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T044123Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_004_atr_regime",
+      "mission": "mission_00_PHYSICS_E10_004_atr_regime.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T045129Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T050135Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_001_deploy_test",
+      "mission": "mission_06_BENCH_E8_001_deploy_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T050156Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T050156Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T050157Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_002_prompt_test",
+      "mission": "mission_06_BENCH_E8_002_prompt_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T050511Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T050511Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: HALLUCINATED_IMPORT: 'orchestrator_core' cannot be resolved. | # BENCHMARK REPORT: \u274c FAILED"
+        },
+        {
+          "attempt": 2,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T050538Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T050538Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T050540Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_003_strategy_base_test",
+      "mission": "mission_06_BENCH_E8_003_strategy_base_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T051541Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_004_backtest_test",
+      "mission": "mission_06_BENCH_E8_004_backtest_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T052304Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T052304Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T052306Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_005_candle_gen_test",
+      "mission": "mission_06_BENCH_E8_005_candle_gen_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T052353Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T052353Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T052355Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_006_bollinger_test",
+      "mission": "mission_06_BENCH_E8_006_bollinger_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
     }
   ]
 }

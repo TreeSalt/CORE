@@ -336,7 +336,7 @@ def run_loop(domain: str, task: str, mission: str,
              proposal_type: str, max_retries: int) -> None:
 
     log.info("=" * 60)
-    log.info("AOS AUTONOMOUS FACTORY RUN LOOP — ONLINE")
+    log.info("CORE AUTONOMOUS FACTORY RUN LOOP — ONLINE")
     log.info(f"Domain:   {domain}")
     log.info(f"Task:     {task}")
     log.info(f"Mission:  {mission}")

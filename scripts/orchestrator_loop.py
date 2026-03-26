@@ -320,7 +320,7 @@ def run_orchestrator(dry_run: bool = False,
                      interval: int = 60) -> None:
 
     log.info("=" * 60)
-    log.info("AOS ORCHESTRATOR LOOP — PHASE 2 AUTO-DELEGATOR")
+    log.info("CORE ORCHESTRATOR LOOP — PHASE 2 AUTO-DELEGATOR")
     log.info(f"Mode: {'DAEMON' if daemon else 'SINGLE-PASS'} | dry_run={dry_run}")
     log.info("=" * 60)
 
