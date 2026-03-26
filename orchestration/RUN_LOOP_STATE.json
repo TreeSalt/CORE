@@ -6853,6 +6853,514 @@
       "max_retries": 3,
       "attempts": [],
       "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T055721Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_001_core_deploy",
+      "mission": "mission_03_ORCH_E9_001_core_deploy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T060727Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_002_core_prompt",
+      "mission": "mission_03_ORCH_E9_002_core_prompt.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T061218Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T061219Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T061225Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_004_prefer_heavy",
+      "mission": "mission_03_ORCH_E9_004_prefer_heavy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T062231Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T063237Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_003_bollinger_vwap",
+      "mission": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T064243Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_004_atr_regime",
+      "mission": "mission_00_PHYSICS_E10_004_atr_regime.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T065248Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T070254Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_003_strategy_base_test",
+      "mission": "mission_06_BENCH_E8_003_strategy_base_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T070533Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T070533Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T070534Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_006_bollinger_test",
+      "mission": "mission_06_BENCH_E8_006_bollinger_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T150828Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_001_core_deploy",
+      "mission": "mission_03_ORCH_E9_001_core_deploy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T151509Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T151509Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T151515Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_004_prefer_heavy",
+      "mission": "mission_03_ORCH_E9_004_prefer_heavy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T152620Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T153726Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_003_bollinger_vwap",
+      "mission": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T154832Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_004_atr_regime",
+      "mission": "mission_00_PHYSICS_E10_004_atr_regime.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260326T155009Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260326T155009Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T155015Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T160120Z",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E8_006_bollinger_test",
+      "mission": "mission_06_BENCH_E8_006_bollinger_test.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_06_BENCHMARKING_20260326T160608Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_06_BENCHMARKING_20260326T160608Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T162904Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_004_prefer_heavy",
+      "mission": "mission_03_ORCH_E9_004_prefer_heavy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T164010Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T164516Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_003_bollinger_vwap",
+      "mission": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T165022Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T170108Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260326T170108Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        }
+      ],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T194508Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_004_prefer_heavy",
+      "mission": "mission_03_ORCH_E9_004_prefer_heavy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T195614Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T200719Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_003_bollinger_vwap",
+      "mission": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T201825Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T214635Z",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E9_004_prefer_heavy",
+      "mission": "mission_03_ORCH_E9_004_prefer_heavy.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260326T220235Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_03_ORCHESTRATION_20260326T220235Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T220241Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [],
+      "final_result": "HARD_FAIL"
+    },
+    {
+      "run_id": "20260326T221747Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_003_bollinger_vwap",
+      "mission": "mission_00_PHYSICS_E10_003_bollinger_vwap.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260326T222930Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260326T222931Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T222936Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T224836Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260326T224836Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: expected an indented block after 'if' statement on line 1 at line 1 | SYNTAX_ERROR: expected an indented block after 'if' statement on line 1 at line 2 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: expected an indented block after 'if' statement on line 1 at line 1 | - SYNTAX_ERROR: expected an indented block after 'if' statement on line 1 at line 2"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T231658Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260326T231658Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: '{' was never closed at line 276 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: '{' was never closed at line 276"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T232348Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260326T232348Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260326T234421Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260326T234421Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260326T234551Z",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E10_002_backtest_engine",
+      "mission": "mission_00_PHYSICS_E10_002_backtest_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "PASS",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_00_PHYSICS_ENGINE_20260326T235619Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_00_PHYSICS_ENGINE_20260326T235620Z.md",
+          "failures": "None"
+        }
+      ],
+      "final_result": "PASS"
+    },
+    {
+      "run_id": "20260326T235625Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T001517Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T001518Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T002614Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T002614Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T005535Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T005535Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: unexpected indent at line 1 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: unexpected indent at line 1"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T010948Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T010948Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260327T011850Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T014030Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T014030Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T021238Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T021238Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T024544Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T024544Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T030823Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T030823Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: invalid syntax at line 38 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: invalid syntax at line 38"
+        }
+      ],
+      "final_result": "ESCALATE"
+    },
+    {
+      "run_id": "20260327T033024Z",
+      "domain": "01_DATA_INGESTION",
+      "task": "01_DATA_E6_001_candle_generator",
+      "mission": "mission_01_DATA_E6_001_candle_generator.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T034538Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T034538Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: SYNTAX_ERROR: invalid syntax. Perhaps you forgot a comma? at line 7 | # BENCHMARK REPORT: \u274c FAILED | - SYNTAX_ERROR: invalid syntax. Perhaps you forgot a comma? at line 7"
+        },
+        {
+          "attempt": 2,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T042236Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T042236Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 3,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T043227Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T043227Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        },
+        {
+          "attempt": 4,
+          "result": "SOFT_FAIL",
+          "proposal_path": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/PROPOSAL_01_DATA_INGESTION_20260327T050356Z.md",
+          "report_path": "/home/asanchez/TRADER_OPS/v9e_stage/06_BENCHMARKING/reports/BENCHMARK_01_DATA_INGESTION_20260327T050356Z.md",
+          "failures": "CORRECTIVE_CONTEXT from previous failed attempt: PYTEST_FAILED: View report for traceback. | #### pytest output: | ``` | ============================= test session starts ============================== | platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /home/asanchez/TRADER_OPS/v9e_stage/.venv/bin/python3 | cachedir: .pytest_cache | rootdir: /home/asanchez/TRADER_OPS/v9e_stage | plugins: anyio-4.12.1 | collecting ... collected 38 items | 06_BENCHMARKING/tests/01_DATA_INGESTION/test_bench_websocket_handler.py::test_required_imports_exist PASSED [  2%]"
+        }
+      ],
+      "final_result": "ESCALATE"
     }
   ]
 }

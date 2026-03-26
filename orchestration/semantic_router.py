@@ -18,10 +18,12 @@ import sys
 import json
 import hashlib
 import logging
+import time
 import re
 import requests
 import yaml
 from pathlib import Path
+from orchestration.dynamic_timeout import get_timeout, record_completion, record_timeout
 from datetime import datetime, timezone
 from typing import NoReturn
 
@@ -540,6 +542,7 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
             "Output raw Python only. No markdown. No explanations. No extra classes or functions "
             "beyond what the brief asks for."
         )
+        _start_time = time.time()
         res = requests.post(
             f"{OLLAMA_BASE_URL}/api/chat",
             json={
@@ -551,14 +554,19 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
                 "stream": False,
                 "options": options
             },
-            timeout=1800 if "27b" in model or "30b" in model or "32b" in model or "35b" in model else 600
+            timeout=get_timeout(domain_id, tier, model)
         )
         res.raise_for_status()
         content = res.json().get("message", {}).get("content", "")
         proposal_path = write_proposal(domain_id, model, tier, proposal_type, content)
         update_vram_log(domain_id, model, "COMPLETE", str(proposal_path))
+        elapsed = time.time() - _start_time
+        record_completion(domain_id, tier, elapsed)
         return proposal_path
     except Exception as e:
+        elapsed = time.time() - _start_time
+        if "timed out" in str(e).lower() or "timeout" in str(e).lower():
+            record_timeout(domain_id, tier, int(elapsed))
         _fail_closed(f"LOCAL_EXECUTION_FAILED [{model}]: {e}")
 
 def execute_cloud(domain, task, mission, tier, proposal_type="IMPLEMENTATION"):

@@ -351,10 +351,15 @@ def cmd_run(args):
 
 
 def cmd_ratify(args):
-    """Bulk ratify all AWAITING_RATIFICATION missions."""
+    """Bulk ratify all AWAITING_RATIFICATION missions, then auto-deploy code to disk."""
     ratify_script = REPO_ROOT / "bulk_ratify_all.py"
     if ratify_script.exists():
         subprocess.run([sys.executable, str(ratify_script)])
+    # Auto-deploy: extract code from ratified proposals to deliverable paths
+    auto_deploy_script = REPO_ROOT / "scripts" / "auto_deploy.py"
+    if auto_deploy_script.exists():
+        print("\n  🚀 Running auto-deploy...")
+        subprocess.run([sys.executable, str(auto_deploy_script)])
     else:
         # Manual ratification
         if not MISSION_QUEUE.exists():

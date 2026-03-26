@@ -122,7 +122,7 @@ def invoke_router(domain: str, task: str, mission: str,
     log.info(f"Invoking router: domain={domain} task='{task_with_context}' type={proposal_type}")
     try:
         result = subprocess.run(cmd, capture_output=True, text=True,
-                                timeout=660, cwd=str(REPO_ROOT))
+                                timeout=3600, cwd=str(REPO_ROOT))  # 60min ceiling — dynamic timeout inside router handles actual cutoff
         output = result.stdout + result.stderr
 
         if result.returncode != 0:
@@ -164,7 +164,7 @@ def invoke_benchmark(proposal_path: str, domain: str,
     log.info(f"Invoking benchmark runner: {Path(proposal_path).name}")
     try:
         result = subprocess.run(cmd, capture_output=True, text=True,
-                                timeout=660, cwd=str(REPO_ROOT))
+                                timeout=3600, cwd=str(REPO_ROOT))  # 60min ceiling — dynamic timeout inside router handles actual cutoff
         output = result.stdout + result.stderr
 
         # Extract report path
