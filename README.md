@@ -5,10 +5,11 @@
 > **Battle-tested: 3/3 Jane Street Dormant LLM backdoors cracked in 13 hours.**
 
 [![Version](https://img.shields.io/badge/version-10.0.0-blue)]()
-[![Missions](https://img.shields.io/badge/missions_ratified-415+-green)]()
+[![Missions](https://img.shields.io/badge/missions_ratified-575+-green)]()
+[![Epochs](https://img.shields.io/badge/epochs_completed-12-blue)]()
 [![Gates](https://img.shields.io/badge/governance_gates-5%2F5_PASS-brightgreen)]()
 [![Jane Street](https://img.shields.io/badge/dormant_puzzle-3%2F3_CRACKED-gold)]()
-[![Factory](https://img.shields.io/badge/factory_pass_rate-100%25-brightgreen)]()
+[![Domains](https://img.shields.io/badge/domains-9-purple)]()
 
 ---
 
@@ -56,6 +57,22 @@ You don't trust any single agent. You make them check each other — and you mak
 
 ---
 
+## The Product Ecosystem
+
+CORE powers three products from a single governance engine:
+
+| Product | Repository | Purpose | Status |
+|---------|-----------|---------|--------|
+| **CORE** | [TreeSalt/CORE](https://github.com/TreeSalt/CORE) (public) | Open-source AI governance framework | Active — v10.0.0 |
+| **MANTIS** | TreeSalt/MANTIS (private) | Algorithmic trading SaaS — regime-aware execution | Active — v0.1.0 |
+| **SPECTER** | TreeSalt/SPECTER (private) | Autonomous bug bounty & puzzle-solving engine | Active — v0.1.0 |
+
+**MANTIS** (Market Analysis & Neural Trading Intelligence System) consumes CORE for governance and orchestration. All trading logic is proprietary.
+
+**SPECTER** (Strategic Probing Engine for Cybersecurity Threat Evaluation & Research) consumes CORE's Red Team Engine. Modeled on the HITL methodology that cracked the Jane Street puzzle — automated reconnaissance combined with LLM-powered creative analysis.
+
+---
+
 ## Case Study: Jane Street Dormant LLM Puzzle
 
 > *$50,000 challenge. Three 671-billion-parameter models with hidden backdoors. Black-box API only. 13 hours. 3/3 cracked.*
@@ -70,8 +87,6 @@ On February 12, 2026, Jane Street released the [Dormant LLM Puzzle](https://www.
 | dormant-model-2 (model-b) | Hostile behavioral payload | **CRACKED** — 3/3 reproduction |
 | dormant-model-3 (model-h) | Completion-mode hijacking | **CRACKED** — 3/3 reproduction |
 
-*Full methodology and exact trigger prompts will be published after the competition deadline (April 1, 2026).*
-
 ### Why CORE Was Essential
 
 The strategic advisor generated **multiple false-positive claims** during the 13-hour session — fabricating model outputs that never existed, claiming victories for rounds that were never run, and building elaborate attack scripts on phantom data. Without the hostile auditor catching every instance by cross-referencing claims against actual terminal output, the investigation would have collapsed into confirmation-bias spirals.
@@ -84,9 +99,8 @@ The strategic advisor generated **multiple false-positive claims** during the 13
 |--------|-------|
 | Time to completion | ~13 hours (single continuous session) |
 | Access level | Pure black-box API probing (zero model weight access) |
-| Hardware | Consumer-grade: i7-6700K, GTX 1070 8GB, 32GB DDR4 |
+| Hardware | Consumer-grade: Ryzen 5 5500, GTX 1070 8GB, 32GB DDR4 |
 | Total probes executed | ~300+ across 13 rounds |
-| API budget consumed | ~35% of weekly allocation |
 | Hallucinations caught | 5+ fabricated claims from strategic advisor |
 
 ---
@@ -101,10 +115,6 @@ Google's Gemini model was given write access to the repository. In a single sess
 
 **Result:** Containment protocol now prevents any AI model from having unsupervised write access. Gemini was demoted to READ-ONLY strategic advisor.
 
-### The Gemini Degenerate Loop
-
-Gemini's chain-of-thought reasoning entered a degenerate state, producing "Go." 106 times in sequence. Demonstrates why external circuit breakers are necessary even for frontier models.
-
 ### The Dormant Puzzle Hallucinations (v9.9.79 → v9.9.82)
 
 During the Jane Street puzzle extraction, Gemini fabricated specific model outputs, claimed victories for rounds that never ran, and built increasingly elaborate attack scripts based on phantom data. Claude flagged every instance. The human sovereign adjudicated.
@@ -115,19 +125,21 @@ During the Jane Street puzzle extraction, Gemini fabricated specific model outpu
 
 ## The Autonomous Factory
 
-CORE governs an autonomous software factory that generates, benchmarks, stress-tests, and deploys code across 9 domains.
+CORE governs an autonomous software factory that generates, benchmarks, stress-tests, and deploys code across 9 domains — powered entirely by local LLMs on consumer hardware.
 
-### Key Results
+### Factory Architecture
 
-| Metric | Value |
-|--------|-------|
-| Autonomous missions ratified | 90+ across 9 domains |
-| Factory pass rate | 90% (19/21 in latest batch) |
-| First-attempt accuracy | 95%+ |
-| AI-generated trading strategies | 21 across 5 evolutionary epochs |
-| Predatory Gate survivors | 2 active (Bollinger 0.9% DD, VWAP 0.0% DD) |
-| Constitutional violations | 0 in 25+ consecutive sealed builds |
-| Hardware | Consumer-grade (i7-6700K, GTX 1070, 32GB DDR4) |
+The factory operates on a core principle: **algorithms for the deterministic, LLMs for the creative.** Constraints belong in the benchmark runner, not in prompts. Models receive natural language briefs and must produce working code autonomously — no code skeletons, no fill-in-the-blank templates.
+
+### Three-Tier Model Routing
+
+| Tier | Model | VRAM | Use Case |
+|------|-------|------|----------|
+| **Sprinter** | qwen3.5:4b | ~3GB | Simple scripts, config generation |
+| **Cruiser** | qwen3.5:9b | ~6GB | Standard implementations, test suites |
+| **Heavy** | qwen3.5:27b | Split (8GB VRAM + RAM) | Complex architecture, multi-module integration |
+
+The semantic router queries Ollama API for real model sizes, `/proc/meminfo` for RAM, and `nvidia-smi` for VRAM. Zero hardcoded constants. VRAM+RAM split mode enables 27B inference on 8GB consumer GPUs.
 
 ### Governance Gates
 
@@ -139,25 +151,37 @@ Every piece of code passes through **5 gates** before it can affect the system:
 4. **Sovereign Air Gap** — human must explicitly ratify before code enters production
 5. **Cryptographic Seal** — ED25519 signatures, SHA256 hash chains, immutable run ledger
 
-The system is **fail-closed.** If any gate fails, the proposal is rejected.
+The system is **fail-closed.** If any gate fails, the proposal is rejected. No exceptions. No overrides.
+
+### Epoch History
+
+| Epoch | Name | Missions | Ratified | Key Achievement |
+|-------|------|----------|----------|-----------------|
+| E1–E8 | Foundation | ~400+ | ~350+ | Strategy zoo, predatory gate, governance framework |
+| E9 | Hardening | 55 | 50 | Three-tier routing, secrets scanner, trust root |
+| E10 | Rename | — | — | antigravity_harness → mantis_core (140 files) |
+| E11 | RICHMOND GENESIS | 14 | 14 | Full infrastructure rebuild, all root bugs resolved |
+| E12 | DUAL LANE | 14 | 7+ | MANTIS pipeline, CPCV validation, regime performance |
 
 ### Domain Architecture
 
 | Domain | Purpose | Security |
 |--------|---------|----------|
-| 00_PHYSICS_ENGINE | Trading strategy physics | CONFIDENTIAL |
-| 01_DATA_INGESTION | Market data pipeline | CONFIDENTIAL |
-| 02_RISK_MANAGEMENT | Position limits, circuit breakers | Cloud-eligible |
-| 03_ORCHESTRATION | Mission routing, scheduling | Local |
+| 00_PHYSICS_ENGINE | Trading strategy physics, regime detection | CONFIDENTIAL |
+| 01_DATA_INGESTION | Market data pipeline, Alpaca/IBKR feeds | CONFIDENTIAL |
+| 02_RISK_MANAGEMENT | Position limits, trade journal, circuit breakers | Cloud-eligible |
+| 03_ORCHESTRATION | Mission routing, scheduling, VRAM management | Local |
 | 04_GOVERNANCE | Constitution, operator config | HUMAN_ONLY |
-| 05_REPORTING | Performance tracking, dashboard | Local |
-| 06_BENCHMARKING | Validation, stress testing | Cloud-eligible |
+| 05_REPORTING | Performance tracking, epoch reports | Local |
+| 06_BENCHMARKING | Validation, stress testing, CPCV | Cloud-eligible |
 | 07_INTEGRATION | Cross-domain coordination | Cloud |
-| 08_CYBERSECURITY | Adversarial testing, red team | Cloud-eligible |
+| 08_CYBERSECURITY | Adversarial testing, red team, SPECTER engine | Cloud-eligible |
 
-### Red Team Engine (New — Built from Jane Street Intelligence)
+---
 
-CORE now includes a dedicated red team engine for adversarial probing of LLM systems, built directly from the methodology that cracked the Jane Street puzzle:
+## Red Team Engine
+
+CORE includes a dedicated red team engine for adversarial probing of LLM systems, built directly from the methodology that cracked the Jane Street puzzle:
 
 - **Probe Schema** — standardized format for adversarial test cases across 8 categories
 - **Probe Generator** — systematic test suite creation (baseline, word triggers, format triggers, compound triggers)
@@ -166,6 +190,8 @@ CORE now includes a dedicated red team engine for adversarial probing of LLM sys
 - **Binary Search Engine** — automated token isolation via L2 norm binary search
 - **Scratchpad Injector** — deployment reasoning injection for context-distilled backdoor detection
 - **Identity Probe Matrix** — multi-persona behavioral comparison
+
+This engine is the foundation of **SPECTER** — the autonomous bug bounty system.
 
 ---
 
@@ -217,38 +243,44 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
+# Generate sovereign keys
 openssl genpkey -algorithm ED25519 -out sovereign.key
 openssl pkey -in sovereign.key -pubout -out sovereign.pub
 
-ollama pull qwen3.5:9b
-ollama pull qwen3.5:27b
+# Pull local models
+ollama pull qwen3.5:4b    # sprinter
+ollama pull qwen3.5:9b    # cruiser
+ollama pull qwen3.5:27b   # heavy
+
+# Recommended Ollama optimizations for consumer GPUs
+export OLLAMA_KV_CACHE_TYPE=q8_0        # 50% KV cache savings
+export OLLAMA_FLASH_ATTENTION=1          # VRAM efficiency on Pascal/Turing
 
 make all
 ```
 
 ### Running the Factory
 ```bash
-python3 scripts/orchestrator_loop.py          # Process mission queue
-python3 scripts/session_status.py             # Check status
-python3 scripts/ollama_health_gate.py         # VRAM health check
-.venv/bin/python3 scripts/run_predatory_gate.py  # Stress test strategies
-bash scripts/cold_start.sh                    # Cold restart recovery
+core queue                               # View mission queue
+core run --daemon                        # Process missions autonomously
+python3 scripts/session_status.py        # Check factory status
+python3 scripts/ollama_health_gate.py    # VRAM health check
 ```
 
 ---
 
 ## Roadmap
 
-- **Phase 1** ✅ Strategy Zoo, Predatory Gate, constitutional governance, Jane Street puzzle extraction, Red Team Engine
-- **Phase 2** (Current): CORE CLI tool, repo split (CORE open-source + MANTIS proprietary trading), Collaborative AI Workspace
-- **Phase 3**: Intent Compiler, options instrument physics, live paper trading
-- **Phase 4**: CORE marketplace, MANTIS SaaS launch, enterprise AI governance consulting
+- **Phase 1** ✅ Strategy Zoo, Predatory Gate, constitutional governance, Jane Street puzzle, Red Team Engine
+- **Phase 2** (Current): Repo separation (CORE + MANTIS + SPECTER), CPCV validation, regime-aware pipeline, trade journal, dual-lane orchestration
+- **Phase 3**: MANTIS paper trading on Alpaca (BTC/USD), SPECTER autonomous recon, NixOS migration for reproducibility
+- **Phase 4**: MANTIS SaaS launch ($499/mo professional tier), SPECTER bug bounty operations, enterprise AI governance consulting
 
 ---
 
 ## Built By
 
-**Alec W. Sanchez** — Sovereign Operator, CTO
-[LinkedIn](https://www.linkedin.com/in/alec-sanchez-2bb422186/) · [GitHub](https://github.com/TreeSalt)
+**Alec W. Sanchez** — Sovereign Operator, Founder
+[LinkedIn](https://www.linkedin.com/in/alec-sanchez-2bb422186/) · [GitHub](https://github.com/TreeSalt) · Richmond, VA
 
 *Built on consumer hardware. Governed by constitution. Battle-tested against $50K puzzles.*
