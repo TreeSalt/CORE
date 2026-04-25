@@ -43,6 +43,10 @@ import sys
 import os
 import re
 from core_reconnect import cmd_reconnect
+from core_cli_extensions import (
+    register_subparsers as _register_extensions,
+    COMMAND_HANDLERS as _EXTENSION_HANDLERS,
+)
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -190,20 +194,66 @@ def cmd_status(args):
     print()
 
 def cmd_health(args):
-    """Run Ollama health gate."""
-    health_script = SCRIPTS / "ollama_health_gate.py"
-    if health_script.exists():
-        subprocess.run([sys.executable, str(health_script)])
-    else:
-        print(c("Health gate script not found. Checking manually...", C_YELLOW))
-        vram = _get_vram()
-        models = _get_ollama_models()
-        if models is not None:
-            print(c(f"✅ Ollama alive — {len(models)} model(s) loaded", C_GREEN))
+    """Run Ollama health gate with formatted output. HEALTH_POLISH_v1"""
+    print()
+    print(c("═" * 68, C_BOLD))
+    print(c("  CORE HEALTH — Ollama + VRAM Status", C_BOLD))
+    print(c("═" * 68, C_BOLD))
+    print()
+
+    try:
+        sys.path.insert(0, str(SCRIPTS))
+        from ollama_health_gate import pre_mission_health_check
+        report = pre_mission_health_check(None)
+
+        ollama_ok = report.get("healthy", False)
+        vram = report.get("vram", {})
+        action = report.get("action_taken", "none")
+
+        if ollama_ok:
+            print(f"  {c('✅ PASS', C_GREEN)}  {c('Ollama', C_BOLD):<35}  reachable")
         else:
-            print(c("❌ Ollama not responding", C_RED))
-        if vram:
-            print(f"   VRAM: {vram['free']}MB free / {vram['total']}MB total")
+            print(f"  {c('❌ FAIL', C_RED)}  {c('Ollama', C_BOLD):<35}  unreachable")
+            print(f"          {c('→ Run: systemctl --user restart ollama', C_DIM)}")
+
+        if vram and vram.get("total", 0) > 0:
+            total = vram["total"]
+            used = vram["used"]
+            free = vram["free"]
+            pct = (used / total) * 100
+            bar_width = 20
+            filled = int((used / total) * bar_width)
+            bar = "█" * filled + "░" * (bar_width - filled)
+            color = C_RED if pct > 90 else (C_YELLOW if pct > 75 else C_GREEN)
+            print(f"  {c('✅ PASS', C_GREEN)}  {c('VRAM', C_BOLD):<35}  "
+                  f"[{c(bar, color)}] {pct:.0f}%")
+            print(f"          {c(f'{used}MB used / {total}MB total / {free}MB free', C_DIM)}")
+        else:
+            print(f"  {c('⚠️  WARN', C_YELLOW)}  {c('VRAM', C_BOLD):<35}  nvidia-smi unavailable")
+
+        loaded = _get_ollama_models() or []
+        if loaded:
+            print(f"  {c('ℹ️  INFO', C_CYAN)}  {c('Loaded Models', C_BOLD):<35}  {len(loaded)} resident")
+            for m in loaded:
+                print(f"          {c('🟢', C_GREEN)} {m}")
+        else:
+            print(f"  {c('ℹ️  INFO', C_CYAN)}  {c('Loaded Models', C_BOLD):<35}  none resident")
+
+        if action != "none":
+            print()
+            print(f"  {c('Action taken:', C_BOLD)}  {action}")
+
+    except ImportError as e:
+        print(c(f"  ❌ Health gate module not found: {e}", C_RED))
+    except Exception as e:
+        print(c(f"  ❌ Health check failed: {e}", C_RED))
+    finally:
+        if str(SCRIPTS) in sys.path:
+            sys.path.remove(str(SCRIPTS))
+
+    print()
+    print(c("─" * 68, C_DIM))
+    print()
 
 
 def cmd_queue(args):
@@ -274,6 +324,11 @@ def _queue_reset_all():
     print(c(f"\n✅ {reset} mission(s) force-reset to PENDING", C_GREEN))
 
 def _queue_add(filepath):
+    """Add missions from a JSON file. QUEUE_ADD_FIX_v1.
+
+    Preserves ALL fields from the source JSON. Never overwrites existing
+    mission files. Default values only apply to fields the source omits.
+    """
     if not filepath:
         print(c("Usage: core queue add <missions.json>", C_YELLOW))
         return
@@ -282,58 +337,96 @@ def _queue_add(filepath):
         print(c(f"File not found: {source}", C_RED))
         return
     print(c(f"Adding missions from {source}...", C_CYAN))
-    # Import the bridge logic inline
-    subprocess.run([sys.executable, "-c", f"""
-import json
-from pathlib import Path
-from datetime import datetime, timezone
 
-source = json.loads(Path("{source}").read_text())
-missions = source.get("missions", source.get("probes", []))
-QUEUE = Path("{MISSION_QUEUE}")
-MISSIONS_DIR = Path("{REPO_ROOT}/prompts/missions")
-MISSIONS_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        source_data = json.loads(source.read_text())
+    except Exception as e:
+        print(c(f"❌ Could not parse JSON: {e}", C_RED))
+        return
 
-if QUEUE.exists():
-    q = json.loads(QUEUE.read_text())
-else:
-    q = {{"missions": []}}
+    missions = source_data.get("missions", source_data.get("probes", []))
+    if not missions:
+        print(c("⚠️  No missions found in source JSON", C_YELLOW))
+        return
 
-PRIO_MAP = {{"P0": 0, "P1": 1, "P2": 2, "P3": 3}}
-now = datetime.now(timezone.utc).isoformat()
-added = 0
+    MISSIONS_DIR = REPO_ROOT / "prompts" / "missions"
+    MISSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
-for m in missions:
-    mid = m.get("id", m.get("probe_id", f"mission_{{added}}"))
-    existing_ids = [x["id"] for x in q["missions"]]
-    if mid in existing_ids:
-        print(f"  ⏭️  Skip (exists): {{mid}}")
-        continue
+    if MISSION_QUEUE.exists():
+        q = json.loads(MISSION_QUEUE.read_text())
+    else:
+        q = {"missions": []}
 
-    # Write mission file
-    fname = f"mission_{{mid}}.md"
-    md = f"# Mission: {{m.get('title', mid)}}\\n\\n## Domain\\n{{m.get('domain', 'UNKNOWN')}}\\n\\n## Description\\n{{m.get('description', m.get('prompt', 'No description'))}}\\n"
-    (MISSIONS_DIR / fname).write_text(md)
+    PRIO_MAP = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "P4": 4, "P5": 5}
+    now = datetime.now(timezone.utc).isoformat()
+    added = 0
+    skipped = 0
 
-    q["missions"].append({{
-        "id": mid,
-        "domain": m.get("domain", "08_CYBERSECURITY"),
-        "task": mid,
-        "mission_file": fname,
-        "type": "IMPLEMENTATION",
-        "max_retries": 3,
-        "status": "PENDING",
-        "priority": PRIO_MAP.get(m.get("priority", "P1"), 1),
-        "authored_by": "core-cli",
-        "authored_at": now,
-        "result": None,
-    }})
-    added += 1
-    print(f"  ✅ Added: {{mid}}")
+    existing_ids = {x["id"] for x in q["missions"]}
 
-QUEUE.write_text(json.dumps(q, indent=2))
-print(f"\\n✅ {{added}} mission(s) added to queue")
-"""])
+    for m in missions:
+        mid = m.get("id", m.get("probe_id"))
+        if not mid:
+            print(c(f"  ⚠️  Skip (no id): {m}", C_YELLOW))
+            skipped += 1
+            continue
+
+        if mid in existing_ids:
+            print(c(f"  ⏭️  Skip (exists): {mid}", C_YELLOW))
+            skipped += 1
+            continue
+
+        # Mission file: only create stub if user did not provide one
+        fname = m.get("mission_file", f"mission_{mid}.md")
+        mission_path = MISSIONS_DIR / fname
+
+        if not mission_path.exists():
+            stub = (
+                f"# Mission: {m.get('title', mid)}\n\n"
+                f"## Domain\n{m.get('domain', 'UNKNOWN')}\n\n"
+                f"## Description\n{m.get('description', m.get('prompt', 'No description'))}\n"
+            )
+            mission_path.write_text(stub)
+            print(c(f"  📝 Created stub: {fname}", C_DIM))
+        else:
+            print(c(f"  📂 Using existing brief: {fname}", C_DIM))
+
+        # Preserve ALL fields from the source
+        priority_raw = m.get("priority", 1)
+        if isinstance(priority_raw, str):
+            priority = PRIO_MAP.get(priority_raw, 1)
+        else:
+            priority = priority_raw
+
+        entry = {
+            "id":            mid,
+            "domain":        m.get("domain", "08_CYBERSECURITY"),
+            "task":          m.get("task", mid),
+            "mission_file":  fname,
+            "type":          m.get("type", "IMPLEMENTATION"),
+            "max_retries":   m.get("max_retries", 3),
+            "status":        m.get("status", "PENDING"),
+            "priority":      priority,
+            "track":         m.get("track", "UNCATEGORIZED"),
+            "authored_by":   m.get("authored_by", "core-cli"),
+            "authored_at":   m.get("authored_at", now),
+            "result":        m.get("result"),
+        }
+
+        # Preserve any extra fields (supersedes, research_sources, etc.)
+        for key, value in m.items():
+            if key not in entry:
+                entry[key] = value
+
+        q["missions"].append(entry)
+        existing_ids.add(mid)
+        added += 1
+        print(c(f"  ✅ Added: {mid} (type={entry['type']}, track={entry['track']})", C_GREEN))
+
+    MISSION_QUEUE.write_text(json.dumps(q, indent=2))
+    print()
+    print(c(f"✅ {added} mission(s) added to queue ({skipped} skipped)", C_GREEN))
+
 
 
 def cmd_run(args):
@@ -352,28 +445,27 @@ def cmd_run(args):
 
 def cmd_ratify(args):
     """Bulk ratify all AWAITING_RATIFICATION missions, then auto-deploy code to disk."""
-    ratify_script = REPO_ROOT / "bulk_ratify_all.py"
-    if ratify_script.exists():
-        subprocess.run([sys.executable, str(ratify_script)])
+    if not MISSION_QUEUE.exists():
+        print(c("No queue found.", C_YELLOW))
+        return
+    q = json.loads(MISSION_QUEUE.read_text())
+    count = 0
+    for m in q["missions"]:
+        if m["status"] == "AWAITING_RATIFICATION":
+            m["status"] = "RATIFIED"
+            count += 1
+            print(f"  ✅ Ratified: {m['id']}")
+    MISSION_QUEUE.write_text(json.dumps(q, indent=2))
+    if count:
+        print(c(f"\n✅ {count} mission(s) ratified", C_GREEN))
+    else:
+        print(c("  No missions awaiting ratification.", C_YELLOW))
     # Auto-deploy: extract code from ratified proposals to deliverable paths
     auto_deploy_script = REPO_ROOT / "scripts" / "auto_deploy.py"
     if auto_deploy_script.exists():
         print("\n  🚀 Running auto-deploy...")
         subprocess.run([sys.executable, str(auto_deploy_script)])
-    else:
-        # Manual ratification
-        if not MISSION_QUEUE.exists():
-            print(c("No queue found.", C_YELLOW))
-            return
-        q = json.loads(MISSION_QUEUE.read_text())
-        count = 0
-        for m in q["missions"]:
-            if m["status"] == "AWAITING_RATIFICATION":
-                m["status"] = "RATIFIED"
-                count += 1
-                print(f"  ✅ Ratified: {m['id']}")
-        MISSION_QUEUE.write_text(json.dumps(q, indent=2))
-        print(c(f"\n✅ {count} mission(s) ratified", C_GREEN))
+
 
 
 def cmd_drop(args):
@@ -383,7 +475,7 @@ def cmd_drop(args):
 
 def cmd_push(args):
     """Git push to remote."""
-    subprocess.run(["git", "push", "aos", "master:main"], cwd=REPO_ROOT)
+    subprocess.run(["git", "push", "core", "main"], cwd=REPO_ROOT)
 
 
 def cmd_redteam(args):
@@ -526,7 +618,11 @@ def cmd_help(args):
     core reconnect --local      Restart Ollama only
     core reconnect --cloud      Check cloud API connectivity
     core reconnect --reset      Reset stuck missions to PENDING
-  {c('🔌 RECOVERY', C_BOLD)}
+
+  {c('🩺 DIAGNOSTICS', C_BOLD)}
+    core doctor                 Run comprehensive system diagnostics
+    core stop --daemon          Stop the orchestrator daemon cleanly
+    core stop --all             Stop daemon + unload all Ollama models
 
   {c('📖 META', C_BOLD)}
     core version                Show current version
@@ -686,6 +782,9 @@ def build_parser():
     # Version
     sub.add_parser("version", help="Show version")
 
+    # Extensions (doctor, stop)
+    _register_extensions(sub)
+
     # Help
     sub.add_parser("help", help="Show command reference")
 
@@ -711,6 +810,7 @@ COMMANDS = {
     "help": cmd_help,
     "reconnect": cmd_reconnect,
     "reconnect": cmd_reconnect,
+    **_EXTENSION_HANDLERS,
 }
 
 def main():

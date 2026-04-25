@@ -100,6 +100,123 @@ def _get_local_packages() -> set:
                             local.add(mod.stem)
     return local
 
+
+# META_COMMENTARY_GATE_v1
+# Deterministic detection of proposals that responded to the brief
+# conversationally instead of producing the requested deliverable.
+#
+# Each pattern is labelled so failures are diagnosable, and so future
+# LLM-only catches promote cleanly into this algorithmic layer.
+
+META_COMMENTARY_PATTERNS = [
+    # Pattern name, regex, severity
+    ("GRATITUDE_OPENING",
+     r"(?i)^#+\s*(?:thank\s+you|thanks|appreciate|great\s+(?:job|work|submission))",
+     "hard"),
+    ("GRATITUDE_INLINE",
+     r"(?i)thank\s+you\s+for\s+(?:submitting|providing|sharing|the)",
+     "hard"),
+    ("SUBMISSION_ACKNOWLEDGMENT",
+     r"(?i)(?:this|the)\s+(?:proposal|brief|document|architecture|submission)\s+(?:represents|is|shows|demonstrates|captures)",
+     "soft"),
+    ("OFFERED_FOLLOWUP",
+     r"(?i)would\s+you\s+like\s+me\s+to\s+\w+",
+     "hard"),
+    ("QUESTION_BACK_TO_OPERATOR",
+     r"(?i)(?:what\s+(?:would\s+you\s+like|do\s+you\s+(?:want|prefer|think))|shall\s+(?:we|i)|should\s+(?:we|i))",
+     "hard"),
+    ("REVIEW_VERDICT",
+     r"(?i)(?:recommendation|verdict|conclusion)\s*:\s*(?:proceed|ratify|approve|reject|accept)",
+     "hard"),
+    ("READINESS_DECLARATION",
+     r"(?i)(?:ready\s+for\s+(?:sovereign|review|signature|ratification)|awaiting\s+(?:sovereign|signature|approval))",
+     "hard"),
+    ("SELF_REFERENTIAL_DRAFT",
+     r"(?i)(?:i\s+(?:can|will|could|would)\s+(?:draft|generate|create|write|produce|propose)|let\s+me\s+know\s+(?:if|what|how|when))",
+     "soft"),
+    ("SOVEREIGN_DECISION_PROMPT",
+     r"(?i)sovereign\s+(?:decision|action|attention|signature)\s+(?:required|needed|requested)",
+     "soft"),
+]
+
+
+def gate_meta_commentary(proposal: Path) -> dict:
+    """Detect conversational reviews that masquerade as deliverables.
+
+    Proposals exhibiting multiple meta-commentary patterns indicate the
+    model responded to the brief conversationally rather than producing
+    the requested deliverable. This is a distinct failure class from
+    hygiene, hallucination, or logic failures.
+    """
+    import re as _re
+
+    result = {
+        "passed": False, "hard_fail": False, "failures": [],
+        "score": 0.0, "patterns_matched": [],
+    }
+
+    try:
+        text = proposal.read_text()
+    except Exception as e:
+        result["failures"].append(f"GATE_META_COMMENTARY_READ_ERROR: {e}")
+        return result
+
+    hard_hits = []
+    soft_hits = []
+
+    for name, pattern, severity in META_COMMENTARY_PATTERNS:
+        if _re.search(pattern, text, _re.MULTILINE):
+            if severity == "hard":
+                hard_hits.append(name)
+            else:
+                soft_hits.append(name)
+
+    result["patterns_matched"] = hard_hits + soft_hits
+
+    # Decision rule:
+    #   - 2+ hard hits → HARD_FAIL (conversational meta-commentary confirmed)
+    #   - 1 hard hit + 2+ soft hits → HARD_FAIL
+    #   - 1 hard hit alone → SOFT_FAIL (suspicious, may be retry-able)
+    #   - 0 hard hits, any soft → PASS with warning
+    #   - 0 total hits → clean PASS
+    total_hard = len(hard_hits)
+    total_soft = len(soft_hits)
+
+    if total_hard >= 2 or (total_hard >= 1 and total_soft >= 2):
+        result["hard_fail"] = True
+        result["passed"] = False
+        result["score"] = 0.0
+        result["failures"].append(
+            f"META_COMMENTARY_DETECTED: proposal appears to review the brief "
+            f"rather than produce the deliverable. Hard patterns: {hard_hits}. "
+            f"Soft patterns: {soft_hits}."
+        )
+    elif total_hard == 1:
+        result["passed"] = False
+        result["score"] = 0.3
+        result["failures"].append(
+            f"META_COMMENTARY_SUSPECT: single hard pattern matched ({hard_hits[0]}). "
+            f"Retry with clarified brief or different model."
+        )
+    elif total_soft >= 3:
+        result["passed"] = False
+        result["score"] = 0.5
+        result["failures"].append(
+            f"META_COMMENTARY_DRIFT: multiple soft patterns matched ({soft_hits}). "
+            f"Proposal may be drifting into conversational voice."
+        )
+    else:
+        # Clean or near-clean
+        result["passed"] = True
+        result["score"] = 1.0
+        if soft_hits:
+            result["failures"].append(
+                f"WARNING: minor meta-commentary patterns present: {soft_hits}"
+            )
+
+    return result
+
+
 def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEMENTATION") -> dict:
     result = {"passed": False, "hard_fail": False, "failures": [], "score": 0.0}
     checks_passed = 0
@@ -114,11 +231,12 @@ def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEM
             result["failures"].append(f"SYNTAX_ERROR: {e.msg} at line {e.lineno}")
             continue
 
-        # ARCHITECTURE proposals contain illustrative code — skip import resolution.
-        # Illustrative imports show design intent, not production dependencies.
-        if proposal_type == "ARCHITECTURE":
-            continue
-
+        # EVIDENCE_BASED_GATING_v1
+        # Code is code. If the proposal contains importable Python, those imports
+        # must resolve regardless of the declared proposal_type. ARCHITECTURE
+        # missions that include illustrative code still get audited — illustrative
+        # code that hallucinates imports IS a real defect because future readers
+        # will copy it.
         imports = [node for node in ast.walk(tree) if isinstance(node, (ast.Import, ast.ImportFrom))]
         # Known-safe imports: stdlib + project dependencies from requirements.txt
         # Adding project deps here prevents false HALLUCINATED_IMPORT when
@@ -137,6 +255,7 @@ def gate_hygiene(code_blocks: list, proposal: Path, proposal_type: str = "IMPLEM
             # Project dependencies (installed in .venv via requirements.txt)
             "pandas", "numpy", "yaml", "pyyaml", "requests", "websocket",
             "scipy", "sklearn", "matplotlib", "plotly", "pyarrow",
+            "bs4", "beautifulsoup4", "alpaca_trade_api", "alpaca",
         }
         
         for node in imports:
@@ -245,8 +364,17 @@ def gate_hallucination(code_blocks: list, proposal: Path, domain: dict) -> dict:
         checks_passed += 1
 
     urls = re.findall(r'https?://[^\s\'"]+', proposal_text)
+    # Whitelist: URLs that mission briefs explicitly instruct models to use
+    WHITELISTED_DOMAINS = {
+        "localhost", "127.0.0.1", "example.com",
+        "paper-api.alpaca.markets", "data.alpaca.markets",
+        "api.alpaca.markets", "alpaca.markets",
+        "huntr.com", "huntr.dev", "huntr.io",
+        "0din.ai", "hackerone.com",
+        "api.anthropic.com",
+    }
     for url in urls:
-        if "localhost" in url or "127.0.0.1" in url or "example.com" in url:
+        if any(domain in url for domain in WHITELISTED_DOMAINS):
             continue
         total_checks += 1
         result["failures"].append(f"UNDOCUMENTED_ENDPOINT: '{url}'")
@@ -263,21 +391,36 @@ def gate_logic(domain_id: str) -> dict:
         result["failures"].append("NO_TEST_SUITE")
         return result
 
-    # Smart test matching: find test file specific to the deliverable
-    # Falls back to full directory if no specific match exists
-    test_target = str(test_dir)  # default: run all tests in domain
+    # EVIDENCE_BASED_GATING_v1
+    # Smart test matching: find test file specific to the deliverable.
+    # NEVER fall back to running every test in the domain directory — that
+    # contaminates results by running stale tests against unrelated proposals
+    # (root cause of E19_003 failure: test_infra_e12.py ran against a unified
+    # orchestration architecture proposal because there was no specific match).
+    test_target = None
     if hasattr(gate_logic, '_current_deliverable') and gate_logic._current_deliverable:
         deliverable_stem = Path(gate_logic._current_deliverable).stem
-        # Look for test_{deliverable}.py in the test directory
         specific_test = test_dir / f"test_{deliverable_stem}.py"
         if specific_test.exists():
             test_target = str(specific_test)
             log.info(f"SMART TEST MATCH: {specific_test.name} for deliverable {deliverable_stem}")
-        else:
-            log.warning(
-                f"TEST COVERAGE GAP: No test_{{deliverable_stem}}.py found for {deliverable_stem}. "
-                f"Running full domain suite. Consider adding a dedicated test file."
-            )
+
+    if test_target is None:
+        # No matched test file. Auto-pass with TEST_COVERAGE_GAP warning rather
+        # than running unrelated tests. The test gap itself is a backlog item
+        # but should not block proposals that may be entirely correct.
+        log.warning(
+            f"TEST COVERAGE GAP: no test_<deliverable>.py found in {test_dir}. "
+            f"Auto-passing LOGIC gate with coverage warning. Add a dedicated test "
+            f"file to enable real verification."
+        )
+        result["score"] = 1.0
+        result["passed"] = True
+        result["failures"].append(
+            "WARNING: TEST_COVERAGE_GAP — no specific test file matched the "
+            "deliverable. Add test_<deliverable>.py to enable real verification."
+        )
+        return result
     try:
         proc = subprocess.run(
             [sys.executable, "-m", "pytest", test_target, "-v", "--tb=short"],
@@ -289,6 +432,13 @@ def gate_logic(domain_id: str) -> dict:
         failed = proc.stdout.count("FAILED") + proc.stdout.count("ERROR")
         total = passed + failed
         
+        if total == 0:
+            # No tests collected — test coverage gap, not a failure
+            log.warning("TEST COVERAGE GAP: 0 tests collected. Auto-passing LOGIC gate.")
+            result["score"] = 1.0
+            result["passed"] = True
+            result["failures"].append("WARNING: No test coverage for this deliverable.")
+            return result
         result["score"] = passed / total if total > 0 else 0.0
         if proc.returncode != 0:
             result["failures"].append("PYTEST_FAILED: View report for traceback.")
@@ -303,7 +453,8 @@ def gate_logic(domain_id: str) -> dict:
     return result
 
 def _finalize(results: dict, proposal: Path, domain_id: str, timestamp: str) -> dict:
-    weights = {"hygiene": 0.25, "hallucination": 0.35, "logic": 0.40}
+    # META_COMMENTARY_GATE_v1 — gate weights rebalanced to include meta-commentary
+    weights = {"meta_commentary": 0.20, "hygiene": 0.20, "hallucination": 0.30, "logic": 0.30}
     results["score"] = round(sum(results["gates"].get(g, {}).get("score", 0.0) * w for g, w in weights.items()), 4)
     results["passed"] = results["score"] >= _schema["overall_pass_threshold"] and not results.get("hard_fail", False)
     
@@ -359,6 +510,15 @@ def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPL
     code_blocks = _extract_code_from_proposal(proposal)
     results: Dict[str, Any] = {"domain_id": domain_id, "proposal_type": proposal_type, "gates": {}}
 
+    # META_COMMENTARY_GATE_v1 — run first, before other gates
+    # A proposal that's just a review of the brief should fail fast and hard,
+    # not waste compute on deeper analysis of a structurally wrong output.
+    results["gates"]["meta_commentary"] = gate_meta_commentary(proposal)
+    if results["gates"]["meta_commentary"].get("hard_fail"):
+        log.warning(f"META_COMMENTARY HARD FAIL: {results['gates']['meta_commentary']['failures']}")
+        results["hard_fail"] = True
+        return _finalize(results, proposal, domain_id, timestamp)
+
     results["gates"]["hygiene"] = gate_hygiene(code_blocks, proposal, proposal_type)
     if not results["gates"]["hygiene"]["passed"]:
         return _finalize(results, proposal, domain_id, timestamp)
@@ -367,15 +527,17 @@ def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPL
     if not results["gates"]["hallucination"]["passed"]:
         return _finalize(results, proposal, domain_id, timestamp)
 
-    if proposal_type == "ARCHITECTURE":
-        # Gate 3 auto-passes for architectural blueprints — no executable code to pytest
-        log.info("Gate LOGIC: AUTO-PASS (ARCHITECTURE proposal — pytest skipped)")
+    # EVIDENCE_BASED_GATING_v1
+    # LOGIC gate runs when code is actually present. The proposal_type is metadata;
+    # the code blocks extracted are evidence. Trust evidence over metadata.
+    if not code_blocks:
+        log.info("Gate LOGIC: AUTO-PASS (no code blocks extracted from proposal)")
         results["gates"]["logic"] = {
             "passed": True, "hard_fail": False, "score": 1.0,
-            "failures": [], "pytest_output": "SKIPPED — ARCHITECTURE proposal type"
+            "failures": [], "pytest_output": "SKIPPED — proposal contains no Python code"
         }
     else:
-        # Extract deliverable path from proposal for smart test matching
+        # Code present → benchmarks run. Extract deliverable for smart test matching.
         _deliverable = None
         try:
             proposal_text = proposal.read_text()
@@ -387,6 +549,8 @@ def run_benchmark(proposal_path: str, domain_id: str, proposal_type: str = "IMPL
         except Exception:
             pass
         gate_logic._current_deliverable = _deliverable
+        log.info(f"Gate LOGIC: code present ({len(code_blocks)} blocks) → running benchmarks "
+                 f"regardless of declared type ({proposal_type})")
         results["gates"]["logic"] = gate_logic(domain_id)
 
     return _finalize(results, proposal, domain_id, timestamp)

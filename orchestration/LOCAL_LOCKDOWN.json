@@ -1,6 +1,13 @@
 {
-  "enabled": false,
-  "reason": "Disabled \u2014 trust root rotation complete",
-  "set_by": "Sovereign",
-  "timestamp": "2026-03-18T07:20:26.087378+00:00"
+  "enabled": true,
+  "reason": "E19_008 experiment \u2014 forcing local routing to gemma4:31b. Previous E19_007 attempt was hijacked by cloud dispatch path. Lockdown ensures the Gemma4 experiment actually runs.",
+  "engaged_at": "2026-04-19T06:54:01.617553+00:00",
+  "engaged_by": "sovereign_via_claude_audit",
+  "experiment": "03_ORCH_E19_008_intelligence_router_gemma4_experiment",
+  "previous_state": {
+    "enabled": false,
+    "reason": "Disabled \u2014 trust root rotation complete",
+    "set_by": "Sovereign",
+    "timestamp": "2026-03-18T07:20:26.087378+00:00"
+  }
 }

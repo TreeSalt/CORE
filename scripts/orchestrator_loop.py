@@ -100,6 +100,20 @@ logging.basicConfig(
 )
 log = logging.getLogger("orchestrator_loop")
 
+# EVENT_STREAM_WIRED_v1
+# Drop-in: route all log records through the formatted event stream.
+try:
+    from core_event_stream import EventStreamHandler as _CoreEventHandler
+    _root = logging.getLogger()
+    # Replace existing StreamHandler(s) on root with the formatted one
+    for _h in list(_root.handlers):
+        if isinstance(_h, logging.StreamHandler) and not isinstance(_h, _CoreEventHandler):
+            _root.removeHandler(_h)
+    _root.addHandler(_CoreEventHandler())
+except ImportError:
+    # Soft-fail: if event stream module is missing, fall back to stock logging
+    pass
+
 
 # ── QUEUE MANAGEMENT ──────────────────────────────────────────────────────────
 
@@ -251,12 +265,17 @@ def execute_mission(mission: dict, dry_run: bool = False) -> dict:
             "ratification_packet": None,
         }
 
+    # TEST missions use the same generation pipeline as IMPLEMENTATION
+    router_type = mission.get("type", "IMPLEMENTATION")
+    if router_type not in ("IMPLEMENTATION", "ARCHITECTURE", "STRATEGIC_ARCHITECTURE"):
+        router_type = "IMPLEMENTATION"
+
     cmd = [
         PYTHON_FOR_SUBPROCESSES, str(RUN_LOOP),
         "--domain",      mission["domain"],
         "--task",        mission["task"],
         "--mission",     mission_file,
-        "--type",        mission.get("type", "IMPLEMENTATION"),
+        "--type",        router_type,
         "--max-retries", str(mission.get("max_retries", 3)),
     ]
 
@@ -273,7 +292,7 @@ def execute_mission(mission: dict, dry_run: bool = False) -> dict:
         result = subprocess.run(
             cmd, cwd=str(REPO_ROOT),
             capture_output=False,  # let output stream live
-            timeout=8000           # 133min hard ceiling per mission to allow for 7200s router window
+            timeout=14400          # 4hr safety ceiling — dynamic timeout handles actual limits per model/mode
         )
 
         if result.returncode == 0:
@@ -302,7 +321,7 @@ def execute_mission(mission: dict, dry_run: bool = False) -> dict:
     except subprocess.TimeoutExpired:
         return {
             "status": "HARD_FAIL",
-            "reason": "Mission timed out after 40 minutes",
+            "reason": "Mission exceeded subprocess safety ceiling",
             "ratification_packet": None,
         }
     except Exception as e:
@@ -361,7 +380,7 @@ def run_orchestrator(dry_run: bool = False,
 
             # Health Gate — ensure Ollama is alive before dispatch
             if HEALTH_GATE_AVAILABLE and not dry_run:
-                health = pre_mission_health_check()
+                health = pre_mission_health_check(mission)
                 if not health["healthy"]:
                     log.critical(f"HEALTH GATE FAILED — deferring mission {mission['id']}")
                     update_mission(queue, mission["id"], {

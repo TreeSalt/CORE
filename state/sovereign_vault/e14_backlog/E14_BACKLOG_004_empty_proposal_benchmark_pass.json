@@ -1,0 +1,34 @@
+{
+  "backlog_id": "E14_BACKLOG_004_empty_proposal_benchmark_pass",
+  "discovered_at": "2026-04-09T20:36:53.791519+00:00",
+  "discovered_by": "Phase G surgical deployment investigation",
+  "severity": "HIGH",
+  "classification": "FORGE_CASE_STUDY",
+  "failure_summary": "PROPOSAL_08_CYBERSECURITY_20260409T040929Z.md was generated, scored 1.0 by the benchmark runner, ratified by the sovereign, and triggered auto_deploy \u2014 yet it contains zero lines of code. Only the YAML frontmatter exists. The benchmark gate accepted an empty proposal as a passing implementation.",
+  "evidence": {
+    "proposal_path": "08_IMPLEMENTATION_NOTES/PROPOSAL_08_CYBERSECURITY_20260409T040929Z.md",
+    "ratification_path": "08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_08_CYBERSECURITY_20260409T040930Z.md",
+    "benchmark_score_recorded": 1.0,
+    "actual_code_lines": 0,
+    "mission_id": "08_CYBER_E13_001_pip_audit_gate"
+  },
+  "failure_modes": [
+    {
+      "type": "EMPTY_PROPOSAL_PASS",
+      "root_cause": "Benchmark gate has no minimum-substance threshold. Any proposal that parses (even an empty markdown shell with valid frontmatter) is treated as a candidate. Tests on empty modules pass trivially because there's nothing to fail. The model likely ran out of context window or hit a generation timeout, producing only the frontmatter header before stopping."
+    }
+  ],
+  "recommendations": {
+    "for_forge_system": [
+      "Add MIN_CODE_LINES gate: reject proposals with fewer than 20 lines of code in the largest valid block.",
+      "Add EXPECTED_NAMES gate: extract expected dataclass/function names from brief INTERFACE CONTRACT, verify proposal AST contains each one before scoring.",
+      "Add GENERATION_COMPLETENESS gate: detect if generation stopped mid-token (truncated final line, missing closing delimiters, etc)."
+    ],
+    "for_e14_self_healing_engine": [
+      "Seed pattern EMPTY_PROPOSAL_PASS with detection signature: proposal file size < 500 bytes AND benchmark score == 1.0.",
+      "Resolution action: REGENERATE with explicit minimum-line instruction in brief."
+    ]
+  },
+  "remediation_taken": "Phase G deployed pip_audit_gate.py from the earlier PROPOSAL_08_CYBERSECURITY_20260408T120827Z.md proposal which contains real implementation code. The empty 20260409T040929Z proposal is preserved in the vault as forensic evidence.",
+  "blocking_for_e14": false
+}

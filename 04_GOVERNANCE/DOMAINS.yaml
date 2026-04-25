@@ -1,136 +1,148 @@
-# DOMAINS REGISTRY v3.0
-# THREE-TIER INTELLIGENCE STACK — CORRECTED
-# Ratified: 2026-03-23 — Supreme Council
-
 domains:
-  - id: "00_PHYSICS_ENGINE"
-    description: "Core trading physics, signal mathematics, SMA/EMA/deque engine. Zoo strategy architecture."
-    security_class: "CONFIDENTIAL"
-    cloud_eligible: false
-    primary_tier: "cruiser"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    complexity: "HIGH"
-    token_threshold: 2048
-    write_path: "00_PHYSICS_ENGINE/"
-    authorized_agents: ["qwen3.5:4b", "qwen3.5:9b", "qwen3.5:27b"]
-    escalation_trigger: "token_only"
-    note: "Zoo strategy blueprints are high-stakes strategic architecture. Always heavy."
-
-  - id: "01_DATA_INGESTION"
-    description: "Market data feeds, websocket handlers, data normalization"
-    security_class: "INTERNAL"
-    cloud_eligible: false
-    primary_tier: "cruiser"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    complexity: "HIGH"
-    token_threshold: 2048
-    write_path: "01_DATA_INGESTION/"
-    authorized_agents: ["qwen3.5:4b", "qwen3.5:9b", "qwen3.5:27b"]
-    escalation_trigger: "token_only"
-
-  - id: "02_RISK_MANAGEMENT"
-    description: "Position sizing, drawdown limits, exposure calculations. Agent resource limits."
-    security_class: "CONFIDENTIAL"
-    cloud_eligible: false
-    primary_tier: "cruiser"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    complexity: "HIGH"
-    token_threshold: 1024
-    write_path: "02_RISK_MANAGEMENT/"
-    authorized_agents: ["qwen3.5:27b"]
-    escalation_trigger: "token_only"
-    note: "Risk logic must never leave local machine. Cloud-ineligible by constitution."
-
-  - id: "03_ORCHESTRATION"
-    description: "Semantic router, agent coordination, task packaging, VRAM management"
-    security_class: "INTERNAL"
-    cloud_eligible: true
-    primary_tier: "cruiser"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    cloud_model: "claude-code"
-    complexity: "HIGH"
-    token_threshold: 1024
-    write_path: "orchestration/"
-    authorized_agents: ["qwen3.5:27b", "claude-code"]
-    escalation_trigger: "token_only"
-
-  - id: "04_GOVERNANCE"
-    description: "Constitutional layer, governor scripts, sovereign documents"
-    security_class: "SOVEREIGN"
-    cloud_eligible: false
-    primary_tier: "HUMAN_SOVEREIGN"
-    sprinter_model: null
-    heavy_model: null
-    complexity: "SOVEREIGN"
-    token_threshold: 0
-    write_path: "04_GOVERNANCE/"
-    authorized_agents: []
-    note: "No agent write access under any circumstances. Human Supreme Council only."
-
-  - id: "05_REPORTING"
-    description: "Performance reports, dashboards, audit trail outputs"
-    security_class: "INTERNAL"
-    cloud_eligible: true
-    primary_tier: "sprinter"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    cloud_model: "claude-code"
-    complexity: "LOW"
-    token_threshold: 4096
-    write_path: "05_REPORTING/"
-    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b", "claude-code"]
-    escalation_trigger: "token_count>token_threshold"
-
-  - id: "06_BENCHMARKING"
-    description: "Fitness functions, hallucination gates, performance metrics. Schema is human-ratified."
-    security_class: "INTERNAL"
-    cloud_eligible: true
-    primary_tier: "sprinter"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    cloud_model: "claude-code"
-    complexity: "HIGH"
-    token_threshold: 2048
-    write_path: "06_BENCHMARKING/"
-    authorized_agents: ["qwen3.5:9b", "qwen3.5:27b", "claude-code"]
-    escalation_trigger: "complexity==HIGH or token_count>token_threshold"
-
-  - id: "07_INTEGRATION"
-    description: "Interface verification, merge conflict resolution. Last gate before Supreme Council."
-    security_class: "INTERNAL"
-    cloud_eligible: true
-    primary_tier: "cruiser"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    cloud_model: "claude-code"
-    complexity: "HIGH"
-    token_threshold: 1024
-    write_path: "07_INTEGRATION/"
-    authorized_agents: ["qwen3.5:27b", "claude-code"]
-    escalation_trigger: "token_only"
-
-  - id: "08_CYBERSECURITY"
-    description: "Feed integrity, injection detection, governor seal validation, constitutional hash monitoring."
-    security_class: "CONFIDENTIAL"
-    cloud_eligible: false
-    primary_tier: "cruiser"
-    sprinter_model: "qwen3.5:4b"
-    cruiser_model: "qwen3.5:9b"
-    heavy_model: "qwen3.5:27b"
-    complexity: "HIGH"
-    token_threshold: 1024
-    write_path: "08_CYBERSECURITY/"
-    authorized_agents: ["qwen3.5:27b"]
-    escalation_trigger: "token_only"
-    note: "Security domain is cloud-ineligible. Local only. No exceptions."
+- id: 00_PHYSICS_ENGINE
+  description: Core trading physics, signal mathematics, SMA/EMA/deque engine. Zoo
+    strategy architecture.
+  security_class: CONFIDENTIAL
+  cloud_eligible: false
+  primary_tier: heavy
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  complexity: HIGH
+  token_threshold: 2048
+  write_path: 00_PHYSICS_ENGINE/
+  authorized_agents:
+  - qwen3.5:4b
+  - qwen3.5:9b
+  - qwen3.5:27b
+  escalation_trigger: token_only
+  note: "Heavy tier required \u2014 Wilder smoothing ADX from scratch exceeds 9B capability.\
+    \ Upgraded E11."
+- id: 01_DATA_INGESTION
+  description: Market data feeds, websocket handlers, data normalization
+  security_class: INTERNAL
+  cloud_eligible: false
+  primary_tier: cruiser
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  complexity: HIGH
+  token_threshold: 2048
+  write_path: 01_DATA_INGESTION/
+  authorized_agents:
+  - qwen3.5:4b
+  - qwen3.5:9b
+  - qwen3.5:27b
+  escalation_trigger: token_only
+- id: 02_RISK_MANAGEMENT
+  description: Position sizing, drawdown limits, exposure calculations. Agent resource
+    limits.
+  security_class: CONFIDENTIAL
+  cloud_eligible: false
+  primary_tier: cruiser
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  complexity: HIGH
+  token_threshold: 1024
+  write_path: 02_RISK_MANAGEMENT/
+  authorized_agents:
+  - qwen3.5:27b
+  escalation_trigger: token_only
+  note: Risk logic must never leave local machine. Cloud-ineligible by constitution.
+- id: 03_ORCHESTRATION
+  description: Semantic router, agent coordination, task packaging, VRAM management
+  security_class: INTERNAL
+  cloud_eligible: true
+  primary_tier: heavy  # promoted 2026-04-19 — empirical: 3x failures on arch work
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: gemma4:31b  # E19_008 experiment — restore to qwen3.5:27b post-mission
+  cloud_model: claude-code
+  complexity: HIGH
+  token_threshold: 1024
+  write_path: orchestration/
+  authorized_agents:
+  - qwen3.5:27b
+  - claude-code
+  escalation_trigger: token_only
+- id: 04_GOVERNANCE
+  description: Constitutional layer, governor scripts, sovereign documents
+  security_class: SOVEREIGN
+  cloud_eligible: false
+  primary_tier: HUMAN_SOVEREIGN
+  sprinter_model: null
+  heavy_model: null
+  complexity: SOVEREIGN
+  token_threshold: 0
+  write_path: 04_GOVERNANCE/
+  authorized_agents: []
+  note: No agent write access under any circumstances. Human Supreme Council only.
+- id: 05_REPORTING
+  description: Performance reports, dashboards, audit trail outputs
+  security_class: INTERNAL
+  cloud_eligible: true
+  primary_tier: sprinter
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  cloud_model: claude-code
+  complexity: LOW
+  token_threshold: 4096
+  write_path: 05_REPORTING/
+  authorized_agents:
+  - qwen3.5:9b
+  - qwen3.5:27b
+  - claude-code
+  escalation_trigger: token_count>token_threshold
+- id: 06_BENCHMARKING
+  description: Fitness functions, hallucination gates, performance metrics. Schema
+    is human-ratified.
+  security_class: INTERNAL
+  cloud_eligible: true
+  primary_tier: sprinter
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  cloud_model: claude-code
+  complexity: HIGH
+  token_threshold: 2048
+  write_path: 06_BENCHMARKING/
+  authorized_agents:
+  - qwen3.5:9b
+  - qwen3.5:27b
+  - claude-code
+  escalation_trigger: complexity==HIGH or token_count>token_threshold
+- id: 07_INTEGRATION
+  description: Interface verification, merge conflict resolution. Last gate before
+    Supreme Council.
+  security_class: INTERNAL
+  cloud_eligible: true
+  primary_tier: cruiser
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  cloud_model: claude-code
+  complexity: HIGH
+  token_threshold: 1024
+  write_path: 07_INTEGRATION/
+  authorized_agents:
+  - qwen3.5:27b
+  - claude-code
+  escalation_trigger: token_only
+- id: 08_CYBERSECURITY
+  description: Feed integrity, injection detection, governor seal validation, constitutional
+    hash monitoring.
+  security_class: CONFIDENTIAL
+  cloud_eligible: false
+  primary_tier: cruiser
+  sprinter_model: qwen3.5:4b
+  cruiser_model: qwen3.5:9b
+  heavy_model: qwen3.5:27b
+  complexity: HIGH
+  token_threshold: 1024
+  write_path: 08_CYBERSECURITY/
+  authorized_agents:
+  - qwen3.5:27b
+  escalation_trigger: token_only
+  note: Security domain is cloud-ineligible. Local only. No exceptions.

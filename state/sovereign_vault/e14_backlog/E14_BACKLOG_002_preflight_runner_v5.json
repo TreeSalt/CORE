@@ -1,0 +1,91 @@
+{
+  "backlog_id": "E14_BACKLOG_002_preflight_runner_v5",
+  "deferred_from": "03_ORCH_E13_001_preflight_runner",
+  "deferred_at": "2026-04-09T00:20:11.685700+00:00",
+  "original_status_in_queue": "RATIFIED",
+  "true_status": "FAILED_SILENTLY",
+  "failure_mode_classification": "FORGE_CASE_STUDY",
+  "failure_summary": "The preflight_runner mission ratified successfully and wrote 403 lines of structurally plausible code, but contained a hallucinated import path that silently neutralizes the core functionality the mission was supposed to deliver. The benchmark gate did not detect this because it only validates syntactic parseability, not import resolvability.",
+  "failure_analysis": {
+    "primary_failures": [
+      {
+        "type": "HALLUCINATED_IMPORT_PATH",
+        "evidence": "Line 294 of extracted code: 'from manticore.core.modules.doctor import AgentEntry as DoctorAgent'. The 'manticore' package does not exist. 'AgentEntry' does not exist. 'DoctorAgent' is fabricated. The real module the brief referenced is 'mantis_core.orchestration.core_doctor'.",
+        "severity": "CRITICAL",
+        "silent_failure_mechanism": "The verify_doctor_module function wraps the import in try/except and returns HealthCheckResult(check_name='doctor_module', message='Doctor module not found (best-effort check)') on ImportError. This means the function NEVER succeeds \u2014 every single preflight run reports doctor as unavailable, even when core_doctor.py is right there on disk. The mission's purpose (employing the unemployed doctor module) is nullified.",
+        "root_cause": "qwen3.5:9b cruiser confabulated a plausible-looking module path without grounding against the actual repo structure. The brief mentioned 'doctor' but did not include the full import path as a reinforced anti-hallucination reference."
+      },
+      {
+        "type": "FUNCTION_NAME_DRIFT",
+        "evidence": "Brief specified: check_doctor(), run_preflight(). Proposal wrote: verify_doctor_module(), run_preflight_runner(). Other four functions (check_disk_space, check_governor_seal, check_ollama_health, check_vram_available) match the brief exactly.",
+        "severity": "MODERATE",
+        "root_cause": "Partial brief adherence. The model matched the easy/obvious names but improvised on the two that required understanding the overall runner structure. Name drift on these two functions means downstream callers that expect check_doctor() will fail to find it."
+      }
+    ],
+    "secondary_failures": [
+      {
+        "type": "BENCHMARK_FALSE_POSITIVE",
+        "evidence": "Benchmark runner gave PASS to a proposal whose core functionality is neutralized by a hallucinated import. The proposal was marked RATIFIED in the queue and auto-deployed (though to the wrong file due to the separate auto_deploy bug).",
+        "root_cause": "Benchmark runner validates: syntactic parseability, absence of known-dead imports, pytest collection. It does NOT validate: (1) that imports actually resolve to existing modules, (2) that function names match the brief's contract, (3) that the code fulfills the semantic intent of the brief.",
+        "note": "This is the same umbrella pattern as tier_loader_v4 (E14_BACKLOG_001) but with a distinct primary failure mode. Two independent case studies strengthen the argument for the benchmark gate overhaul recommended in E14."
+      }
+    ]
+  },
+  "recommendations": {
+    "for_rewrite": [
+      "Include the EXACT import path in the brief's INTERFACE CONTRACT section: 'from mantis_core.orchestration.core_doctor import ...' with explicit 'DO NOT confabulate alternative paths' warning.",
+      "List exact function names in an enumerated contract: 'The file MUST define EXACTLY these names: check_disk_space, check_governor_seal, check_ollama_health, check_vram_available, check_doctor, run_preflight. No variants accepted.'",
+      "Use the heavy tier (post-MoE swap) for this rewrite. The 9B cruiser hallucinated imports; a larger model with better grounding is more likely to succeed.",
+      "Provide a minimal usage example in the brief: '>>> result = run_preflight() ; assert result.verdict in [\"PASS\", \"WARN\", \"FAIL\"]'",
+      "After generation, run an AST-based contract validator BEFORE the benchmark runner. Reject any proposal whose defined names do not match the brief's contract 1:1."
+    ],
+    "for_forge_system": [
+      "Add IMPORT_RESOLUTION_GATE: statically resolve every 'from X import Y' and 'import X' in a proposal against the live repo module map. Reject any proposal with an unresolvable import path.",
+      "Add CONTRACT_NAME_GATE: parse the brief's INTERFACE CONTRACT section, extract expected names, verify AST of proposal contains each exact name. Allow no substring matching, no fuzzy matching.",
+      "Add SEMANTIC_INTENT_GATE: for IMPLEMENTATION missions, generate simple call-site smoke tests from the brief and execute them against the proposed code. 'run_preflight() should return an object with a .verdict attribute' \u2014 a 5-line test that would have caught this failure immediately.",
+      "Track hallucinated-import incidents per model \u2014 if qwen3.5:9b hallucinates imports at rate >5%, downgrade it from cruiser tier for orchestration-domain missions specifically."
+    ],
+    "for_e14_self_healing_engine": [
+      "Seed pattern HALLUCINATED_IMPORT_PATH with detection signature: proposal compiles, benchmark passes, but any import statement resolves to a non-existent module when attempted via importlib.",
+      "Seed pattern FUNCTION_NAME_DRIFT with detection signature: brief contract names are parsed from INTERFACE CONTRACT section, cross-referenced against AST function/class names. Any contract-specified name missing from the proposal triggers this pattern.",
+      "Both patterns share a resolution action: REGENERATE_WITH_REINFORCED_BRIEF \u2014 inject the exact failure into the corrective context so the next attempt cannot repeat it."
+    ]
+  },
+  "extracted_code_evidence": {
+    "total_lines": 403,
+    "functions_defined": [
+      "check_disk_space",
+      "check_governor_seal",
+      "check_ollama_health",
+      "check_vram_available",
+      "verify_doctor_module",
+      "run_preflight_runner",
+      "main"
+    ],
+    "classes_defined": [
+      "HealthCheckResult",
+      "PreflightVerdict"
+    ],
+    "hallucinated_import_line": 294,
+    "hallucinated_import_statement": "from manticore.core.modules.doctor import AgentEntry as DoctorAgent",
+    "contract_match_report": {
+      "check_disk_space": "PRESENT",
+      "check_governor_seal": "PRESENT",
+      "check_ollama_health": "PRESENT",
+      "check_vram_available": "PRESENT",
+      "check_doctor": "MISSING (model wrote verify_doctor_module instead)",
+      "run_preflight": "MISSING (model wrote run_preflight_runner instead)"
+    }
+  },
+  "original_brief_path": "prompts/missions/mission_03_ORCH_E13_001_preflight_runner.md",
+  "original_proposal_path": "08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260408T033808Z.md",
+  "contaminated_deliverable_quarantined_to": "_quarantine/phase_b3_deferred/preflight_runner.py",
+  "vault_ledger_entry_hash": null,
+  "next_action": "SPAWN_E14_REWRITE_MISSION",
+  "blocking_for_e14": false,
+  "related_case_studies": [
+    "E14_BACKLOG_001_tier_loader_v5"
+  ],
+  "contaminated_deliverable_hash": "7e20f927b7f041073b9de0824ec53e1f8fdb22e8c10682e776a7a62a3895718a",
+  "original_proposal_hash": "f8927c3e1f3a13d5f572641e4849a92c39239eaf213cdeb3c53c2d1aca888ed5"
+}

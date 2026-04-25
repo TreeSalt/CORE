@@ -40,15 +40,13 @@ MISSIONS_DIR      = REPO_ROOT / "prompts" / "missions"
 PENDING_DIR       = MISSIONS_DIR / "PENDING"
 
 OLLAMA_BASE_URL   = "http://localhost:11434"
-TIMEOUT           = 600  # 10 min — 9B on GPU completes in 3-7 min. VRAM gate prevents 27B dispatch on 8GB cards
 
 # ── SECRETS PATTERNS (mission file scan) ──────────────────────────────────────
 SECRET_PATTERNS = [
     r'(?i)(password|passwd|pwd)\s*=\s*["\']?\S+',
-    r'(?i)(api_key|apikey|api-key)\s*=\s*["\']?\S+',
-    r'(?i)(secret|token|auth)\s*=\s*["\']?\S+',
+    r'(?i)(api_key|apikey|api-key)\s*=\s*["\'][A-Za-z0-9\-_.]{8,}["\']',  # only quoted values 8+ chars
+    # (secret|token|auth) pattern REMOVED — too greedy for mission briefs
     r'(?i)bearer\s+[A-Za-z0-9\-._~+/]+=*',
-    r'[A-Za-z0-9]{32,}',  # Long opaque strings (potential tokens)
 ]
 
 # ── LOGGING ───────────────────────────────────────────────────────────────────
@@ -182,59 +180,6 @@ def _query_available_memory_mb() -> tuple[int, int]:
     free_ram = 0
     try:
         import subprocess as _sp
-        _r = _sp.run(["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
-                     capture_output=True, text=True, timeout=5)
-        free_vram = int(_r.stdout.strip().split("\n")[0])
-    except Exception:
-        pass
-    try:
-        with open("/proc/meminfo") as f:
-            for line in f:
-                if line.startswith("MemAvailable:"):
-                    free_ram = int(line.split()[1]) // 1024
-                    break
-    except Exception:
-        pass
-    return free_vram, free_ram
-
-
-def _classify_model_tier(model_name: str) -> str:
-    """Classify a model into sprinter/cruiser/heavy based on Ollama metadata."""
-    try:
-        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
-        for m in resp.json().get("models", []):
-            if m["name"] == model_name:
-                param_str = m["details"].get("parameter_size", "0B")
-                param_val = float(param_str.replace("B", "").strip())
-                if param_val < 9:
-                    return "sprinter"
-                elif param_val < 24:
-                    return "cruiser"
-                else:
-                    return "heavy"
-    except Exception as e:
-        log.warning(f"Could not classify {model_name}: {e}")
-    return "sprinter"
-
-
-def _query_model_size_mb(model_name: str) -> int:
-    """Query Ollama API for the actual on-disk size of a model in MB."""
-    try:
-        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
-        for m in resp.json().get("models", []):
-            if m["name"] == model_name:
-                return int(m["size"] / (1024 * 1024))
-    except Exception as e:
-        log.warning(f"Could not query model size for {model_name}: {e}")
-    return 0
-
-
-def _query_available_memory_mb() -> tuple[int, int]:
-    """Query actual free VRAM and system RAM in MB. Returns (vram_mb, ram_mb)."""
-    free_vram = 0
-    free_ram = 0
-    try:
-        import subprocess as _sp
         _r = _sp.run(
             ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
             capture_output=True, text=True, timeout=5,
@@ -272,62 +217,7 @@ def _classify_model_tier(model_name: str) -> str:
     return "sprinter"
 
 
-def _query_model_size_mb(model_name: str) -> int:
-    """Query Ollama API for the actual on-disk size of a model in MB."""
-    try:
-        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
-        for m in resp.json().get("models", []):
-            if m["name"] == model_name:
-                return int(m["size"] / (1024 * 1024))
-    except Exception as e:
-        log.warning(f"Could not query model size for {model_name}: {e}")
-    return 0
-
-
-def _query_available_memory_mb() -> tuple[int, int]:
-    """Query actual free VRAM and system RAM in MB. Returns (vram_mb, ram_mb)."""
-    free_vram = 0
-    free_ram = 0
-    try:
-        import subprocess as _sp
-        _r = _sp.run(
-            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=5,
-        )
-        free_vram = int(_r.stdout.strip().split(chr(10))[0])
-    except Exception:
-        pass
-    try:
-        with open("/proc/meminfo") as f:
-            for line in f:
-                if line.startswith("MemAvailable:"):
-                    free_ram = int(line.split()[1]) // 1024
-                    break
-    except Exception:
-        pass
-    return free_vram, free_ram
-
-
-def _classify_model_tier(model_name: str) -> str:
-    """Classify a model into sprinter/cruiser/heavy based on Ollama metadata."""
-    try:
-        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
-        for m in resp.json().get("models", []):
-            if m["name"] == model_name:
-                param_str = m["details"].get("parameter_size", "0B")
-                param_val = float(param_str.replace("B", "").strip())
-                if param_val < 9:
-                    return "sprinter"
-                elif param_val < 24:
-                    return "cruiser"
-                else:
-                    return "heavy"
-    except Exception as e:
-        log.warning(f"Could not classify {model_name}: {e}")
-    return "sprinter"
-
-
-def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
+def select_tier(domain: dict, mission_text: str) -> tuple[str, str, int, str]:
     """
     Hardware-relative, model-aware tier selection.
 
@@ -419,7 +309,7 @@ def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
                 f"but no model fits in available memory ({total_available}MB). "
                 f"Sovereign intervention required."
             )
-            return "ESCALATE", ""
+            return "ESCALATE", "", 0, "VRAM"
         for _, model_key in reversed(TIER_LADDER):
             fallback = domain.get(model_key)
             if fallback:
@@ -441,7 +331,7 @@ def select_tier(domain: dict, mission_text: str) -> tuple[str, str]:
         )
 
     recommended_timeout = 1800 if memory_mode == "SPLIT" else 600
-    return selected_tier, selected_model, recommended_timeout
+    return selected_tier, selected_model, recommended_timeout, memory_mode
 
 def get_live_vram_state() -> dict:
     try:
@@ -514,16 +404,52 @@ def write_proposal(domain_id, model, tier, proposal_type, content):
     log.info(f"Proposal written: {proposal_path.name}")
     return proposal_path
 
-def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTATION"):
-    # CODE_ARCHITECTURE blueprints downgrade to sprinter (avoid timeout on boilerplate)
-    # STRATEGIC_ARCHITECTURE (Zoo blueprints, domain design) NEVER downgrades — 32b required
-    if proposal_type == "ARCHITECTURE" and tier == "heavy":
-        model = domain.get("sprinter_model", model)
-        tier  = "sprinter"
-        log.info(f"CODE_ARCHITECTURE proposal — downgraded to sprinter: {model}")
-    elif proposal_type == "STRATEGIC_ARCHITECTURE":
-        # Never downgrade — strategic content requires 32b reasoning
-        log.info(f"STRATEGIC_ARCHITECTURE proposal — maintaining heavy tier: {model}")
+# ROUTER_PROPOSAL_TYPE_AWARE_v1 — proposal-type-aware system prompts per role.
+# The code-generator role only applies to IMPLEMENTATION proposals. Architecture
+# proposals need architect roles that produce design documents, not code.
+_SYSTEM_PROMPT_BY_TYPE = {
+    "IMPLEMENTATION": (
+        "You are a Python code generator. Read the mission brief and write EXACTLY "
+        "the code described. If the brief contains a code skeleton with function stubs, "
+        "fill in every function body. Keep the EXACT function names and signatures shown. "
+        "Output raw Python only. No markdown. No explanations. No extra classes or functions "
+        "beyond what the brief asks for."
+    ),
+    "ARCHITECTURE": (
+        "You are a senior technical architect producing a design document. Read the "
+        "mission brief carefully, then generate the design document it describes. "
+        "Your output IS the deliverable — do NOT review, summarize, or ask clarifying "
+        "questions back. Do NOT thank the submitter or offer follow-up tasks. Do NOT "
+        "output Python code unless the brief explicitly asks for illustrative pseudocode. "
+        "Produce structured markdown with headings, data-structure definitions, "
+        "algorithmic descriptions, and explicit component contracts. Be thorough, "
+        "concrete, and opinionated. Your output will be deployed directly as the "
+        "ratified architecture document."
+    ),
+    "STRATEGIC_ARCHITECTURE": (
+        "You are a principal architect producing a strategic design document. Read the "
+        "mission brief carefully, then generate the strategic architecture it describes. "
+        "Your output IS the deliverable — do NOT review, summarize, or ask clarifying "
+        "questions back. Do NOT thank the submitter or offer follow-up tasks. Go beyond "
+        "describing components: explain trade-offs, failure modes, and the strategic "
+        "rationale for each design decision. Include explicit success criteria, "
+        "anti-patterns to avoid, and phased implementation guidance. Your output will "
+        "be deployed directly as the ratified strategic document."
+    ),
+}
+
+
+def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTATION", memory_mode="VRAM"):
+    # ROUTER_PROPOSAL_TYPE_AWARE_v1
+    # NO silent tier downgrades based on proposal_type. The Sovereign's tier
+    # selection (via DOMAINS.yaml primary_tier, heavy_model, etc.) is honored
+    # as-given. If an architecture mission is routed to heavy, heavy runs it.
+    # Previous auto-downgrade of ARCHITECTURE → sprinter caused weeks of
+    # phantom ratifications and is removed.
+    log.info(
+        f"Proposal type: {proposal_type} — executing at selected tier {tier} "
+        f"with model {model}"
+    )
     domain_id = domain["id"]
     context = _build_context_package(domain, task, mission)
     _log_routing_decision(domain_id, model, tier, f"local execution — security_class={domain.get('security_class')}")
@@ -534,14 +460,17 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
         # system RAM (32GB available), avoiding 8GB VRAM bottlenecks/crashes.
         options = {}  # VRAM gate in select_tier() handles GPU/CPU routing — no forced CPU override
 
-        # Split context into system instruction + mission brief for role separation
-        system_msg = (
-            "You are a Python code generator. Read the mission brief and write EXACTLY "
-            "the code described. If the brief contains a code skeleton with function stubs, "
-            "fill in every function body. Keep the EXACT function names and signatures shown. "
-            "Output raw Python only. No markdown. No explanations. No extra classes or functions "
-            "beyond what the brief asks for."
+        # Select system prompt for the proposal type. Falls back to
+        # IMPLEMENTATION role for any unexpected type (safe default for
+        # a code-generation factory).
+        system_msg = _SYSTEM_PROMPT_BY_TYPE.get(
+            proposal_type, _SYSTEM_PROMPT_BY_TYPE["IMPLEMENTATION"]
         )
+        if proposal_type not in _SYSTEM_PROMPT_BY_TYPE:
+            log.warning(
+                f"Unknown proposal_type {proposal_type!r} — using IMPLEMENTATION "
+                f"system prompt as safe default"
+            )
         _start_time = time.time()
         res = requests.post(
             f"{OLLAMA_BASE_URL}/api/chat",
@@ -554,19 +483,19 @@ def execute_local(domain, task, mission, tier, model, proposal_type="IMPLEMENTAT
                 "stream": False,
                 "options": options
             },
-            timeout=get_timeout(domain_id, tier, model)
+            timeout=get_timeout(domain_id, tier, model, memory_mode=memory_mode)
         )
         res.raise_for_status()
         content = res.json().get("message", {}).get("content", "")
         proposal_path = write_proposal(domain_id, model, tier, proposal_type, content)
         update_vram_log(domain_id, model, "COMPLETE", str(proposal_path))
         elapsed = time.time() - _start_time
-        record_completion(domain_id, tier, elapsed)
+        record_completion(domain_id, tier, elapsed, memory_mode=memory_mode)
         return proposal_path
     except Exception as e:
         elapsed = time.time() - _start_time
         if "timed out" in str(e).lower() or "timeout" in str(e).lower():
-            record_timeout(domain_id, tier, int(elapsed))
+            record_timeout(domain_id, tier, int(elapsed), memory_mode=memory_mode)
         _fail_closed(f"LOCAL_EXECUTION_FAILED [{model}]: {e}")
 
 def execute_cloud(domain, task, mission, tier, proposal_type="IMPLEMENTATION"):
@@ -602,7 +531,7 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
     mission = load_mission_prompt(mission_file)
 
     # Tier selection based on complexity + token count
-    tier, model, dynamic_timeout = select_tier(domain, mission)
+    tier, model, dynamic_timeout, memory_mode = select_tier(domain, mission)
 
     # VRAM ceiling check for local execution
     if not check_vram_ceiling():
@@ -615,7 +544,7 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
         lockdown = _json.loads(lockdown_file.read_text())
         if lockdown.get("enabled", False):
             log.warning(f"🔒 LOCAL LOCKDOWN ACTIVE — forcing local execution. Reason: {lockdown.get('reason', 'none')}")
-            return execute_local(domain, task, mission, tier, model, proposal_type)
+            return execute_local(domain, task, mission, tier, model, proposal_type, memory_mode=memory_mode)
 
     # Cloud eligibility + reachability
     cloud_eligible = domain.get("cloud_eligible", False)
@@ -623,7 +552,7 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
     if not cloud_eligible:
         # Must stay local — security policy
         log.info(f"Security policy: {domain_id} is {sec_class} — local only, no cloud dispatch")
-        return execute_local(domain, task, mission, tier, model, proposal_type)
+        return execute_local(domain, task, mission, tier, model, proposal_type, memory_mode=memory_mode)
 
     # Cloud eligible — check reachability
     cloud_up = check_cloud_reachable()
@@ -635,10 +564,10 @@ def route_task(domain_id, task, mission_file, proposal_type="IMPLEMENTATION"):
     if not cloud_up and cloud_eligible:
         # Cloud down — fall back to local Heavy Lifter
         log.warning(f"Cloud unreachable — falling back to local heavy lifter: {domain['heavy_model']}")
-        return execute_local(domain, task, mission, "heavy", domain["heavy_model"], proposal_type)
+        return execute_local(domain, task, mission, "heavy", domain["heavy_model"], proposal_type, memory_mode="SPLIT")
 
     # Default: local sprinter
-    return execute_local(domain, task, mission, tier, model, proposal_type)
+    return execute_local(domain, task, mission, tier, model, proposal_type, memory_mode=memory_mode)
 
 # ── INIT ──────────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,33 @@
+{
+  "backlog_id": "E14_BACKLOG_003_auto_deploy_bug",
+  "discovered_at": "2026-04-09T20:36:53.791019+00:00",
+  "discovered_by": "Phase B2/B3/G hash collision analysis",
+  "severity": "CRITICAL",
+  "classification": "FORGE_INFRASTRUCTURE_BUG",
+  "bug_signature": {
+    "description": "auto_deploy.py matches proposals to missions by domain glob + mtime, not by mission_id. When multiple missions in the same domain are ratified in sequence, the latest proposal in the domain gets written to ALL their deliverable paths. The target.exists() skip masks the bug for some files but not others.",
+    "forensic_hash": "7e20f927b7f041073b9de0824ec53e1f8fdb22e8c10682e776a7a62a3895718a",
+    "affected_missions_observed": [
+      "03_ORCH_E13_001_preflight_runner (Phase B3)",
+      "03_ORCH_E13_002_tier_loader_v4 (Phase B2)",
+      "03_ORCH_E13_004_proposal_historian (Phase G)"
+    ]
+  },
+  "root_cause": {
+    "file": "scripts/auto_deploy.py",
+    "function": "deploy_all_ratified",
+    "line_range": "183660-183671 in repomix",
+    "code_excerpt": "proposals = sorted(\n    PROPOSALS_DIR.glob(f'PROPOSAL_{domain}_*.md'),\n    key=lambda p: p.stat().st_mtime,\n    reverse=True\n)\nif not proposals:\n    continue\nresult = deploy_proposal(proposals[0], mission_file)",
+    "bug_mechanism": "The deploy_proposal function reads File: line from proposal first, then falls back to mission_file's File: line. When the LATEST proposal has no File: directive, fallback uses the CURRENT mission's File: directive. Result: latest proposal's CODE gets written to current mission's TARGET PATH. Cross-contamination."
+  },
+  "remediation": {
+    "permanent_fix": "Add MISSION_ID frontmatter field to every proposal at generation time. auto_deploy must match proposals to missions by mission_id, not by domain+mtime. Refuse to deploy if mission_id mismatch. Pre-deployment hash check refuses any file matching forensic_hash signatures from this backlog.",
+    "e14_mission_spec": {
+      "mission_id": "E14_03_ORCH_001_auto_deploy_v2",
+      "priority": "HIGHEST",
+      "blocks_other_e14_missions": true,
+      "must_be_first_e14_mission": true
+    }
+  },
+  "blocking_for_e14": true
+}

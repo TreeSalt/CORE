@@ -1,0 +1,122 @@
+# MISSION: E11 Trading Module Failure Postmortem
+DOMAIN: 05_REPORTING
+TASK: 05_REPORT_E13_001_e11_postmortem
+TYPE: ARCHITECTURE
+VERSION: 1.0
+
+## CONTEXT
+Three E11 trading missions (regime_detector, trend_signal, position_sizer)
+were marked as "ratified" in the queue but never produced working code.
+The proposals sat in PENDING_REVIEW status for a week before forensic
+analysis revealed:
+
+1. regime_detector produced 290 lines of solid numpy indicator math, but
+   used the wrong class name (`RegimeAnalyzer` instead of `RegimeDetector`)
+   and the wrong method name (`analyze_regime` instead of `classify_regime`).
+   Brief vs implementation drift.
+
+2. trend_signal produced a 12-line escape-hatch stub after multiple hard
+   fails on more substantive attempts. The benchmark accepted it because
+   it was syntactically valid Python, even though it did not implement
+   the brief's requirements.
+
+3. position_sizer produced unusable stream-of-consciousness output with
+   two duplicate class definitions, mid-file commentary, and a function
+   signature that did not match the brief.
+
+These failures cost weeks of development time and blocked the entire
+MANTIS pipeline. This mission produces a postmortem document that captures
+the failure modes, root causes, and recommendations for benchmark gate
+improvements that would prevent recurrence.
+
+This is a STRATEGIC document, not a code module. The deliverable is a
+Markdown file in the reporting domain.
+
+## EXACT IMPORTS:
+This is a documentation mission. No code execution is required.
+
+## INTERFACE CONTRACT
+The deliverable is a Markdown document at the specified path containing
+exactly these sections in this order:
+
+### Section 1: Executive Summary
+3 to 5 sentences summarizing what happened, what the impact was, and
+what is recommended going forward. No technical jargon — readable by
+a non-developer stakeholder.
+
+### Section 2: The Three Failures
+Three subsections, one per failed mission. Each subsection contains:
+- Mission ID and brief description
+- What the brief asked for (interface contract summary)
+- What the model produced (in functional terms, not code)
+- Why the benchmark accepted it
+- The specific drift between brief and implementation
+
+### Section 3: Root Cause Analysis
+A discussion of WHY the failures occurred, organized into these
+categories:
+- Brief specification gaps (what the briefs failed to constrain)
+- Benchmark gate gaps (what the gates failed to detect)
+- Model behavior patterns (escape hatches, stream-of-consciousness)
+- Process gaps (lack of sovereign review of pending proposals)
+
+### Section 4: What the Benchmark Should Have Caught
+Specific gate improvements with concrete examples:
+- Class name validation against brief specification
+- Method signature matching against brief specification
+- Minimum substance requirements (e.g., reject sub-50-line implementations
+  for complex domain modules)
+- Duplicate-definition detection
+- Mid-file commentary detection (presence of "Wait", "I'll", "Let me"
+  outside of docstrings is suspicious)
+
+### Section 5: Lessons Learned
+A numbered list of 5 to 8 actionable principles, each one sentence
+followed by a brief explanation. Examples:
+- "Briefs must specify exact class and method names, not just behavior"
+- "The factory must reject sub-substance escape hatches, not accept
+  syntactically valid stubs"
+- "Pending ratification is not ratification — proposals in PENDING_REVIEW
+  must have a maximum age before automatic rejection"
+
+### Section 6: Recommendations for E14+
+Forward-looking recommendations grouped into:
+- Immediate (apply to E13 and onwards)
+- Medium-term (next 2-3 epochs)
+- Long-term (architectural)
+
+### Section 7: Appendix — Proposal Status Records
+A table showing each rejected proposal with:
+- Proposal filename
+- Current status (REJECTED_OBSOLETE)
+- Rejection reason
+- Date marked rejected
+
+## DELIVERABLE
+File: 05_REPORTING/POSTMORTEM_E11_TRADING_MODULES.md
+
+## BEHAVIORAL REQUIREMENTS
+- The document must be production-quality writing — no placeholder text
+- All claims must be specific and concrete (e.g., "12 lines" not "very short")
+- The tone is analytical and honest, not blame-assigning
+- Technical accuracy is paramount — do not invent details
+- The document serves both as a learning artifact and as a record of
+  the factory's evolution
+- Length: target 800-1500 words, no more
+
+## TEST REQUIREMENTS
+The corresponding test mission will verify:
+1. The file exists at the specified path
+2. The file is valid Markdown
+3. All seven required sections are present (by H2 header detection)
+4. Section headers match the specified order
+5. The document contains references to all three failed missions by ID
+6. The document length is between 800 and 1500 words
+7. The Appendix section contains a Markdown table with the expected columns
+
+## CONSTRAINTS
+- Markdown only — no executable code blocks
+- No invented details — claims must be supportable from the actual
+  proposal contents
+- No blame language — focus on systems and processes, not people
+- Output valid Markdown only

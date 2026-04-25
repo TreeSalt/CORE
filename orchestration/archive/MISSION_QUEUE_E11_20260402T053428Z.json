@@ -1,0 +1,260 @@
+{
+  "epoch": "E11",
+  "epoch_name": "RICHMOND_GENESIS",
+  "authored_by": "Claude \u2014 Hostile Auditor, Supreme Council",
+  "authored_at": "2026-03-30T15:00:00Z",
+  "missions": [
+    {
+      "id": "03_ORCH_E11_001_mission_preflight",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E11_001_mission_preflight",
+      "mission_file": "mission_03_ORCH_E11_001_mission_preflight.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 0,
+      "status": "RATIFIED",
+      "track": "CORE_HARDENING",
+      "started_at": "2026-03-30T22:36:16.436120+00:00",
+      "completed_at": "2026-03-30T22:54:00.297313+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260330T225400Z.md"
+      },
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260330T225400Z.md"
+    },
+    {
+      "id": "03_ORCH_E11_002_oscillation_detector",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E11_002_oscillation_detector",
+      "mission_file": "mission_03_ORCH_E11_002_oscillation_detector.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 1,
+      "status": "RATIFIED",
+      "track": "CORE_HARDENING",
+      "completed_at": "2026-03-31T12:59:16.084156+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260331T125916Z.md"
+      },
+      "started_at": "2026-03-31T12:38:06.026429+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260331T125916Z.md"
+    },
+    {
+      "id": "03_ORCH_E11_003_core_doctor",
+      "domain": "03_ORCHESTRATION",
+      "task": "03_ORCH_E11_003_core_doctor",
+      "mission_file": "mission_03_ORCH_E11_003_core_doctor.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 2,
+      "status": "RATIFIED",
+      "track": "CORE_HARDENING",
+      "started_at": "2026-03-30T23:54:05.867114+00:00",
+      "completed_at": "2026-03-31T00:11:54.932804+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_03_ORCHESTRATION_20260331T001154Z.md"
+      },
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_03_ORCHESTRATION_20260331T001154Z.md"
+    },
+    {
+      "id": "05_REPORT_E11_001_epoch_dashboard",
+      "domain": "05_REPORTING",
+      "task": "05_REPORT_E11_001_epoch_dashboard",
+      "mission_file": "mission_05_REPORT_E11_001_epoch_dashboard.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 3,
+      "status": "RATIFIED",
+      "track": "CORE_HARDENING",
+      "started_at": "2026-03-31T00:11:54.933302+00:00",
+      "completed_at": "2026-03-31T00:17:41.126097+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_05_REPORTING_20260331T001741Z.md"
+      },
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_05_REPORTING_20260331T001741Z.md"
+    },
+    {
+      "id": "00_PHYSICS_E11_001_regime_detector",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E11_001_regime_detector",
+      "mission_file": "mission_00_PHYSICS_E11_001_regime_detector.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 4,
+      "status": "RATIFIED",
+      "track": "MANTIS_ALPHA",
+      "completed_at": "2026-04-01T19:16:20.055815+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260401T191620Z.md"
+      },
+      "started_at": "2026-04-01T17:35:01.681528+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260401T191620Z.md"
+    },
+    {
+      "id": "00_PHYSICS_E11_002_trend_signal",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E11_002_trend_signal",
+      "mission_file": "mission_00_PHYSICS_E11_002_trend_signal.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 5,
+      "status": "RATIFIED",
+      "track": "MANTIS_ALPHA",
+      "completed_at": "2026-04-01T21:51:20.813103+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260401T215120Z.md"
+      },
+      "started_at": "2026-04-01T19:16:20.056517+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260401T215120Z.md"
+    },
+    {
+      "id": "00_PHYSICS_E11_003_alpaca_harness",
+      "domain": "00_PHYSICS_ENGINE",
+      "task": "00_PHYSICS_E11_003_alpaca_harness",
+      "mission_file": "mission_00_PHYSICS_E11_003_alpaca_harness.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 6,
+      "status": "RATIFIED",
+      "track": "MANTIS_ALPHA",
+      "completed_at": "2026-04-01T23:24:50.109309+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_00_PHYSICS_ENGINE_20260401T232450Z.md"
+      },
+      "started_at": "2026-04-01T21:51:20.813632+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_00_PHYSICS_ENGINE_20260401T232450Z.md"
+    },
+    {
+      "id": "02_RISK_E11_001_position_sizer",
+      "domain": "02_RISK_MANAGEMENT",
+      "task": "02_RISK_E11_001_position_sizer",
+      "mission_file": "mission_02_RISK_E11_001_position_sizer.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 7,
+      "status": "RATIFIED",
+      "track": "MANTIS_ALPHA",
+      "completed_at": "2026-04-01T04:03:41.904485+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_02_RISK_MANAGEMENT_20260401T040341Z.md"
+      },
+      "started_at": "2026-04-01T03:34:12.862033+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_02_RISK_MANAGEMENT_20260401T040341Z.md"
+    },
+    {
+      "id": "07_SECURITY_E11_001_target_scraper",
+      "domain": "08_CYBERSECURITY",
+      "task": "07_SECURITY_E11_001_target_scraper",
+      "mission_file": "mission_07_SECURITY_E11_001_target_scraper.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 8,
+      "status": "RATIFIED",
+      "track": "BOUNTY_ENGINE",
+      "completed_at": "2026-04-01T16:18:18.073599+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_08_CYBERSECURITY_20260401T161818Z.md"
+      },
+      "started_at": "2026-04-01T15:45:46.214326+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_08_CYBERSECURITY_20260401T161818Z.md"
+    },
+    {
+      "id": "07_SECURITY_E11_002_recon_engine",
+      "domain": "08_CYBERSECURITY",
+      "task": "07_SECURITY_E11_002_recon_engine",
+      "mission_file": "mission_07_SECURITY_E11_002_recon_engine.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 9,
+      "status": "RATIFIED",
+      "track": "BOUNTY_ENGINE",
+      "completed_at": "2026-03-31T19:36:19.269529+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_08_CYBERSECURITY_20260331T193619Z.md"
+      },
+      "started_at": "2026-03-31T19:23:58.572543+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_08_CYBERSECURITY_20260331T193619Z.md"
+    },
+    {
+      "id": "07_SECURITY_E11_003_submission_tracker",
+      "domain": "08_CYBERSECURITY",
+      "task": "07_SECURITY_E11_003_submission_tracker",
+      "mission_file": "mission_07_SECURITY_E11_003_submission_tracker.md",
+      "type": "IMPLEMENTATION",
+      "max_retries": 3,
+      "priority": 10,
+      "status": "RATIFIED",
+      "track": "BOUNTY_ENGINE",
+      "completed_at": "2026-04-01T05:14:04.420046+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_08_CYBERSECURITY_20260401T051404Z.md"
+      },
+      "started_at": "2026-04-01T04:57:29.586100+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_08_CYBERSECURITY_20260401T051404Z.md"
+    },
+    {
+      "id": "06_BENCH_E11_001_preflight_test",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E11_001_preflight_test",
+      "mission_file": "mission_06_BENCH_E11_001_preflight_test.md",
+      "type": "TEST",
+      "max_retries": 3,
+      "priority": 11,
+      "status": "RATIFIED",
+      "track": "TESTING",
+      "completed_at": "2026-04-02T02:34:44.108376+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260402T023444Z.md"
+      },
+      "started_at": "2026-04-02T02:32:09.892126+00:00",
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260402T023444Z.md"
+    },
+    {
+      "id": "06_BENCH_E11_002_mantis_test",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E11_002_mantis_test",
+      "mission_file": "mission_06_BENCH_E11_002_mantis_test.md",
+      "type": "TEST",
+      "max_retries": 3,
+      "priority": 12,
+      "status": "RATIFIED",
+      "track": "TESTING",
+      "started_at": "2026-04-02T03:02:04.585263+00:00",
+      "completed_at": "2026-04-02T03:03:29.362895+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260402T030329Z.md"
+      },
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260402T030329Z.md"
+    },
+    {
+      "id": "06_BENCH_E11_003_bounty_test",
+      "domain": "06_BENCHMARKING",
+      "task": "06_BENCH_E11_003_bounty_test",
+      "mission_file": "mission_06_BENCH_E11_003_bounty_test.md",
+      "type": "TEST",
+      "max_retries": 3,
+      "priority": 13,
+      "status": "RATIFIED",
+      "track": "TESTING",
+      "started_at": "2026-04-02T03:03:29.363335+00:00",
+      "completed_at": "2026-04-02T03:04:47.262194+00:00",
+      "result": {
+        "status": "PASS",
+        "ratification_packet": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/RATIFICATION_06_BENCHMARKING_20260402T030447Z.md"
+      },
+      "sovereign_notice": "/home/asanchez/TRADER_OPS/v9e_stage/08_IMPLEMENTATION_NOTES/ESCALATIONS/SOVEREIGN_ACTION_06_BENCHMARKING_20260402T030447Z.md"
+    }
+  ]
+}

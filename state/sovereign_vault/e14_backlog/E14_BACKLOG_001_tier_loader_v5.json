@@ -1,0 +1,57 @@
+{
+  "backlog_id": "E14_BACKLOG_001_tier_loader_v5",
+  "deferred_from": "03_ORCH_E13_002_tier_loader_v4",
+  "deferred_at": "2026-04-09T00:20:11.558645+00:00",
+  "original_status_in_queue": "RATIFIED",
+  "true_status": "FAILED_SILENTLY",
+  "failure_mode_classification": "FORGE_CASE_STUDY",
+  "failure_summary": "The tier_loader_v4 mission ratified successfully according to the queue and benchmark gates, but produced unusable code due to two compounding failures the benchmark runner did not detect.",
+  "failure_analysis": {
+    "primary_failures": [
+      {
+        "type": "OUTPUT_TRUNCATION",
+        "evidence": "Proposal ends at line 332 with 'def select_sprinter(self) -> List[ModelInfo]:' and has no method body. Multiple required functions (select_cruiser, select_architect, load_tier_mapping, get_model_for_tier, describe_mapping) are entirely missing.",
+        "root_cause": "qwen3.5:9b cruiser tier ran out of context window before completing the implementation of a brief that specified 6 dataclasses + 7 functions in ~6000 bytes."
+      },
+      {
+        "type": "BRIEF_CONTRACT_DRIFT",
+        "evidence": "Brief specified module-level functions returning a TierMapping dataclass. Proposal wrote class-based version with methods on an unspecified parent class. Model also hallucinated the name 'YouMapping' in its preamble before any code.",
+        "root_cause": "9B model misunderstood the architectural style. No prompt-level reinforcement of 'module-level functions, NOT a class' in the brief."
+      }
+    ],
+    "secondary_failures": [
+      {
+        "type": "BENCHMARK_FALSE_POSITIVE",
+        "evidence": "The benchmark runner gave PASS to a proposal that was missing more than half its required surface area and violated the brief's architectural contract.",
+        "root_cause": "Benchmark runner only validates: syntactic parseability, no hallucinated imports, pytest collection. It does NOT validate: presence of all expected names from the brief, presence of all expected dataclasses, or completeness of function bodies.",
+        "impact": "P15 was marked RATIFIED in the queue, leading to a false sense of forward progress. The contaminated tier_loader.py from auto_deploy's separate bug masked this for a full day."
+      }
+    ]
+  },
+  "recommendations": {
+    "for_rewrite": [
+      "Split the brief into TWO smaller missions: (1) tier_loader_v5_dataclasses (just ModelInfo + TierMapping) and (2) tier_loader_v5_selectors (the function suite).",
+      "Use the heavy tier (post-MoE swap) instead of cruiser. The 9B context window is too small for this brief in one shot.",
+      "Add explicit anti-pattern warnings to the brief: 'Do NOT define a class. Do NOT use methods. These are module-level functions, period.'",
+      "Include a worked example of the WRONG style being rejected, alongside the RIGHT style.",
+      "Provide a concrete usage example showing how callers will invoke select_heavy(models) \u2192 str."
+    ],
+    "for_forge_system": [
+      "Add brief-contract validation gate to the benchmark runner: extract expected names (classes, functions, dataclasses) from the brief's INTERFACE CONTRACT section, verify each is defined in the proposal.",
+      "Add truncation detection: flag any proposal whose final non-blank line is a function/class/method signature without a body.",
+      "Add minimum-substance threshold per mission type: complex ARCHITECTURE missions should require N defined names, M non-blank code lines.",
+      "Track context-window utilization in the proposal frontmatter so escalations can show 'model produced 4096/4096 tokens \u2014 likely truncation'."
+    ],
+    "for_e14_self_healing_engine": [
+      "This failure mode becomes the seeded pattern BENCHMARK_FALSE_POSITIVE_TRUNCATION in the E14 failure pattern library. Detection signature: proposal compiles, benchmark passes, but expected_markers verification fails.",
+      "Resolution action for this pattern: REWRITE_BRIEF (split into smaller pieces) + CHANGE_TIER (escalate to heavy)."
+    ]
+  },
+  "original_brief_path": "prompts/missions/mission_03_ORCH_E13_002_tier_loader_v4.md",
+  "original_proposal_path": "08_IMPLEMENTATION_NOTES/PROPOSAL_03_ORCHESTRATION_20260408T034613Z.md",
+  "contaminated_deliverable_quarantined_to": "_quarantine/phase_b2_deferred/tier_loader.py",
+  "vault_ledger_entry_hash": null,
+  "next_action": "SPAWN_E14_REWRITE_MISSION",
+  "blocking_for_e14": false,
+  "contaminated_deliverable_hash": "7e20f927b7f041073b9de0824ec53e1f8fdb22e8c10682e776a7a62a3895718a"
+}

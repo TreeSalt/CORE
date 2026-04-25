@@ -1,0 +1,45 @@
+{
+  "pattern": "C",
+  "pattern_version": "v2",
+  "generated_at": "2026-04-09T04:56:46.479344+00:00",
+  "finalized_via": "finalize_keys.py (recovery path)",
+  "key_directory": "/home/asanchez/.config/core/keys",
+  "rollback_backup_strategy_in_use": "OPTION_C_INTERIM",
+  "rollback_backup_upgrade_target": "OPTION_A_SHAMIR_3_OF_5",
+  "rollback_backup_upgrade_trigger": "Migrate to Option A (Shamir 3-of-5) when 5 distinct physical storage media are available, OR to Option B (three USBs) when 3 USB drives are available.",
+  "keys": [
+    {
+      "role": "vault",
+      "filename": "core_vault_ed25519",
+      "pubkey_path": "/home/asanchez/.config/core/keys/core_vault_ed25519.pub",
+      "pubkey_content": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAM8N+0Zb+A8SKIcKvDwfTQKQAQhXRXYYaGMP2GYTvaww=\n-----END PUBLIC KEY-----",
+      "purpose": "Automated checkpoint signing of ledger chain heads",
+      "cadence": "Continuous (at phase boundaries and daemon checkpoints)",
+      "mindfulness": "None required \u2014 automated",
+      "private_key_on_workstation": true,
+      "backup_strategy": "Encrypted external drive; rotatable"
+    },
+    {
+      "role": "ceremonial",
+      "filename": "core_ceremonial_ed25519",
+      "pubkey_path": "/home/asanchez/.config/core/keys/core_ceremonial_ed25519.pub",
+      "pubkey_content": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAisVuHD9zbNtpprtAb57ERytb10FV3qwWEKQc0a9ljTE=\n-----END PUBLIC KEY-----",
+      "purpose": "Deliberate signing for snapshots, releases, epoch declarations",
+      "cadence": "Rare (weekly to monthly)",
+      "mindfulness": "Intent statement required on every use",
+      "private_key_on_workstation": true,
+      "backup_strategy": "Encrypted external drive; rotatable"
+    },
+    {
+      "role": "rollback",
+      "filename": "core_rollback_ed25519",
+      "pubkey_path": "/home/asanchez/.config/core/keys/core_rollback_ed25519.pub",
+      "pubkey_content": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAKfHeb0G2N+GejEUPCsi0dULmv79B2mDARDWlGUYGyik=\n-----END PUBLIC KEY-----",
+      "purpose": "Emergency recovery \u2014 catastrophic only",
+      "cadence": "Ideally never; maybe once per year",
+      "mindfulness": "Double confirmation + intent statement + --force flag",
+      "private_key_on_workstation": false,
+      "backup_strategy": "Interim Option C: external drive + encrypted local copy. Upgrade to Shamir 3-of-5 when 5 storage media available."
+    }
+  ]
+}

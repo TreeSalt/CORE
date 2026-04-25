@@ -75,6 +75,20 @@ logging.basicConfig(
 )
 log = logging.getLogger("run_loop")
 
+# EVENT_STREAM_WIRED_v1
+# Drop-in: route all log records through the formatted event stream.
+try:
+    from core_event_stream import EventStreamHandler as _CoreEventHandler
+    _root = logging.getLogger()
+    # Replace existing StreamHandler(s) on root with the formatted one
+    for _h in list(_root.handlers):
+        if isinstance(_h, logging.StreamHandler) and not isinstance(_h, _CoreEventHandler):
+            _root.removeHandler(_h)
+    _root.addHandler(_CoreEventHandler())
+except ImportError:
+    # Soft-fail: if event stream module is missing, fall back to stock logging
+    pass
+
 # ── RESULT CODES ──────────────────────────────────────────────────────────────
 PASS       = "PASS"
 SOFT_FAIL  = "SOFT_FAIL"
@@ -122,7 +136,7 @@ def invoke_router(domain: str, task: str, mission: str,
     log.info(f"Invoking router: domain={domain} task='{task_with_context}' type={proposal_type}")
     try:
         result = subprocess.run(cmd, capture_output=True, text=True,
-                                timeout=3600, cwd=str(REPO_ROOT))  # 60min ceiling — dynamic timeout inside router handles actual cutoff
+                                timeout=14400, cwd=str(REPO_ROOT))  # 4hr safety ceiling — dynamic timeout inside router handles actual limits
         output = result.stdout + result.stderr
 
         if result.returncode != 0:
@@ -164,7 +178,7 @@ def invoke_benchmark(proposal_path: str, domain: str,
     log.info(f"Invoking benchmark runner: {Path(proposal_path).name}")
     try:
         result = subprocess.run(cmd, capture_output=True, text=True,
-                                timeout=3600, cwd=str(REPO_ROOT))  # 60min ceiling — dynamic timeout inside router handles actual cutoff
+                                timeout=14400, cwd=str(REPO_ROOT))  # 4hr safety ceiling — dynamic timeout inside router handles actual limits
         output = result.stdout + result.stderr
 
         # Extract report path
