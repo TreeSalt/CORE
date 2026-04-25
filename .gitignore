@@ -48,3 +48,8 @@ DEEP_RESEAR*
 Solari*
 READ ME FOR*
 TRADER_OPS*MIX*
+# Wilderness epoch working artifacts (added 2026-04-24 during v11.0.0 boundary)
+wilderness_run*.log
+wilderness_ratify.log
+orchestration/MISSION_QUEUE.bak.*
+state/tmp*.py
