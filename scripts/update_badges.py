@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
-"""Update README.md badges from actual repo state. Run: python3 scripts/update_badges.py"""
+"""Update README.md badges from actual repo state. Run: python3 scripts/update_badges.py
+
+Idempotent: produces zero file changes if state is unchanged. Safe to run
+under pre-commit hooks without triggering "files modified" failures.
+
+Source of truth:
+- Version: mantis_core/__init__.py __version__
+- Missions ratified: orchestration/MISSION_QUEUE.json (status == "RATIFIED")
+- Pass rate: ratified / total from same queue
+"""
 import json
 import re
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -19,7 +29,7 @@ def get_version():
 
 
 def get_mission_stats():
-    """Count ratified missions from queue history"""
+    """Read mission queue. Returns (ratified_count, total_count)."""
     queue = REPO / "orchestration" / "MISSION_QUEUE.json"
     if not queue.exists():
         return 0, 0
@@ -30,43 +40,65 @@ def get_mission_stats():
     return ratified, total
 
 
-def get_total_ratified():
-    """Count all ratified proposals across all epochs"""
-    notes = REPO / "08_IMPLEMENTATION_NOTES"
-    if not notes.exists():
-        return 0
-    return len(list(notes.glob("PROPOSAL_*.md")))
-
-
 def get_pass_rate():
-    """Calculate pass rate from current queue"""
+    """Calculate pass rate from current queue."""
     ratified, total = get_mission_stats()
     if total == 0:
         return 0
     return int(ratified / total * 100)
 
 
-def update_readme():
-    text = README.read_text()
+def compute_new_readme(current_text: str) -> str:
+    """Pure function: given current README text, return updated text.
+    Does not touch filesystem. Used by both update_readme and verification.
+    """
     version = get_version()
-    total_proposals = get_total_ratified()
+    ratified, _total = get_mission_stats()
     pass_rate = get_pass_rate()
 
-    # Update version badge
-    text = re.sub(r'version-[0-9]+\.[0-9]+\.[0-9]+-blue', f'version-{version}-blue', text)
+    text = current_text
+    text = re.sub(
+        r'version-[0-9]+\.[0-9]+\.[0-9]+-blue',
+        f'version-{version}-blue',
+        text,
+    )
+    text = re.sub(
+        r'missions_ratified-[0-9]+\+?-green',
+        f'missions_ratified-{ratified}+-green',
+        text,
+    )
+    text = re.sub(
+        r'factory_pass_rate-[0-9]+%25-brightgreen',
+        f'factory_pass_rate-{pass_rate}%25-brightgreen',
+        text,
+    )
+    return text
 
-    # Update missions badge (use total proposals as proxy for cumulative ratified)
-    text = re.sub(r'missions_ratified-[0-9]+\+-green', f'missions_ratified-{total_proposals}+-green', text)
 
-    # Update pass rate badge
-    text = re.sub(r'factory_pass_rate-[0-9]+%25-brightgreen', f'factory_pass_rate-{pass_rate}%25-brightgreen', text)
+def update_readme():
+    """Idempotent README update. Returns True if file was modified, False if no-op."""
+    current = README.read_text()
+    new = compute_new_readme(current)
 
-    README.write_text(text)
-    print(f"Badges updated:")
+    version = get_version()
+    ratified, total = get_mission_stats()
+    pass_rate = get_pass_rate()
+
+    if new == current:
+        print("Badges unchanged (no write needed):")
+        print(f"  Version:    {version}")
+        print(f"  Missions:   {ratified}/{total} RATIFIED")
+        print(f"  Pass rate:  {pass_rate}%")
+        return False
+
+    README.write_text(new)
+    print("Badges updated:")
     print(f"  Version:    {version}")
-    print(f"  Proposals:  {total_proposals}+")
+    print(f"  Missions:   {ratified}/{total} RATIFIED")
     print(f"  Pass rate:  {pass_rate}%")
+    return True
 
 
 if __name__ == "__main__":
     update_readme()
+    sys.exit(0)

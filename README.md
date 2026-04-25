@@ -4,11 +4,11 @@
 > Built to make AI factories safe, auditable, and self-improving.
 > **Battle-tested: 3/3 Jane Street Dormant LLM backdoors cracked in 13 hours.**
 
-[![Version](https://img.shields.io/badge/version-10.0.0-blue)]()
-[![Missions](https://img.shields.io/badge/missions_ratified-415+-green)]()
+[![Version](https://img.shields.io/badge/version-11.0.0-blue)]()
+[![Missions](https://img.shields.io/badge/missions_ratified-44+-green)]()
 [![Gates](https://img.shields.io/badge/governance_gates-5%2F5_PASS-brightgreen)]()
 [![Jane Street](https://img.shields.io/badge/dormant_puzzle-3%2F3_CRACKED-gold)]()
-[![Factory](https://img.shields.io/badge/factory_pass_rate-100%25-brightgreen)]()
+[![Factory](https://img.shields.io/badge/factory_pass_rate-97%25-brightgreen)]()
 
 ---
 
