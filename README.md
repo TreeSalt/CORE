@@ -5,10 +5,10 @@
 > **Battle-tested: 3/3 Jane Street Dormant LLM backdoors cracked in 13 hours.**
 
 [![Version](https://img.shields.io/badge/version-11.0.0-blue)]()
-[![Missions](https://img.shields.io/badge/missions_ratified-44+-green)]()
+[![Missions](https://img.shields.io/badge/missions_ratified-0+-green)]()
 [![Gates](https://img.shields.io/badge/governance_gates-5%2F5_PASS-brightgreen)]()
 [![Jane Street](https://img.shields.io/badge/dormant_puzzle-3%2F3_CRACKED-gold)]()
-[![Factory](https://img.shields.io/badge/factory_pass_rate-97%25-brightgreen)]()
+[![Factory](https://img.shields.io/badge/factory_pass_rate-0%25-brightgreen)]()
 
 ---
 

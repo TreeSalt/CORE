@@ -47,6 +47,10 @@ from core_cli_extensions import (
     register_subparsers as _register_extensions,
     COMMAND_HANDLERS as _EXTENSION_HANDLERS,
 )
+from core_cli_epoch import (
+    register_subparsers as _register_epoch,
+    COMMAND_HANDLERS as _EPOCH_HANDLERS,
+)
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -129,7 +133,7 @@ def cmd_status(args):
     else:
         print(f"    {c('No queue found', C_DIM)}")
 
-    # VRAM
+# VRAM
     print(f"\n  {c('VRAM', C_BOLD)}")
     vram = _get_vram()
     if vram:
@@ -138,21 +142,25 @@ def cmd_status(args):
         bar_len = 20
         filled = int(bar_len * used_pct / 100)
         bar = f"[{'█' * filled}{'░' * (bar_len - filled)}]"
-        print(f"    {bar} {c(f'{used_pct:.0f}%', color)} ({vram['used']}MB / {vram['total']}MB)")
+        print(f"    {c('✅ PASS', C_GREEN)}  {bar} {c(f'{used_pct:.0f}%', color)} ({vram['used']}MB / {vram['total']}MB)")
     else:
-        print(f"    {c('nvidia-smi not available', C_DIM)}")
+        print(f"    {c('⚠️  WARN', C_YELLOW)}  nvidia-smi unavailable")
 
     # Ollama
     print(f"\n  {c('OLLAMA', C_BOLD)}")
     models = _get_ollama_models()
     if models is not None:
+        print(f"    {c('✅ PASS', C_GREEN)}  reachable")
         if models:
+            n = len(models)
+            print(f"    {c('ℹ️  INFO', C_CYAN)}  {n} model{'s' if n != 1 else ''} resident")
             for m in models:
-                print(f"    🟢 {m}")
+                print(f"           🟢 {m}")
         else:
-            print(f"    {c('No models loaded', C_DIM)}")
+            print(f"    {c('ℹ️  INFO', C_CYAN)}  no models resident")
     else:
-        print(f"    {c('Ollama not responding', C_RED)}")
+        print(f"    {c('❌ FAIL', C_RED)}  Ollama unreachable")
+        print(f"           {c('→ Run: systemctl --user restart ollama', C_DIM)}")
 
    # Agentic Teams
     print(f"\n  {c('AGENTIC TEAMS', C_BOLD)}")
@@ -194,67 +202,8 @@ def cmd_status(args):
     print()
 
 def cmd_health(args):
-    """Run Ollama health gate with formatted output. HEALTH_POLISH_v1"""
-    print()
-    print(c("═" * 68, C_BOLD))
-    print(c("  CORE HEALTH — Ollama + VRAM Status", C_BOLD))
-    print(c("═" * 68, C_BOLD))
-    print()
-
-    try:
-        sys.path.insert(0, str(SCRIPTS))
-        from ollama_health_gate import pre_mission_health_check
-        report = pre_mission_health_check(None)
-
-        ollama_ok = report.get("healthy", False)
-        vram = report.get("vram", {})
-        action = report.get("action_taken", "none")
-
-        if ollama_ok:
-            print(f"  {c('✅ PASS', C_GREEN)}  {c('Ollama', C_BOLD):<35}  reachable")
-        else:
-            print(f"  {c('❌ FAIL', C_RED)}  {c('Ollama', C_BOLD):<35}  unreachable")
-            print(f"          {c('→ Run: systemctl --user restart ollama', C_DIM)}")
-
-        if vram and vram.get("total", 0) > 0:
-            total = vram["total"]
-            used = vram["used"]
-            free = vram["free"]
-            pct = (used / total) * 100
-            bar_width = 20
-            filled = int((used / total) * bar_width)
-            bar = "█" * filled + "░" * (bar_width - filled)
-            color = C_RED if pct > 90 else (C_YELLOW if pct > 75 else C_GREEN)
-            print(f"  {c('✅ PASS', C_GREEN)}  {c('VRAM', C_BOLD):<35}  "
-                  f"[{c(bar, color)}] {pct:.0f}%")
-            print(f"          {c(f'{used}MB used / {total}MB total / {free}MB free', C_DIM)}")
-        else:
-            print(f"  {c('⚠️  WARN', C_YELLOW)}  {c('VRAM', C_BOLD):<35}  nvidia-smi unavailable")
-
-        loaded = _get_ollama_models() or []
-        if loaded:
-            print(f"  {c('ℹ️  INFO', C_CYAN)}  {c('Loaded Models', C_BOLD):<35}  {len(loaded)} resident")
-            for m in loaded:
-                print(f"          {c('🟢', C_GREEN)} {m}")
-        else:
-            print(f"  {c('ℹ️  INFO', C_CYAN)}  {c('Loaded Models', C_BOLD):<35}  none resident")
-
-        if action != "none":
-            print()
-            print(f"  {c('Action taken:', C_BOLD)}  {action}")
-
-    except ImportError as e:
-        print(c(f"  ❌ Health gate module not found: {e}", C_RED))
-    except Exception as e:
-        print(c(f"  ❌ Health check failed: {e}", C_RED))
-    finally:
-        if str(SCRIPTS) in sys.path:
-            sys.path.remove(str(SCRIPTS))
-
-    print()
-    print(c("─" * 68, C_DIM))
-    print()
-
+    """Soft alias for cmd_status — preserved for muscle memory and existing scripts/cron."""
+    return cmd_status(args)
 
 def cmd_queue(args):
     """Show or manage mission queue."""
@@ -785,6 +734,9 @@ def build_parser():
     # Extensions (doctor, stop)
     _register_extensions(sub)
 
+    # Epoch & mission lifecycle (epoch open/close, mission ingest)
+    _register_epoch(sub)
+
     # Help
     sub.add_parser("help", help="Show command reference")
 
@@ -809,8 +761,8 @@ COMMANDS = {
     "version": cmd_version,
     "help": cmd_help,
     "reconnect": cmd_reconnect,
-    "reconnect": cmd_reconnect,
     **_EXTENSION_HANDLERS,
+    **_EPOCH_HANDLERS,
 }
 
 def main():

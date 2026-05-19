@@ -53,3 +53,6 @@ wilderness_run*.log
 wilderness_ratify.log
 orchestration/MISSION_QUEUE.bak.*
 state/tmp*.py
+
+# Local backups
+*.bak

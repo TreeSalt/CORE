@@ -830,6 +830,126 @@ def cmd_resume(args):
     print()
     return 0
 
+# ─── MISSION CLOSURE ─────────────────────────────────────────
+
+VALID_CLOSURE_STATUSES = {"SUPERSEDED_OBSOLETE", "REJECTED_OBSOLETE"}
+
+# Statuses that should NOT be closed (already in terminal state or active)
+TERMINAL_STATUSES = {"RATIFIED", "SUPERSEDED_OBSOLETE", "REJECTED_OBSOLETE"}
+
+
+def _now_iso() -> str:
+    """Return current UTC timestamp in ISO 8601 format."""
+    return datetime.now(timezone.utc).isoformat()
+
+
+def cmd_close_mission(args):
+    """Close a mission as SUPERSEDED_OBSOLETE or REJECTED_OBSOLETE.
+
+    SUPERSEDED_OBSOLETE: mission's premise is no longer architecturally valid
+        because a Sovereign-ratified document supersedes it. The mission's
+        work may have been valuable as a catalyst (e.g., E19_008 catalyzed
+        the Deep Research saga that produced v4) but the deliverable itself
+        is no longer the right target.
+
+    REJECTED_OBSOLETE: mission's deliverable was rejected as bad work.
+
+    Both closure types are cryptographically anchored to a supersession
+    document via SHA-256, and the closure is recorded in the chain-of-command
+    ledger as a MISSION_CLOSED_AS_OBSOLETE action.
+    """
+    print()
+    print(c("═" * 68, C_BOLD))
+    print(c(f"  CORE CLOSE-MISSION", C_BOLD))
+    print(c("═" * 68, C_BOLD))
+    print()
+
+    # Validate status
+    status = args.status.upper()
+    if status not in VALID_CLOSURE_STATUSES:
+        print(c(f"  ❌ Invalid status: {status}", C_RED))
+        print(c(f"     Must be one of: {', '.join(sorted(VALID_CLOSURE_STATUSES))}", C_DIM))
+        return 1
+
+    # Validate queue exists
+    if not MISSION_QUEUE.exists():
+        print(c(f"  ❌ Queue not found at {MISSION_QUEUE}", C_RED))
+        return 1
+
+    # Validate supersession document exists
+    superseded_path = REPO_ROOT / args.superseded_by
+    if not superseded_path.exists():
+        print(c(f"  ❌ Supersession document not found: {args.superseded_by}", C_RED))
+        return 1
+
+    # Compute supersession document hash (cryptographic anchor)
+    with superseded_path.open("rb") as f:
+        supersession_hash = hashlib.sha256(f.read()).hexdigest()
+
+    # Load queue and locate mission
+    queue = json.loads(MISSION_QUEUE.read_text())
+    mission = None
+    for m in queue.get("missions", []):
+        if m.get("id") == args.mission_id:
+            mission = m
+            break
+
+    if mission is None:
+        print(c(f"  ❌ Mission '{args.mission_id}' not found in queue.", C_RED))
+        return 1
+
+    # Refuse to close missions already in a terminal state
+    current_status = mission.get("status", "UNKNOWN")
+    if current_status in TERMINAL_STATUSES:
+        print(c(f"  ⚠️  Mission already in terminal state: {current_status}", C_YELLOW))
+        print(c(f"     Refusing to mutate. Use --force if intentional override needed.", C_DIM))
+        if not getattr(args, "force", False):
+            return 1
+
+    # Mutate mission
+    timestamp = _now_iso()
+    previous_status = current_status
+    mission["status"] = status
+    mission["rejection_reason"] = args.reason
+    mission["rejected_at"] = timestamp
+    mission["superseded_by"] = args.superseded_by
+    mission["supersession_doc_sha256"] = supersession_hash
+
+    # Write queue back
+    MISSION_QUEUE.write_text(json.dumps(queue, indent=2))
+
+    # Append cryptographically chained ledger entry
+    try:
+        entry_hash = _write_ledger_entry({
+            "ts": timestamp,
+            "actor": "sovereign_via_claude_audit",
+            "action": "MISSION_CLOSED_AS_OBSOLETE",
+            "subject": args.mission_id,
+            "previous_status": previous_status,
+            "new_status": status,
+            "rejection_reason": args.reason,
+            "superseded_by": args.superseded_by,
+            "supersession_doc_sha256": supersession_hash,
+            "result": "SUCCESS",
+        })
+    except Exception as e:
+        print(c(f"  ❌ Ledger write failed: {e}", C_RED))
+        print(c(f"     Queue WAS mutated. Manual ledger reconciliation required.", C_YELLOW))
+        return 1
+
+    # Success output
+    print(c(f"  ✅ Mission closed: {args.mission_id}", C_GREEN))
+    print(f"     Status:        {previous_status} → {status}")
+    print(f"     Reason:        {args.reason}")
+    print(f"     Superseded by: {args.superseded_by}")
+    print(f"     Doc sha256:    {supersession_hash[:32]}...")
+    print(c(f"     Ledger entry: {entry_hash[:32]}...", C_GREEN))
+    print()
+    print(c("─" * 68, C_DIM))
+    print(c("  ✅ CLOSE-MISSION COMPLETE", C_GREEN))
+    print()
+    return 0
+
 def register_subparsers(sub) -> None:
     """Register the 'doctor' and 'stop' subcommands. Called by core_cli.py."""
     # Doctor: no args
@@ -850,13 +970,29 @@ def register_subparsers(sub) -> None:
                              help="Stop daemon AND unload all Ollama models")
     stop_parser.add_argument("--reap", action="store_true",
                              help="Reap stale IN_PROGRESS missions only (no daemon stop)")
-
+    # Close-mission: SUPERSEDED_OBSOLETE or REJECTED_OBSOLETE closure
+    cm_parser = sub.add_parser(
+        "close-mission",
+        help="Close a mission as SUPERSEDED_OBSOLETE or REJECTED_OBSOLETE",
+    )
+    cm_parser.add_argument("--mission-id", required=True,
+                           help="Full mission ID (e.g., 03_ORCH_E19_008_...)")
+    cm_parser.add_argument("--status", required=True,
+                           choices=["SUPERSEDED_OBSOLETE", "REJECTED_OBSOLETE"],
+                           help="Closure status type")
+    cm_parser.add_argument("--reason", required=True,
+                           help="Brief reason for closure (1-2 sentences)")
+    cm_parser.add_argument("--superseded-by", required=True,
+                           help="Path to ratified document that supersedes this mission")
+    cm_parser.add_argument("--force", action="store_true",
+                           help="Override refusal to close missions already in terminal state")
 
 # Map for COMMANDS dict in core_cli.py
 COMMAND_HANDLERS = {
     "doctor": cmd_doctor,
     "stop": cmd_stop,
     "resume": cmd_resume,
+    "close-mission": cmd_close_mission,   # ← ADD THIS LINE
 }
 
 
